@@ -66,7 +66,7 @@ function onBuiltEntityCallback(event)
 	if entity.name == "droid" then
 		if not global.Squads[player.name] then
 			if not global.Squads[player.name].valid then
-				global.Squads[player.name] = player.surface.create_unit_group({position=player.position}) -- if it is not already there, create the first squad
+				global.Squads[player.name] = player.surface.create_unit_group({position=player.position, force=player.force}) -- if it is not already there, create the first squad
 				--player.print("creating squad...")
 			end
 		end
