@@ -55,7 +55,7 @@ script.on_event(defines.events.on_player_created, function(event)
   --------------------------------------
   
   --player.print("Setting up player's squad and soldier table")
-  global.Squads[player.name] = player.surface.create_unit_group({position=player.position})
+  global.Squads[player.name] = player.surface.create_unit_group({position=player.position, force=player.force})
   global.Soldiers[player.name] = {}
 end)
 
@@ -129,7 +129,7 @@ function onTickHandler(event)
 				else
 					if not global.Squads[player.name].valid then
 						--player.print("creating unit group...")
-						global.Squads[player.name] = player.surface.create_unit_group({position = player.position}) 
+						global.Squads[player.name] = player.surface.create_unit_group({position = player.position, force=player.force}) 
 					end
 				end
 			
