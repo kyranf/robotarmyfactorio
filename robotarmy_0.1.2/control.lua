@@ -65,15 +65,18 @@ function onBuiltEntityCallback(event)
 	local player = game.get_player(event.player_index)
 	if entity.name == "droid" then
 		if not global.Squads[player.name] then
-			if not global.Squads[player.name].valid then
 				global.Squads[player.name] = player.surface.create_unit_group({position=player.position, force=player.force}) -- if it is not already there, create the first squad
 				--player.print("creating squad...")
-			end
+		
 		end
 
 		--player.print("adding soldier to squad table")
-		table.insert(global.Soldiers[player.name], entity)
-
+		if global.Soldiers[player.name] then
+			table.insert(global.Soldiers[player.name], entity)
+		else
+			global.Soldiers[player.name] = {}
+			global.Soldiers[player.name][1] = entity
+		end
 
 		local soldierCount = 0
 		for _, soldier in pairs(global.Soldiers[player.name]) do
@@ -100,7 +103,15 @@ script.on_load( function()
 	print("Loading game..")
 	global.lastTick = 0
 	
-		
+  
+  if not global.Squads then
+	global.Squads = {}
+  end
+  
+  if not global.Soldiers then
+	global.Soldiers = {}
+  end
+
 end)
 
 function onTickHandler(event)
