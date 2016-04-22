@@ -241,11 +241,11 @@ function sendSquadsToBattle(players, minSquadSize)
 								if  count >= minSquadSize then
 									--get nearest enemy unit to the squad. 
 									--find the nearest enemy to the squad that is an enemy of the player's force, and max radius of 5000 tiles (10k tile diameter)
-									local nearestEnemy = player.surface.find_nearest_enemy({position = squad.unitGroup.position, max_distance = 500.0, force = player.force })
+									local nearestEnemy = player.surface.find_nearest_enemy({position = squad.unitGroup.position, max_distance = 5000.0, force = player.force })
 									if nearestEnemy then
 									-- check if they are in a charted area
 										local charted = player.force.is_chunk_charted(player.surface, nearestEnemy.position)
-										charted = true
+										charted = true -- force this to true for now - we'll introduce this feature later. Requires player to have explored the spot before it can be targetted for attacks.
 										if charted then
 											--player.print("Sending squad off to battle...")
 											--make sure squad is good, then set command
