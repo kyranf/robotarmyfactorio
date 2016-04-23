@@ -1,9 +1,2 @@
-Changes from 0.1.2 to 0.1.3:
--added Droid Assembler building and icon for it
--added intermediate droid item which is placeable by player or inserted into Droid Assembler to produce a "deployed" Droid which is spawned nearby.
--Droid Assembler spawns finished deployed droids to the RIGHT HAND SIDE of the building (this is just how it's coded for now. I'll do building-rotation based spawning location later)
--Droids gather into squads of 5 (default, changeable in config.lua) and then hunt for enemies. enemies within 5000 tiles, biter and/or enemy player forces.
--Droids auto-join nearby squads (configurable range config.lua) or create their own new squad if nobody nearby
--Droid's animations and selection box etc were fixed, much better now.
--Recipe adjusted to use basic armour not heavy armour - this has reduced the cost in steel significantly. 
--Reduces Droid's resistances to be more in-line with their downgraded armour. 
+Changes from 0.1.3 to 0.1.4:
+
