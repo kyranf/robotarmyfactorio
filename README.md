@@ -1,4 +1,4 @@
-# Robot Army mod for Factorio (V0.1.2.29+)
+# Robot Army mod for Factorio (V0.12.29+)
 ## Description  
 A mod to add robot troop units and associated support buildings and items to produce and control them. Will allow the users to automate warfare against the Biters or other players if you are using a PvP scenario.  
 
