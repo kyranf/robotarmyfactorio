@@ -8,6 +8,6 @@ The FactorioForums.com thread can be found here: [Forum link](https://forums.fac
 
 
 ## Donations
-If you are feeling generous or thankful for the work i've done, feel free to donate to me so I can bribe my wife with chocolate to help her put up with my late nights!  
-[![](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](paypal.me/KyranF)  
-Or simply use this: [Donate](paypal.me/KyranF)
+If you are feeling generous or thankful for the work i've done, feel free to donate to me so I can bribe my wife with chocolate to help her put up with my late nights! Click the image below:  
+[![](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.me/KyranF)  
+Or simply use this: [Donate](https://www.paypal.me/KyranF)
