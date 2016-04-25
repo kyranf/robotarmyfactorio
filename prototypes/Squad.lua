@@ -1,11 +1,9 @@
 require("config.config")
 require("util")
-require("lib.util")
+require("robolib.util")
 require("stdlib/log/logger")
 require("defines")
 
-
-LOGGER = Logger.new('robotarmy')
 
 commands = { assemble = 1,  	-- when they spawn, this is their starting command/state/whatever
 					move = 2, 		-- not really useful, don't use this much..
@@ -19,7 +17,7 @@ global.SquadTemplate = {squadID= 0, player=true, unitGroup = true, members = {si
 
 if not global.uniqueSquadId then			
 
-global.uniqueSquadId = {}
+	global.uniqueSquadId = {}
 
 end
 

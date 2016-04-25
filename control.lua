@@ -1,10 +1,11 @@
 require("defines")
 require("util")
 require("config.config")
-require("lib.util")
+require("robolib.util")
 require("prototypes.Squad")
+require("prototypes.DroidUnitList")
 require("stdlib/log/logger")
-LOGGER = Logger.new('robotarmy')
+LOGGER = Logger.new("robotarmy", "robot_army_logs", true )
 
 
 script.on_init(function() 
@@ -29,7 +30,7 @@ script.on_event(defines.events.on_player_created, function(event)
   player.insert{name="basic-bullet-magazine", count=10}
   player.insert{name="burner-mining-drill", count = 1}
   player.insert{name="stone-furnace", count = 1}
-  player.insert{name="droid", count = 5} -- debug test, spawn with bodyguards ready!
+  player.insert{name="droid-smg", count = 5} -- debug test, spawn with bodyguards ready!
   
   
   -- put these in the on_load event too?? 
@@ -50,43 +51,14 @@ script.on_event(defines.events.on_player_created, function(event)
   
 end)
 
--- unused 
-function onBuiltEntityCallback(event)
-	
-	local entity = event.created_entity
-	local player = game.get_player(event.player_index)
-	if entity.name == "droid" then
-		if not global.Squads[player.name] then
-			if not global.Squads[player.name].unitGroup.valid then
-				global.Squads[player.name].unitGroup = player.surface.create_unit_group({position=player.position, force=player.force}) -- if it is not already there, create the first squad
-				--player.print("creating squad...")
-			end
-		end
-
-		--player.print("adding soldier to squad table")
-		table.insert(global.Soldiers[player.name], entity)
-
-
-		local soldierCount = 0
-		for _, soldier in pairs(global.Soldiers[player.name]) do
-			if soldier.valid then
-				soldierCount = soldierCount + 1
-			end
-		end
-	
-		local out = string.format("soldier count %d", soldierCount)
-
-		--player.print(out) --print a debug string with squad Size
-	end
-end
 
 function testOnBuiltEntity(event)
 
 	local entity = event.created_entity
 	local player = game.get_player(event.player_index)
 	
-	if(entity.name == "droid") then 
-		
+	if table.contains(squadCapable, entity.name) then --squadCapable is defined in DroidUnitList.lua
+		LOGGER.log(string.format("Processing new entity %s spawned by player %s", entity.name, player.name) )
 		local position = entity.position
 		local distance = util.distance(position, player.position)
 
@@ -104,42 +76,32 @@ function testOnBuiltEntity(event)
 			--player.print("no nearby squad found, creating new squad")
 			LOGGER.log(string.format("adding new squad to table, %s", tostring(global.Squads[player.name])))
 			squadref = createNewSquad(global.Squads[player.name], player)
-			--player.print(string.format("index of newly created squad %d", squadref))
+			LOGGER.log(string.format("New squad reference is %d", squadref) )
 		else
 			--player.print(string.format("index of joined squad %d", squadref))
 		end
-		
-		
-		
-		--debug print stuff.. doesn't seem to do anything
-		 --for i, v in pairs(global.Squads[player.name]) do player.print(string.format("%s, %s", tostring(i), tostring(v))) end
-		 
-		 --if (global.Squads[player.name][squadref]) then
-		--	if global.Squads[player.name][squadref].members then
-				--player.print(string.format("member list of squad ID %d", squadref))
-				--for i, v in pairs(global.Squads[player.name][squadref].members) do player.print(string.format("%s, %s", tostring(i), tostring(v))) end
-		--	end
-		 --end
 		 
 		
+		-- REPLACE THIS NEXT 4 LINES WITH A FUNCTION TO COUNT VALID/NON-EMPTY SQUADS IN FORCE
 		local squadCount = 0
 		for i, v in pairs(global.Squads[player.name]) do 
 			squadCount = squadCount + 1
 		end
-		--player.print(string.format("Player squadcount = %d ", squadCount ) ) 
+		LOGGER.log(string.format("squadcount = %d ", squadCount ) )
 		
 		
 		--player.print(string.format("Squadref before adding soldier to member list: %d",squadref))
-		
+
 		addMember(global.Squads[player.name][squadref],entity)		
 		checkMembersAreInGroup(global.Squads[player.name][squadref])
-		--player.print("player's squad table readout")
+		
+		--REPLACE THIS NEXT SET OF CODE WITH A FUNCTION TO COUNT VALID/NON-EMPTY SQUADMEMBERS IN SQUAD
+		LOGGER.log("Squad member read-out:")
 		for i, v in pairs(global.Squads[player.name][squadref]) do 
-			
-			--player.print(string.format("%s, %s", tostring(i), tostring(v) ))
+			LOGGER.log(string.format("%s, %s", tostring(i), tostring(v) ))
 		end
 		
-		--player.print(string.format("Squad member count = %d", global.Squads[player.name][squadref].members.size ) ) 
+		LOGGER.log(string.format("Squad member count = %d", global.Squads[player.name][squadref].members.size ) ) 
 		
 	end
 
@@ -237,7 +199,7 @@ function onTickHandler(event)
 								droidPos.x = droidPos.x + randX
 								droidPos.y = droidPos.y + randY
 								local assForce = assembler.force -- haha, ass force!
-								local returnedEntity = player.surface.create_entity({name = "droid", position = droidPos, direction = defines.direction.east, force = assForce })
+								local returnedEntity = player.surface.create_entity({name = "droid-smg", position = droidPos, direction = defines.direction.east, force = assForce })
 
 								if returnedEntity then
 									

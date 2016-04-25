@@ -1,2 +1,10 @@
 Changes from 0.1.3 to 0.1.4:
+-updated to Factorio Standard Library 0.3.0 (https://github.com/Afforess/Factorio-Stdlib/releases/tag/0.3.0)
+-fixed logistics menus not showing the Battle Droid (Undeployed) item
+-added Terminator droid
+-added Rocket droid
+-terminators and rocket droids can join squads
+-added terminator dual laser sprite
+-balance changes for basic battle droid - added explosion resistance to help against friendly fire rocket droids
+
 

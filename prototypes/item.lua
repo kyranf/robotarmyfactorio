@@ -13,23 +13,53 @@ data:extend(
   },
   {
     type = "item",
-    name = "droid",
+    name = "droid-smg",
     icon = "__robotarmy__/graphics/icons/droid_undep.png",
-    flags = {"hidden"},
+    flags = {"goes-to-quickbar"},
     order = "z[droid]",
 	subgroup = "capsule",
-    place_result = "droid",
+    place_result = "droid-smg",
     stack_size = 25
   },
   {
 	type = "item",
-    name = "droid-dummy",
+    name = "droid-smg-dummy",
     icon = "__robotarmy__/graphics/icons/droid.png",
-    flags = {"goes-to-quickbar"},
+    flags = {"hidden"},
     order = "z-z",
 	subgroup = "capsule",
-    place_result = "droid",
+    place_result = "droid-smg",
     stack_size = 1  
+  },
+  {
+    type = "item",
+    name = "droid-rocket",
+    icon = "__robotarmy__/graphics/icons/droid_undep.png",
+    flags = {"goes-to-quickbar"},
+    order = "z[droid]",
+	subgroup = "capsule",
+    place_result = "droid-rocket",
+    stack_size = 25
+  },
+  {
+	type = "item",
+    name = "droid-rocket-dummy",
+    icon = "__robotarmy__/graphics/icons/droid.png",
+    flags = {"hidden"},
+    order = "z-z",
+	subgroup = "capsule",
+    place_result = "droid-rocket",
+    stack_size = 1  
+  },
+  {
+    type = "item",
+    name = "terminator",
+    icon = "__robotarmy__/graphics/icons/droid_undep.png",
+    flags = {"goes-to-quickbar"},
+    order = "z[droid]",
+	subgroup = "capsule",
+    place_result = "terminator",
+    stack_size = 25
   },
   {
     type = "item",

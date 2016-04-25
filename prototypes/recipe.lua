@@ -2,7 +2,7 @@ data:extend(
 {
   {
     type = "recipe",
-    name = "droid",
+    name = "droid-smg",
     enabled = true,
 	category = "advanced-crafting",
     energy_required = 10,
@@ -13,7 +13,22 @@ data:extend(
 	  {"submachine-gun", 1},
 	  {"basic-armor", 1}
     },
-    result = "droid"
+    result = "droid-smg"
+  },
+  {
+    type = "recipe",
+    name = "terminator",
+    enabled = true,
+	category = "advanced-crafting",
+    energy_required = 10,
+    ingredients =
+    {
+      {"steel-plate", 5},
+	  {"electronic-circuit", 5},
+	  {"submachine-gun", 1},
+	  {"basic-armor", 1}
+    },
+    result = "terminator"
   },
   {
     type = "recipe",
@@ -30,18 +45,27 @@ data:extend(
   },
   {
     type = "recipe",
-    name = "droid-deploy",
+    name = "droid-smg-deploy",
     enabled = true,
 	category = "droids",
     ingredients =
     {
-      {"droid", 1}
+      {"droid-smg", 1}
       
     },
-    result = "droid-dummy"
+    result = "droid-smg-dummy"
   },
-  
-  
-  
+  {
+    type = "recipe",
+    name = "droid-rocket-deploy",
+    enabled = true,
+	category = "droids",
+    ingredients =
+    {
+      {"droid-rocket", 1}
+      
+    },
+    result = "droid-rocket-dummy"
+  },  
 }
 )
