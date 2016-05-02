@@ -5,7 +5,7 @@ require("stdlib/log/logger")
 require("defines")
 
 
-commands = { assemble = 1,  	-- when they spawn, this is their starting command/state/whatever
+commands = { 		assemble = 1,  	-- when they spawn, this is their starting command/state/whatever
 					move = 2, 		-- not really useful, don't use this much..
 					follow = 3, 	-- when set, the SQUAD_AI function should command the squad/s to follow player
 					guard = 4, 		-- when set, the SQUAD_AI function should command squad to stay around 
@@ -266,3 +266,32 @@ function sendSquadsToBattle(players, minSquadSize)
 		end
 	end
 end
+
+ --checks if the inventory passed contains a spawnable droid item type listed in DroidUnitList.lua
+function containsSpawnableDroid(inv) 
+
+	local itemList = inv.get_contents()
+	if itemList then
+	
+		for item, count in pairs(itemList) do
+		
+			for i, j in pairs(spawnable) do
+				if(string.find(itemName, j) then
+				
+					 return j -- should return the name of the item as a string which is then spawnable. eg "droid-smg"
+				
+				end
+			
+				-- if the entry 'j' is found in the item name for example droid-smg is found in droid-smg-dummy
+			
+			end
+		end
+		
+	else
+	
+	return nil
+	end
+	
+	
+	
+end 

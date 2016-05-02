@@ -172,7 +172,7 @@ function onTickHandler(event)
 	
   end
   
-  if (event.tick % 100) == 0 then
+  if (event.tick % ASSEMBLER_UPDATE_TICKRATE) == 0 then
 	if global.DroidAssemblers then
 		local players = game.players
 		
@@ -186,9 +186,10 @@ function onTickHandler(event)
 						if assembler.valid then
 							
 							local inv = assembler.get_output_inventory() --gets us a luainventory
-							local countDroidDummies = assembler.get_item_count("droid-dummy")
+							local containsDroidDummies = containsSpawnableDroid(inv) -- assembler.get_item_count("droid-smg-dummy") --replace with "contains any spawnable droid"
 							
-							if (countDroidDummies >= 1) then
+							--containsDroidDummies is either nil (none there) or is the name of the spawnable entity prototype used in create_entity later on.
+							if (containsDroidDummies ~= nil) then
 							
 								--spawn a droid!
 								local assPos = assembler.position
