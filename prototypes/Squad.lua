@@ -275,7 +275,7 @@ function containsSpawnableDroid(inv)
 	
 		for item, count in pairs(itemList) do
 		
-			for i, j in pairs(spawnable) do
+			for i, j in pairs(spawnable)) do
 				if(string.find(itemName, j) then
 				
 					 return j -- should return the name of the item as a string which is then spawnable. eg "droid-smg"
