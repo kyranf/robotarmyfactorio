@@ -1,9 +1,10 @@
 require("defines")
 require("util")
-require("config.config")
-require("robolib.util")
-require("prototypes.Squad")
-require("prototypes.DroidUnitList")
+require("config.config") -- config for squad control mechanics - important for anyone using 
+require("robolib.util") -- some utility functions not necessarily related to robot army mod
+require("robolib.robotarmyhelpers") -- random helper functions related to the robot army mod
+require("robolib.Squad") -- allows us to control squads, add entities to squads, etc.
+require("prototypes.DroidUnitList") -- so we know what is spawnable
 require("stdlib/log/logger")
 LOGGER = Logger.new("robotarmy", "robot_army_logs", true )
 
@@ -25,12 +26,12 @@ end)
 
 script.on_event(defines.events.on_player_created, function(event)
   local player = game.get_player(event.player_index)
-  player.insert{name="iron-plate", count=8}
-  player.insert{name="pistol", count=1}
-  player.insert{name="basic-bullet-magazine", count=10}
-  player.insert{name="burner-mining-drill", count = 1}
-  player.insert{name="stone-furnace", count = 1}
-  player.insert{name="droid-smg", count = 5} -- debug test, spawn with bodyguards ready!
+  --player.insert{name="iron-plate", count=8}
+  --player.insert{name="pistol", count=1}
+  --player.insert{name="basic-bullet-magazine", count=10}
+  --player.insert{name="burner-mining-drill", count = 1}
+  --player.insert{name="stone-furnace", count = 1}
+  --player.insert{name="droid-smg", count = 5} -- debug test, spawn with bodyguards ready!
   
   
   -- put these in the on_load event too?? 
@@ -155,19 +156,14 @@ end)
 
 function onTickHandler(event)
 	
-  if event.tick  < 100 then
-	global.lastSquadUpdateTick = event.tick
-	return 
-	
-  end
  
   -- has enough time elapsed to go through and set squad orders yet?
   if event.tick > (global.lastSquadUpdateTick + TICK_UPDATE_SQUAD_AI) then
 	--onTickUpdateSquads()
 	
-	local players = game.players
-	trimSquads(players)
-	sendSquadsToBattle(players, SQUAD_SIZE_MIN_BEFORE_HUNT)
+	local players = game.players -- list of players 
+	trimSquads(players) -- does some quick maintenance of the squad tables. 
+	sendSquadsToBattle(players, SQUAD_SIZE_MIN_BEFORE_HUNT) -- finds all squads for all players and checks for squad size and sends to attack nearest targets
 
 	
   end
@@ -189,18 +185,15 @@ function onTickHandler(event)
 							local containsDroidDummies = containsSpawnableDroid(inv) -- assembler.get_item_count("droid-smg-dummy") --replace with "contains any spawnable droid"
 							
 							--containsDroidDummies is either nil (none there) or is the name of the spawnable entity prototype used in create_entity later on.
-							if (containsDroidDummies ~= nil) then
-							
-								--spawn a droid!
-								local assPos = assembler.position
-								local droidPos = ({x = assPos.x + 5,y = assPos.y }) -- off to the side of the building
+							if (containsDroidDummies ~= nil and type(containsDroidDummies) == "string") then
 								
-								randX = math.random() + math.random(1, 4) - 2
-								randY = math.random() + math.random(1, 4) - 2
-								droidPos.x = droidPos.x + randX
-								droidPos.y = droidPos.y + randY
+								--spawn a droid!
+								
+								
+								local droidPos =  getDroidSpawnLocation(assembler) -- uses assmbler pos, direction, and spawns droid at an offset +- random amount
+								
 								local assForce = assembler.force -- haha, ass force!
-								local returnedEntity = player.surface.create_entity({name = "droid-smg", position = droidPos, direction = defines.direction.east, force = assForce })
+								local returnedEntity = player.surface.create_entity({name = containsDroidDummies , position = droidPos, direction = defines.direction.east, force = assForce })
 
 								if returnedEntity then
 									
