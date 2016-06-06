@@ -189,7 +189,7 @@ local droid_smg =
               },
               {
                 type = "damage",
-                damage = { amount = 6 , type = "physical"}
+                damage = { amount = 8 , type = "physical"}
               }
             }
           }
@@ -734,7 +734,7 @@ local terminator =
     {
       
 	  type = "projectile",
-      ammo_category = "electric",
+      ammo_category = "combat-robot-laser",
       cooldown = 10,
       projectile_center = {0, 0.2},
       projectile_creation_distance = 0.8,
@@ -753,7 +753,7 @@ local terminator =
       ammo_type =
       {
         type = "projectile",
-        category = "electric",
+        category = "combat-robot-laser",
         energy_consumption = "0W",
         projectile = "laser-dual",
         speed = 2,

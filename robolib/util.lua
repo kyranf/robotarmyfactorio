@@ -50,3 +50,27 @@ end
 function setContains(set, key)
     return set[key] ~= nil
 end
+
+function stripchars(str, chrs)
+  local s = str:gsub("["..chrs.."]", '')
+  return s
+end
+
+function repchars(str, chrs, newchrs)
+	local s = string.gsub(str, chrs, newchrs )
+	return s
+end
+	
+	
+function convertToMatchable(str)
+
+ local s =  repchars(str, "%-", "0")
+ return s
+
+end
+
+function convertToEntityNames(str)
+ local s = repchars(str, "0", "-")
+ return s
+
+end

@@ -6,13 +6,27 @@ function getDroidSpawnLocation(entity)
 	local direction = entity.direction
 	
 	 -- based on direction of building, set offset for spawn location
-	if(direction == defines.direction.east) then entPos = ({x = entPos.x + 5,y = entPos.y }) end
-	if(direction == defines.direction.north) then entPos = ({x = entPos.x,y = entPos.y + 5 }) end
-	if(direction == defines.direction.south) then entPos = ({x = entPos.x,y = entPos.y - 5 }) end
-	if(direction == defines.direction.west) then entPos = ({x = entPos.x - 5,y = entPos.y }) end
+	if(direction == defines.direction.east) then 
+		entPos = ({x = entPos.x - 5,y = entPos.y }) end
+	if(direction == defines.direction.north) then 
+		entPos = ({x = entPos.x,y = entPos.y + 5 }) end
+	if(direction == defines.direction.south) then 
+		entPos = ({x = entPos.x,y = entPos.y - 5 }) end
+	if(direction == defines.direction.west) then 
+		entPos = ({x = entPos.x + 5,y = entPos.y }) end
 	
-	randX = math.random() + math.random(0, 2) 
-	randY = math.random() + math.random(0, 2) 
+	if(direction == defines.direction.east) then
+		randX = math.random() - math.random(0, 4) 
+	else
+		randX = math.random() + math.random(0, 4) 
+	end
+	
+	if(direction == defines.direction.north) then
+		randY = math.random() + math.random(0, 4) 
+	else
+		randY = math.random() - math.random(0, 4) 
+	end
+	
 	
 	entPos.x = entPos.x + randX
 	entPos.y = entPos.y + randY

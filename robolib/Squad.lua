@@ -3,6 +3,7 @@ require("util")
 require("robolib.util")
 require("stdlib/log/logger")
 require("defines")
+require("prototypes.DroidUnitList")
 
 
 commands = { 		assemble = 1,  	-- when they spawn, this is their starting command/state/whatever
@@ -21,7 +22,7 @@ if not global.uniqueSquadId then
 
 end
 
-function createNewSquad(tableIN, player)
+function createNewSquad(tableIN, player, entity)
 
 	if not global.uniqueSquadId then			
 		global.uniqueSquadId = {}
@@ -38,8 +39,8 @@ function createNewSquad(tableIN, player)
 
 	newsquad.player = player
 	newsquad.force = player.force
-	newsquad.home = player.position
-	newsquad.unitGroup = player.surface.create_unit_group({position=player.position, force=player.force})
+	newsquad.home = entity.position
+	newsquad.unitGroup = player.surface.create_unit_group({position=entity.position, force=player.force}) --use the entity who is causing the new squad to be formed, for position.
 	newsquad.squadID = squadRef
 	newsquad.patrolPoint1 = newsquad.home
 	newsquad.patrolPoint2 = newsquad.home
@@ -47,10 +48,10 @@ function createNewSquad(tableIN, player)
 	newsquad.command = commands.assemble
 	
 	tableIN[squadRef] = newsquad
-	for i, v in pairs(tableIN) do 
+	--for i, v in pairs(tableIN) do 
 		--player.print("player's squad list")
 		--player.print(string.format("%s, %s", tostring(i), tostring(v) ))
-	end
+	--end
 	--player.print(string.format("Created new squad for %s with unique ID %d", player.name, squadRef))
 	LOGGER.log(string.format("Created squad for player %s", player.name))
 	tableIN[squadRef].unitGroup.set_command({type=defines.command.wander, destination= tableIN[squadRef].home, radius=tableIN[squadRef].radius, distraction=defines.distraction.by_enemy})
@@ -105,6 +106,8 @@ function checkMembersAreInGroup(tableIN)
 				if soldier.valid then
 					--tableIN.player.print(string.format("adding soldier to squad ID %d's unitgroup", tableIN.squadID))
 					tableIN.unitGroup.add_member(soldier)
+				else
+					table.remove(tableIN.members, key)
 				end
 			end
 		end
@@ -120,7 +123,7 @@ function checkMembersAreInGroup(tableIN)
 		end
 	end
 	
-	tableIN.members.size = memberCount
+	tableIN.members.size = memberCount -- refresh the member count in the squad to accurately reflect the number of soldiers in there.
 end
 
 --examines the given table, and if it finds a nil element it will remove it
@@ -162,7 +165,7 @@ function getClosestSquad(tableIN, player, maxRange)
 end
 
 --input is table of squads (global.Squads[player.name]), and position to find closest to
-function getClosestSquadToPos(tableIN, position, player, maxRange)
+function getClosestSquadToPos(tableIN, position, maxRange)
 	
 	local leastDist = maxRange
 	local leastDistSquadID = nil
@@ -178,12 +181,12 @@ function getClosestSquadToPos(tableIN, position, player, maxRange)
 		
 	end
 	
-	if (leastDist == maxRange or leastDistSquadID == nil) then 
-		--player.print("getClosestSquad - no squad found or squad too far away")
+	if (leastDist >= maxRange or leastDistSquadID == nil) then 
+		game.players[1].print("getClosestSquad - no squad found or squad too far away")
 		return nil
 	end
 	
-	--player.print(string.format("closest squad found: %d tiles away from given position, ID %d", leastDist, leastDistSquadID))
+	game.players[1].print(string.format("closest squad found: %d tiles away from given position, ID %d", leastDist, leastDistSquadID))
 	return leastDistSquadID
 end
 
@@ -225,14 +228,16 @@ function sendSquadsToBattle(players, minSquadSize)
 			for id, squad in pairs(global.Squads[player.name]) do
 				
 				if squad then
-					checkMembersAreInGroup(squad)
-					
-					
+					checkMembersAreInGroup(squad)				
 					
 					if squad.unitGroup then
 						local state = squad.unitGroup.state
+						--LOGGER.log("Checking group state and other info")
+						--LOGGER.log(state)
 						
 						if(squad.unitGroup.valid and (state == defines.groupstate.gathering or state == defines.groupstate.finished)) then
+							
+							--LOGGER.log("group is gathering or finished the last task")
 					
 							local count = table.countValidElements(squad.members)
 							if count then 
@@ -248,14 +253,14 @@ function sendSquadsToBattle(players, minSquadSize)
 											--player.print("Sending squad off to battle...")
 											--make sure squad is good, then set command
 											checkMembersAreInGroup(squad)
-											squad.command = commands.hunt
+											squad.command = commands.hunt -- sets the squad's high level role to hunt. not really used yet
 											squad.unitGroup.set_command({type=defines.command.attack_area, destination= nearestEnemy.position, radius=50, distraction=defines.distraction.by_anything})
 											squad.unitGroup.start_moving()
 										else
 											--player.print("enemy found but in un-charted area...")								
 										end
 									else
-										--player.print("nearest enemy is nil")
+										LOGGER.log("nearest enemy is nil, out of range?")
 									end
 								end
 							end
@@ -269,16 +274,27 @@ end
 
  --checks if the inventory passed contains a spawnable droid item type listed in DroidUnitList.lua
 function containsSpawnableDroid(inv) 
-
+	--LOGGER.log("checking spawnable droid")
 	local itemList = inv.get_contents()
+
 	if itemList then
 	
 		for item, count in pairs(itemList) do
-		
+			--LOGGER.log(string.format("item inv list %s , %s", item, count))
+			local itemName = convertToMatchable(item)
+			--LOGGER.log(item)
+			
 			for i, j in pairs(spawnable) do
-				if(string.find(item, j)) then
 				
-					 return j -- should return the name of the item as a string which is then spawnable. eg "droid-smg"
+				--LOGGER.log(string.format("spawnable list %s , %s", i, j))
+				
+				
+				local spawnable = convertToMatchable(j)
+				--LOGGER.log(spawnable)
+				if(string.find(itemName, spawnable)) then --example, in "droid-smg-dummy" find "droid-smg", but the names have been adjusted to replace '-' with '0' to allow string.find to work. turns out hyphens are an escape charater, THANKS LUA!!
+					 --convert to spawnable entity name
+					local realName = convertToEntityNames(spawnable)
+					return realName -- should return the name of the item as a string which is then spawnable. eg "droid-smg"
 				
 				end
 			

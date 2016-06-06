@@ -52,6 +52,9 @@ script.on_event(defines.events.on_player_created, function(event)
   
 end)
 
+function handleDroidSpawned()
+
+end
 
 function testOnBuiltEntity(event)
 
@@ -63,6 +66,9 @@ function testOnBuiltEntity(event)
 		local position = entity.position
 		local distance = util.distance(position, player.position)
 
+		
+		--lets make it wander first so it doesn't just stand in the way.
+		entity.set_command({type=defines.command.wander, destination= entity.position, radius=5, distraction=defines.distraction.by_anything})
 
 		--if this is the first time we are using the player's tables, make it
 		if global.Squads[player.name] == nil then 
@@ -75,9 +81,9 @@ function testOnBuiltEntity(event)
 		if  not squadref then
 			--if we didnt find a squad nearby, create one
 			--player.print("no nearby squad found, creating new squad")
-			LOGGER.log(string.format("adding new squad to table, %s", tostring(global.Squads[player.name])))
-			squadref = createNewSquad(global.Squads[player.name], player)
-			LOGGER.log(string.format("New squad reference is %d", squadref) )
+			--LOGGER.log(string.format("adding new squad to table, %s", tostring(global.Squads[player.name])))
+			squadref = createNewSquad(global.Squads[player.name], player, entity)
+			--LOGGER.log(string.format("New squad reference is %d", squadref) )
 		else
 			--player.print(string.format("index of joined squad %d", squadref))
 		end
@@ -88,7 +94,7 @@ function testOnBuiltEntity(event)
 		for i, v in pairs(global.Squads[player.name]) do 
 			squadCount = squadCount + 1
 		end
-		LOGGER.log(string.format("squadcount = %d ", squadCount ) )
+		--LOGGER.log(string.format("squadcount = %d ", squadCount ) )
 		
 		
 		--player.print(string.format("Squadref before adding soldier to member list: %d",squadref))
@@ -97,12 +103,12 @@ function testOnBuiltEntity(event)
 		checkMembersAreInGroup(global.Squads[player.name][squadref])
 		
 		--REPLACE THIS NEXT SET OF CODE WITH A FUNCTION TO COUNT VALID/NON-EMPTY SQUADMEMBERS IN SQUAD
-		LOGGER.log("Squad member read-out:")
-		for i, v in pairs(global.Squads[player.name][squadref]) do 
-			LOGGER.log(string.format("%s, %s", tostring(i), tostring(v) ))
-		end
+		--LOGGER.log("Squad member read-out:")
+		--for i, v in pairs(global.Squads[player.name][squadref]) do 
+		--	LOGGER.log(string.format("%s, %s", tostring(i), tostring(v) ))
+		--end
 		
-		LOGGER.log(string.format("Squad member count = %d", global.Squads[player.name][squadref].members.size ) ) 
+		--LOGGER.log(string.format("Squad member count = %d", global.Squads[player.name][squadref].members.size ) ) 
 		
 	end
 
@@ -115,6 +121,8 @@ function checkIfDroidAssembly(event)
 
 	if(entity.name == "droid-assembling-machine") then 
 		
+		--player.print("Droid Assembler placed...")
+		
 		if not global.DroidAssemblers then
 			--player.print("Creating global droid assembler list..")
 			global.DroidAssemblers = {}
@@ -126,7 +134,7 @@ function checkIfDroidAssembly(event)
 			table.insert(global.DroidAssemblers[player.name], entity)
 		end
 	
-		entity.recipe = entity.force.recipes["droid-deploy"]
+		--entity.recipe = entity.force.recipes["droid-deploy"]
 	end
 
 end
@@ -141,7 +149,7 @@ end)
 
 script.on_load( function() 
 
-	print("Loading game..")
+	--print("Loading game..")
 	global.lastSquadUpdateTick = 0
 	if not global.Squads then
 		global.Squads = {init_state="ready"}
@@ -165,7 +173,7 @@ function onTickHandler(event)
 	trimSquads(players) -- does some quick maintenance of the squad tables. 
 	sendSquadsToBattle(players, SQUAD_SIZE_MIN_BEFORE_HUNT) -- finds all squads for all players and checks for squad size and sends to attack nearest targets
 
-	
+	lastSquadUpdateTick = event.tick
   end
   
   if (event.tick % ASSEMBLER_UPDATE_TICKRATE) == 0 then
@@ -183,12 +191,15 @@ function onTickHandler(event)
 							
 							local inv = assembler.get_output_inventory() --gets us a luainventory
 							local containsDroidDummies = containsSpawnableDroid(inv) -- assembler.get_item_count("droid-smg-dummy") --replace with "contains any spawnable droid"
-							
+							if(containsDroidDummies) then
+								LOGGER.log(string.format("ContainsDroidDummies result = %s", containsDroidDummies))
+							end
 							--containsDroidDummies is either nil (none there) or is the name of the spawnable entity prototype used in create_entity later on.
 							if (containsDroidDummies ~= nil and type(containsDroidDummies) == "string") then
 								
 								--spawn a droid!
-								
+								-- debug code
+								--player.print(string.format("Found a spawnable droid, named: %s", containsDroidDummies))
 								
 								local droidPos =  getDroidSpawnLocation(assembler) -- uses assmbler pos, direction, and spawns droid at an offset +- random amount
 								
@@ -196,11 +207,19 @@ function onTickHandler(event)
 								local returnedEntity = player.surface.create_entity({name = containsDroidDummies , position = droidPos, direction = defines.direction.east, force = assForce })
 
 								if returnedEntity then
+									--player.print("running droid produced handler... printing owning player's name...")
+									--player.print(player.name)
 									
-									handleDroidProduced(assembler, player, returnedEntity)
+									--lets make it wander first so it doesn't just stand in the way.
+									returnedEntity.set_command({type=defines.command.wander, destination= returnedEntity.position, radius=5, distraction=defines.distraction.by_anything})
+									
+									local eventStub = {player_index = player.index, created_entity = returnedEntity}
+									testOnBuiltEntity(eventStub)
+									--handleDroidProduced(assembler, player, returnedEntity)
 								
 								else
 									player.print(string.format("There is something wrong with your droid assembler at x:%d y:%d", assember.position[1], assembler.position[2]))
+									LOGGER.log(string.format("There is something wrong with your droid assembler at x:%d y:%d", assember.position[1], assembler.position[2]))
 								end
 								
 								inv.clear() --clear output slot
@@ -210,8 +229,12 @@ function onTickHandler(event)
 						end
 					end
 				end
-			end
-		end
+			else
+				LOGGER.log("WARNING: player does not have a list of droid assemblers")
+			end --end if they have a list of droid assemblers
+		end -- end for each player in players list
+	else
+		LOGGER.log("WARNING: global droidassemblers list does not exist!")
 	end
   end
   
@@ -288,8 +311,11 @@ script.on_event(defines.events.on_tick, function( event)
  end)
 
  
- function handleDroidProduced(assembler, player, returnedEntity)
+ function handleDroidProduced(assembler, player, entity)
 			
+	LOGGER.log(string.format("handle droids function inputs %s %s %s", assembler, player, entity))
+
+
 	--if this is the first time we are using the player's tables, make it
 	if global.Squads[player.name] == nil then 
 		--player.print("player's global squad table was nil, making an entry for them now")
@@ -297,13 +323,13 @@ script.on_event(defines.events.on_tick, function( event)
 	end
 	
 	
-	local squadref = getClosestSquadToPos(global.Squads[player.name], returnedEntity.position,  player, SQUAD_CHECK_RANGE)
+	local squadref = getClosestSquadToPos(global.Squads[player.name], entity.position, SQUAD_CHECK_RANGE)
 	local newlyCreated = false
 	if not squadref then
 		--if we didnt find a squad nearby, create one
 		--player.print("no squad nearby to the assembler found, creating new squad")
-		LOGGER.log(string.format("adding new squad to table, %s", tostring(global.Squads[player.name])))
-		squadref = createNewSquad(global.Squads[player.name], player)
+		--LOGGER.log(string.format("adding new squad to table, %s", tostring(global.Squads[player.name])))
+		squadref = createNewSquad(global.Squads[player.name], player, entity)
 		newlyCreated = true
 		--player.print(string.format("index of newly created squad %d", squadref))
 	else
@@ -330,26 +356,30 @@ script.on_event(defines.events.on_tick, function( event)
 	
 	--player.print(string.format("Squadref before adding soldier to member list: %d",squadref))
 	
-	addMember(global.Squads[player.name][squadref],returnedEntity)		
+	addMember(global.Squads[player.name][squadref],entity)		
 	checkMembersAreInGroup(global.Squads[player.name][squadref])
-	if newlyCreated then
-		global.Squads[player.name][squadref].unitGroup.set_command({type=defines.command.wander, destination= returnedEntity.position, radius=30, distraction=defines.distraction.by_enemy})
-		global.Squads[player.name][squadref].unitGroup.start_moving()
-	else
-		if not global.Squads[player.name][squadref].command == commands.hunt then 
-			global.Squads[player.name][squadref].unitGroup.set_command({type=defines.command.wander, destination= returnedEntity.position, radius=30, distraction=defines.distraction.by_enemy})
-			global.Squads[player.name][squadref].unitGroup.start_moving()
-		
-		
-		end
 	
-	end
+	global.Squads[player.name][squadref].unitGroup.set_command({type=defines.command.wander, destination= entity.position, radius=10, distraction=defines.distraction.by_enemy})
+	global.Squads[player.name][squadref].unitGroup.start_moving()
+	
+	--if newlyCreated then
+	--	global.Squads[player.name][squadref].unitGroup.set_command({type=defines.command.wander, destination= entity.position, radius=20, distraction=defines.distraction.by_enemy})
+	--	global.Squads[player.name][squadref].unitGroup.start_moving()
+	--else
+	--	if not global.Squads[player.name][squadref].command == commands.hunt then 
+	--		global.Squads[player.name][squadref].unitGroup.set_command({type=defines.command.wander, destination= entity.position, radius=20, distraction=defines.distraction.by_enemy})
+	--		global.Squads[player.name][squadref].unitGroup.start_moving()
+	--	else
+	--		--LOGGGER.log("WARNING: is in hunt mode already, when new units added to it")
+	--	end
+	
+	--end
 	
 	--player.print("player's squad table readout")
-	for i, v in pairs(global.Squads[player.name][squadref]) do 
+	--for i, v in pairs(global.Squads[player.name][squadref]) do 
 		
 		--player.print(string.format("%s, %s", tostring(i), tostring(v) ))
-	end
+	--end
 	
 	--player.print(string.format("Squad member count = %d", global.Squads[player.name][squadref].members.size ) ) 
 		
