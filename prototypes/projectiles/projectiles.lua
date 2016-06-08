@@ -17,7 +17,7 @@ local dual_laser = {
           },
           {
             type = "damage",
-            damage = { amount = 40, type = "laser"}
+            damage = { amount = 30, type = "laser"}
           }
         }
       }

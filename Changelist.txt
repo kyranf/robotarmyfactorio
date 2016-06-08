@@ -13,4 +13,6 @@ Changes from 0.1.3 to 0.1.4:
 -Terminator ammo category changed to combat-robot-laser to take advantage of robot damage upgrade tree
 -Clockwork rifle bot and SMG bot use the player's gun damage and shooting speed upgrades ammo category (not changed, just noted)
 -massive performance improvements, fixed droids "dancing"
+-changed SMG droid to yellow to avoid mixing up with Terminators
+-added Chunk revealing at squad's position at squad update tick rate.
 

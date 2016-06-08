@@ -172,7 +172,7 @@ function onTickHandler(event)
 	local players = game.players -- list of players 
 	trimSquads(players) -- does some quick maintenance of the squad tables. 
 	sendSquadsToBattle(players, SQUAD_SIZE_MIN_BEFORE_HUNT) -- finds all squads for all players and checks for squad size and sends to attack nearest targets
-
+	revealSquadChunks()
 	lastSquadUpdateTick = event.tick
   end
   

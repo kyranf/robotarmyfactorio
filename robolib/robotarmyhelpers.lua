@@ -1,6 +1,8 @@
 require("defines")
 
 --gets an offset spawning location for an entity (droid assembler) 
+-- should use surface.find_non_colliding_position() API call here, to check for a small square around entPos and return the result of that function instead.
+-- this will help avoid getting units stuck in stuff.
 function getDroidSpawnLocation(entity)
 	local entPos = entity.position
 	local direction = entity.direction

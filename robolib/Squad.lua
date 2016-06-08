@@ -311,3 +311,32 @@ function containsSpawnableDroid(inv)
 	
 	
 end 
+
+
+function revealSquadChunks()
+
+	local players = game.players
+	for _, player in pairs(players) do
+	
+		if global.Squads[player.name] then
+		
+			for id, squad in pairs(global.Squads[player.name]) do
+				
+				if squad then
+					if squad.unitGroup.valid then
+						local count = table.countValidElements(squad.members)
+						if count > 0 then  --if there are troops in a valid group in a valid squad. 
+							local position = squad.unitGroup.position
+							local area = {left_top = {position.x-2, position.y-2}, right_bottom = {position.x+2, position.y+2}}
+							
+							squad.force.chart(game.get_surface("nauvis"), area) --reveal the chunk they are in. 
+						end
+					end
+				end
+				
+			end
+		end
+	end
+	
+
+end

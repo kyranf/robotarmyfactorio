@@ -5,7 +5,7 @@ require("prototypes.droid-animations")
 -- DONT FORGET TO ADD ANY NEW LOCAL TABLE DEFINITIONS TO THE DATA:EXTEND THING AT THE BOTTOM!
 
 droidscale = 1.0
-droidSmgTint =  {r=0.8, g=0.2, b=0.2, a=1}
+droidSmgTint =  {r=0.9, g=0.9, b=0.1, a=1}
 droidRocketTint = {r=0.2, g=0.2, b=0.8, a=1}
 droidRifleTint = {r=0.2, g=0.8, b=0.2, a=1}
 
@@ -382,7 +382,7 @@ local droid_rifle =
               },
               {
                 type = "damage",
-                damage = { amount = 25 , type = "physical"}
+                damage = { amount = 18 , type = "physical"}
               }
             }
           }
@@ -516,7 +516,7 @@ local droid_rocket =
                 target_effects =
                 {
                   type = "damage",
-                  damage = { amount = 40, type = "explosion"}
+                  damage = { amount = 50, type = "explosion"}
                 }
               }
             },
