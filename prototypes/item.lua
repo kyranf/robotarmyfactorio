@@ -101,5 +101,15 @@ data:extend(
     place_result = "droid-assembling-machine",
     stack_size = 50
   },
-}
-)
+  {
+    type = "item",
+    name = "droid-counter",
+    icon = "__robotarmy__/graphics/icons/droid-counter.png",
+    flags = {"goes-to-quickbar"},
+    subgroup = "circuit-network",
+    place_result="droid-counter",
+    order = "b[combinators]-e[droid-counter]",
+    stack_size = 50,
+  },
+
+})

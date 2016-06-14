@@ -53,8 +53,8 @@ function createNewSquad(tableIN, player, entity)
 		--player.print(string.format("%s, %s", tostring(i), tostring(v) ))
 	--end
 	--player.print(string.format("Created new squad for %s with unique ID %d", player.name, squadRef))
-	LOGGER.log(string.format("Created squad for player %s", player.name))
-	tableIN[squadRef].unitGroup.set_command({type=defines.command.wander, destination= tableIN[squadRef].home, radius=tableIN[squadRef].radius, distraction=defines.distraction.by_enemy})
+	--LOGGER.log(string.format("Created squad for player %s", player.name))
+	tableIN[squadRef].unitGroup.set_command({type=defines.command.wander, destination= tableIN[squadRef].home, radius=tableIN[squadRef].radius, distraction=defines.distraction.by_anything})
 	return squadRef
 end
 
@@ -71,10 +71,10 @@ function addMember(tableIN, entity)
 	end 
 	
 	tableIN.members.size = tableIN.members.size + 1
-	local soldierCount = table.countValidElements(tableIN.members)
+	--local soldierCount = table.countValidElements(tableIN.members)
 	--tableIN.player.print(string.format("Valid squad member count %d", soldierCount))
 	--tableIN.player.print(string.format("added guy to squad belonging to %s, membercount is %d", tableIN.player.name, tableIN.members.size))
-	LOGGER.log(string.format("added guy to squad belonging to %s, membercount is %d", tableIN.player.name, tableIN.members.size))
+	--LOGGER.log(string.format("added guy to squad belonging to %s, membercount is %d", tableIN.player.name, tableIN.members.size))
 end
 
 
@@ -252,7 +252,7 @@ function sendSquadsToBattle(players, minSquadSize)
 										if charted then
 											--player.print("Sending squad off to battle...")
 											--make sure squad is good, then set command
-											checkMembersAreInGroup(squad)
+											--checkMembersAreInGroup(squad)
 											squad.command = commands.hunt -- sets the squad's high level role to hunt. not really used yet
 											squad.unitGroup.set_command({type=defines.command.attack_area, destination= nearestEnemy.position, radius=50, distraction=defines.distraction.by_anything})
 											squad.unitGroup.start_moving()

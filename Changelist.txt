@@ -1,4 +1,4 @@
-Changes from 0.1.3 to 0.1.4:
+Changes from 0.1.3 and internal builds to 0.1.4 release:
 -updated to Factorio Standard Library 0.3.0 (https://github.com/Afforess/Factorio-Stdlib/releases/tag/0.3.0)
 -fixed logistics menus not showing the Battle Droid (Undeployed) item
 -added Terminator droid
@@ -9,10 +9,25 @@ Changes from 0.1.3 to 0.1.4:
 -Droid Assemblers now spawn all types of droids
 -Droid Assemblers now spawn based on their facing. 
 -Droid SMG damage increased slightly.
--added Clockwork Riflebot, an early-game slow firing medium-long range bot. 
+-added Clockwork Riflebot, an early-game slow firing medium-long range bot. Can join squads.  
 -Terminator ammo category changed to combat-robot-laser to take advantage of robot damage upgrade tree
 -Clockwork rifle bot and SMG bot use the player's gun damage and shooting speed upgrades ammo category (not changed, just noted)
 -massive performance improvements, fixed droids "dancing"
 -changed SMG droid to yellow to avoid mixing up with Terminators
--added Chunk revealing at squad's position at squad update tick rate.
+-added Chunk revealing at squad's position at the squad update tick rate.
+-clockwork rifle bot damage reduced to 18 per shot - scales with gun damage upgrades
+-SMG droid damage increased to 8 per shot - scales with gun damage upgrades
+-rocket bot damage increased to 100 per rocket
+-terminator lasers damage reduced slightly to 30 per shot. - scales with combat robot damage upgrades
+-made clockwork rifle bots unlock with military 1 research
+-made SMG and rocket droids unlock with military 2 research
+-made Terminator unlock with military 3 research
+-droid assemblers now work when placed by construction bots. did a quick and dirty workaround rather than the full re-work the mod needed.
+-added Droid Activity Module which is a constant combinator with a virtual signal output of the number of droids alive currently. tick rate is adjustable for update speed for this signal
+-adjusted resistances of most droids to have higher physical resistance % reduction, to allow for better balancing of droid vs droid battles. 
+-custom sprite (recolour/hackjob) for droid counter (droid activity module).
+-fixed a whole lot of bugs with multiple forces and players and building droid assemblers and spawning droids etc having issues. Tested local LAN with 2 players building and fighting with droids.
+
+
+
 

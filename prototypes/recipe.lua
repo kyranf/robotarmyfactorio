@@ -3,7 +3,7 @@ data:extend(
   {
     type = "recipe",
     name = "droid-smg",
-    enabled = true,
+    enabled = false,
 	category = "advanced-crafting",
     energy_required = 10,
     ingredients =
@@ -18,7 +18,7 @@ data:extend(
   {
     type = "recipe",
     name = "droid-rifle",
-    enabled = true,
+    enabled = false,
 	category = "advanced-crafting",
     energy_required = 5,
     ingredients =
@@ -32,7 +32,7 @@ data:extend(
   {
     type = "recipe",
     name = "droid-rocket",
-    enabled = true,
+    enabled = false,
 	category = "advanced-crafting",
     energy_required = 5,
     ingredients =
@@ -47,7 +47,7 @@ data:extend(
   {
     type = "recipe",
     name = "terminator",
-    enabled = true,
+    enabled = false,
 	category = "advanced-crafting",
     energy_required = 10,
     ingredients =
@@ -62,7 +62,7 @@ data:extend(
     {
     type = "recipe",
     name = "terminator-deploy",
-    enabled = true,
+    enabled = false,
 	category = "droids",
     energy_required = 10,
     ingredients =
@@ -74,7 +74,7 @@ data:extend(
   {
     type = "recipe",
     name = "droid-assembling-machine",
-    enabled = true,
+    enabled = false,
     ingredients =
     {
       {"iron-plate", 10},
@@ -87,7 +87,7 @@ data:extend(
   {
     type = "recipe",
     name = "droid-smg-deploy",
-    enabled = true,
+    enabled = false,
 	category = "droids",
     ingredients =
     {
@@ -99,7 +99,7 @@ data:extend(
   {
     type = "recipe",
     name = "droid-rocket-deploy",
-    enabled = true,
+    enabled = false,
 	category = "droids",
     ingredients =
     {
@@ -111,7 +111,7 @@ data:extend(
   {
     type = "recipe",
     name = "droid-rifle-deploy",
-    enabled = true,
+    enabled = false,
 	category = "droids",
     ingredients =
     {
@@ -120,5 +120,29 @@ data:extend(
     },
     result = "droid-rifle-dummy"
   },   
-}
-)
+ {
+    type = "recipe",
+    name = "droid-counter",
+    enabled = "false",
+    ingredients =
+    {
+      {"constant-combinator", 1},
+      {"iron-plate",2},
+      {"electronic-circuit", 10},
+    },
+    result="droid-counter",
+  }
+})
+
+
+  
+ -- deal with unlocking the recipes just piggy-backing on military research for now. most droids need more advanced research to build them anyway.
+table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-rifle"})
+table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-rifle-deploy"})
+table.insert(data.raw["technology"]["military-2"].effects,{type="unlock-recipe",recipe="droid-smg-deploy"})
+table.insert(data.raw["technology"]["military-2"].effects,{type="unlock-recipe",recipe="droid-smg"})
+table.insert(data.raw["technology"]["military-2"].effects,{type="unlock-recipe",recipe="droid-rocket-deploy"})
+table.insert(data.raw["technology"]["military-2"].effects,{type="unlock-recipe",recipe="droid-rocket"})
+table.insert(data.raw["technology"]["military-3"].effects,{type="unlock-recipe",recipe="terminator-deploy"})
+table.insert(data.raw["technology"]["military-3"].effects,{type="unlock-recipe",recipe="terminator"})  
+table.insert(data.raw["technology"]["electronics"].effects,{type="unlock-recipe",recipe="droid-counter"})  

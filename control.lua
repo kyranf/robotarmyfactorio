@@ -24,6 +24,41 @@ script.on_init(function()
 end)
 
 
+script.on_configuration_changed(function(data) 
+ 
+	 if data.mod_changes ~= nil and data.mod_changes["robotarmy"] ~= nil and data.mod_changes["robotarmy"].old_version == nil then  -- Mod was added
+		 
+		for _,force in pairs(game.forces) do
+			force.reset_recipes()
+			force.reset_technologies()
+
+			--Tech Additions for droids and droid counter combinator
+			if force.technologies["military"].researched then
+				force.recipes["droid-rifle"].enabled=true
+				force.recipes["droid-rifle-deploy"].enabled=true
+			end
+
+			if force.technologies["electronics"].researched then
+				force.recipes["droid-counter"].enabled=true
+			end
+
+			if force.technologies["military-2"].researched then
+				force.recipes["droid-smg"].enabled=true
+				force.recipes["droid-smg-deploy"].enabled=true
+				force.recipes["droid-rocket"].enabled=true
+				force.recipes["droid-rocket-deploy"].enabled=true
+			end
+		  
+			if force.technologies["military-3"].researched then
+				force.recipes["terminator"].enabled=true
+				force.recipes["terminator-deploy"].enabled=true
+			end
+		end     
+	 end
+end)
+
+
+
 script.on_event(defines.events.on_player_created, function(event)
   local player = game.get_player(event.player_index)
   --player.insert{name="iron-plate", count=8}
@@ -52,9 +87,6 @@ script.on_event(defines.events.on_player_created, function(event)
   
 end)
 
-function handleDroidSpawned()
-
-end
 
 function testOnBuiltEntity(event)
 
@@ -62,7 +94,7 @@ function testOnBuiltEntity(event)
 	local player = game.get_player(event.player_index)
 	
 	if table.contains(squadCapable, entity.name) then --squadCapable is defined in DroidUnitList.lua
-		LOGGER.log(string.format("Processing new entity %s spawned by player %s", entity.name, player.name) )
+		--LOGGER.log(string.format("Processing new entity %s spawned by player %s", entity.name, player.name) )
 		local position = entity.position
 		local distance = util.distance(position, player.position)
 
@@ -89,7 +121,7 @@ function testOnBuiltEntity(event)
 		end
 		 
 		
-		-- REPLACE THIS NEXT 4 LINES WITH A FUNCTION TO COUNT VALID/NON-EMPTY SQUADS IN FORCE
+	
 		local squadCount = 0
 		for i, v in pairs(global.Squads[player.name]) do 
 			squadCount = squadCount + 1
@@ -102,7 +134,7 @@ function testOnBuiltEntity(event)
 		addMember(global.Squads[player.name][squadref],entity)		
 		checkMembersAreInGroup(global.Squads[player.name][squadref])
 		
-		--REPLACE THIS NEXT SET OF CODE WITH A FUNCTION TO COUNT VALID/NON-EMPTY SQUADMEMBERS IN SQUAD
+		
 		--LOGGER.log("Squad member read-out:")
 		--for i, v in pairs(global.Squads[player.name][squadref]) do 
 		--	LOGGER.log(string.format("%s, %s", tostring(i), tostring(v) ))
@@ -117,34 +149,75 @@ end
 
 function checkIfDroidAssembly(event)
 	local entity = event.created_entity
-	local player = game.get_player(event.player_index)
 
-	if(entity.name == "droid-assembling-machine") then 
-		
-		--player.print("Droid Assembler placed...")
-		
-		if not global.DroidAssemblers then
-			--player.print("Creating global droid assembler list..")
-			global.DroidAssemblers = {}
-			global.DroidAssemblers[player.name] = {}
-			--player.print("adding droid assembler to global list..")
-			table.insert(global.DroidAssemblers[player.name], entity)
-		else
-			--player.print("adding droid assembler to global list..")
-			table.insert(global.DroidAssemblers[player.name], entity)
-		end
-	
-		--entity.recipe = entity.force.recipes["droid-deploy"]
+	local player
+	if(event.player_index) then
+		player = game.get_player(event.player_index)
+	else
+		player = entity.force.players[1] --just default to the first player in that force for the owning player .. this is just a workaround until all spawning happens by force only.
 	end
+	--player.print("Droid Assembler placed... for player: ")
+	--player.print(player.name)
+	if not global.DroidAssemblers then
+		--player.print("Creating global droid assembler list..")
+		global.DroidAssemblers = {}
+		global.DroidAssemblers[player.name] = {}
+		--player.print("adding droid assembler to global list..")
+		table.insert(global.DroidAssemblers[player.name], entity)
+	elseif not global.DroidAssemblers[player.name] then
+		--player.print("adding droid assembler to global list..")
+		LOGGER.log(string.format("Player name building droid assembler is %s", player.name))
+		global.DroidAssemblers[player.name] = {}
+		table.insert(global.DroidAssemblers[player.name], entity)
+	else
+		table.insert(global.DroidAssemblers[player.name], entity)
+	end
+
+	--entity.recipe = entity.force.recipes["droid-deploy"]
+	
 
 end
 
 script.on_event(defines.events.on_built_entity, function(event)
   --onBuiltEntityCallback(event)
-  testOnBuiltEntity(event)
-  checkIfDroidAssembly(event)
+   
+   local entity = event.created_entity
+  
+	if(entity.name == "droid-assembling-machine") then 
+		checkIfDroidAssembly(event)
+	elseif(entity.name == "droid-counter") then
+		handleBuiltDroidCounter(event)
+	else
+		testOnBuiltEntity(event) --this deals with droids spawning
+	end
+	
+  
 end)
 
+script.on_event(defines.events.on_robot_built_entity, function(event)
+	 local entity = event.created_entity
+	if(entity.name == "droid-assembling-machine") then 
+		checkIfDroidAssembly(event)
+	end
+
+end)
+
+function handleBuiltDroidCounter(event)
+	
+	local entity = event.created_entity 
+	local entityForce = entity.force.name
+
+	if not global.droidCounters then			
+		global.droidCounters = {}		
+		global.droidCounters[entityForce] = {}
+		table.insert(global.droidCounters[entityForce],entity )
+	elseif not global.droidCounters[entityForce] then 
+		global.droidCounters[entityForce] = {}
+		table.insert(global.droidCounters[entityForce], entity)
+	else
+		table.insert(global.droidCounters[entityForce], entity)
+	end
+end
 
 
 script.on_load( function() 
@@ -187,13 +260,14 @@ function onTickHandler(event)
 				for index, assembler in pairs(global.DroidAssemblers[player.name]) do
 					
 					if assembler then
-						if assembler.valid then
+						if assembler.valid and assembler.force == player.force then
+							
 							
 							local inv = assembler.get_output_inventory() --gets us a luainventory
 							local containsDroidDummies = containsSpawnableDroid(inv) -- assembler.get_item_count("droid-smg-dummy") --replace with "contains any spawnable droid"
-							if(containsDroidDummies) then
-								LOGGER.log(string.format("ContainsDroidDummies result = %s", containsDroidDummies))
-							end
+							--if(containsDroidDummies) then
+							--	LOGGER.log(string.format("ContainsDroidDummies result = %s", containsDroidDummies))
+							--end
 							--containsDroidDummies is either nil (none there) or is the name of the spawnable entity prototype used in create_entity later on.
 							if (containsDroidDummies ~= nil and type(containsDroidDummies) == "string") then
 								
@@ -240,6 +314,43 @@ function onTickHandler(event)
   
   
   
+  
+  if( event.tick %  BOT_COUNTERS_UPDATE_TICKRATE) then
+  
+	local sum = 0
+	
+	
+	--for each force in game, sum droids, then find/update droid-counters
+	for _, gameForce in pairs(game.forces) do
+		
+		--sum all droids named in the spawnable list
+		for _, droidName in pairs(spawnable) do
+		
+			sum = sum + gameForce.get_entity_count(droidName)
+		
+		end
+		
+		--local droidCounterList = game.get_surface(1).find_entities_filtered{area = {  {-10,-10}, {10,10} }, name= "droid-counter", force = gameForce  }  --this was super laggy. never do this!
+		
+		local circuitParams = {parameters={  {index=1, count = sum, signal={type="virtual",name="signal-droid-alive-count"}} } }
+		
+		if global.droidCounters ~= nil and global.droidCounters[gameForce.name] ~= nil then
+			maintainTable(global.droidCounters[gameForce.name])
+			
+			for _, counter in pairs(global.droidCounters[gameForce.name]) do
+				
+				if(counter.valid) then
+					counter.set_circuit_condition(1,circuitParams)
+				end
+			end
+		end
+		
+		
+	end
+	
+  
+  end
+  
 end
 
 --unused needs to have global.Squads[player.name] + [squadref] or iteration count used somewhere for the squadID if we will use this again
@@ -268,13 +379,13 @@ function onTickUpdateSquads()
 					if (dist < 3) then
 						
 						if (currentState == defines.groupstate.finished) then
-							global.Squads[player.name].unitGroup.set_command({type=defines.command.wander, destination= player.position, radius=15, distraction=defines.distraction.by_enemy})
+							global.Squads[player.name].unitGroup.set_command({type=defines.command.wander, destination= player.position, radius=15, distraction=defines.distraction.by_anything})
 							global.Squads[player.name].unitGroup.start_moving()
 							--player.print("set squad to move chill out because they are nearby...")
 						end
 					
 					elseif currentState == defines.groupstate.gathering or currentState == defines.groupstate.finished or dist > DEFAULT_SQUAD_RADIUS then
-						global.Squads[player.name].unitGroup.set_command({type=defines.command.go_to_location, destination= player.position, radius=DEFAULT_SQUAD_RADIUS, distraction=defines.distraction.by_enemy})
+						global.Squads[player.name].unitGroup.set_command({type=defines.command.go_to_location, destination= player.position, radius=DEFAULT_SQUAD_RADIUS, distraction=defines.distraction.by_anything})
 						--player.print("set squad to move to its owning player...")
 						global.Squads[player.name].start_moving()
 					end
@@ -359,7 +470,7 @@ script.on_event(defines.events.on_tick, function( event)
 	addMember(global.Squads[player.name][squadref],entity)		
 	checkMembersAreInGroup(global.Squads[player.name][squadref])
 	
-	global.Squads[player.name][squadref].unitGroup.set_command({type=defines.command.wander, destination= entity.position, radius=10, distraction=defines.distraction.by_enemy})
+	global.Squads[player.name][squadref].unitGroup.set_command({type=defines.command.wander, destination= entity.position, radius=10, distraction=defines.distraction.by_anything})
 	global.Squads[player.name][squadref].unitGroup.start_moving()
 	
 	--if newlyCreated then

@@ -89,8 +89,8 @@ local droid_smg =
     {
       {
         type = "physical",
-        decrease = 3,
-        percent = 20
+        decrease = 1,
+        percent = 70
       },
       {
         type = "explosion",
@@ -283,7 +283,7 @@ local droid_rifle =
       {
         type = "physical",
         decrease = 1,
-        percent = 20
+        percent = 50
       },
       {
         type = "explosion",
@@ -476,8 +476,8 @@ local droid_rocket =
     {
       {
         type = "physical",
-        decrease = 3,
-        percent = 20
+        decrease = 1,
+        percent = 40
       },
       {
         type = "explosion",
@@ -668,12 +668,12 @@ local terminator =
     {
       {
         type = "physical",
-        decrease = 5,
-        percent = 50
+        decrease = 1,
+        percent = 80
       },
       {
         type = "explosion",
-        decrease = 10,
+        decrease = 20,
         percent = 90
       },
       {
@@ -683,7 +683,7 @@ local terminator =
       },
 	  {
         type = "fire",
-        percent = 90
+        percent = 95
       }
     },
     destroy_action =
@@ -797,9 +797,46 @@ local terminator =
 	}
 }
 
+local droid_counter =  {
+    type = "constant-combinator",
+    name = "droid-counter",
+    icon = "__robotarmy__/graphics/icons/droid-counter.png",
+    flags = {"placeable-neutral", "player-creation"},
+    minable = {hardness = 0.2, mining_time = 0.5, result = "droid-counter"},
+    max_health = 50,
+    corpse = "small-remnants",
+
+    collision_box = {{-0.35, -0.35}, {0.35, 0.35}},
+    selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
+
+    item_slot_count = 5,
+
+    sprite =
+    {
+      filename = "__robotarmy__/graphics/entity/droid-counter.png",
+      width = 53,
+      height = 44,
+      shift = {0.0, 0},
+    },
+    circuit_wire_connection_point =
+    {
+      shadow =
+      {
+        red = {0.125625, 0.418125},
+        green = {0.668125, 0.418125},
+      },
+      wire =
+      {
+        red = {-0.244375, 0.020625},
+        green = {0.248125, 0.020625},
+      }
+    },
+    circuit_wire_max_distance = 10
+  
+}
 
  -- extend the game data with the new entity definitions
-data:extend({droid_smg, droid_rocket, droid_rifle, terminator})
-  
+data:extend({droid_smg, droid_rocket, droid_rifle, terminator, droid_counter})
+
   
  
