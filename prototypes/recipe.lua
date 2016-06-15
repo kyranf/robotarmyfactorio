@@ -74,7 +74,7 @@ data:extend(
   {
     type = "recipe",
     name = "droid-assembling-machine",
-    enabled = false,
+    enabled = true,
     ingredients =
     {
       {"iron-plate", 10},
