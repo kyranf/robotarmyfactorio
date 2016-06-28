@@ -809,21 +809,14 @@ local droid_counter =  {
     collision_box = {{-0.35, -0.35}, {0.35, 0.35}},
     selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
 
-    item_slot_count = 5,
+    item_slot_count = 2,
 
     sprites =
-    {
-      filename = "__robotarmy__/graphics/entity/droid-counter.png",
-      width = 53,
-      height = 44,
-      shift = {0.0, 0},
-    },
-	    sprites =
     {
       north =
       {
         filename = "__robotarmy__/graphics/entity/droid-counter.png",
-		x = 106,
+		--x = 106,
      	width = 53,
 	    height = 44,
 		frame_count = 1,
@@ -832,7 +825,7 @@ local droid_counter =  {
       east =
       {
         filename = "__robotarmy__/graphics/entity/droid-counter.png",
-		x = 159,
+		--x = 159,
      	width = 53,
 	    height = 44,
 		frame_count = 1,
@@ -849,7 +842,7 @@ local droid_counter =  {
       west =
       {
         filename = "__robotarmy__/graphics/entity/droid-counter.png",
-		x = 106,
+		--x = 106,
      	width = 53,
 	    height = 44,
 		frame_count = 1,
