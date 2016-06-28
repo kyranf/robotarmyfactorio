@@ -1,4 +1,3 @@
-require("defines")
 require("util")
 require("config.config") -- config for squad control mechanics - important for anyone using 
 require("robolib.util") -- some utility functions not necessarily related to robot army mod
@@ -60,7 +59,7 @@ end)
 
 
 script.on_event(defines.events.on_player_created, function(event)
-  local player = game.get_player(event.player_index)
+  local player = game.players[event.player_index]
   --player.insert{name="iron-plate", count=8}
   --player.insert{name="pistol", count=1}
   --player.insert{name="basic-bullet-magazine", count=10}
@@ -91,7 +90,7 @@ end)
 function testOnBuiltEntity(event)
 
 	local entity = event.created_entity
-	local player = game.get_player(event.player_index)
+	local player = game.players[event.player_index]
 	
 	if table.contains(squadCapable, entity.name) then --squadCapable is defined in DroidUnitList.lua
 		--LOGGER.log(string.format("Processing new entity %s spawned by player %s", entity.name, player.name) )
@@ -122,26 +121,10 @@ function testOnBuiltEntity(event)
 		 
 		
 	
-		local squadCount = 0
-		for i, v in pairs(global.Squads[player.name]) do 
-			squadCount = squadCount + 1
-		end
-		--LOGGER.log(string.format("squadcount = %d ", squadCount ) )
-		
-		
-		--player.print(string.format("Squadref before adding soldier to member list: %d",squadref))
 
 		addMember(global.Squads[player.name][squadref],entity)		
 		checkMembersAreInGroup(global.Squads[player.name][squadref])
-		
-		
-		--LOGGER.log("Squad member read-out:")
-		--for i, v in pairs(global.Squads[player.name][squadref]) do 
-		--	LOGGER.log(string.format("%s, %s", tostring(i), tostring(v) ))
-		--end
-		
-		--LOGGER.log(string.format("Squad member count = %d", global.Squads[player.name][squadref].members.size ) ) 
-		
+				
 	end
 
 
@@ -152,7 +135,7 @@ function checkIfDroidAssembly(event)
 
 	local player
 	if(event.player_index) then
-		player = game.get_player(event.player_index)
+		player = game.players[event.player_index]
 	else
 		player = entity.force.players[1] --just default to the first player in that force for the owning player .. this is just a workaround until all spawning happens by force only.
 	end
@@ -241,12 +224,12 @@ script.on_load( function()
 		
 end)
 
+-- during the on-tick event, lets check if we need to update squad AI, spawn droids from assemblers, or update bot counters, etc
 function onTickHandler(event)
 	
  
   -- has enough time elapsed to go through and set squad orders yet?
   if event.tick > (global.lastSquadUpdateTick + TICK_UPDATE_SQUAD_AI) then
-	--onTickUpdateSquads()
 	
 	local players = game.players -- list of players 
 	trimSquads(players) -- does some quick maintenance of the squad tables. 
@@ -255,7 +238,7 @@ function onTickHandler(event)
 	lastSquadUpdateTick = event.tick
   end
   
-  if (event.tick % ASSEMBLER_UPDATE_TICKRATE) == 0 then
+  if (event.tick % ASSEMBLER_UPDATE_TICKRATE == 0) then
 	if global.DroidAssemblers then
 		local players = game.players
 		
@@ -319,13 +302,9 @@ function onTickHandler(event)
   end
   
   
+  if( event.tick % BOT_COUNTERS_UPDATE_TICKRATE == 0) then
   
-  
-  if( event.tick %  BOT_COUNTERS_UPDATE_TICKRATE) then
-  
-	local sum = 0
-	
-	
+	local sum = 0	
 	--for each force in game, sum droids, then find/update droid-counters
 	for _, gameForce in pairs(game.forces) do
 		
@@ -336,7 +315,7 @@ function onTickHandler(event)
 		
 		end
 		
-		--local droidCounterList = game.get_surface(1).find_entities_filtered{area = {  {-10,-10}, {10,10} }, name= "droid-counter", force = gameForce  }  --this was super laggy. never do this!
+		--local droidCounterList = game.surfaces[1].find_entities_filtered{area = {  {-10,-10}, {10,10} }, name= "droid-counter", force = gameForce  }  --this was super laggy. never do this!
 		
 		local circuitParams = {parameters={  {index=1, count = sum, signal={type="virtual",name="signal-droid-alive-count"}} } }
 		
@@ -346,7 +325,7 @@ function onTickHandler(event)
 			for _, counter in pairs(global.droidCounters[gameForce.name]) do
 				
 				if(counter.valid) then
-					counter.set_circuit_condition(1,circuitParams)
+					counter.get_or_create_control_behavior().parameters = circuitParams
 				end
 			end
 		end
@@ -359,59 +338,11 @@ function onTickHandler(event)
   
 end
 
---unused needs to have global.Squads[player.name] + [squadref] or iteration count used somewhere for the squadID if we will use this again
-function onTickUpdateSquads()
-	local players = game.players
-	
-	--for each player in the game, ensure all their associated soldiers are in the player's global squad
-	--then give the squad the command to go to the player's position. 
-	for i, player in pairs(players) do
-	
-		if global.Soldiers[player.name] then
-			local length = #(global.Soldiers[player.name])
-			if length > 0 then
-				
-				-- check if unit-group is valid, then set command to move to owning player's location
-				if global.Squads[player.name].valid then
-					local currentState = global.Squads[player.name].state
-					
-					--player.print(string.format("player's squad current state: %d", currentState))
-					
-					
-					-- get distance
-					local dist = util.distance(player.position, global.Squads[player.name].position)
-					
-					--if close, make them wander. else check state and distance and force to move
-					if (dist < 3) then
-						
-						if (currentState == defines.groupstate.finished) then
-							global.Squads[player.name].unitGroup.set_command({type=defines.command.wander, destination= player.position, radius=15, distraction=defines.distraction.by_anything})
-							global.Squads[player.name].unitGroup.start_moving()
-							--player.print("set squad to move chill out because they are nearby...")
-						end
-					
-					elseif currentState == defines.groupstate.gathering or currentState == defines.groupstate.finished or dist > DEFAULT_SQUAD_RADIUS then
-						global.Squads[player.name].unitGroup.set_command({type=defines.command.go_to_location, destination= player.position, radius=DEFAULT_SQUAD_RADIUS, distraction=defines.distraction.by_anything})
-						--player.print("set squad to move to its owning player...")
-						global.Squads[player.name].start_moving()
-					end
-				end
-			
-			end
-			global.lastSquadUpdateTick = event.tick
-		else
-				player.print("your soldier table doesn't exist (is nil) ") -- debug
-				--global.Soldiers[player.name] = {}
-		end
-	end
-  end
-
 
 script.on_event(defines.events.on_tick, function( event) 
 	
 	--on the very first tick, do any adjustments or changes or forcing of updates. On-load doesn't have access to "game" and migration scripts don't have access to global... so just do it here
 	if not global.runonce then
-
 
 		for i, force in pairs(game.forces) do 
 			force.reset_recipes()
@@ -429,7 +360,7 @@ script.on_event(defines.events.on_tick, function( event)
 				--Tech Additions for droids and droid counter combinator
 				if force.technologies["military"].researched then
 					force.recipes["droid-rifle"].enabled=true
-					force.recipes["droid-rifle-deploy"].enabled=true
+					force.recipes["droid-rifle-deploy"].enabled=trueas
 				end
 
 				if force.technologies["electronics"].researched then
@@ -458,7 +389,7 @@ script.on_event(defines.events.on_tick, function( event)
  
  function handleDroidProduced(assembler, player, entity)
 			
-	LOGGER.log(string.format("handle droids function inputs %s %s %s", assembler, player, entity))
+	--LOGGER.log(string.format("handle droids function inputs %s %s %s", assembler, player, entity))
 
 
 	--if this is the first time we are using the player's tables, make it
@@ -481,52 +412,12 @@ script.on_event(defines.events.on_tick, function( event)
 		--player.print(string.format("index of joined squad %d", squadref))
 	end
 	
-	--debug print stuff.. doesn't seem to do anything
-	 --for i, v in pairs(global.Squads[player.name]) do player.print(string.format("%s, %s", tostring(i), tostring(v))) end
-	 --
-	 --if (global.Squads[player.name][squadref]) then
-	--	if global.Squads[player.name][squadref].members then
-			--player.print(string.format("member list of squad ID %d", squadref))
-			--for i, v in pairs(global.Squads[player.name][squadref].members) do player.print(string.format("%s, %s", tostring(i), tostring(v))) end
-	--	end
-	 --end
-	 
-	
-	local squadCount = 0
-	for i, v in pairs(global.Squads[player.name]) do 
-		squadCount = squadCount + 1
-	end
-	--player.print(string.format("Player squadcount = %d ", squadCount ) ) 
-	
-	
-	--player.print(string.format("Squadref before adding soldier to member list: %d",squadref))
-	
 	addMember(global.Squads[player.name][squadref],entity)		
 	checkMembersAreInGroup(global.Squads[player.name][squadref])
 	
 	global.Squads[player.name][squadref].unitGroup.set_command({type=defines.command.wander, destination= entity.position, radius=10, distraction=defines.distraction.by_anything})
 	global.Squads[player.name][squadref].unitGroup.start_moving()
 	
-	--if newlyCreated then
-	--	global.Squads[player.name][squadref].unitGroup.set_command({type=defines.command.wander, destination= entity.position, radius=20, distraction=defines.distraction.by_enemy})
-	--	global.Squads[player.name][squadref].unitGroup.start_moving()
-	--else
-	--	if not global.Squads[player.name][squadref].command == commands.hunt then 
-	--		global.Squads[player.name][squadref].unitGroup.set_command({type=defines.command.wander, destination= entity.position, radius=20, distraction=defines.distraction.by_enemy})
-	--		global.Squads[player.name][squadref].unitGroup.start_moving()
-	--	else
-	--		--LOGGGER.log("WARNING: is in hunt mode already, when new units added to it")
-	--	end
-	
-	--end
-	
-	--player.print("player's squad table readout")
-	--for i, v in pairs(global.Squads[player.name][squadref]) do 
-		
-		--player.print(string.format("%s, %s", tostring(i), tostring(v) ))
-	--end
-	
-	--player.print(string.format("Squad member count = %d", global.Squads[player.name][squadref].members.size ) ) 
 		
 end
 

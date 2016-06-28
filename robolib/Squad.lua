@@ -2,7 +2,6 @@ require("config.config")
 require("util")
 require("robolib.util")
 require("stdlib/log/logger")
-require("defines")
 require("prototypes.DroidUnitList")
 
 
@@ -182,11 +181,11 @@ function getClosestSquadToPos(tableIN, position, maxRange)
 	end
 	
 	if (leastDist >= maxRange or leastDistSquadID == nil) then 
-		game.players[1].print("getClosestSquad - no squad found or squad too far away")
+		--game.players[1].print("getClosestSquad - no squad found or squad too far away")
 		return nil
 	end
 	
-	game.players[1].print(string.format("closest squad found: %d tiles away from given position, ID %d", leastDist, leastDistSquadID))
+	--game.players[1].print(string.format("closest squad found: %d tiles away from given position, ID %d", leastDist, leastDistSquadID))
 	return leastDistSquadID
 end
 
@@ -228,14 +227,10 @@ function sendSquadsToBattle(players, minSquadSize)
 			for id, squad in pairs(global.Squads[player.name]) do
 				
 				if squad then
-					checkMembersAreInGroup(squad)				
-					
+									
 					if squad.unitGroup then
-						local state = squad.unitGroup.state
-						--LOGGER.log("Checking group state and other info")
-						--LOGGER.log(state)
 						
-						if(squad.unitGroup.valid and (state == defines.groupstate.gathering or state == defines.groupstate.finished)) then
+						if(squad.unitGroup.valid and (squad.unitGroup.state == defines.group_state.gathering or squad.unitGroup.state == defines.group_state.finished)) then
 							
 							--LOGGER.log("group is gathering or finished the last task")
 					
@@ -243,8 +238,8 @@ function sendSquadsToBattle(players, minSquadSize)
 							if count then 
 								if  count >= minSquadSize then
 									--get nearest enemy unit to the squad. 
-									--find the nearest enemy to the squad that is an enemy of the player's force, and max radius of 5000 tiles (10k tile diameter)
-									local nearestEnemy = player.surface.find_nearest_enemy({position = squad.unitGroup.position, max_distance = 5000.0, force = player.force })
+									--find the nearest enemy to the squad that is an enemy of the player's force, and max radius of 2000 tiles (10k tile diameter)
+									local nearestEnemy = player.surface.find_nearest_enemy({position = squad.unitGroup.position, max_distance = 2500.0, force = player.force })
 									if nearestEnemy then
 									-- check if they are in a charted area
 										local charted = player.force.is_chunk_charted(player.surface, nearestEnemy.position)
@@ -252,7 +247,7 @@ function sendSquadsToBattle(players, minSquadSize)
 										if charted then
 											--player.print("Sending squad off to battle...")
 											--make sure squad is good, then set command
-											--checkMembersAreInGroup(squad)
+											checkMembersAreInGroup(squad)
 											squad.command = commands.hunt -- sets the squad's high level role to hunt. not really used yet
 											squad.unitGroup.set_command({type=defines.command.attack_area, destination= nearestEnemy.position, radius=50, distraction=defines.distraction.by_anything})
 											squad.unitGroup.start_moving()
@@ -260,7 +255,7 @@ function sendSquadsToBattle(players, minSquadSize)
 											--player.print("enemy found but in un-charted area...")								
 										end
 									else
-										LOGGER.log("nearest enemy is nil, out of range?")
+										--LOGGER.log("nearest enemy is nil, out of range?")
 									end
 								end
 							end
@@ -327,9 +322,9 @@ function revealSquadChunks()
 						local count = table.countValidElements(squad.members)
 						if count > 0 then  --if there are troops in a valid group in a valid squad. 
 							local position = squad.unitGroup.position
-							local area = {left_top = {position.x-2, position.y-2}, right_bottom = {position.x+2, position.y+2}}
+							local area = {left_top = {position.x-20, position.y-20}, right_bottom = {position.x+20, position.y+20}}
 							
-							squad.force.chart(game.get_surface("nauvis"), area) --reveal the chunk they are in. 
+							squad.force.chart(game.surfaces[1], area) --reveal the chunk they are in. 
 						end
 					end
 				end

@@ -1,4 +1,3 @@
-require("defines")
 
 --gets an offset spawning location for an entity (droid assembler) 
 -- should use surface.find_non_colliding_position() API call here, to check for a small square around entPos and return the result of that function instead.
@@ -33,7 +32,7 @@ function getDroidSpawnLocation(entity)
 	entPos.x = entPos.x + randX
 	entPos.y = entPos.y + randY
 	--final check, let the game find us a good spot if we've failed by now.
-	local finalPos = game.get_surface(1).find_non_colliding_position(entity.name, entPos, 4, 0.5)
+	local finalPos = game.surfaces[1].find_non_colliding_position(entity.name, entPos, 4, 0.5)
 	if not finalPos then 
 		return entPos --just force it... oh well.
 	else
