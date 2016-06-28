@@ -9,7 +9,7 @@ data:extend(
     ingredients =
     {
       {"steel-plate", 5},
-	  {"electronic-circuit", 5},
+	  {"electronic-circuit", 15},
 	  {"submachine-gun", 1},
 	  {"light-armor", 1}
     },
@@ -23,7 +23,7 @@ data:extend(
     energy_required = 5,
     ingredients =
     {
-      {"copper-plate", 10},
+      {"copper-plate", 20},
 	  {"electronic-circuit", 5},
 	  {"iron-gear-wheel", 10},
     },
@@ -38,7 +38,7 @@ data:extend(
     ingredients =
     {
       {"steel-plate", 5},
-	  {"electronic-circuit", 5},
+	  {"electronic-circuit", 25},
 	  {"rocket-launcher", 1},
 	  {"light-armor", 1}
     },
@@ -78,8 +78,8 @@ data:extend(
     ingredients =
     {
       {"iron-plate", 10},
-      {"electronic-circuit", 10},
-      {"iron-gear-wheel", 10},
+      {"electronic-circuit", 100},
+      {"iron-gear-wheel", 50},
       {"assembling-machine-1", 1}
     },
     result = "droid-assembling-machine"
@@ -127,8 +127,8 @@ data:extend(
     ingredients =
     {
       {"constant-combinator", 1},
-      {"iron-plate",2},
-      {"electronic-circuit", 10},
+      {"iron-plate",20},
+      {"electronic-circuit", 25},
     },
     result="droid-counter",
   }
