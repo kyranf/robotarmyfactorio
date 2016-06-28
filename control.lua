@@ -360,7 +360,7 @@ script.on_event(defines.events.on_tick, function( event)
 				--Tech Additions for droids and droid counter combinator
 				if force.technologies["military"].researched then
 					force.recipes["droid-rifle"].enabled=true
-					force.recipes["droid-rifle-deploy"].enabled=trueas
+					force.recipes["droid-rifle-deploy"].enabled=true
 				end
 
 				if force.technologies["electronics"].researched then
