@@ -72,7 +72,7 @@ local droid_smg =
     flags = {"placeable-player", "player-creation", "placeable-off-grid"},
     subgroup="creatures",
     order="e-a-b-d",
-    max_health = 65,
+    max_health = 120,
     alert_when_damaged = false,
     healing_per_tick = 0.01,
     collision_box = {{-0.2, -0.2}, {0.2, 0.2}},
@@ -189,7 +189,7 @@ local droid_smg =
               },
               {
                 type = "damage",
-                damage = { amount = 8 , type = "physical"}
+                damage = { amount = 5 , type = "physical"}
               }
             }
           }
@@ -265,7 +265,7 @@ local droid_rifle =
     flags = {"placeable-player", "player-creation", "placeable-off-grid"},
     subgroup="creatures",
     order="e-a-b-d",
-    max_health = 30,
+    max_health = 40,
     alert_when_damaged = false,
     healing_per_tick = 0.00,
     collision_box = {{-0.2, -0.2}, {0.2, 0.2}},
@@ -343,7 +343,7 @@ local droid_rifle =
     {
       type = "projectile",
       ammo_category = "bullet",
-      cooldown = 100,
+      cooldown = 120,
       projectile_center = {0, 0.5},
       projectile_creation_distance = 0.6,
       range = 16,
@@ -382,7 +382,7 @@ local droid_rifle =
               },
               {
                 type = "damage",
-                damage = { amount = 18 , type = "physical"}
+                damage = { amount = 10 , type = "physical"}
               }
             }
           }
@@ -459,7 +459,7 @@ local droid_rocket =
     flags = {"placeable-player", "player-creation", "placeable-off-grid"},
     subgroup="creatures",
     order="e-a-b-d",
-    max_health = 65,
+    max_health = 85,
     alert_when_damaged = false,
     healing_per_tick = 0.01,
     collision_box = {{-0.2, -0.2}, {0.2, 0.2}},
