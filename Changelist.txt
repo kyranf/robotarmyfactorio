@@ -3,3 +3,4 @@ Changes from 0.1.4 to 0.1.41 release:
 -increased squad chunk update range so they don't leave ghosts behind them as they move
 -optimised script update rate, tested with 844 droids active with 60/60 fps. compared to 300 droids and 50fps and below. Was a linear increase but was not noticeable until you hit the 12ms update time
 -removed some debug stuff.
+-adjusted recipes and stats of clockwork bot, smg and rocket bots. Basically increased health and decreased damage a little bit.
