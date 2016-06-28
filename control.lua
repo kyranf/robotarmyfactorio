@@ -1,4 +1,3 @@
-require("defines")
 require("util")
 require("config.config") -- config for squad control mechanics - important for anyone using 
 require("robolib.util") -- some utility functions not necessarily related to robot army mod
@@ -60,7 +59,7 @@ end)
 
 
 script.on_event(defines.events.on_player_created, function(event)
-  local player = game.get_player(event.player_index)
+  local player = game.players[event.player_index]
   --player.insert{name="iron-plate", count=8}
   --player.insert{name="pistol", count=1}
   --player.insert{name="basic-bullet-magazine", count=10}
@@ -91,7 +90,7 @@ end)
 function testOnBuiltEntity(event)
 
 	local entity = event.created_entity
-	local player = game.get_player(event.player_index)
+	local player = game.players[event.player_index]
 	
 	if table.contains(squadCapable, entity.name) then --squadCapable is defined in DroidUnitList.lua
 		--LOGGER.log(string.format("Processing new entity %s spawned by player %s", entity.name, player.name) )
@@ -152,7 +151,7 @@ function checkIfDroidAssembly(event)
 
 	local player
 	if(event.player_index) then
-		player = game.get_player(event.player_index)
+		player = game.players[event.player_index]
 	else
 		player = entity.force.players[1] --just default to the first player in that force for the owning player .. this is just a workaround until all spawning happens by force only.
 	end
@@ -336,7 +335,7 @@ function onTickHandler(event)
 		
 		end
 		
-		--local droidCounterList = game.get_surface(1).find_entities_filtered{area = {  {-10,-10}, {10,10} }, name= "droid-counter", force = gameForce  }  --this was super laggy. never do this!
+		--local droidCounterList = game.surfaces[1].find_entities_filtered{area = {  {-10,-10}, {10,10} }, name= "droid-counter", force = gameForce  }  --this was super laggy. never do this!
 		
 		local circuitParams = {parameters={  {index=1, count = sum, signal={type="virtual",name="signal-droid-alive-count"}} } }
 		
@@ -346,7 +345,7 @@ function onTickHandler(event)
 			for _, counter in pairs(global.droidCounters[gameForce.name]) do
 				
 				if(counter.valid) then
-					counter.set_circuit_condition(1,circuitParams)
+					counter.get_or_create_control_behavior().parameters = circuitParams
 				end
 			end
 		end
@@ -384,13 +383,13 @@ function onTickUpdateSquads()
 					--if close, make them wander. else check state and distance and force to move
 					if (dist < 3) then
 						
-						if (currentState == defines.groupstate.finished) then
+						if (currentState == defines.group_state.finished) then
 							global.Squads[player.name].unitGroup.set_command({type=defines.command.wander, destination= player.position, radius=15, distraction=defines.distraction.by_anything})
 							global.Squads[player.name].unitGroup.start_moving()
 							--player.print("set squad to move chill out because they are nearby...")
 						end
 					
-					elseif currentState == defines.groupstate.gathering or currentState == defines.groupstate.finished or dist > DEFAULT_SQUAD_RADIUS then
+					elseif currentState == defines.group_state.gathering or currentState == defines.group_state.finished or dist > DEFAULT_SQUAD_RADIUS then
 						global.Squads[player.name].unitGroup.set_command({type=defines.command.go_to_location, destination= player.position, radius=DEFAULT_SQUAD_RADIUS, distraction=defines.distraction.by_anything})
 						--player.print("set squad to move to its owning player...")
 						global.Squads[player.name].start_moving()

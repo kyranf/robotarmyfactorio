@@ -2,7 +2,6 @@ require("config.config")
 require("util")
 require("robolib.util")
 require("stdlib/log/logger")
-require("defines")
 require("prototypes.DroidUnitList")
 
 
@@ -182,11 +181,11 @@ function getClosestSquadToPos(tableIN, position, maxRange)
 	end
 	
 	if (leastDist >= maxRange or leastDistSquadID == nil) then 
-		game.players[1].print("getClosestSquad - no squad found or squad too far away")
+		--game.players[1].print("getClosestSquad - no squad found or squad too far away")
 		return nil
 	end
 	
-	game.players[1].print(string.format("closest squad found: %d tiles away from given position, ID %d", leastDist, leastDistSquadID))
+	--game.players[1].print(string.format("closest squad found: %d tiles away from given position, ID %d", leastDist, leastDistSquadID))
 	return leastDistSquadID
 end
 
@@ -235,7 +234,7 @@ function sendSquadsToBattle(players, minSquadSize)
 						--LOGGER.log("Checking group state and other info")
 						--LOGGER.log(state)
 						
-						if(squad.unitGroup.valid and (state == defines.groupstate.gathering or state == defines.groupstate.finished)) then
+						if(squad.unitGroup.valid and (state == defines.group_state.gathering or state == defines.group_state.finished)) then
 							
 							--LOGGER.log("group is gathering or finished the last task")
 					
@@ -329,7 +328,7 @@ function revealSquadChunks()
 							local position = squad.unitGroup.position
 							local area = {left_top = {position.x-2, position.y-2}, right_bottom = {position.x+2, position.y+2}}
 							
-							squad.force.chart(game.get_surface("nauvis"), area) --reveal the chunk they are in. 
+							squad.force.chart(game.surfaces[1], area) --reveal the chunk they are in. 
 						end
 					end
 				end

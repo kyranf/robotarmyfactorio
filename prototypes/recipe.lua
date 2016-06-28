@@ -11,7 +11,7 @@ data:extend(
       {"steel-plate", 5},
 	  {"electronic-circuit", 5},
 	  {"submachine-gun", 1},
-	  {"basic-armor", 1}
+	  {"light-armor", 1}
     },
     result = "droid-smg"
   },
@@ -40,7 +40,7 @@ data:extend(
       {"steel-plate", 5},
 	  {"electronic-circuit", 5},
 	  {"rocket-launcher", 1},
-	  {"basic-armor", 1}
+	  {"light-armor", 1}
     },
     result = "droid-rocket"
   },
@@ -55,7 +55,7 @@ data:extend(
       {"steel-plate", 10},
 	  {"laser-turret", 2},
 	  {"processing-unit", 10},
-	  {"basic-modular-armor", 1}
+	  {"modular-armor", 1}
     },
     result = "terminator"
   },
