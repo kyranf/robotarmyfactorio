@@ -131,6 +131,18 @@ data:extend(
       {"electronic-circuit", 25},
     },
     result="droid-counter",
+  },
+  {
+    type = "recipe",
+    name = "loot-chest",
+    enabled = false,
+	ingredients =
+	{
+	  {"steel-plate",20},
+	  {"electronic-circuit", 25},
+	},	
+    result = "loot-chest",
+	requester_paste_multiplier = 1
   }
 })
 
@@ -139,6 +151,7 @@ data:extend(
  -- deal with unlocking the recipes just piggy-backing on military research for now. most droids need more advanced research to build them anyway.
 table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-rifle"})
 table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-rifle-deploy"})
+table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="loot-chest"})
 table.insert(data.raw["technology"]["military-2"].effects,{type="unlock-recipe",recipe="droid-smg-deploy"})
 table.insert(data.raw["technology"]["military-2"].effects,{type="unlock-recipe",recipe="droid-smg"})
 table.insert(data.raw["technology"]["military-2"].effects,{type="unlock-recipe",recipe="droid-rocket-deploy"})

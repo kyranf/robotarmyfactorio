@@ -40,9 +40,8 @@ end
 --- Given search criteria, a table that contains a name or type of entity to search for,
 --  and optionally surface or force, searches all loaded chunks for the entities that
 --  match the critera.
---  <p> Ex: <pre>
---   Surface.final_all_entities({ type = 'unit', surface = 'nauvis' }) </pre> <p>
---  Will return all units on the nauvis surface.
+--  @usage
+----Surface.final_all_entities({ type = 'unit', surface = 'nauvis' }) --returns a list containing all unit entities on the nauvis surface
 -- @param search_criteria a table of criteria. Must contain either the name or type or force of an entity. May contain surface or force.
 -- @return an array of all entities that matched the criteria
 function Surface.find_all_entities(search_criteria)
@@ -62,12 +61,12 @@ function Surface.find_all_entities(search_criteria)
         for chunk in surface.get_chunks() do
             local entities = surface.find_entities_filtered(
             {
-                area = { left_top = { x = chunk.x * 32, y = chunk.y * 32 }, right_bottom = {x = (chunk.x + 1) * 32, (chunk.y + 1) * 32}},
+                area = { left_top = { x = chunk.x * 32, y = chunk.y * 32 }, right_bottom = {x = (chunk.x + 1) * 32, y = (chunk.y + 1) * 32}},
                 name = search_criteria.name,
                 type = search_criteria.type,
                 force = search_criteria.force
             })
-            for _, entity in ipairs(entities) do
+            for _, entity in pairs(entities) do
                 table.insert(result, entity)
             end
         end

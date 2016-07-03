@@ -53,7 +53,7 @@ function createNewSquad(tableIN, player, entity)
 	--end
 	--player.print(string.format("Created new squad for %s with unique ID %d", player.name, squadRef))
 	--LOGGER.log(string.format("Created squad for player %s", player.name))
-	tableIN[squadRef].unitGroup.set_command({type=defines.command.wander, destination= tableIN[squadRef].home, radius=tableIN[squadRef].radius, distraction=defines.distraction.by_anything})
+	--tableIN[squadRef].unitGroup.set_command({type=defines.command.wander, destination= newsquad.home, radius=newsquad.radius, distraction=defines.distraction.by_anything})
 	return squadRef
 end
 
@@ -74,6 +74,7 @@ function addMember(tableIN, entity)
 	--tableIN.player.print(string.format("Valid squad member count %d", soldierCount))
 	--tableIN.player.print(string.format("added guy to squad belonging to %s, membercount is %d", tableIN.player.name, tableIN.members.size))
 	--LOGGER.log(string.format("added guy to squad belonging to %s, membercount is %d", tableIN.player.name, tableIN.members.size))
+
 end
 
 
@@ -83,14 +84,11 @@ function checkMembersAreInGroup(tableIN)
 	
 	--tableIN.player.print("checking soldiers are in their squad's unitgroup")
 	--does some trimming of nil members if any have died
-	--maintainTable(tableIN.members)
-	if not tableIN then
+	maintainTable(tableIN.members)
+	if not tableIN or not tableIN.unitGroup then
 		return
 	end
-	if not tableIN.unitGroup then
-		return
-	end
---make sure the unitgroup is even available
+	--make sure the unitgroup is even available, if it's not there for some reason, create it.
 	if not tableIN.unitGroup.valid then
 		tableIN.unitGroup = tableIN.player.surface.create_unit_group({position=tableIN.home, force=tableIN.force})
 	end
@@ -114,11 +112,10 @@ function checkMembersAreInGroup(tableIN)
 	local memberCount = 0
 	for key, soldier in pairs(tableIN.members) do 
 		if(key ~= "size") then
-			if soldier then
-				if soldier.valid then
+			if soldier and soldier.valid then
 					memberCount = memberCount + 1
-				end
 			end
+			
 		end
 	end
 	
@@ -192,30 +189,41 @@ end
 function trimSquads(players)
 	for _, player in pairs(players) do
 		
-		if not global.Squads then return end
-		if not global.Squads[player.name] then return end
+		if global.Squads and global.Squads[player.name] then 
 		
-		
-		for key, squad in pairs(global.Squads[player.name]) do	
-			if squad then	
-				local removeThisSquad = false			
-				if table.countValidElements(squad.members) == 0 then
-					squad.unitGroup = nil
-					
-					removeThisSquad = true
-					
-				end	
+			for key, squad in pairs(global.Squads[player.name]) do	
+				if squad then
+
+					--player.print(string.format("squad %s, id %d, member size %d", squad, squad.squadID, squad.members.size))
 				
-				if removeThisSquad then
-					player.print(string.format("Squad %d is no more...", squad.squadID))
-					--table.remove(global.Squads[player.name], key)
-					global.Squads[player.name][squad.squadID] = nil
-					maintainTable(global.Squads[player.name])
+					local removeThisSquad = false	
+					maintainTable(squad.members);
+					
+					local count = table.countValidElements(squad.members)			
+										
+					if count == 0 then
+						if(squad.unitGroup.valid) then
+							squad.unitGroup.destroy()
+						end
+						squad.unitGroup = nil
+						removeThisSquad = true
+						
+					end
+					
+					if removeThisSquad then
+						if PRINT_SQUAD_DEATH_MESSAGES == 1 then
+							player.print(string.format("Squad %d is no more...", squad.squadID))
+						end
+						--table.remove(global.Squads[player.name], key)
+						global.Squads[player.name][squad.squadID] = nil
+						maintainTable(global.Squads[player.name])
+					end
 				end
 			end
 		end
 	end
 end
+
 
 --sends squads for each player to nearest enemy units. will not happen until squadsize is >= SQUAD_SIZE_MIN_BEFORE_HUNT
 function sendSquadsToBattle(players, minSquadSize)
@@ -226,36 +234,83 @@ function sendSquadsToBattle(players, minSquadSize)
 		
 			for id, squad in pairs(global.Squads[player.name]) do
 				
-				if squad then
-									
-					if squad.unitGroup then
-						
-						if(squad.unitGroup.valid and (squad.unitGroup.state == defines.group_state.gathering or squad.unitGroup.state == defines.group_state.finished)) then
-							
-							--LOGGER.log("group is gathering or finished the last task")
+				if squad and squad.unitGroup then
+					--debug stuff
+					if(squad.unitGroup.valid) then
+						--player.print(string.format("squad %d id %d groupstate is %d", id, squad.squadID, squad.unitGroup.state))
+					else
 					
-							local count = table.countValidElements(squad.members)
-							if count then 
-								if  count >= minSquadSize then
-									--get nearest enemy unit to the squad. 
-									--find the nearest enemy to the squad that is an enemy of the player's force, and max radius of 2000 tiles (10k tile diameter)
-									local nearestEnemy = player.surface.find_nearest_enemy({position = squad.unitGroup.position, max_distance = 2500.0, force = player.force })
-									if nearestEnemy then
-									-- check if they are in a charted area
-										local charted = player.force.is_chunk_charted(player.surface, nearestEnemy.position)
-										charted = true -- force this to true for now - we'll introduce this feature later. Requires player to have explored the spot before it can be targetted for attacks.
-										if charted then
-											--player.print("Sending squad off to battle...")
-											--make sure squad is good, then set command
-											checkMembersAreInGroup(squad)
-											squad.command = commands.hunt -- sets the squad's high level role to hunt. not really used yet
-											squad.unitGroup.set_command({type=defines.command.attack_area, destination= nearestEnemy.position, radius=50, distraction=defines.distraction.by_anything})
-											squad.unitGroup.start_moving()
-										else
-											--player.print("enemy found but in un-charted area...")								
-										end
+						--player.print(string.format("Squad %d is no more...", squad.squadID))
+						--table.remove(global.Squads[player.name], key)
+						global.Squads[player.name][squad.squadID] = nil
+						maintainTable(global.Squads[player.name])
+					end
+				--end debug stuff
+					if(squad.unitGroup.valid and (squad.unitGroup.state == defines.group_state.gathering or squad.unitGroup.state == defines.group_state.finished)) then
+						
+						--LOGGER.log("group is gathering or finished the last task")
+				
+						local count = table.countValidElements(squad.members)
+						if count then 
+							if  count >= minSquadSize or (squad.command == commands.hunt and count > SQUAD_SIZE_MIN_BEFORE_RETREAT) then
+								--get nearest enemy unit to the squad. 
+								--find the nearest enemy to the squad that is an enemy of the player's force, and max radius of 2000 tiles (10k tile diameter)
+								local nearestEnemy = player.surface.find_nearest_enemy({position = squad.unitGroup.position, max_distance = 5000.0, force = player.force })
+								if nearestEnemy then
+								-- check if they are in a charted area
+									local charted = player.force.is_chunk_charted(player.surface, nearestEnemy.position)
+									charted = true -- force this to true for now - we'll introduce this feature later. Requires player to have explored the spot before it can be targetted for attacks.
+									if charted then
+										--player.print("Sending squad off to battle...")
+										--make sure squad is good, then set command
+										checkMembersAreInGroup(squad)
+										squad.command = commands.hunt -- sets the squad's high level role to hunt. not really used yet
+										squad.unitGroup.set_command({type=defines.command.attack_area, destination= nearestEnemy.position, radius=50, distraction=defines.distraction.by_anything})
+										squad.unitGroup.start_moving()
 									else
-										--LOGGER.log("nearest enemy is nil, out of range?")
+										--player.print("enemy found but in un-charted area...")								
+									end
+								else
+									player.print("cannot find nearby target!!")
+								end
+							else
+							
+								if squad.unitGroup.valid and (squad.unitGroup.state == defines.group_state.finished) and squad.command == commands.hunt then
+									--player.print(string.format("Sending under-strength squad id %d back to base for resupply...", squad.squadID ))
+									checkMembersAreInGroup(squad)
+									--player.print(string.format("squad size %d, squad state %d", squad.members.size, squad.unitGroup.state ))
+
+									
+									if squad.members.size > 0 then
+										local distance = 999999
+										local entity = nil
+										-- for each player in the force, check every possible droid assembler entity and return the one with shortest distance
+										for _, playerj in pairs(player.force.players) do
+										
+											if global.DroidAssemblers and global.DroidAssemblers[playerj.name] then
+												for _, droidAss in pairs(global.DroidAssemblers[playerj.name]) do
+												
+												--distance between the droid assembler and the squad
+													if droidAss.valid then
+														local dist = util.distance(droidAss.position, squad.unitGroup.position)
+														if dist <= distance then
+															entity = droidAss
+															distance = dist
+														end	
+													end												
+												end
+											end
+										end
+										
+										--we should have the closest droid assembler now. but don't send new commands if they are already only 10 squads away from the rally point.
+										if entity and distance > 10 then
+											--player.print(string.format("Closest assembler found was at location x %d : y %d", entity.position.x, entity.position.y ))
+											local location = getDroidSpawnLocation(entity)
+											--player.print(string.format("Sending squad to assembler at location x %d : y %d", location.x, location.y ))
+											squad.unitGroup.set_command({type=defines.command.go_to_location, destination= location, radius=DEFAULT_SQUAD_RADIUS, distraction=defines.distraction.by_anything})
+											squad.unitGroup.start_moving()
+										
+										end
 									end
 								end
 							end
@@ -282,8 +337,6 @@ function containsSpawnableDroid(inv)
 			for i, j in pairs(spawnable) do
 				
 				--LOGGER.log(string.format("spawnable list %s , %s", i, j))
-				
-				
 				local spawnable = convertToMatchable(j)
 				--LOGGER.log(spawnable)
 				if(string.find(itemName, spawnable)) then --example, in "droid-smg-dummy" find "droid-smg", but the names have been adjusted to replace '-' with '0' to allow string.find to work. turns out hyphens are an escape charater, THANKS LUA!!
@@ -317,16 +370,14 @@ function revealSquadChunks()
 		
 			for id, squad in pairs(global.Squads[player.name]) do
 				
-				if squad then
-					if squad.unitGroup.valid then
-						local count = table.countValidElements(squad.members)
-						if count > 0 then  --if there are troops in a valid group in a valid squad. 
-							local position = squad.unitGroup.position
-							local area = {left_top = {position.x-20, position.y-20}, right_bottom = {position.x+20, position.y+20}}
-							
-							squad.force.chart(game.surfaces[1], area) --reveal the chunk they are in. 
-						end
+				if squad and squad.unitGroup.valid then
+					if squad.members.size > 0 then  --if there are troops in a valid group in a valid squad. 
+						local position = squad.unitGroup.position
+						local area = {left_top = {position.x-20, position.y-20}, right_bottom = {position.x+20, position.y+20}}
+						
+						squad.force.chart(game.surfaces[1], area) --reveal the chunk they are in. 
 					end
+					
 				end
 				
 			end
@@ -335,3 +386,62 @@ function revealSquadChunks()
 	
 
 end
+
+function grabArtifacts(players)
+
+	for _, player in pairs(players) do
+		
+		--if there are squads in the player's name, and the player's force has a loot chest active, scan area around droids for alien-artifact
+		
+		
+		if global.Squads[player.name] and global.lootChests and global.lootChests[player.force.name] then
+			
+			for id, squad in pairs(global.Squads[player.name]) do
+				
+				if squad and squad.unitGroup.valid then
+					
+					if squad.members.size > 0 then  --if there are troops in a valid group in a valid squad. 
+						local position = squad.unitGroup.position
+						local areaToCheck = {left_top = {position.x-15, position.y-15}, right_bottom = {position.x+15, position.y+15}}
+						
+						local itemList = game.surfaces[1].find_entities_filtered{area=areaToCheck, type="item-entity"}
+						local artifactCount = 0
+						for _, item in pairs(itemList) do
+						
+							if item.stack.name == "alien-artifact" then
+							
+								artifactCount = artifactCount + 1
+								item.destroy()
+							
+							end
+						
+						
+						end
+						if(artifactCount > 0) then
+							--player.print(string.format("Squad ID %d found %d artifacts!", squad.squadID , artifactCount))
+							--player.insert({name="alien-artifact", count = artifactCount})
+							local chest = global.lootChests[player.force.name]
+							local items = {name = "alien-artifact", count = artifactCount}
+							if(chest.can_insert(items)) then 
+								
+								chest.insert(items)
+							else
+																	
+								for _, plr in pairs(chest.force.players) do
+									plr.print("Your loot chest is too full! Cannot add more until there is room!")
+								end
+								
+							end								
+							
+							
+						end
+					end
+					
+				end
+				
+			end
+		end
+	end
+end
+
+

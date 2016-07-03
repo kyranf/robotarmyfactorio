@@ -111,5 +111,14 @@ data:extend(
     order = "b[combinators]-e[droid-counter]",
     stack_size = 50,
   },
-
+	{
+    type = "item",
+    name = "loot-chest",
+    icon = "__robotarmy__/graphics/icons/loot-chest.png",
+    flags = {"goes-to-quickbar"},
+    subgroup = "storage",
+    place_result="loot-chest",
+    order = "a[items]-c[loot-chest]",
+    stack_size = 50,
+  },
 })

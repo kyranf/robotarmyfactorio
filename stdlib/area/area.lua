@@ -51,6 +51,19 @@ function Area.expand(area, amount)
     return {left_top = {x = left_top.x - amount, y = left_top.y - amount}, right_bottom = {x = right_bottom.x + amount, y = right_bottom.y + amount}}
 end
 
+--- Calculates the center of the area and returns the position
+-- @param area the area
+-- @return area to find the center for
+function Area.center(area)
+    fail_if_missing(area, "missing area value")
+    area = Area.to_table(area)
+
+    local dist_x = area.right_bottom.x - area.left_top.x
+    local dist_y = area.right_bottom.y - area.left_top.y
+
+    return {x = area.left_top.x + (dist_x / 2), y = area.left_top.y + (dist_y / 2)}
+end
+
 --- Offsets the area by the {x, y} values
 -- @param area the area
 -- @param pos the {x, y} amount to offset the area
@@ -76,11 +89,11 @@ function Area.round_to_integer(area)
             right_bottom = {x = math.ceil(right_bottom.x), y = math.ceil(right_bottom.y)}}
 end
 
---- Iterates an area. Example:
--- <pre>
---   for x,y in Area.iterate({{0, -5}, {3, -3}}) do
---     ...
---   end </pre>
+--- Iterates an area.
+-- @usage
+---for x,y in Area.iterate({{0, -5}, {3, -3}}) do
+-----...
+---end
 -- @param area the area
 -- @return iterator
 function Area.iterate(area)
@@ -96,6 +109,57 @@ function Area.iterate(area)
             return
         end
         return (area.left_top.x + dx), (area.left_top.y + dy)
+    end
+    return iterator.iterate, Area.to_table(area), 0
+end
+
+--- Iterates an area in a spiral inner-most to outer-most fashion.
+---<p><i>Example:</i></p>
+---<pre>
+---for x, y in Area.spiral_iterate({{-2, -1}, {2, 1}}) do
+----  print("(" .. x .. ", " .. y .. ")")
+---end
+--- prints: (0, 0) (1, 0) (1, 1) (0, 1) (-1, 1) (-1, 0) (-1, -1) (0, -1) (1, -1) (2, -1) (2, 0) (2, 1) (-2, 1) (-2, 0) (-2, -1)
+---</pre>
+-- iterates in the order depicted:<br/>
+-- ![](http://i.imgur.com/EwfO0Es.png)
+-- @param area the area
+-- @return iterator
+function Area.spiral_iterate(area)
+    fail_if_missing(area, "missing area value")
+    area = Area.to_table(area)
+
+    local rx = area.right_bottom.x - area.left_top.x + 1
+    local ry = area.right_bottom.y - area.left_top.y + 1
+    local half_x = math.floor(rx / 2)
+    local half_y = math.floor(ry / 2)
+    local center_x = area.left_top.x + half_x
+    local center_y = area.left_top.y + half_y
+
+    local x = 0
+    local y = 0
+    local dx = 0
+    local dy = -1
+    local iterator = {list = {}, idx = 1}
+    for i = 1, math.max(rx, ry) * math.max(rx, ry) do
+        if -(half_x) <= x and x <= half_x and -(half_y) <= y and y <= half_y then
+            table.insert(iterator.list, {x, y})
+        end
+        if x == y or (x < 0 and x == -y) or (x > 0 and x == 1 - y) then
+            local temp = dx
+            dx = -(dy)
+            dy = temp
+        end
+        x = x + dx
+        y = y + dy
+    end
+
+    function iterator.iterate(area)
+        if #iterator.list < iterator.idx then return end
+        local x, y = unpack(iterator.list[iterator.idx])
+        iterator.idx = iterator.idx + 1
+
+        return (center_x + x), (center_y + y)
     end
     return iterator.iterate, Area.to_table(area), 0
 end

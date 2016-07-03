@@ -32,7 +32,7 @@ function getDroidSpawnLocation(entity)
 	entPos.x = entPos.x + randX
 	entPos.y = entPos.y + randY
 	--final check, let the game find us a good spot if we've failed by now.
-	local finalPos = game.surfaces[1].find_non_colliding_position(entity.name, entPos, 4, 0.5)
+	local finalPos = game.surfaces[1].find_non_colliding_position(entity.name, entPos, 2, 0.5)
 	if not finalPos then 
 		return entPos --just force it... oh well.
 	else
