@@ -1,11 +1,11 @@
 {
 
 	"name": "robotarmy",
-	"version": "0.1.41",
+	"version": "0.1.42",
 	"title": "Robot Army",
 	"factorio_version": "0.13",
 	"author": "Kyran F",
 	"contact": "kyranzor@gmail.com",
 	"homepage": "https://github.com/kyranf/robotarmyfactorio",
-	"description": "Manufacture and deploy automated robot soldiers to attack your foes!"
+	"description": "Manufacture and deploy automated robot soldiers to attack your foes and recover artifacts!"
 }

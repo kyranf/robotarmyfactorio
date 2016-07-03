@@ -3,7 +3,7 @@
 local droidAssembler = {
 	type = "assembling-machine",
 	name = "droid-assembling-machine",
-	icon = "__base__/graphics/icons/assembling-machine-2.png",
+	icon = "__robotarmy__/graphics/icons/droid-assembling-machine.png",
 	flags = {"placeable-neutral", "placeable-player", "player-creation"},
 	minable = {hardness = 0.2, mining_time = 0.5, result = "droid-assembling-machine"},
 	max_health = 400,
@@ -44,12 +44,12 @@ local droidAssembler = {
 	selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
 	animation =
 	{
-	  filename = "__base__/graphics/entity/assembling-machine-2/assembling-machine-2.png",
+	  filename = "__robotarmy__/graphics/entity/droid-assembler.png",
 	  priority = "high",
-	  width = 113,
+	  width = 111,
 	  height = 99,
-	  frame_count = 32,
-	  line_length = 8,
+	  frame_count = 1,
+	  line_length = 1,
 	  shift = {0.4, -0.06}
 	},
 	open_sound = { filename = "__base__/sound/machine-open.ogg", volume = 0.85 },

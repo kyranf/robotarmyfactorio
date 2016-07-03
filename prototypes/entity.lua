@@ -1,6 +1,6 @@
 -- use the base game's power armour animations/sprites for the droids and terminators
 require("prototypes.droid-animations")
-
+require("config.config")
 
 -- DONT FORGET TO ADD ANY NEW LOCAL TABLE DEFINITIONS TO THE DATA:EXTEND THING AT THE BOTTOM!
 
@@ -72,7 +72,7 @@ local droid_smg =
     flags = {"placeable-player", "player-creation", "placeable-off-grid"},
     subgroup="creatures",
     order="e-a-b-d",
-    max_health = 120,
+    max_health = 120 * HEALTH_SCALAR,
     alert_when_damaged = false,
     healing_per_tick = 0.01,
     collision_box = {{-0.2, -0.2}, {0.2, 0.2}},
@@ -90,12 +90,12 @@ local droid_smg =
       {
         type = "physical",
         decrease = 1,
-        percent = 70
+        percent = 40
       },
       {
         type = "explosion",
         decrease = 5,
-        percent = 90
+        percent = 70
       },
       {
         type = "acid",
@@ -265,7 +265,7 @@ local droid_rifle =
     flags = {"placeable-player", "player-creation", "placeable-off-grid"},
     subgroup="creatures",
     order="e-a-b-d",
-    max_health = 40,
+    max_health = 40 * HEALTH_SCALAR,
     alert_when_damaged = false,
     healing_per_tick = 0.00,
     collision_box = {{-0.2, -0.2}, {0.2, 0.2}},
@@ -283,12 +283,12 @@ local droid_rifle =
       {
         type = "physical",
         decrease = 1,
-        percent = 50
+        percent = 30
       },
       {
         type = "explosion",
         decrease = 5,
-        percent = 90
+        percent = 50
       },
       {
         type = "acid",
@@ -459,7 +459,7 @@ local droid_rocket =
     flags = {"placeable-player", "player-creation", "placeable-off-grid"},
     subgroup="creatures",
     order="e-a-b-d",
-    max_health = 85,
+    max_health = 85 * HEALTH_SCALAR,
     alert_when_damaged = false,
     healing_per_tick = 0.01,
     collision_box = {{-0.2, -0.2}, {0.2, 0.2}},
@@ -651,7 +651,7 @@ local terminator =
     flags = {"placeable-player", "player-creation", "placeable-off-grid"},
     subgroup="creatures",
     order="e-a-b-d",
-    max_health = 300,
+    max_health = 300 * HEALTH_SCALAR,
     alert_when_damaged = false,
     healing_per_tick = 0.02,
     collision_box = {{-0.2, -0.2}, {0.2, 0.2}},
@@ -953,8 +953,56 @@ local droid_counter =  {
   
 }
 
+
+local loot_chest = {
+    type = "container",
+    name = "loot-chest",
+    icon = "__robotarmy__/graphics/icons/loot-chest.png",
+    flags = {"placeable-neutral", "player-creation"},
+    minable = {mining_time = 1, result = "loot-chest"},
+    max_health = 400,
+    corpse = "small-remnants",
+    open_sound = { filename = "__base__/sound/metallic-chest-open.ogg", volume=0.65 },
+    close_sound = { filename = "__base__/sound/metallic-chest-close.ogg", volume = 0.7 },
+    resistances =
+    {
+      {
+        type = "fire",
+        percent = 90
+      }
+    },
+    collision_box = {{-0.35, -0.35}, {0.35, 0.35}},
+    selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
+    fast_replaceable_group = "",
+    inventory_size = 48,
+    vehicle_impact_sound =  { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
+    picture =
+    {
+      filename = "__robotarmy__/graphics/entity/loot-chest.png",
+      priority = "extra-high",
+      width = 48,
+      height = 34,
+      shift = {0.1875, 0}
+    },
+    circuit_wire_connection_point =
+    {
+      shadow =
+      {
+        red = {0.734375, 0.453125},
+        green = {0.609375, 0.515625},
+      },
+      wire =
+      {
+        red = {0.40625, 0.21875},
+        green = {0.40625, 0.375},
+      }
+    },
+    circuit_connector_sprites = get_circuit_connector_sprites({0.1875, 0.15625}, nil, 18),
+    circuit_wire_max_distance = 7.5
+ }
+
  -- extend the game data with the new entity definitions
-data:extend({droid_smg, droid_rocket, droid_rifle, terminator, droid_counter})
+data:extend({droid_smg, droid_rocket, droid_rifle, terminator, droid_counter, loot_chest})
 
   
  
