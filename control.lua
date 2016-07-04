@@ -200,7 +200,7 @@ function handleBuiltLootChest(event)
 	
 	local chest = event.created_entity
 	local force = chest.force
-	if not global.lootChests[force.name] then
+	if not global.lootChests[force.name] or not global.lootChests[force.name].valid  then
 		global.lootChests[force.name] = chest   --this is now the force's chest. 
 	else
 	
