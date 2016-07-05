@@ -1,14 +1,4 @@
-Changes from 0.1.41 to 0.1.42 release:
--fixed clockwork riflebot deploy recipe getting disabled when loading a game where it was previously enabled. caused by a script error which should be double-checking/forcing recipes enabled if you have the right techs researched.
--removed some more debugging logs
--made squad wander radius based on the squad default radius config param
--more balance changes to droids, reduced physical and explosive resistance %
--fixed squad joining behaviours, was some residual bugs in that. 
--added storage entity called 'army loot chest'. has unique graphic and icon
--added squad artifact gathering - artifacts appear in the 'army loot chest'
--undersized squads that are "finished" (after an attack, lost some dudes) are sent back to nearest droid assembler to wait for reinforcements
--added unique graphic for droid assembler
--added config parameters to allow users to scale the default droid health and damage values. 
--added config parameter to determine when a squad that was hunting has fallen below a certain size and should retreat for reinforcements
--added config parameter to turn on/off the "squad x is no more..." death messages.
--put the range for "find nearest enemy" back to 5k tiles. there is a known issue where if no target is found, the entire squad disbands. it's not obvious why, but i can make a work-around later.
+Changes from 0.1.42 to 0.1.43 release:
+- fixed invalid chest issue when placing a loot chest and then removing and not putting a new one down before more artifacts are collected
+- fixed loot chest not able to be placed after the first one has been placed and then removed. 
+- fixed dummy droid items being able to spawn infinite droids. What a loop-hole that was!!

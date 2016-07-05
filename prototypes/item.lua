@@ -28,7 +28,7 @@ data:extend(
     flags = {"hidden"},
     order = "z-z",
 	subgroup = "capsule",
-    place_result = "droid-smg",
+    place_result = "",
     stack_size = 1  
   },
   {
@@ -48,7 +48,7 @@ data:extend(
     flags = {"hidden"},
     order = "z-z",
 	subgroup = "capsule",
-    place_result = "droid-rifle",
+    place_result = "",
     stack_size = 1  
   },
   {
@@ -68,7 +68,7 @@ data:extend(
     flags = {"hidden"},
     order = "z-z",
 	subgroup = "capsule",
-    place_result = "droid-rocket",
+    place_result = "",
     stack_size = 1  
   },
   {
@@ -88,7 +88,7 @@ data:extend(
 	flags = {"hidden"},
 	order = "z-z",
 	subgroup = "capsule",
-	place_result = "terminator",
+	place_result = "",
 	stack_size = 1  
 	},
   {

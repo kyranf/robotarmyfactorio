@@ -394,7 +394,7 @@ function grabArtifacts(players)
 		--if there are squads in the player's name, and the player's force has a loot chest active, scan area around droids for alien-artifact
 		
 		
-		if global.Squads[player.name] and global.lootChests and global.lootChests[player.force.name] then
+		if global.Squads[player.name] and global.lootChests and global.lootChests[player.force.name] and global.lootChests[player.force.name].valid then
 			
 			for id, squad in pairs(global.Squads[player.name]) do
 				
