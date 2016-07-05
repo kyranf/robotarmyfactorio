@@ -7,6 +7,7 @@ require("prototypes.DroidUnitList") -- so we know what is spawnable
 require("stdlib/log/logger")
 LOGGER = Logger.new("robotarmy", "robot_army_logs", true )
 
+local runonce = false
 
 script.on_init(function() 
 
@@ -40,8 +41,6 @@ script.on_configuration_changed(function(data)
 	 if data.mod_changes ~= nil and data.mod_changes["robotarmy"] ~= nil and data.mod_changes["robotarmy"].old_version == nil then  -- Mod was added
 		 
 		for _,force in pairs(game.forces) do
-			force.reset_recipes()
-			force.reset_technologies()
 
 			--Tech Additions for droids and droid counter combinator
 			if force.technologies["military"].researched then
@@ -67,6 +66,34 @@ script.on_configuration_changed(function(data)
 			end
 		end     
 	 end
+	if data.mod_changes ~= nil and data.mod_changes["robotarmy"] ~= nil and data.mod_changes["robotarmy"].old_version ~= nil then  -- Mod was changed
+		for _,force in pairs(game.forces) do
+			
+			--Tech Additions for droids and droid counter combinator
+			if force.technologies["military"].researched then
+				force.recipes["droid-rifle"].enabled=true
+				force.recipes["droid-rifle-deploy"].enabled=true
+				force.recipes["loot-chest"].enabled=true
+			end
+
+			if force.technologies["electronics"].researched then
+				force.recipes["droid-counter"].enabled=true
+			end
+
+			if force.technologies["military-2"].researched then
+				force.recipes["droid-smg"].enabled=true
+				force.recipes["droid-smg-deploy"].enabled=true
+				force.recipes["droid-rocket"].enabled=true
+				force.recipes["droid-rocket-deploy"].enabled=true
+			end
+		  
+			if force.technologies["military-3"].researched then
+				force.recipes["terminator"].enabled=true
+				force.recipes["terminator-deploy"].enabled=true
+			end
+		end 
+	end
+	
 end)
 
 
@@ -376,46 +403,8 @@ end
 script.on_event(defines.events.on_tick, function( event) 
 	
 	--on the very first tick, do any adjustments or changes or forcing of updates. On-load doesn't have access to "game" and migration scripts don't have access to global... so just do it here
-	if not global.runonce then
-
-		for i, force in pairs(game.forces) do 
-			force.reset_recipes()
-		end
-
-		for i, force in pairs(game.forces) do 
-			force.reset_technologies()
-		end
-		
-		
-		for _,force in pairs(game.forces) do
-				force.reset_recipes()
-				force.reset_technologies()
-
-				--Tech Additions for droids and droid counter combinator
-				if force.technologies["military"].researched then
-					force.recipes["droid-rifle"].enabled=true
-					force.recipes["droid-rifle-deploy"].enabled=true
-					force.recipes["loot-chest"].enabled=true
-				end
-
-				if force.technologies["electronics"].researched then
-					force.recipes["droid-counter"].enabled=true
-				end
-
-				if force.technologies["military-2"].researched then
-					force.recipes["droid-smg"].enabled=true
-					force.recipes["droid-smg-deploy"].enabled=true
-					force.recipes["droid-rocket"].enabled=true
-					force.recipes["droid-rocket-deploy"].enabled=true
-				end
-			  
-				if force.technologies["military-3"].researched then
-					force.recipes["terminator"].enabled=true
-					force.recipes["terminator-deploy"].enabled=true
-				end
-		end     
-
-		global.runonce = true
+	if not runonce then
+		runonce = false
 	end
 
 	onTickHandler(event)
