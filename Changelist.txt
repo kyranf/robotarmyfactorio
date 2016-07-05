@@ -1,2 +1,4 @@
 Changes from 0.1.42 to 0.1.43 release:
 - fixed invalid chest issue when placing a loot chest and then removing and not putting a new one down before more artifacts are collected
+- fixed loot chest not able to be placed after the first one has been placed and then removed. 
+- fixed dummy droid items being able to spawn infinite droids. What a loop-hole that was!!
