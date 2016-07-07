@@ -5,24 +5,22 @@ require("robolib.robotarmyhelpers") -- random helper functions related to the ro
 require("robolib.Squad") -- allows us to control squads, add entities to squads, etc.
 require("prototypes.DroidUnitList") -- so we know what is spawnable
 require("stdlib/log/logger")
-LOGGER = Logger.new("robotarmy", "robot_army_logs", true )
+LOGGER = Logger.new("robotarmy", "robot_army_logs", true, {log_ticks = true})
 
-local runonce = false
 
 script.on_init(function() 
 
-  global.lastSquadUpdateTick = 0
   
-  if not global.Squads then
-	global.Squads = {init_state="ready"}
-  end
-  
-  if not global.uniqueSquadId then
-	global.uniqueSquadId = {init_state = "ready"}
-  end
-  
-  if not global.DroidAssemblers then 
-	global.DroidAssemblers = {}
+	if not global.Squads then
+		global.Squads = {}
+	end
+
+	if not global.uniqueSquadId then
+		global.uniqueSquadId = {}
+	end
+
+	if not global.DroidAssemblers then 
+		global.DroidAssemblers = {}
 	end
 
 	if not global.droidCounters then
@@ -32,8 +30,25 @@ script.on_init(function()
 	if not global.lootChests then
 		global.lootChests = {}
 	end
-	
+
 end)
+
+script.on_event(defines.events.on_force_created, function(event)
+	handleForceCreated(event)
+ end)
+
+function handleForceCreated(event)
+
+	local force = event.force
+	
+	global.DroidAssemblers[force.name] = global.DroidAssemblers[force.name] or {}
+	global.Squads[force.name] = global.Squads[force.name] or {}
+	global.uniqueSquadId[force.name] = global.uniqueSquadId[force.name] or 1
+	global.lootChests[force.name] = global.lootChests[force.name] or {}
+	global.droidCounters[force.name] = global.droidCounters[force.name] or {}
+
+
+end
 
 
 script.on_configuration_changed(function(data) 
@@ -92,29 +107,135 @@ script.on_configuration_changed(function(data)
 				force.recipes["terminator-deploy"].enabled=true
 			end
 		end 
+		
+		--this is when I transition everything from using player.name to player.force.name
+		if data.mod_changes["robotarmy"].old_version < "0.1.44" then
+		
+			local forces = game.forces
+			
+			global.DroidAssemblers = global.DroidAssemblers or {}
+			global.Squads = global.Squads or {}
+			global.uniqueSquadId = global.uniqueSquadId or {}
+			global.lootChests = global.lootChests or {}
+			global.droidCounters = global.droidCounters or {}
+			
+			for _, force in pairs(forces) do
+
+				--set up all the tables for the force name, if they don't exist
+				global.DroidAssemblers[force.name] = global.DroidAssemblers[force.name] or {}
+				global.Squads[force.name] = global.Squads[force.name] or {}
+				global.uniqueSquadId[force.name] = global.uniqueSquadId[force.name] or {}
+				global.lootChests[force.name] = global.lootChests[force.name] or {}
+				global.droidCounters[force.name] = global.droidCounters[force.name] or {}
+		
+				-- if this table is empty ( means it is == {} )
+				if next(global.DroidAssemblers[force.name]) == nil then
+				
+					--fill with player.name table info if there is any.
+					for _, player in pairs(force.players) do
+				
+						-- if the player is in this force we are iterating over, and player.name version of this table exists
+						if global.DroidAssemblers[player.name] then 
+							--for each element in it... check if valid and insert into the force.name table version.
+							for _, element in pairs(global.DroidAssemblers[player.name]) do
+								if(element and element.valid) then table.insert(global.DroidAssemblers[force.name], element) end
+							end
+						
+						end
+				
+					end
+				
+				end
+				
+				if next(global.Squads[force.name]) == nil then
+					
+					--fill with player.name table info if there is any.
+					for _, player in pairs(force.players) do
+				
+						-- if the player is in this force we are iterating over, and player.name version of this table exists
+						if global.Squads[player.name] then 
+							--for each element in it... check if valid and insert into the force.name table version.
+							for _, element in pairs(global.Squads[player.name]) do
+								if(element and element.valid) then table.insert(global.Squads[force.name], element) end
+							end
+						
+						end
+				
+					end
+				
+				
+				end
+				
+				if next(global.uniqueSquadId[force.name]) == nil then
+				
+					local sum = 0
+					--fill with player.name table info if there is any.
+					for _, player in pairs(force.players) do
+				
+						-- if the player is in this force we are iterating over, and player.name version of this table exists
+						if global.uniqueSquadId[player.name] then 
+							
+							sum = sum + global.uniqueSquadId[player.name]
+						
+						end
+				
+					end
+					
+					global.uniqueSquadId[force.name] = sum + 1 --force it to be the sum of all player squadIDs, + 1, to ensure no squad-ref migration will conflict.
+				
+				
+				end
+				
+				if next(global.lootChests[force.name]) == nil then
+				
+					
+					--fill with player.name table info if there is any.
+					for _, player in pairs(force.players) do
+				
+						-- if the player is in this force we are iterating over, and player.name version of this table exists
+						if global.lootChests[player.name] then 
+							--for each element in it... check if valid and insert into the force.name table version.
+							for _, element in pairs(global.lootChests[player.name]) do
+								if(element and element.valid) then table.insert(global.lootChests[force.name], element) end
+							end
+						
+						end
+				
+					end				
+				
+				end
+				
+				if next(global.droidCounters[force.name]) == nil then
+				
+					
+					--fill with player.name table info if there is any.
+					for _, player in pairs(force.players) do
+				
+						-- if the player is in this force we are iterating over, and player.name version of this table exists
+						if global.droidCounters[player.name] then 
+							--for each element in it... check if valid and insert into the force.name table version.
+							for _, element in pairs(global.droidCounters[player.name]) do
+								if(element and element.valid) then table.insert(global.droidCounters[force.name], element) end
+							end
+						
+						end
+				
+					end
+					
+				
+				
+				end
+				
+				
+			
+			
+			end
+			
+		
+		end
+		
 	end
 	
-end)
-
-
-
-script.on_event(defines.events.on_player_created, function(event)
-  local player = game.players[event.player_index]
-
-  if not global.Squads then
-	--player.print("Creating squads table") -- DEBUG
-	global.Squads = {state="ready"}
-  end
-  
-  	if not global.uniqueSquadId then			
-		global.uniqueSquadId = {}
-	end
-	
-  
-  if not global.uniqueSquadId[player.name] then 
-	global.uniqueSquadId[player.name] = 1
-  end
-  
 end)
 
 
@@ -127,61 +248,56 @@ function handleDroidSpawned(event)
 	local position = entity.position
 	
 	--if this is the first time we are using the player's tables, make it
-	if not global.Squads[player.name] then 
-		global.Squads[player.name] = {}
+	if not global.Squads[player.force.name] then 
+		global.Squads[player.force.name] = {}
 	end
 
 	trimSquads(game.players) -- maintain squad tables before checking for distance to nearest squad
 	
-	local squadref = getClosestSquadToPos(global.Squads[player.name], entity.position, SQUAD_CHECK_RANGE)
+	local squadref = getClosestSquadToPos(global.Squads[player.force.name], entity.position, SQUAD_CHECK_RANGE)
 	
 	if  not squadref then
 		--if we didnt find a squad nearby, create one
 		--player.print("no nearby squad found, creating new squad")
-		--player.print(string.format("adding new squad to table, %s", tostring(global.Squads[player.name])))
-		squadref = createNewSquad(global.Squads[player.name], player, entity)
+		--player.print(string.format("adding new squad to table, %s", tostring(global.Squads[player.force.name])))
+		squadref = createNewSquad(global.Squads[player.force.name], player, entity)
 		--player.print(string.format("New squad reference is %d", squadref) )
 	else
 		--player.print(string.format("index of joined squad %d", squadref))
 	end
 	 
 
-	addMember(global.Squads[player.name][squadref],entity)		
-	checkMembersAreInGroup(global.Squads[player.name][squadref])
+	addMember(global.Squads[player.force.name][squadref],entity)		
+	checkMembersAreInGroup(global.Squads[player.force.name][squadref])
 	
 	--set entity to do what the group wants
 	--event.created_entity.set_command({type=defines.command.group})
 	
 	--set group to wander 
-	--global.Squads[player.name][squadref].unitGroup.set_command({type=defines.command.wander, destination= global.Squads[player.name][squadref].unitGroup.position, radius=DEFAULT_SQUAD_RADIUS, distraction=defines.distraction.by_anything})
-	global.Squads[player.name][squadref].unitGroup.start_moving()	
+	--global.Squads[player.force.name][squadref].unitGroup.set_command({type=defines.command.wander, destination= global.Squads[player.force.name][squadref].unitGroup.position, radius=DEFAULT_SQUAD_RADIUS, distraction=defines.distraction.by_anything})
+	global.Squads[player.force.name][squadref].unitGroup.start_moving()	
 
 end
 
 function handleDroidAssemblerPlaced(event)
 	local entity = event.created_entity
+	local force = entity.force
 
-	local player
-	if(event.player_index) then
-		player = game.players[event.player_index]
-	else
-		player = entity.force.players[1] --just default to the first player in that force for the owning player .. this is just a workaround until all spawning happens by force only.
-	end
 	--player.print("Droid Assembler placed... for player: ")
 	--player.print(player.name)
 	if not global.DroidAssemblers then
 		--player.print("Creating global droid assembler list..")
 		global.DroidAssemblers = {}
-		global.DroidAssemblers[player.name] = {}
+		global.DroidAssemblers[force.name] = {}
 		--player.print("adding droid assembler to global list..")
-		table.insert(global.DroidAssemblers[player.name], entity)
-	elseif not global.DroidAssemblers[player.name] then
+		table.insert(global.DroidAssemblers[force.name], entity)
+	elseif not global.DroidAssemblers[force.name] then
 		--player.print("adding droid assembler to global list..")
 		--LOGGER.log(string.format("Player name building droid assembler is %s", player.name))
-		global.DroidAssemblers[player.name] = {}
-		table.insert(global.DroidAssemblers[player.name], entity)
+		global.DroidAssemblers[force.name] = {}
+		table.insert(global.DroidAssemblers[force.name], entity)
 	else
-		table.insert(global.DroidAssemblers[player.name], entity)
+		table.insert(global.DroidAssemblers[force.name], entity)
 	end
 
 
@@ -232,7 +348,9 @@ function handleBuiltLootChest(event)
 	else
 	
 		force.players[1].print("Error: Can only place one loot chest!")	
+		chest.surface.spill_item_stack(chest.position, {name="loot-chest", count = 1})
 		chest.destroy()
+		
 		--global.lootChests[force.name] = nil
 	end
 
@@ -258,40 +376,22 @@ function handleBuiltDroidCounter(event)
 end
 
 
-script.on_load( function() 
-
-	--print("Loading game..")
-	global.lastSquadUpdateTick = 0
-	if not global.Squads then
-		global.Squads = {init_state="ready"}
-	end
-  
-	if not global.uniqueSquadId then
-		global.uniqueSquadId = {init_state = "ready"}
-	end
-	
-	if not global.droidCounters then
-		global.droidCounters = {}
-	end
-	
-	
-	global.runonce = false
-		
-end)
-
 -- during the on-tick event, lets check if we need to update squad AI, spawn droids from assemblers, or update bot counters, etc
 function onTickHandler(event)
-	
+
+	if not global.lastTick then
+		global.lastTick = 0
+	end
   -- has enough time elapsed to go through and set squad orders yet?
-  if event.tick > (global.lastSquadUpdateTick + TICK_UPDATE_SQUAD_AI) then
+  if event.tick > (global.lastTick + TICK_UPDATE_SQUAD_AI) then
 	
 	local players = game.players -- list of players 
-	trimSquads(game.players) -- does some quick maintenance of the squad tables. 
+	trimSquads(players) -- does some quick maintenance of the squad tables. 
 	
 	sendSquadsToBattle(players, SQUAD_SIZE_MIN_BEFORE_HUNT) -- finds all squads for all players and checks for squad size and sends to attack nearest targets
 	revealSquadChunks()
 	grabArtifacts(players)
-	lastSquadUpdateTick = event.tick
+	global.lastTick = event.tick
 	
   end
   
@@ -301,9 +401,9 @@ function onTickHandler(event)
 		
 		for _, player in pairs(players) do
 		
-			if global.DroidAssemblers[player.name] then
+			if global.DroidAssemblers[player.force.name] then
 		--for each building in their list using name as key\
-				for index, assembler in pairs(global.DroidAssemblers[player.name]) do
+				for index, assembler in pairs(global.DroidAssemblers[player.force.name]) do
 					
 					if assembler and assembler.valid and assembler.force == player.force then
 
@@ -402,11 +502,6 @@ end
 
 script.on_event(defines.events.on_tick, function( event) 
 	
-	--on the very first tick, do any adjustments or changes or forcing of updates. On-load doesn't have access to "game" and migration scripts don't have access to global... so just do it here
-	if not runonce then
-		runonce = false
-	end
-
 	onTickHandler(event)
  end)
 
@@ -417,27 +512,27 @@ script.on_event(defines.events.on_tick, function( event)
 
 
 	--if this is the first time we are using the player's tables, make it
-	if global.Squads[player.name] == nil then 
+	--if global.Squads[player.force.name] == nil then 
 		--player.print("player's global squad table was nil, making an entry for them now")
-		global.Squads[player.name] = {}
-	end
+	--	global.Squads[player.force.name] = {}
+	--end
 	
 	
-	local squadref = getClosestSquadToPos(global.Squads[player.name], entity.position, SQUAD_CHECK_RANGE)
+	local squadref = getClosestSquadToPos(global.Squads[player.force.name], entity.position, SQUAD_CHECK_RANGE)
 	
 	if not squadref then
 		--if we didnt find a squad nearby, create one
 		--player.print("no squad nearby to the assembler found, creating new squad")
-		--game.player.print(string.format("adding new squad to table, %s", tostring(global.Squads[player.name])))
-		squadref = createNewSquad(global.Squads[player.name], player, entity)
+		--game.player.print(string.format("adding new squad to table, %s", tostring(global.Squads[player.force.name])))
+		squadref = createNewSquad(global.Squads[player.force.name], player, entity)
 		
 		--player.print(string.format("index of newly created squad %d", squadref))
 	else
 		--player.print(string.format("index of joined squad %d", squadref))
 	end
 	
-	addMember(global.Squads[player.name][squadref],entity)		
-	checkMembersAreInGroup(global.Squads[player.name][squadref])	
+	addMember(global.Squads[player.force.name][squadref],entity)		
+	checkMembersAreInGroup(global.Squads[player.force.name][squadref])	
 		
 end
 

@@ -1,5 +1,5 @@
 
-TICK_UPDATE_SQUAD_AI = 180 -- 60 ticks per second, how many ticks between updating squad AI (finding new targets, moving back into position, etc)
+TICK_UPDATE_SQUAD_AI = 60 -- 60 ticks per second, how many ticks between updating squad AI (finding new targets, moving back into position, etc)
 DEFAULT_SQUAD_RADIUS = 2 -- how wide their attack_area radius is. not really used honestly..
 SOLDIER_MAX_AMMO = 100 -- unused, might be used later to simulate having to come back and resupply.
 SQUAD_SIZE_MIN_BEFORE_HUNT = 5 -- how many droids are required in a squad before they are commanded to attack nearest target
@@ -18,3 +18,5 @@ HEALTH_SCALAR = 1.0 -- scales health by this value, default 1.0. 0.5 gives 50% h
 DAMAGE_SCALAR = 1.0 -- scales base damage by this value. default is 1.0. 0.5 makes 50% less base damage. 
 					-- 1.5 gives 50% more base damage. remember, technologies apply multipliers to the base damage so this value should take 
 					-- that into consideration.
+					
+ARTIFACT_GRAB_RADIUS = 30

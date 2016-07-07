@@ -18,7 +18,7 @@ function table.countNonNil(table)
 	return count
 end
 
-
+--specifically useful for squad member table counting, because it avoids the key = 'size' as a valid countable element.
 function table.countValidElements(table)
 	local count = 0
 	for key, element in pairs(table) do
