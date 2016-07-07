@@ -1,4 +1,7 @@
-Changes from 0.1.42 to 0.1.43 release:
-- fixed invalid chest issue when placing a loot chest and then removing and not putting a new one down before more artifacts are collected
-- fixed loot chest not able to be placed after the first one has been placed and then removed. 
-- fixed dummy droid items being able to spawn infinite droids. What a loop-hole that was!!
+Changes from 0.1.43 to 0.1.44 release:
+- fixed on_load being used incorrectly.
+- fixed squads disbanding after successful mission or if they fail a move order and their unitgroup becomes invalid. they will keep re-forming the squad.
+- changed all global tables to be referenced by force name so it's totally player-independant now. 
+- added parameters for config to change grab artifacts radius
+- made rocket droid splash area basically none, and made damage very high to help deal with big biters.
+- fixed it so you don't lose the loot chest if you try to place it wrong
