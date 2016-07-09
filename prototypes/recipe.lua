@@ -86,6 +86,19 @@ data:extend(
   },
   {
     type = "recipe",
+    name = "droid-guard-station",
+    enabled = true,
+    ingredients =
+    {
+      {"iron-plate", 10},
+      {"electronic-circuit", 100},
+      {"iron-gear-wheel", 50},
+      {"assembling-machine-1", 1}
+    },
+    result = "droid-guard-station"
+  },
+  {
+    type = "recipe",
     name = "droid-smg-deploy",
     enabled = false,
 	category = "droids",

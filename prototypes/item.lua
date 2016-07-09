@@ -101,6 +101,16 @@ data:extend(
     place_result = "droid-assembling-machine",
     stack_size = 50
   },
+	{
+	type = "item",
+	name = "droid-guard-station",
+    icon = "__robotarmy__/graphics/icons/droid-assembling-machine.png",
+    flags = {"goes-to-quickbar"},
+    subgroup = "production-machine",
+    order = "b[droid-guard-station]",
+    place_result = "droid-guard-station",
+    stack_size = 50
+  },
   {
     type = "item",
     name = "droid-counter",

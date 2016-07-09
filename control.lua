@@ -10,7 +10,7 @@ LOGGER = Logger.new("robotarmy", "robot_army_logs", true, {log_ticks = true})
 
 script.on_init(function() 
 
-  
+	LOGGER.log("Robot Army mod Init script running...")
 	if not global.Squads then
 		global.Squads = {}
 	end
@@ -30,7 +30,11 @@ script.on_init(function()
 	if not global.lootChests then
 		global.lootChests = {}
 	end
-
+	
+	if not global.droidGuardStations then
+		global.droidGuardStations = {}
+	end		
+	LOGGER.log("Robot Army mod Init script finished...")
 end)
 
 script.on_event(defines.events.on_force_created, function(event)
@@ -40,13 +44,15 @@ script.on_event(defines.events.on_force_created, function(event)
 function handleForceCreated(event)
 
 	local force = event.force
-	
+	LOGGER.log(string.format("New force detected... %s",force.name) )
 	global.DroidAssemblers[force.name] = global.DroidAssemblers[force.name] or {}
 	global.Squads[force.name] = global.Squads[force.name] or {}
 	global.uniqueSquadId[force.name] = global.uniqueSquadId[force.name] or 1
 	global.lootChests[force.name] = global.lootChests[force.name] or {}
 	global.droidCounters[force.name] = global.droidCounters[force.name] or {}
-
+	global.droidGuardStations[force.name] = global.droidGuardStations[force.name] or {}	
+	force.set_cease_fire(force, true) --set ceasefire on your own force. maybe this will prevent friendly fire stuff?
+	LOGGER.log("New force handler finished...")
 
 end
 
@@ -54,7 +60,7 @@ end
 script.on_configuration_changed(function(data) 
  
 	 if data.mod_changes ~= nil and data.mod_changes["robotarmy"] ~= nil and data.mod_changes["robotarmy"].old_version == nil then  -- Mod was added
-		 
+		LOGGER.log("Robot Army mod added - setting up research and recipe unlocks...")
 		for _,force in pairs(game.forces) do
 
 			--Tech Additions for droids and droid counter combinator
@@ -82,6 +88,7 @@ script.on_configuration_changed(function(data)
 		end     
 	 end
 	if data.mod_changes ~= nil and data.mod_changes["robotarmy"] ~= nil and data.mod_changes["robotarmy"].old_version ~= nil then  -- Mod was changed
+		LOGGER.log("Robot Army mod changed version - checking research and recipe unlocks...")
 		for _,force in pairs(game.forces) do
 			
 			--Tech Additions for droids and droid counter combinator
@@ -110,7 +117,7 @@ script.on_configuration_changed(function(data)
 		
 		--this is when I transition everything from using player.name to player.force.name
 		if data.mod_changes["robotarmy"].old_version < "0.1.44" then
-		
+			LOGGER.log("Robot Army major version transition point - dealing with large global table migrations")
 			local forces = game.forces
 			
 			global.DroidAssemblers = global.DroidAssemblers or {}
@@ -220,17 +227,12 @@ script.on_configuration_changed(function(data)
 						
 						end
 				
-					end
-					
-				
+					end				
 				
 				end
-				
-				
-			
-			
+							
 			end
-			
+			LOGGER.log("Dealing with large global table migrations completed...")
 		
 		end
 		
@@ -242,8 +244,8 @@ end)
 function handleDroidSpawned(event)
 
 	local entity = event.created_entity
-
 	local player = game.players[event.player_index]
+	
 	--player.print(string.format("Processing new entity %s spawned by player %s", entity.name, player.name) )
 	local position = entity.position
 	
@@ -257,64 +259,75 @@ function handleDroidSpawned(event)
 	local squadref = getClosestSquadToPos(global.Squads[player.force.name], entity.position, SQUAD_CHECK_RANGE)
 	
 	if  not squadref then
-		--if we didnt find a squad nearby, create one
-		--player.print("no nearby squad found, creating new squad")
-		--player.print(string.format("adding new squad to table, %s", tostring(global.Squads[player.force.name])))
+		--if we didnt find a squad nearby, create one	
 		squadref = createNewSquad(global.Squads[player.force.name], player, entity)
-		--player.print(string.format("New squad reference is %d", squadref) )
-	else
-		--player.print(string.format("index of joined squad %d", squadref))
+
 	end
 	 
 
 	addMember(global.Squads[player.force.name][squadref],entity)		
 	checkMembersAreInGroup(global.Squads[player.force.name][squadref])
+
+	if event.guard == true then
+		if global.Squads[player.force.name][squadref].command ~= commands.guard then
+			global.Squads[player.force.name][squadref].command = commands.guard
+			global.Squads[player.force.name][squadref].home = event.guardPos
+			game.players[1].print(string.format("Setting guard squad to wander around %s", event.guardPos))
+			global.Squads[player.force.name][squadref].unitGroup.set_command({type=defines.command.wander, destination = global.Squads[player.force.name][squadref].home, distraction=defines.distraction.by_enemy})
+			global.Squads[player.force.name][squadref].unitGroup.start_moving()
+		end
+	end
 	
-	--set entity to do what the group wants
-	--event.created_entity.set_command({type=defines.command.group})
+	--global.Squads[player.force.name][squadref].unitGroup.start_moving()	
+
+end
+
+function handleGuardStationPlaced(event)
+
+	local entity = event.created_entity
+	local force = entity.force
+	LOGGER.log( string.format("Adding guard station to force %s", force.name) )
+	global.droidGuardStations[force.name] = global.droidGuardStations[force.name] or {}
+	if global.droidGuardStations and global.droidGuardStations[force.name] then
 	
-	--set group to wander 
-	--global.Squads[player.force.name][squadref].unitGroup.set_command({type=defines.command.wander, destination= global.Squads[player.force.name][squadref].unitGroup.position, radius=DEFAULT_SQUAD_RADIUS, distraction=defines.distraction.by_anything})
-	global.Squads[player.force.name][squadref].unitGroup.start_moving()	
+		table.insert(global.droidGuardStations[force.name], entity)
+		
+	else
+		LOGGER.log("WARNING: no global table for guard stations and/or the force is missing one for it")
+	end
+
+	maintainTable(global.droidGuardStations[force.name]) -- helps remove old invalid/nil entries.
 
 end
 
 function handleDroidAssemblerPlaced(event)
 	local entity = event.created_entity
 	local force = entity.force
-
-	--player.print("Droid Assembler placed... for player: ")
-	--player.print(player.name)
-	if not global.DroidAssemblers then
-		--player.print("Creating global droid assembler list..")
-		global.DroidAssemblers = {}
-		global.DroidAssemblers[force.name] = {}
-		--player.print("adding droid assembler to global list..")
-		table.insert(global.DroidAssemblers[force.name], entity)
-	elseif not global.DroidAssemblers[force.name] then
-		--player.print("adding droid assembler to global list..")
-		--LOGGER.log(string.format("Player name building droid assembler is %s", player.name))
-		global.DroidAssemblers[force.name] = {}
+	
+	LOGGER.log( string.format("Adding assembler to force %s", force.name) )	
+	if global.DroidAssemblers and global.DroidAssemblers[force.name] then
 		table.insert(global.DroidAssemblers[force.name], entity)
 	else
-		table.insert(global.DroidAssemblers[force.name], entity)
+		
+		LOGGER.log("WARNING: no global table for droid assemblers and/or the force is missing one for it")
 	end
 
 
 end
 
 script.on_event(defines.events.on_built_entity, function(event)
-  --onBuiltEntityCallback(event)
-   
+    
    local entity = event.created_entity
   
 	if(entity.name == "droid-assembling-machine") then 
 		handleDroidAssemblerPlaced(event)
+	elseif(entity.name == "droid-guard-station") then
+		handleGuardStationPlaced(event)
 	elseif(entity.name == "droid-counter") then
 		handleBuiltDroidCounter(event)
 	elseif entity.name == "loot-chest" then
 		handleBuiltLootChest(event)
-	elseif table.contains(squadCapable, entity.name) then --squadCapable is defined in DroidUnitList.l
+	elseif table.contains(squadCapable, entity.name) then --squadCapable is defined in DroidUnitList.
 		handleDroidSpawned(event) --this deals with droids spawning
 	end
 	
@@ -343,6 +356,7 @@ function handleBuiltLootChest(event)
 	
 	local chest = event.created_entity
 	local force = chest.force
+	LOGGER.log( string.format("Adding loot chest to force %s", force.name) )
 	if not global.lootChests[force.name] or not global.lootChests[force.name].valid  then
 		global.lootChests[force.name] = chest   --this is now the force's chest. 
 	else
@@ -350,8 +364,8 @@ function handleBuiltLootChest(event)
 		force.players[1].print("Error: Can only place one loot chest!")	
 		chest.surface.spill_item_stack(chest.position, {name="loot-chest", count = 1})
 		chest.destroy()
-		
-		--global.lootChests[force.name] = nil
+		LOGGER.log("WARNING: Can only place one loot chest!")
+	
 	end
 
 
@@ -362,7 +376,7 @@ function handleBuiltDroidCounter(event)
 	
 	local entity = event.created_entity 
 	local entityForce = entity.force.name
-
+	LOGGER.log( string.format("Adding droid counter to force %s", entityForce) )
 	if not global.droidCounters then			
 		global.droidCounters = {}		
 		global.droidCounters[entityForce] = {}
@@ -396,62 +410,87 @@ function onTickHandler(event)
   end
   
   if (event.tick % ASSEMBLER_UPDATE_TICKRATE == 0) then
-	if global.DroidAssemblers then
-		local players = game.players
-		
-		for _, player in pairs(players) do
-		
-			if global.DroidAssemblers[player.force.name] then
-		--for each building in their list using name as key\
-				for index, assembler in pairs(global.DroidAssemblers[player.force.name]) do
+
+	local players = game.players
+	
+	for _, player in pairs(players) do
+	
+		if global.DroidAssemblers and global.DroidAssemblers[player.force.name] then
+	--for each building in their list using name as key\
+			for index, assembler in pairs(global.DroidAssemblers[player.force.name]) do
+				
+				if assembler and assembler.valid and assembler.force == player.force then
+
+					local inv = assembler.get_output_inventory() --gets us a luainventory
+					local spawnableDroidName = containsSpawnableDroid(inv) -- assembler.get_item_count("droid-smg-dummy") --replace with "contains any spawnable droid"
+
+					if (spawnableDroidName ~= nil and type(spawnableDroidName) == "string") then
 					
-					if assembler and assembler.valid and assembler.force == player.force then
+						
+						local droidPos =  getDroidSpawnLocation(assembler) -- uses assmbler pos, direction, and spawns droid at an offset +- random amount
+						
+						local assForce = assembler.force -- haha, ass force!
+						local returnedEntity = assembler.surface.create_entity({name = spawnableDroidName , position = droidPos, direction = defines.direction.east, force = assForce })
 
-						local inv = assembler.get_output_inventory() --gets us a luainventory
-						local containsDroidDummies = containsSpawnableDroid(inv) -- assembler.get_item_count("droid-smg-dummy") --replace with "contains any spawnable droid"
-						--if(containsDroidDummies) then
-						--	LOGGER.log(string.format("ContainsDroidDummies result = %s", containsDroidDummies))
-						--end
-						--containsDroidDummies is either nil (none there) or is the name of the spawnable entity prototype used in create_entity later on.
-						if (containsDroidDummies ~= nil and type(containsDroidDummies) == "string") then
-							
-							--spawn a droid!
-							-- debug code
-							--player.print(string.format("Found a spawnable droid, named: %s", containsDroidDummies))
-							
-							local droidPos =  getDroidSpawnLocation(assembler) -- uses assmbler pos, direction, and spawns droid at an offset +- random amount
-							
-							local assForce = assembler.force -- haha, ass force!
-							local returnedEntity = player.surface.create_entity({name = containsDroidDummies , position = droidPos, direction = defines.direction.east, force = assForce })
-
-							if returnedEntity then
-								--player.print("running droid produced handler... printing owning player's name...")
-								--player.print(player.name)
-								
-								local eventStub = {player_index = player.index, created_entity = returnedEntity}
-								handleDroidSpawned(eventStub)
-								
-							
-							else
-								--player.print(string.format("There is something wrong with your droid assembler at x:%d y:%d", assember.position[1], assembler.position[2]))
-								--LOGGER.log(string.format("There is something wrong with your droid assembler at x:%d y:%d", assember.position[1], assembler.position[2]))
-							end
-							
-							inv.clear() --clear output slot
+						if returnedEntity then
+													
+							local eventStub = {player_index = player.index, created_entity = returnedEntity}
+							handleDroidSpawned(eventStub)
 						
 						end
+						
+						inv.clear() --clear output slot
+					
+					end
 
+				end
+				
+			end
+
+		end --end if they have a list of droid assemblers
+		
+		--handle guard station spawning here
+		
+		if global.droidGuardStations and global.droidGuardStations[player.force.name] then
+		
+			for _, station in pairs(global.droidGuardStations[player.force.name]) do
+			
+				if station and station.valid and station.force == player.force then
+					
+					local inv = station.get_output_inventory() --gets us a luainventory
+					local spawnableDroidName = containsSpawnableDroid(inv) 
+
+					local nearby = countNearbyDroids(station.position, station.force, 30) --inputs are position, force, and radius
+										
+					--if we have a spawnable droid ready, and there is not too many droids nearby, lets spawn one!
+					if (spawnableDroidName ~= nil and type(spawnableDroidName) == "string") and nearby < GUARD_STATION_GARRISON_SIZE then
+							
+						local droidPos =  getGuardSpawnLocation(station) -- uses station pos			
+		
+						local returnedEntity = station.surface.create_entity({name = spawnableDroidName , position = droidPos, direction = defines.direction.east, force = station.force })
+
+						if returnedEntity then
+													
+							local eventStub = {player_index = player.index, created_entity = returnedEntity, guard = true, guardPos = station.position}
+							handleDroidSpawned(eventStub)
+						
+						end
+						
+						inv.clear() --clear output slot
+					
 					end
 					
+					
 				end
-			else
-				--LOGGER.log("WARNING: player does not have a list of droid assemblers")
-			end --end if they have a list of droid assemblers
-		end -- end for each player in players list
-	else
-		--LOGGER.log("WARNING: global droidassemblers list does not exist!")
-		global.DroidAssemblers = {}
-	end
+			
+			end
+		
+		end
+		
+		
+		
+	end -- end for each player in players list
+
   end
   
   
@@ -501,40 +540,10 @@ end
 
 
 script.on_event(defines.events.on_tick, function( event) 
-	
 	onTickHandler(event)
  end)
 
  
- function handleDroidProduced(assembler, player, entity)
-			
-	--game.player.print(string.format("handle droids function inputs %s %s %s", assembler, player, entity))
-
-
-	--if this is the first time we are using the player's tables, make it
-	--if global.Squads[player.force.name] == nil then 
-		--player.print("player's global squad table was nil, making an entry for them now")
-	--	global.Squads[player.force.name] = {}
-	--end
-	
-	
-	local squadref = getClosestSquadToPos(global.Squads[player.force.name], entity.position, SQUAD_CHECK_RANGE)
-	
-	if not squadref then
-		--if we didnt find a squad nearby, create one
-		--player.print("no squad nearby to the assembler found, creating new squad")
-		--game.player.print(string.format("adding new squad to table, %s", tostring(global.Squads[player.force.name])))
-		squadref = createNewSquad(global.Squads[player.force.name], player, entity)
-		
-		--player.print(string.format("index of newly created squad %d", squadref))
-	else
-		--player.print(string.format("index of joined squad %d", squadref))
-	end
-	
-	addMember(global.Squads[player.force.name][squadref],entity)		
-	checkMembersAreInGroup(global.Squads[player.force.name][squadref])	
-		
-end
 
 
  

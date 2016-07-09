@@ -11,7 +11,7 @@ commands = { 		assemble = 1,  	-- when they spawn, this is their starting comman
 					guard = 4, 		-- when set, the SQUAD_AI function should command squad to stay around 
 					patrol = 5, 	-- when set, SQUAD_AI will deal with moving them sequentially from patrol point A to B
 					hunt = 6		-- when set, SQUD_AI will send to nearest enemy 
-				}
+			}
  
 global.SquadTemplate = {squadID= 0, player=true, unitGroup = true, members = {size = 0}, home = true, force = true, radius=DEFAULT_SQUAD_RADIUS, patrolPoint1 = true, patrolPoint2 = true, currentCommand = "none"} -- this is the empty squad table template
 
@@ -43,13 +43,7 @@ function createNewSquad(tableIN, player, entity)
 	newsquad.command = commands.assemble
 	
 	tableIN[squadRef] = newsquad
-	--for i, v in pairs(tableIN) do 
-		--player.print("player's squad list")
-		--player.print(string.format("%s, %s", tostring(i), tostring(v) ))
-	--end
-	--player.print(string.format("Created new squad for %s with unique ID %d", player.name, squadRef))
-	--LOGGER.log(string.format("Created squad for player %s", player.name))
-	--tableIN[squadRef].unitGroup.set_command({type=defines.command.wander, destination= newsquad.home, radius=newsquad.radius, distraction=defines.distraction.by_anything})
+	
 	return squadRef
 end
 
@@ -66,11 +60,7 @@ function addMember(tableIN, entity)
 	end 
 	
 	tableIN.members.size = tableIN.members.size + 1
-	--local soldierCount = table.countValidElements(tableIN.members)
-	--tableIN.player.print(string.format("Valid squad member count %d", soldierCount))
-	--tableIN.player.print(string.format("added guy to squad belonging to %s, membercount is %d", tableIN.player.name, tableIN.members.size))
-	--LOGGER.log(string.format("added guy to squad belonging to %s, membercount is %d", tableIN.player.name, tableIN.members.size))
-
+	
 end
 
 
@@ -104,7 +94,7 @@ function checkMembersAreInGroup(tableIN)
 					--tableIN.player.print(string.format("adding soldier to squad ID %d's unitgroup", tableIN.squadID))
 					tableIN.unitGroup.add_member(soldier)
 				else
-					LOGGER.log(string.format("removing member from squad id %d member list", tableIN.squadID))
+					--LOGGER.log(string.format("removing member from squad id %d member list", tableIN.squadID))
 					table.remove(tableIN.members, key)
 				end
 			end
@@ -128,6 +118,8 @@ end
 function maintainTable(tableIN)
 
 	for i, element in pairs(tableIN) do
+		
+		
 		if element == nil then 
 			table.remove(tableIN, i) 
 		end
@@ -214,8 +206,10 @@ function trimSquads(players)
 					if removeThisSquad then
 						if PRINT_SQUAD_DEATH_MESSAGES == 1 then
 							player.print(string.format("Squad %d is no more...", squad.squadID))
+							
 						end
-						--table.remove(global.Squads[player.force.name], key)
+						LOGGER.log(string.format("Squad id %d from force %s has died/lost all its members...", squad.squadID, player.force.name))
+						
 						global.Squads[player.force.name][squad.squadID] = nil
 						maintainTable(global.Squads[player.force.name])
 					end
@@ -247,7 +241,7 @@ function sendSquadsToBattle(players, minSquadSize)
 						maintainTable(global.Squads[player.force.name])
 					end
 				--end debug stuff
-					if(squad.unitGroup.valid and (squad.unitGroup.state == defines.group_state.gathering or squad.unitGroup.state == defines.group_state.finished)) then
+					if(squad.unitGroup.valid and (squad.unitGroup.state == defines.group_state.gathering or squad.unitGroup.state == defines.group_state.finished)) and squad.command ~= commands.guard then
 						
 						--LOGGER.log("group is gathering or finished the last task")
 				
@@ -266,13 +260,13 @@ function sendSquadsToBattle(players, minSquadSize)
 										--make sure squad is good, then set command
 										checkMembersAreInGroup(squad)
 										squad.command = commands.hunt -- sets the squad's high level role to hunt. not really used yet
-										squad.unitGroup.set_command({type=defines.command.attack_area, destination= nearestEnemy.position, radius=50, distraction=defines.distraction.by_anything})
+										squad.unitGroup.set_command({type=defines.command.attack_area, destination= nearestEnemy.position, radius=50, distraction=defines.distraction.by_enemy})
 										squad.unitGroup.start_moving()
 									else
 										--player.print("enemy found but in un-charted area...")								
 									end
 								else
-									player.print("cannot find nearby target!!")
+									--player.print("cannot find nearby target!!")
 								end
 							else
 							

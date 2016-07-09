@@ -346,7 +346,7 @@ local droid_rifle =
       cooldown = 120,
       projectile_center = {0, 0.5},
       projectile_creation_distance = 0.6,
-      range = 16,
+      range = 15,
       sound = make_rifle_gunshot_sounds(1),
 	  animation =
 		 {
