@@ -338,6 +338,8 @@ script.on_event(defines.events.on_robot_built_entity, function(event)
 	local entity = event.created_entity
 	if(entity.name == "droid-assembling-machine") then 
 		handleDroidAssemblerPlaced(event)
+	elseif(entity.name == "droid-guard-station") then
+		handleGuardStationPlaced(event)
 	elseif(entity.name == "droid-counter") then
 		handleBuiltDroidCounter(event)
 	elseif entity.name == "loot-chest" then

@@ -647,14 +647,14 @@ local terminator =
 {
 	type = "unit",
     name = "terminator",
-    icon = "__base__/graphics/icons/player.png",
+    icon = "__robotarmy__/graphics/icons/terminator.png",
     flags = {"placeable-player", "player-creation", "placeable-off-grid"},
     subgroup="creatures",
     order="e-a-b-d",
     max_health = 300 * HEALTH_SCALAR,
     alert_when_damaged = false,
     healing_per_tick = 0.02,
-    collision_box = {{-0.2, -0.2}, {0.2, 0.2}},
+    collision_box = {{-0.5, -0.5}, {0.5, 0.5}},
     selection_box = {{-0.4, -1.4}, {0.4, 0.2}},
     sticker_box = {{-0.3, -0.5}, {0.3, 0.1}},
 	vision_distance = 30,
@@ -680,6 +680,11 @@ local terminator =
         type = "acid",
         decrease = 5,
         percent = 85
+      },
+	  {
+        type = "laser",
+        decrease = 5,
+        percent = 35
       },
 	  {
         type = "fire",
@@ -736,19 +741,20 @@ local terminator =
 	  type = "projectile",
       ammo_category = "combat-robot-laser",
       cooldown = 10,
-      projectile_center = {0, 0.2},
-      projectile_creation_distance = 0.8,
+      projectile_center = {0, 0.4},
+      projectile_creation_distance = 1.5,
       range = 16,
       sound = make_laser_sounds(1),
 	  animation =
 		 {
-			layers =
-			  {
-				droidanimations.level1.idle,
-				droidanimations.level1.idlemask,
-				droidanimations.level3addon.idle,
-				droidanimations.level3addon.idlewmask,
-			  }
+			  filename = "__robotarmy__/graphics/entity/droid_a_idle.png",
+			  priority = "very-low",
+			  width = 80,
+			  height = 80,
+			  direction_count = 8,
+			  frame_count = 1,
+			  animation_speed = 0.15,
+			  shift = {0, 0}
 		 },
       ammo_type =
       {
@@ -777,23 +783,25 @@ local terminator =
     },
 	idle =
 	{
-	  layers =
-	  {
-		droidanimations.level1.idle,
-		droidanimations.level1.idlemask,
-		droidanimations.level3addon.idle,
-		droidanimations.level3addon.idlewmask,
-	  }
+	  filename = "__robotarmy__/graphics/entity/droid_a_idle.png",
+	  priority = "very-low",
+	  width = 80,
+	  height = 80,
+	  direction_count = 8,
+	  frame_count = 1,
+	  animation_speed = 0.15,
+	  shift = {0, 0}
 	},
 	run_animation =
 	{
-	  layers =
-	  {
-		droidanimations.level1.running,
-		droidanimations.level1.runningmask,
-		droidanimations.level3addon.running,
-		droidanimations.level3addon.runningmask,
-	  }
+	  filename = "__robotarmy__/graphics/entity/droid_a_run.png",
+	  priority = "high",
+	  width = 80,
+	  height = 80,
+	  direction_count = 22,
+	  frame_count = 1,
+	  animation_speed = 0.15,
+	  shift = {0, 0}
 	}
 }
 
