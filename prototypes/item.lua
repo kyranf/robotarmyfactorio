@@ -131,4 +131,16 @@ data:extend(
     order = "a[items]-c[loot-chest]",
     stack_size = 50,
   },
+  {
+    type = "item",
+    name = "rally-beacon",
+    icon = "__robotarmy__/graphics/icons/rally-beacon.png",
+    flags = {"goes-to-quickbar"},
+    subgroup = "storage",
+    place_result="rally-beacon",
+    order = "a[items]-c[rally-beacon]",
+    stack_size = 5,
+  },
+  
+  
 })

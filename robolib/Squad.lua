@@ -260,7 +260,7 @@ function sendSquadsToBattle(players, minSquadSize)
 										--make sure squad is good, then set command
 										checkMembersAreInGroup(squad)
 										squad.command = commands.hunt -- sets the squad's high level role to hunt. not really used yet
-										squad.unitGroup.set_command({type=defines.command.attack_area, destination= nearestEnemy.position, radius=50, distraction=defines.distraction.by_enemy})
+										squad.unitGroup.set_command({type=defines.command.attack_area, destination= nearestEnemy.position, radius=50, distraction=defines.distraction.by_anything})
 										squad.unitGroup.start_moving()
 									else
 										--player.print("enemy found but in un-charted area...")								
@@ -401,34 +401,39 @@ function grabArtifacts(players)
 						local areaToCheck = {left_top = {position.x-ARTIFACT_GRAB_RADIUS, position.y-ARTIFACT_GRAB_RADIUS}, right_bottom = {position.x+ARTIFACT_GRAB_RADIUS, position.y+ARTIFACT_GRAB_RADIUS}}
 						
 						local itemList = game.surfaces[1].find_entities_filtered{area=areaToCheck, type="item-entity"}
-						local artifactCount = 0
+						local artifactList = {}
 						for _, item in pairs(itemList) do
-						
-							if item.stack.name == "alien-artifact" then
+							if item.valid and item.stack.valid then
 							
-								artifactCount = artifactCount + 1
-								item.destroy()
-							
+								if string.find(item.stack.name,"artifact") then
+									table.insert(artifactList, {name = item.stack.name, count = item.stack.count}) --inserts the LuaSimpleStack table (of name and count) to the artifacts list for later use
+									
+									item.destroy()
+								
+								end
 							end
-						
-						
 						end
-						if(artifactCount > 0) then
+						
+						
+						if artifactList ~= {} then
 							--player.print(string.format("Squad ID %d found %d artifacts!", squad.squadID , artifactCount))
 							--player.insert({name="alien-artifact", count = artifactCount})
 							local chest = global.lootChests[player.force.name]
-							local items = {name = "alien-artifact", count = artifactCount}
-							if(chest.can_insert(items)) then 
-								
-								chest.insert(items)
-							else
-																	
+							local cannotInsert = false
+							for _, itemStack in pairs(artifactList) do
+								if(chest.can_insert(itemStack)) then 
+									chest.insert(itemStack)
+								else
+									cannotInsert = true
+								end								
+							end
+							if cannotInsert then
+																
 								for _, plr in pairs(chest.force.players) do
 									plr.print("Your loot chest is too full! Cannot add more until there is room!")
 								end
 								
-							end								
-							
+							end
 							
 						end
 					end

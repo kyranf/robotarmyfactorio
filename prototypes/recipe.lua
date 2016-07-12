@@ -156,6 +156,18 @@ data:extend(
 	},	
     result = "loot-chest",
 	requester_paste_multiplier = 1
+  },
+  {  
+    type = "recipe",
+    name = "rally-beacon",
+    enabled = true,
+	ingredients =
+	{
+	  {"steel-plate",20},
+	  {"electronic-circuit", 25},
+	},	
+    result = "rally-beacon",
+	requester_paste_multiplier = 1
   }
 })
 

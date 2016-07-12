@@ -327,12 +327,35 @@ script.on_event(defines.events.on_built_entity, function(event)
 		handleBuiltDroidCounter(event)
 	elseif entity.name == "loot-chest" then
 		handleBuiltLootChest(event)
+	elseif entity.name == "rally-beacon" then
+		handleBuiltRallyBeacon(event)	
 	elseif table.contains(squadCapable, entity.name) then --squadCapable is defined in DroidUnitList.
 		handleDroidSpawned(event) --this deals with droids spawning
 	end
 	
   
 end)
+
+function handleBuiltRallyBeacon(event)
+
+	local entity = event.created_entity
+	
+	--loop through all squads on the force, checking for those who are hunting or 'assembling' and make them move to the rally point and then continue what they were doing.
+	for _, squad in pairs(global.Squads[entity.force.name]) do
+	
+		if squad and squad.unitGroup and squad.unitGroup.valid then
+		
+			if squad.command == commands.hunt or squad.command == commands.assemble then
+		
+				--give them command to move. distraction by damage means if they are shot at/bit, they will at least try and defend themselves while running away.
+				squad.unitGroup.set_command({type=defines.command.go_to_location, destination=entity.position, radius=DEFAULT_SQUAD_RADIUS, distraction=defines.distraction.by_damage})
+				squad.unitGroup.start_moving()
+			
+			end
+		end	
+	end
+end
+
 
 script.on_event(defines.events.on_robot_built_entity, function(event)
 	local entity = event.created_entity
@@ -342,6 +365,8 @@ script.on_event(defines.events.on_robot_built_entity, function(event)
 		handleGuardStationPlaced(event)
 	elseif(entity.name == "droid-counter") then
 		handleBuiltDroidCounter(event)
+	elseif entity.name == "rally-beacon" then
+		handleBuiltRallyBeacon(event)
 	elseif entity.name == "loot-chest" then
 		handleBuiltLootChest(event)
 	end

@@ -154,4 +154,52 @@ local guardStation = {
 	allowed_effects = {"consumption", "speed", "pollution"}
 }
 
-data:extend({droidAssembler,guardStation})
+
+local rally_beacon = {
+    type = "container",
+    name = "rally-beacon",
+    icon = "__robotarmy__/graphics/icons/loot-chest.png",
+    flags = {"placeable-neutral", "player-creation"},
+    minable = {mining_time = 1, result = "rally-beacon"},
+    max_health = 400,
+    corpse = "small-remnants",
+    open_sound = { filename = "__base__/sound/metallic-chest-open.ogg", volume=0.65 },
+    close_sound = { filename = "__base__/sound/metallic-chest-close.ogg", volume = 0.7 },
+    resistances =
+    {
+      {
+        type = "fire",
+        percent = 90
+      }
+    },
+    collision_box = {{-0.9, -0.9}, {0.9, 0.9}},
+    selection_box = {{-1, -1}, {1, 1}},
+    drawing_box = {{-1, -3}, {1, 1}},
+    fast_replaceable_group = "",
+    inventory_size = 8,
+    vehicle_impact_sound =  { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
+	picture =
+    {
+      filename = "__base__/graphics/entity/substation/substation.png",
+      priority = "extra-high",
+      width = 132,
+      height = 144,
+      shift = {0.9, -1}
+    },
+    circuit_wire_connection_point =
+    {
+      shadow =
+      {
+        red = {0.734375, 0.453125},
+        green = {0.609375, 0.515625},
+      },
+      wire =
+      {
+        red = {0.40625, 0.21875},
+        green = {0.40625, 0.375},
+      }
+    },
+    circuit_connector_sprites = get_circuit_connector_sprites({0.1875, 0.15625}, nil, 18),
+    circuit_wire_max_distance = 7.5
+ }
+data:extend({droidAssembler,guardStation,rally_beacon})
