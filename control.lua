@@ -287,15 +287,16 @@ function handleGuardStationPlaced(event)
 	local entity = event.created_entity
 	local force = entity.force
 	LOGGER.log( string.format("Adding guard station to force %s", force.name) )
-	global.droidGuardStations[force.name] = global.droidGuardStations[force.name] or {}
-	if global.droidGuardStations and global.droidGuardStations[force.name] then
 	
-		table.insert(global.droidGuardStations[force.name], entity)
-		
-	else
-		LOGGER.log("WARNING: no global table for guard stations and/or the force is missing one for it")
+	--check for droid guard station global tables first.
+	if not global.droidGuardStations then
+		global.droidGuardStations = {}
 	end
-
+	if not global.droidGuardStations[force.name] then
+		global.droidGuardStations[force.name] = {}
+	end
+	
+	table.insert(global.droidGuardStations[force.name], entity)
 	maintainTable(global.droidGuardStations[force.name]) -- helps remove old invalid/nil entries.
 
 end
