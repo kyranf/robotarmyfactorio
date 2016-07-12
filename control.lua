@@ -345,7 +345,7 @@ function handleBuiltRallyBeacon(event)
 	
 		if squad and squad.unitGroup and squad.unitGroup.valid then
 		
-			if squad.command == commands.hunt or squad.command == commands.assemble then
+			if squad.command ~= commands.guard and squad.command == commands.patrol then
 		
 				--give them command to move. distraction by damage means if they are shot at/bit, they will at least try and defend themselves while running away.
 				squad.unitGroup.set_command({type=defines.command.go_to_location, destination=entity.position, radius=DEFAULT_SQUAD_RADIUS, distraction=defines.distraction.by_damage})
