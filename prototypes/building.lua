@@ -90,7 +90,7 @@ local droidAssembler = {
 local guardStation = {
 	type = "assembling-machine",
 	name = "droid-guard-station",
-	icon = "__robotarmy__/graphics/icons/droid-assembling-machine.png",
+	icon = "__robotarmy__/graphics/icons/droid-guard-station.png",
 	flags = {"placeable-neutral", "placeable-player", "player-creation"},
 	minable = {hardness = 0.2, mining_time = 0.5, result = "droid-guard-station"},
 	max_health = 400,

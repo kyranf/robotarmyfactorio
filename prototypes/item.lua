@@ -104,7 +104,7 @@ data:extend(
 	{
 	type = "item",
 	name = "droid-guard-station",
-    icon = "__robotarmy__/graphics/icons/droid-assembling-machine.png",
+    icon = "__robotarmy__/graphics/icons/droid-guard-station.png",
     flags = {"goes-to-quickbar"},
     subgroup = "production-machine",
     order = "b[droid-guard-station]",

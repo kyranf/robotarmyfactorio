@@ -115,6 +115,8 @@ script.on_configuration_changed(function(data)
 			end
 		end 
 		
+
+		
 		--this is when I transition everything from using player.name to player.force.name
 		if data.mod_changes["robotarmy"].old_version < "0.1.44" then
 			LOGGER.log("Robot Army major version transition point - dealing with large global table migrations")
@@ -339,17 +341,24 @@ end)
 
 function handleBuiltRallyBeacon(event)
 
+
 	local entity = event.created_entity
+	trimSquads(game.players)
 	
+	--game.players[1].print(string.format("Rally point built, for force %s...", entity.force.name))
 	--loop through all squads on the force, checking for those who are hunting or 'assembling' and make them move to the rally point and then continue what they were doing.
 	for _, squad in pairs(global.Squads[entity.force.name]) do
-	
+		--game.players[1].print("checking squad..")
 		if squad and squad.unitGroup and squad.unitGroup.valid then
+			--game.players[1].print("checking squad command...")
+			if squad.command ~= commands.guard and squad.command ~= commands.patrol then
 		
-			if squad.command ~= commands.guard and squad.command == commands.patrol then
-		
+				--game.players[1].print(string.format("Sending squad %d to rally point...", squad.squadID))
+				local pos = entity.position
+				pos.x = pos.x+3
+				pos.y = pos.y+3
 				--give them command to move. distraction by damage means if they are shot at/bit, they will at least try and defend themselves while running away.
-				squad.unitGroup.set_command({type=defines.command.go_to_location, destination=entity.position, radius=DEFAULT_SQUAD_RADIUS, distraction=defines.distraction.by_damage})
+				squad.unitGroup.set_command({type=defines.command.go_to_location, destination=pos, distraction=defines.distraction.by_damage})
 				squad.unitGroup.start_moving()
 			
 			end

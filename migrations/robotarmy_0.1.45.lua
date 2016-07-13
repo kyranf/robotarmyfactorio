@@ -2,7 +2,7 @@ game.reload_script()
 
 
 global.droidGuardStations = global.droidGuardStations or {}
-	
+
 for i, force in pairs(game.forces) do 
 	force.reset_recipes()
 	force.reset_technologies()
@@ -31,6 +31,7 @@ for i, force in pairs(game.forces) do
 	end
 	
 	--adding a guard staion table entry for each force in the game.
+
 	global.droidGuardStations[force.name] = global.droidGuardStations[force.name] or {}	
 	
 	force.set_cease_fire(force, true) --set ceasefire on your own force. maybe this will prevent friendly fire stuff?

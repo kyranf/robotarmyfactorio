@@ -195,10 +195,8 @@ function trimSquads(players)
 					local count = table.countValidElements(squad.members)			
 										
 					if count == 0 then
-						if(squad.unitGroup.valid) then
-							squad.unitGroup.destroy()
-						end
-						squad.unitGroup = nil
+						squad.unitGroup.destroy()
+						if squad.unitGroup then squad.unitGroup = nil end
 						removeThisSquad = true
 						
 					end
@@ -206,11 +204,10 @@ function trimSquads(players)
 					if removeThisSquad then
 						if PRINT_SQUAD_DEATH_MESSAGES == 1 then
 							player.print(string.format("Squad %d is no more...", squad.squadID))
-							
 						end
 						LOGGER.log(string.format("Squad id %d from force %s has died/lost all its members...", squad.squadID, player.force.name))
 						
-						global.Squads[player.force.name][squad.squadID] = nil
+						global.Squads[player.force.name][squad.squadID] = nil  --set the entire squad itself to nil
 						maintainTable(global.Squads[player.force.name])
 					end
 				end
