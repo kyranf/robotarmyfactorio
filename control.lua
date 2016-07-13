@@ -274,7 +274,7 @@ function handleDroidSpawned(event)
 		if global.Squads[player.force.name][squadref].command ~= commands.guard then
 			global.Squads[player.force.name][squadref].command = commands.guard
 			global.Squads[player.force.name][squadref].home = event.guardPos
-			game.players[1].print(string.format("Setting guard squad to wander around %s", event.guardPos))
+			--game.players[1].print(string.format("Setting guard squad to wander around %s", event.guardPos))
 			global.Squads[player.force.name][squadref].unitGroup.set_command({type=defines.command.wander, destination = global.Squads[player.force.name][squadref].home, distraction=defines.distraction.by_enemy})
 			global.Squads[player.force.name][squadref].unitGroup.start_moving()
 		end
@@ -307,6 +307,13 @@ function handleDroidAssemblerPlaced(event)
 	local entity = event.created_entity
 	local force = entity.force
 	
+	--check for droid guard station global tables first.
+	if not global.DroidAssemblers then
+		global.DroidAssemblers = {}
+	end
+	if not global.DroidAssemblers[force.name] then
+		global.DroidAssemblers[force.name] = {}
+	end
 	LOGGER.log( string.format("Adding assembler to force %s", force.name) )	
 	if global.DroidAssemblers and global.DroidAssemblers[force.name] then
 		table.insert(global.DroidAssemblers[force.name], entity)
