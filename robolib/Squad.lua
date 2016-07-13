@@ -195,7 +195,9 @@ function trimSquads(players)
 					local count = table.countValidElements(squad.members)			
 										
 					if count == 0 then
-						squad.unitGroup.destroy()
+						if squad.unitGroup.valid then
+							squad.unitGroup.destroy()
+						end
 						if squad.unitGroup then squad.unitGroup = nil end
 						removeThisSquad = true
 						
