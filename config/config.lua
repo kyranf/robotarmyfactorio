@@ -8,7 +8,7 @@ SQUAD_CHECK_RANGE = 15 -- range in tiles when a droid is spawned to check for ex
 ASSEMBLER_UPDATE_TICKRATE = 120 -- how often does the droid assembler building check for spawnable droid items in the output inv. how fast to spawn a droid once it's been assembled.
 BOT_COUNTERS_UPDATE_TICKRATE = 60 -- how often does the robot army combinator count droids and update combinator signals?
 LONE_WOLF_CLEANUP_SCRIPT_PERIOD = 18000 -- how often to find and deal with droids that are "wanderers" and not in a squad. NOT USED YET
-
+GUARD_STATION_GARRISON_SIZE = 10 -- limit to how many a guard station will spawn based on counting nearby droids
 
 PRINT_SQUAD_DEATH_MESSAGES = 1
 

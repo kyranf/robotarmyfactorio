@@ -78,11 +78,24 @@ data:extend(
     ingredients =
     {
       {"iron-plate", 10},
-      {"electronic-circuit", 100},
+      {"electronic-circuit", 50},
       {"iron-gear-wheel", 50},
       {"assembling-machine-1", 1}
     },
     result = "droid-assembling-machine"
+  },
+  {
+    type = "recipe",
+    name = "droid-guard-station",
+    enabled = true,
+    ingredients =
+    {
+      {"iron-plate", 10},
+      {"electronic-circuit", 50},
+      {"iron-gear-wheel", 50},
+      {"assembling-machine-1", 1}
+    },
+    result = "droid-guard-station"
   },
   {
     type = "recipe",
@@ -142,6 +155,18 @@ data:extend(
 	  {"electronic-circuit", 25},
 	},	
     result = "loot-chest",
+	requester_paste_multiplier = 1
+  },
+  {  
+    type = "recipe",
+    name = "rally-beacon",
+    enabled = true,
+	ingredients =
+	{
+	  {"wood",5},
+	  {"electronic-circuit", 5},
+	},	
+    result = "rally-beacon",
 	requester_paste_multiplier = 1
   }
 })

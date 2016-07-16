@@ -1,7 +1,13 @@
-Changes from 0.1.43 to 0.1.44 release:
-- fixed on_load being used incorrectly.
-- fixed squads disbanding after successful mission or if they fail a move order and their unitgroup becomes invalid. they will keep re-forming the squad.
-- changed all global tables to be referenced by force name so it's totally player-independant now. 
-- added parameters for config to change grab artifacts radius
-- made rocket droid splash area basically none, and made damage very high to help deal with big biters.
-- fixed it so you don't lose the loot chest if you try to place it wrong
+Changes from 0.1.44 to 0.2.0 release:
+- added guard station
+- adjusted rocket droids projectiles so there is 0 splash area rather than 1, to fully avoid the "friendly fire" issue
+- added terminator GFX work in progress, courtesy of YuokiTani - the "Lord of Art"
+- added "laser" resistance to terminators.
+- added rally beacon
+- added bullet shells ejecting from rifle and SMG droids
+- added custom sprites for smg, rifle, and rocket droids, courtesy of YuokiTani
+- reduced terminator range by 1
+- changed icons GFX for droid assembler, guard station has a matching one.
+- reduced cost of droid assembler and guard station recipe in terms of electronic circuits
+- guard station building graphics
+- squads now pick up any item on the ground with the word "artifact" in it, so all bobs mods artifacts are now collected. 

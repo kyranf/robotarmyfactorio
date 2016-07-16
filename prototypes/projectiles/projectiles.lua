@@ -58,7 +58,7 @@ local dual_laser = {
             action =
             {
               type = "area",
-              perimeter = 1,
+              perimeter = 0,
               action_delivery =
               {
                 type = "instant",
@@ -66,7 +66,7 @@ local dual_laser = {
                 {
                   {
                     type = "damage",
-                    damage = {amount = 350, type = "explosion"}
+                    damage = {amount = 300, type = "explosion"}
                   },
                   {
                     type = "create-entity",

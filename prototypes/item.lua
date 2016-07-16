@@ -101,6 +101,16 @@ data:extend(
     place_result = "droid-assembling-machine",
     stack_size = 50
   },
+	{
+	type = "item",
+	name = "droid-guard-station",
+    icon = "__robotarmy__/graphics/icons/droid-guard-station.png",
+    flags = {"goes-to-quickbar"},
+    subgroup = "production-machine",
+    order = "b[droid-guard-station]",
+    place_result = "droid-guard-station",
+    stack_size = 50
+  },
   {
     type = "item",
     name = "droid-counter",
@@ -121,4 +131,16 @@ data:extend(
     order = "a[items]-c[loot-chest]",
     stack_size = 50,
   },
+  {
+    type = "item",
+    name = "rally-beacon",
+    icon = "__robotarmy__/graphics/icons/rally-beacon.png",
+    flags = {"goes-to-quickbar"},
+    subgroup = "storage",
+    place_result="rally-beacon",
+    order = "a[items]-c[rally-beacon]",
+    stack_size = 5,
+  },
+  
+  
 })

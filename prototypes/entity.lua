@@ -5,24 +5,24 @@ require("config.config")
 -- DONT FORGET TO ADD ANY NEW LOCAL TABLE DEFINITIONS TO THE DATA:EXTEND THING AT THE BOTTOM!
 
 droidscale = 1.0
-droidSmgTint =  {r=0.9, g=0.9, b=0.1, a=1}
-droidRocketTint = {r=0.2, g=0.2, b=0.8, a=1}
-droidRifleTint = {r=0.2, g=0.8, b=0.2, a=1}
+droidSmgTint =  {r=0.8, g=1, b=1, a=1}
+droidRocketTint = {r=0.8, g=0.8, b=1, a=1}
+droidRifleTint = {r=0.8, g=1, b=0.8, a=1}
 
 function make_laser_sounds(volume)
     return
     {
       {
         filename = "__base__/sound/fight/laser-1.ogg",
-        volume = 0.5
+        volume = 0.7
       },
       {
         filename = "__base__/sound/fight/laser-2.ogg",
-        volume = 0.5
+        volume = 0.7
       },
       {
         filename = "__base__/sound/fight/laser-3.ogg",
-        volume = 0.5
+        volume = 0.7
       }
     }
 end
@@ -33,15 +33,15 @@ function make_light_gunshot_sounds(volume)
     {
       {
         filename = "__base__/sound/fight/light-gunshot-1.ogg",
-        volume = 0.3
+        volume = 0.7
       },
       {
         filename = "__base__/sound/fight/light-gunshot-2.ogg",
-        volume = 0.3
+        volume = 0.7
       },
       {
         filename = "__base__/sound/fight/light-gunshot-3.ogg",
-        volume = 0.3
+        volume = 0.7
       }
     }
 end
@@ -75,8 +75,8 @@ local droid_smg =
     max_health = 120 * HEALTH_SCALAR,
     alert_when_damaged = false,
     healing_per_tick = 0.01,
-    collision_box = {{-0.2, -0.2}, {0.2, 0.2}},
-    selection_box = {{-0.4, -1.4}, {0.4, 0.2}},
+    collision_box = {{-0.8, -0.8}, {0.8, 0.8}},
+    selection_box = {{-0.8, -0.8}, {0.8, 0.8}},
     sticker_box = {{-0.3, -0.5}, {0.3, 0.1}},
 	vision_distance = 30,
     movement_speed = 0.11,
@@ -150,22 +150,33 @@ local droid_smg =
     {
       type = "projectile",
       ammo_category = "bullet",
+	  shell_particle =
+      {
+        name = "shell-particle",
+        direction_deviation = 0.1,
+        speed = 0.1,
+        speed_deviation = 0.03,
+        center = {0, 0.1},
+        creation_distance = -0.5,
+        starting_frame_speed = 0.4,
+        starting_frame_speed_deviation = 0.1
+      },
       cooldown = 10,
       projectile_center = {0, 0.5},
       projectile_creation_distance = 0.6,
       range = 13,
-      sound = make_light_gunshot_sounds(),
+      sound = make_light_gunshot_sounds(1.0),
 	  animation =
 		 {
-			filename = "__base__/graphics/entity/player/player-basic-idle-gun.png",
-			  priority = "very-low",
-			  width = 65,
-			  height = 74,
-			  tint = droidSmgTint,
-			  direction_count = 8,
-			  frame_count = 22,
-			  animation_speed = 0.15,
-			  --shift = {-0.015625-.4, -0.53125+.8}
+		  filename = "__robotarmy__/graphics/entity/smg_idle.png",
+		  priority = "high",
+		  width = 80,
+		  height = 80,
+		  tint = droidSmgTint,
+		  direction_count = 8,
+		  frame_count = 1,
+		  animation_speed = 0.3,
+		  shift = {0, 0}
 		 },
       ammo_type =
       {
@@ -198,62 +209,27 @@ local droid_smg =
     },
 	idle =
 	{
-	  layers =
-	  {
-		{
-		  filename = "__base__/graphics/entity/player/player-basic-idle-gun.png",
-		  priority = "very-low",
-		  width = 65,
-		  height = 74,
-		  direction_count = 8,
-		  frame_count = 22,
-		  tint = droidSmgTint,
-		  animation_speed = 0.15,
-		  --shift = {-0.015625-.4, -0.53125+.8}
-		},
-		{
-		  filename = "__base__/graphics/entity/player/player-basic-idle-gun-color.png",
-		  priority = "very-low",
-		  width = 35,
-		  height = 43,
-		  direction_count = 8,
-		  frame_count = 22,
-		  tint = droidSmgTint,
-		  apply_runtime_tint = true,
-		  animation_speed = 0.15,
-		  --shift = {-0.046875-.4, -0.703125+.8},
-		  apply_runtime_tint = true
-		},
-	  }
+	  filename = "__robotarmy__/graphics/entity/smg_run.png",
+	  priority = "high",
+	  width = 80,
+	  height = 80,
+	  tint = droidSmgTint,
+	  direction_count = 22,
+	  frame_count = 1,
+	  animation_speed = 0.3,
+	  shift = {0, 0}	
 	},
 	run_animation =
 	{
-	  layers =
-	  {
-		{
-		  filename = "__base__/graphics/entity/player/player-basic-run-gun.png",
-		  priority = "very-low",
-		  width = 61,
-		  height = 78,
-		  frame_count = 22,
-		  direction_count = 18,
-		  tint = droidSmgTint,
-		  --shift = {0.140625 -.4 , -0.4375 + 0.109375 + .8},
-		  distance_per_frame = 0.35,
-		  animation_speed = 0.60
-		},
-		{
-		  filename = "__base__/graphics/entity/player/player-basic-run-gun-color.png",
-		  priority = "very-low",
-		  width = 34,
-		  height = 50,
-		  frame_count = 22,
-		  tint = droidSmgTint,
-		  direction_count = 18,
-		  apply_runtime_tint = true,
-		  --shift = {0.015625-.4,  -0.625 + .8}
-		},
-	  }
+	  filename = "__robotarmy__/graphics/entity/smg_run.png",
+	  priority = "high",
+	  width = 80,
+	  height = 80,
+	  tint = droidSmgTint,
+	  direction_count = 22,
+	  frame_count = 1,
+	  animation_speed = 0.3,
+	  shift = {0, 0}	
 	}
 }
 
@@ -268,8 +244,8 @@ local droid_rifle =
     max_health = 40 * HEALTH_SCALAR,
     alert_when_damaged = false,
     healing_per_tick = 0.00,
-    collision_box = {{-0.2, -0.2}, {0.2, 0.2}},
-    selection_box = {{-0.4, -1.4}, {0.4, 0.2}},
+    collision_box = {{-0.8, -0.8}, {0.8, 0.8}},
+    selection_box = {{-0.8, -0.8}, {0.8, 0.8}},
     sticker_box = {{-0.3, -0.5}, {0.3, 0.1}},
 	vision_distance = 30,
     movement_speed = 0.08,
@@ -343,22 +319,33 @@ local droid_rifle =
     {
       type = "projectile",
       ammo_category = "bullet",
+	  shell_particle =
+      {
+        name = "shell-particle",
+        direction_deviation = 0.1,
+        speed = 0.1,
+        speed_deviation = 0.03,
+        center = {0, 0.1},
+        creation_distance = -0.5,
+        starting_frame_speed = 0.4,
+        starting_frame_speed_deviation = 0.1
+      },
       cooldown = 120,
-      projectile_center = {0, 0.5},
-      projectile_creation_distance = 0.6,
-      range = 16,
+      projectile_center = {-0.6, 1},
+      projectile_creation_distance = 0.8,
+      range = 15,
       sound = make_rifle_gunshot_sounds(1),
 	  animation =
 		 {
-			filename = "__base__/graphics/entity/player/player-basic-idle-gun.png",
-			  priority = "very-low",
-			  width = 65,
-			  height = 74,
-			  tint = droidRifleTint,
-			  direction_count = 8,
-			  frame_count = 22,
-			  animation_speed = 0.15,
-			  --shift = {-0.015625-.4, -0.53125+.8}
+		  filename = "__robotarmy__/graphics/entity/rifle_idle.png",
+		  priority = "high",
+		  width = 80,
+		  height = 80,
+		  tint = droidRifleTint,
+		  direction_count = 8,
+		  frame_count = 1,
+		  animation_speed = 0.3,
+		  shift = {0, 0}
 		 },
       ammo_type =
       {
@@ -391,62 +378,27 @@ local droid_rifle =
     },
 	idle =
 	{
-	  layers =
-	  {
-		{
-		  filename = "__base__/graphics/entity/player/player-basic-idle-gun.png",
-		  priority = "very-low",
-		  width = 65,
-		  height = 74,
-		  direction_count = 8,
-		  frame_count = 22,
-		  tint = droidRifleTint,
-		  animation_speed = 0.15,
-		  --shift = {-0.015625-.4, -0.53125+.8}
-		},
-		{
-		  filename = "__base__/graphics/entity/player/player-basic-idle-gun-color.png",
-		  priority = "very-low",
-		  width = 35,
-		  height = 43,
-		  direction_count = 8,
-		  frame_count = 22,
-		  tint = droidRifleTint,
-		  apply_runtime_tint = true,
-		  animation_speed = 0.15,
-		  --shift = {-0.046875-.4, -0.703125+.8},
-		  apply_runtime_tint = true
-		},
-	  }
+	  filename = "__robotarmy__/graphics/entity/rifle_run.png",
+	  priority = "high",
+	  width = 80,
+	  height = 80,
+	  tint = droidRifleTint,
+	  direction_count = 22,
+	  frame_count = 1,
+	  animation_speed = 0.3,
+	  shift = {0, 0}	
 	},
 	run_animation =
 	{
-	  layers =
-	  {
-		{
-		  filename = "__base__/graphics/entity/player/player-basic-run-gun.png",
-		  priority = "very-low",
-		  width = 61,
-		  height = 78,
-		  frame_count = 22,
-		  direction_count = 18,
-		  tint = droidRifleTint,
-		  --shift = {0.140625 -.4 , -0.4375 + 0.109375 + .8},
-		  distance_per_frame = 0.35,
-		  animation_speed = 0.60
-		},
-		{
-		  filename = "__base__/graphics/entity/player/player-basic-run-gun-color.png",
-		  priority = "very-low",
-		  width = 34,
-		  height = 50,
-		  frame_count = 22,
-		  tint = droidRifleTint,
-		  direction_count = 18,
-		  apply_runtime_tint = true,
-		  --shift = {0.015625-.4,  -0.625 + .8}
-		},
-	  }
+	  filename = "__robotarmy__/graphics/entity/rifle_run.png",
+	  priority = "high",
+	  width = 80,
+	  height = 80,
+	  tint = droidRifleTint,
+	  direction_count = 22,
+	  frame_count = 1,
+	  animation_speed = 0.3,
+	  shift = {0, 0}	
 	}
 }
 
@@ -462,8 +414,8 @@ local droid_rocket =
     max_health = 85 * HEALTH_SCALAR,
     alert_when_damaged = false,
     healing_per_tick = 0.01,
-    collision_box = {{-0.2, -0.2}, {0.2, 0.2}},
-    selection_box = {{-0.4, -1.4}, {0.4, 0.2}},
+    collision_box = {{-0.8, -0.8}, {0.8, 0.8}},
+    selection_box = {{-0.8, -0.8}, {0.8, 0.8}},
     sticker_box = {{-0.3, -0.5}, {0.3, 0.1}},
 	vision_distance = 30,
     movement_speed = 0.11,
@@ -496,7 +448,7 @@ local droid_rocket =
     },
     destroy_action =
     {
-       type = "direct",
+      type = "direct",
       action_delivery =
       {
         type = "instant",
@@ -539,21 +491,21 @@ local droid_rocket =
       ammo_category = "rocket",
       movement_slow_down_factor = 0.8,
       cooldown = 180,
-      projectile_creation_distance = 0.6,
+      projectile_creation_distance = 1,
       range = 22,
-      projectile_center = {-0.17, 0.2},
+      projectile_center = {0.6, 1},
       animation =
-	  {
-			filename = "__base__/graphics/entity/player/player-basic-idle-gun.png",
-			  priority = "very-low",
-			  width = 65,
-			  height = 74,
+		 {
+			  filename = "__robotarmy__/graphics/entity/rocket_idle.png",
+			  priority = "high",
+			  width = 80,
+			  height = 80,
 			  tint = droidRocketTint,
 			  direction_count = 8,
-			  frame_count = 22,
+			  frame_count = 1,
 			  animation_speed = 0.15,
-			  --shift = {-0.015625-.4, -0.53125+.8}
-	  },
+			  shift = {0, 0}
+		 },
 	  sound =
       {
         {
@@ -584,62 +536,27 @@ local droid_rocket =
     },
 	idle =
 	{
-	  layers =
-	  {
-		{
-		  filename = "__base__/graphics/entity/player/player-basic-idle-gun.png",
-		  priority = "very-low",
-		  width = 65,
-		  height = 74,
-		  direction_count = 8,
-		  frame_count = 22,
-		  tint = droidRocketTint,
-		  animation_speed = 0.15,
-		  --shift = {-0.015625-.4, -0.53125+.8}
-		},
-		{
-		  filename = "__base__/graphics/entity/player/player-basic-idle-gun-color.png",
-		  priority = "very-low",
-		  width = 35,
-		  height = 43,
-		  direction_count = 8,
-		  frame_count = 22,
-		  tint = droidRocketTint,
-		  apply_runtime_tint = true,
-		  animation_speed = 0.15,
-		  --shift = {-0.046875-.4, -0.703125+.8},
-		  apply_runtime_tint = true
-		},
-	  }
+	  filename = "__robotarmy__/graphics/entity/rocket_idle.png",
+	  priority = "high",
+	  width = 80,
+	  height = 80,
+	  tint = droidRocketTint,
+	  direction_count = 8,
+	  frame_count = 1,
+	  animation_speed = 0.3,
+	  shift = {0, 0}	
 	},
 	run_animation =
 	{
-	  layers =
-	  {
-		{
-		  filename = "__base__/graphics/entity/player/player-basic-run-gun.png",
-		  priority = "very-low",
-		  width = 61,
-		  height = 78,
-		  frame_count = 22,
-		  direction_count = 18,
-		  tint = droidRocketTint,
-		  --shift = {0.140625 -.4 , -0.4375 + 0.109375 + .8},
-		  distance_per_frame = 0.35,
-		  animation_speed = 0.60
-		},
-		{
-		  filename = "__base__/graphics/entity/player/player-basic-run-gun-color.png",
-		  priority = "very-low",
-		  width = 34,
-		  height = 50,
-		  frame_count = 22,
-		  tint = droidRocketTint,
-		  direction_count = 18,
-		  apply_runtime_tint = true,
-		  --shift = {0.015625-.4,  -0.625 + .8}
-		},
-	  }
+	  filename = "__robotarmy__/graphics/entity/rocket_run.png",
+	  priority = "high",
+	  width = 80,
+	  height = 80,
+	  tint = droidRocketTint,
+	  direction_count = 22,
+	  frame_count = 1,
+	  animation_speed = 0.3,
+	  shift = {0, 0}	
 	}
 }
 
@@ -647,18 +564,18 @@ local terminator =
 {
 	type = "unit",
     name = "terminator",
-    icon = "__base__/graphics/icons/player.png",
+    icon = "__robotarmy__/graphics/icons/terminator.png",
     flags = {"placeable-player", "player-creation", "placeable-off-grid"},
     subgroup="creatures",
     order="e-a-b-d",
     max_health = 300 * HEALTH_SCALAR,
     alert_when_damaged = false,
     healing_per_tick = 0.02,
-    collision_box = {{-0.2, -0.2}, {0.2, 0.2}},
-    selection_box = {{-0.4, -1.4}, {0.4, 0.2}},
+    collision_box = {{-0.8, -0.8}, {0.8, 0.8}},
+    selection_box = {{-0.8, -0.8}, {0.8, 0.8}},
     sticker_box = {{-0.3, -0.5}, {0.3, 0.1}},
 	vision_distance = 30,
-    movement_speed = 0.20,
+    movement_speed = 0.18,
 	minable = {hardness = 0.1, mining_time = 0.1, result = "terminator"},
 	pollution_to_join_attack = 0.0,
 	distraction_cooldown = 0,
@@ -680,6 +597,11 @@ local terminator =
         type = "acid",
         decrease = 5,
         percent = 85
+      },
+	  {
+        type = "laser",
+        decrease = 5,
+        percent = 35
       },
 	  {
         type = "fire",
@@ -736,19 +658,20 @@ local terminator =
 	  type = "projectile",
       ammo_category = "combat-robot-laser",
       cooldown = 10,
-      projectile_center = {0, 0.2},
-      projectile_creation_distance = 0.8,
-      range = 16,
+      projectile_center = {0, 0.4},
+      projectile_creation_distance = 1.5,
+      range = 15,
       sound = make_laser_sounds(1),
 	  animation =
 		 {
-			layers =
-			  {
-				droidanimations.level1.idle,
-				droidanimations.level1.idlemask,
-				droidanimations.level3addon.idle,
-				droidanimations.level3addon.idlewmask,
-			  }
+			  filename = "__robotarmy__/graphics/entity/terminator_idle.png",
+			  priority = "high",
+			  width = 80,
+			  height = 80,
+			  direction_count = 8,
+			  frame_count = 1,
+			  animation_speed = 0.15,
+			  shift = {0, 0}
 		 },
       ammo_type =
       {
@@ -777,23 +700,25 @@ local terminator =
     },
 	idle =
 	{
-	  layers =
-	  {
-		droidanimations.level1.idle,
-		droidanimations.level1.idlemask,
-		droidanimations.level3addon.idle,
-		droidanimations.level3addon.idlewmask,
-	  }
+	  filename = "__robotarmy__/graphics/entity/terminator_run.png",
+	  priority = "very-low",
+	  width = 80,
+	  height = 80,
+	  direction_count = 22,
+	  frame_count = 1,
+	  animation_speed = 0.5,
+	  shift = {0, 0}
 	},
 	run_animation =
 	{
-	  layers =
-	  {
-		droidanimations.level1.running,
-		droidanimations.level1.runningmask,
-		droidanimations.level3addon.running,
-		droidanimations.level3addon.runningmask,
-	  }
+	  filename = "__robotarmy__/graphics/entity/terminator_run.png",
+	  priority = "high",
+	  width = 80,
+	  height = 80,
+	  direction_count = 22,
+	  frame_count = 1,
+	  animation_speed = 0.5,
+	  shift = {0, 0}
 	}
 }
 

@@ -11,7 +11,7 @@ commands = { 		assemble = 1,  	-- when they spawn, this is their starting comman
 					guard = 4, 		-- when set, the SQUAD_AI function should command squad to stay around 
 					patrol = 5, 	-- when set, SQUAD_AI will deal with moving them sequentially from patrol point A to B
 					hunt = 6		-- when set, SQUD_AI will send to nearest enemy 
-				}
+			}
  
 global.SquadTemplate = {squadID= 0, player=true, unitGroup = true, members = {size = 0}, home = true, force = true, radius=DEFAULT_SQUAD_RADIUS, patrolPoint1 = true, patrolPoint2 = true, currentCommand = "none"} -- this is the empty squad table template
 
@@ -43,13 +43,7 @@ function createNewSquad(tableIN, player, entity)
 	newsquad.command = commands.assemble
 	
 	tableIN[squadRef] = newsquad
-	--for i, v in pairs(tableIN) do 
-		--player.print("player's squad list")
-		--player.print(string.format("%s, %s", tostring(i), tostring(v) ))
-	--end
-	--player.print(string.format("Created new squad for %s with unique ID %d", player.name, squadRef))
-	--LOGGER.log(string.format("Created squad for player %s", player.name))
-	--tableIN[squadRef].unitGroup.set_command({type=defines.command.wander, destination= newsquad.home, radius=newsquad.radius, distraction=defines.distraction.by_anything})
+	
 	return squadRef
 end
 
@@ -66,11 +60,7 @@ function addMember(tableIN, entity)
 	end 
 	
 	tableIN.members.size = tableIN.members.size + 1
-	--local soldierCount = table.countValidElements(tableIN.members)
-	--tableIN.player.print(string.format("Valid squad member count %d", soldierCount))
-	--tableIN.player.print(string.format("added guy to squad belonging to %s, membercount is %d", tableIN.player.name, tableIN.members.size))
-	--LOGGER.log(string.format("added guy to squad belonging to %s, membercount is %d", tableIN.player.name, tableIN.members.size))
-
+	
 end
 
 
@@ -104,7 +94,7 @@ function checkMembersAreInGroup(tableIN)
 					--tableIN.player.print(string.format("adding soldier to squad ID %d's unitgroup", tableIN.squadID))
 					tableIN.unitGroup.add_member(soldier)
 				else
-					LOGGER.log(string.format("removing member from squad id %d member list", tableIN.squadID))
+					--LOGGER.log(string.format("removing member from squad id %d member list", tableIN.squadID))
 					table.remove(tableIN.members, key)
 				end
 			end
@@ -128,6 +118,8 @@ end
 function maintainTable(tableIN)
 
 	for i, element in pairs(tableIN) do
+		
+		
 		if element == nil then 
 			table.remove(tableIN, i) 
 		end
@@ -203,10 +195,10 @@ function trimSquads(players)
 					local count = table.countValidElements(squad.members)			
 										
 					if count == 0 then
-						if(squad.unitGroup.valid) then
+						if squad.unitGroup.valid then
 							squad.unitGroup.destroy()
 						end
-						squad.unitGroup = nil
+						if squad.unitGroup then squad.unitGroup = nil end
 						removeThisSquad = true
 						
 					end
@@ -215,8 +207,9 @@ function trimSquads(players)
 						if PRINT_SQUAD_DEATH_MESSAGES == 1 then
 							player.print(string.format("Squad %d is no more...", squad.squadID))
 						end
-						--table.remove(global.Squads[player.force.name], key)
-						global.Squads[player.force.name][squad.squadID] = nil
+						LOGGER.log(string.format("Squad id %d from force %s has died/lost all its members...", squad.squadID, player.force.name))
+						
+						global.Squads[player.force.name][squad.squadID] = nil  --set the entire squad itself to nil
 						maintainTable(global.Squads[player.force.name])
 					end
 				end
@@ -247,7 +240,7 @@ function sendSquadsToBattle(players, minSquadSize)
 						maintainTable(global.Squads[player.force.name])
 					end
 				--end debug stuff
-					if(squad.unitGroup.valid and (squad.unitGroup.state == defines.group_state.gathering or squad.unitGroup.state == defines.group_state.finished)) then
+					if(squad.unitGroup.valid and (squad.unitGroup.state == defines.group_state.gathering or squad.unitGroup.state == defines.group_state.finished)) and squad.command ~= commands.guard then
 						
 						--LOGGER.log("group is gathering or finished the last task")
 				
@@ -272,7 +265,7 @@ function sendSquadsToBattle(players, minSquadSize)
 										--player.print("enemy found but in un-charted area...")								
 									end
 								else
-									player.print("cannot find nearby target!!")
+									--player.print("cannot find nearby target!!")
 								end
 							else
 							
@@ -365,12 +358,12 @@ end
 
 function revealSquadChunks()
 
-	local players = game.players
-	for _, player in pairs(players) do
+	local forces = game.forces
+	for _, force in pairs(forces) do
 	
-		if global.Squads[player.force.name] then
+		if global.Squads[force.name] then
 		
-			for id, squad in pairs(global.Squads[player.force.name]) do
+			for id, squad in pairs(global.Squads[force.name]) do
 				
 				if squad and squad.unitGroup.valid then
 					if squad.members.size > 0 then  --if there are troops in a valid group in a valid squad. 
@@ -389,16 +382,16 @@ function revealSquadChunks()
 
 end
 
-function grabArtifacts(players)
+function grabArtifacts(force)
 
-	for _, player in pairs(players) do
+	for _, force in pairs(force) do
 		
 		--if there are squads in the player's name, and the player's force has a loot chest active, scan area around droids for alien-artifact
 		
 		
-		if global.Squads[player.force.name] and global.lootChests and global.lootChests[player.force.name] and global.lootChests[player.force.name].valid then
+		if global.Squads[force.name] and global.lootChests and global.lootChests[force.name] and global.lootChests[force.name].valid then
 			
-			for id, squad in pairs(global.Squads[player.force.name]) do
+			for id, squad in pairs(global.Squads[force.name]) do
 				
 				if squad and squad.unitGroup.valid then
 					
@@ -407,34 +400,39 @@ function grabArtifacts(players)
 						local areaToCheck = {left_top = {position.x-ARTIFACT_GRAB_RADIUS, position.y-ARTIFACT_GRAB_RADIUS}, right_bottom = {position.x+ARTIFACT_GRAB_RADIUS, position.y+ARTIFACT_GRAB_RADIUS}}
 						
 						local itemList = game.surfaces[1].find_entities_filtered{area=areaToCheck, type="item-entity"}
-						local artifactCount = 0
+						local artifactList = {}
 						for _, item in pairs(itemList) do
-						
-							if item.stack.name == "alien-artifact" then
+							if item.valid and item.stack.valid then
 							
-								artifactCount = artifactCount + 1
-								item.destroy()
-							
+								if string.find(item.stack.name,"artifact") then
+									table.insert(artifactList, {name = item.stack.name, count = item.stack.count}) --inserts the LuaSimpleStack table (of name and count) to the artifacts list for later use
+									
+									item.destroy()
+								
+								end
 							end
-						
-						
 						end
-						if(artifactCount > 0) then
+						
+						
+						if artifactList ~= {} then
 							--player.print(string.format("Squad ID %d found %d artifacts!", squad.squadID , artifactCount))
 							--player.insert({name="alien-artifact", count = artifactCount})
-							local chest = global.lootChests[player.force.name]
-							local items = {name = "alien-artifact", count = artifactCount}
-							if(chest.can_insert(items)) then 
-								
-								chest.insert(items)
-							else
-																	
+							local chest = global.lootChests[force.name]
+							local cannotInsert = false
+							for _, itemStack in pairs(artifactList) do
+								if(chest.can_insert(itemStack)) then 
+									chest.insert(itemStack)
+								else
+									cannotInsert = true
+								end								
+							end
+							if cannotInsert then
+																
 								for _, plr in pairs(chest.force.players) do
 									plr.print("Your loot chest is too full! Cannot add more until there is room!")
 								end
 								
-							end								
-							
+							end
 							
 						end
 					end
