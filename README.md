@@ -1,8 +1,8 @@
 # Robot Army mod for Factorio V0.13+
 
 ## Version  
-0.1.45,
-Known to be compatible with Factorio v0.13.6
+0.2.0,
+Known to be compatible with Factorio v0.13.9
 
 
 ## Description  
@@ -10,8 +10,9 @@ A mod to add robot troop units and associated support buildings and items to pro
 
 Please see specific info about this mod's content [on the GitHub Wiki page](https://github.com/kyranf/robotarmyfactorio/wiki)
 
-The FactorioForums.com thread can be found here: [Forum link](https://forums.factorio.com/viewtopic.php?f=97&t=23543)  
+The Factorio Forums thread can be found here: [Forum link](https://forums.factorio.com/viewtopic.php?f=97&t=23543)  
 
+Mod portal link here: [Mod Portal](https://mods.factorio.com/mods/kyranzor/robotarmy)
 
 ## Donations
 If you are feeling generous or thankful for the work i've done, feel free to donate to me so I can bribe my wife with chocolate to help her put up with my late nights! Click the image below:  

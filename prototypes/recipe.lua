@@ -78,7 +78,7 @@ data:extend(
     ingredients =
     {
       {"iron-plate", 10},
-      {"electronic-circuit", 100},
+      {"electronic-circuit", 50},
       {"iron-gear-wheel", 50},
       {"assembling-machine-1", 1}
     },
@@ -91,7 +91,7 @@ data:extend(
     ingredients =
     {
       {"iron-plate", 10},
-      {"electronic-circuit", 100},
+      {"electronic-circuit", 50},
       {"iron-gear-wheel", 50},
       {"assembling-machine-1", 1}
     },
@@ -163,8 +163,8 @@ data:extend(
     enabled = true,
 	ingredients =
 	{
-	  {"steel-plate",20},
-	  {"electronic-circuit", 25},
+	  {"wood",5},
+	  {"electronic-circuit", 5},
 	},	
     result = "rally-beacon",
 	requester_paste_multiplier = 1

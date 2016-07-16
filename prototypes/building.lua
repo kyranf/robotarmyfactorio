@@ -107,17 +107,17 @@ local guardStation = {
 		percent = 70
 	  }
 	},
-	collision_box = {{-1.2, -1.2}, {1.2, 1.2}},
-	selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
+	collision_box = {{-1.7, -1.7}, {1.7, 1.7}},
+	  selection_box = {{-2, -2}, {2, 2}},
 	animation =
 	{
-	  filename = "__robotarmy__/graphics/entity/droid-assembler.png",
+	  filename = "__robotarmy__/graphics/entity/guard-station.png",
 	  priority = "high",
-	  width = 111,
-	  height = 99,
+	  width = 143,
+	  height = 190,
 	  frame_count = 1,
 	  line_length = 1,
-	  shift = {0.4, -0.06}
+	  shift = {0.5, -0.5}
 	},
 	open_sound = { filename = "__base__/sound/machine-open.ogg", volume = 0.85 },
 	close_sound = { filename = "__base__/sound/machine-close.ogg", volume = 0.75 },
@@ -158,7 +158,7 @@ local guardStation = {
 local rally_beacon = {
     type = "container",
     name = "rally-beacon",
-    icon = "__robotarmy__/graphics/icons/loot-chest.png",
+    icon = "__robotarmy__/graphics/icons/rally-beacon.png",
     flags = {"placeable-neutral", "player-creation"},
     minable = {mining_time = 1, result = "rally-beacon"},
     max_health = 400,
@@ -172,18 +172,18 @@ local rally_beacon = {
         percent = 90
       }
     },
-    collision_box = {{-0.9, -0.9}, {0.9, 0.9}},
-    selection_box = {{-1, -1}, {1, 1}},
-    drawing_box = {{-1, -3}, {1, 1}},
+    collision_box = {{-0.5, -0.5}, {0.5, 0.5}},
+    selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
+    drawing_box = {{-1, -1}, {1, 1}},
     fast_replaceable_group = "",
     inventory_size = 8,
     vehicle_impact_sound =  { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
 	picture =
     {
-      filename = "__base__/graphics/entity/substation/substation.png",
+      filename = "__robotarmy__/graphics/entity/rally-pole.png",
       priority = "extra-high",
-      width = 132,
-      height = 144,
+      width = 120,
+      height = 124,
       shift = {0.9, -1}
     },
     circuit_wire_connection_point =
