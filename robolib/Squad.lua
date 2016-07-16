@@ -358,12 +358,12 @@ end
 
 function revealSquadChunks()
 
-	local players = game.players
-	for _, player in pairs(players) do
+	local forces = game.forces
+	for _, force in pairs(forces) do
 	
-		if global.Squads[player.force.name] then
+		if global.Squads[force.name] then
 		
-			for id, squad in pairs(global.Squads[player.force.name]) do
+			for id, squad in pairs(global.Squads[force.name]) do
 				
 				if squad and squad.unitGroup.valid then
 					if squad.members.size > 0 then  --if there are troops in a valid group in a valid squad. 
@@ -382,16 +382,16 @@ function revealSquadChunks()
 
 end
 
-function grabArtifacts(players)
+function grabArtifacts(force)
 
-	for _, player in pairs(players) do
+	for _, force in pairs(force) do
 		
 		--if there are squads in the player's name, and the player's force has a loot chest active, scan area around droids for alien-artifact
 		
 		
-		if global.Squads[player.force.name] and global.lootChests and global.lootChests[player.force.name] and global.lootChests[player.force.name].valid then
+		if global.Squads[force.name] and global.lootChests and global.lootChests[force.name] and global.lootChests[force.name].valid then
 			
-			for id, squad in pairs(global.Squads[player.force.name]) do
+			for id, squad in pairs(global.Squads[force.name]) do
 				
 				if squad and squad.unitGroup.valid then
 					
@@ -417,7 +417,7 @@ function grabArtifacts(players)
 						if artifactList ~= {} then
 							--player.print(string.format("Squad ID %d found %d artifacts!", squad.squadID , artifactCount))
 							--player.insert({name="alien-artifact", count = artifactCount})
-							local chest = global.lootChests[player.force.name]
+							local chest = global.lootChests[force.name]
 							local cannotInsert = false
 							for _, itemStack in pairs(artifactList) do
 								if(chest.can_insert(itemStack)) then 

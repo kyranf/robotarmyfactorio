@@ -362,11 +362,11 @@ function handleBuiltRallyBeacon(event)
 		
 				--game.players[1].print(string.format("Sending squad %d to rally point...", squad.squadID))
 				local pos = entity.position
-				pos.x = pos.x+3
-				pos.y = pos.y+3
+				pos.x = pos.x+2
+				pos.y = pos.y+2
 				--give them command to move. distraction by damage means if they are shot at/bit, they will at least try and defend themselves while running away.
-				squad.unitGroup.set_command({type=defines.command.go_to_location, destination=pos, distraction=defines.distraction.by_damage})
-				squad.unitGroup.start_moving()
+				squad.unitGroup.set_command({type=defines.command.go_to_location, destination=pos, distraction=defines.distraction.none})
+				--squad.unitGroup.start_moving()
 			
 			end
 		end	
@@ -448,7 +448,7 @@ function onTickHandler(event)
 	
 	sendSquadsToBattle(players, SQUAD_SIZE_MIN_BEFORE_HUNT) -- finds all squads for all players and checks for squad size and sends to attack nearest targets
 	revealSquadChunks()
-	grabArtifacts(players)
+	grabArtifacts(game.forces)
 	global.lastTick = event.tick
 	
   end
