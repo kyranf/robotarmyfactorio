@@ -2,6 +2,7 @@ require("config.config")
 require("util")
 require("robolib.util")
 require("stdlib/log/logger")
+require("stdlib/game")
 require("prototypes.DroidUnitList")
 
 
@@ -269,6 +270,7 @@ function sendSquadsToBattle(players, minSquadSize)
 								end
 							else
 							
+							-- THIS IS THE RETREAT BEHAVIOUR
 								if squad.unitGroup.valid and (squad.unitGroup.state == defines.group_state.finished) and squad.command == commands.hunt then
 									--player.print(string.format("Sending under-strength squad id %d back to base for resupply...", squad.squadID ))
 									checkMembersAreInGroup(squad)
@@ -316,6 +318,34 @@ function sendSquadsToBattle(players, minSquadSize)
 		end
 	end
 end
+
+function guardAIUpdate()
+
+	local forces = game.forces
+	for _, force in pairs(forces) do
+	
+		if global.Squads and global.Squads[force.name] then
+		
+			-- for each squad in force, if squad is "guard" command, check positin of squad against their squad home position
+			-- and if it's too far away (15 tiles?) set them to move back to home. 
+			for _, squad in pairs(global.Squads[force.name]) do
+				if squad.unit_group and squad.unit_group.valid and squad.command == commands.guard then
+					
+					local distFromHome = util.distance(squad.unit_group.position, squad.home)
+					if distFromHome > 15 then
+						Game.print_force(force, "Moving squad back to guard station, they strayed too far!")
+						squad.unitGroup.set_command({type=defines.command.go_to_location, destination=squad.home, 
+													radius=DEFAULT_SQUAD_RADIUS, distraction=defines.distraction.by_anything})
+						squad.unitGroup.start_moving()
+					
+					end
+					
+				end
+			end
+		end
+	end
+end
+
 
  --checks if the inventory passed contains a spawnable droid item type listed in DroidUnitList.lua
 function containsSpawnableDroid(inv) 

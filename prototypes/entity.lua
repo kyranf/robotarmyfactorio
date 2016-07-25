@@ -4,7 +4,7 @@ require("config.config")
 
 -- DONT FORGET TO ADD ANY NEW LOCAL TABLE DEFINITIONS TO THE DATA:EXTEND THING AT THE BOTTOM!
 
-droidscale = 1.0
+droidscale = 0.8
 droidSmgTint =  {r=0.8, g=1, b=1, a=1}
 droidRocketTint = {r=0.8, g=0.8, b=1, a=1}
 droidRifleTint = {r=0.8, g=1, b=0.8, a=1}
@@ -25,6 +25,28 @@ function make_laser_sounds(volume)
         volume = 0.7
       }
     }
+end
+
+function make_heavy_shot_sounds(volume)
+	return
+	{
+	 {
+        filename = "__base__/sound/fight/heavy-gunshot-1.ogg",
+        volume = 0.45
+      },
+      {
+        filename = "__base__/sound/fight/heavy-gunshot-2.ogg",
+        volume = 0.45
+      },
+      {
+        filename = "__base__/sound/fight/heavy-gunshot-3.ogg",
+        volume = 0.45
+      },
+      {
+        filename = "__base__/sound/fight/heavy-gunshot-4.ogg",
+        volume = 0.45
+      }
+	}
 end
 
 
@@ -75,9 +97,9 @@ local droid_smg =
     max_health = 120 * HEALTH_SCALAR,
     alert_when_damaged = false,
     healing_per_tick = 0.01,
-    collision_box = {{-0.8, -0.8}, {0.8, 0.8}},
-    selection_box = {{-0.8, -0.8}, {0.8, 0.8}},
-    sticker_box = {{-0.3, -0.5}, {0.3, 0.1}},
+    collision_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8*droidscale, 0.8*droidscale}},
+    selection_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8, 0.8*droidscale}},
+    sticker_box = {{-0.5, -0.5}, {0.5, 0.5}},
 	vision_distance = 30,
     movement_speed = 0.11,
 	minable = {hardness = 0.1, mining_time = 0.1, result = "droid-smg"},
@@ -161,11 +183,11 @@ local droid_smg =
         starting_frame_speed = 0.4,
         starting_frame_speed_deviation = 0.1
       },
-      cooldown = 10,
+      cooldown = 7,
       projectile_center = {0, 0.5},
       projectile_creation_distance = 0.6,
       range = 13,
-      sound = make_light_gunshot_sounds(1.0),
+      sound = make_heavy_shot_sounds(1.0),
 	  animation =
 		 {
 		  filename = "__robotarmy__/graphics/entity/smg_idle.png",
@@ -200,7 +222,7 @@ local droid_smg =
               },
               {
                 type = "damage",
-                damage = { amount = 5 , type = "physical"}
+                damage = { amount = 4 , type = "physical"}
               }
             }
           }
@@ -244,9 +266,9 @@ local droid_rifle =
     max_health = 40 * HEALTH_SCALAR,
     alert_when_damaged = false,
     healing_per_tick = 0.00,
-    collision_box = {{-0.8, -0.8}, {0.8, 0.8}},
-    selection_box = {{-0.8, -0.8}, {0.8, 0.8}},
-    sticker_box = {{-0.3, -0.5}, {0.3, 0.1}},
+    collision_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8*droidscale, 0.8*droidscale}},
+    selection_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8*droidscale, 0.8*droidscale}},
+    sticker_box = {{-0.5, -0.5}, {0.5, 0.5}},
 	vision_distance = 30,
     movement_speed = 0.08,
 	minable = {hardness = 0.1, mining_time = 0.1, result = "droid-rifle"},
@@ -339,6 +361,7 @@ local droid_rifle =
 		 {
 		  filename = "__robotarmy__/graphics/entity/rifle_idle.png",
 		  priority = "high",
+		  scale = droidscale,
 		  width = 80,
 		  height = 80,
 		  tint = droidRifleTint,
@@ -382,6 +405,7 @@ local droid_rifle =
 	  priority = "high",
 	  width = 80,
 	  height = 80,
+	  scale = droidscale,
 	  tint = droidRifleTint,
 	  direction_count = 22,
 	  frame_count = 1,
@@ -396,6 +420,7 @@ local droid_rifle =
 	  height = 80,
 	  tint = droidRifleTint,
 	  direction_count = 22,
+	  scale = droidscale,
 	  frame_count = 1,
 	  animation_speed = 0.3,
 	  shift = {0, 0}	
@@ -414,9 +439,9 @@ local droid_rocket =
     max_health = 85 * HEALTH_SCALAR,
     alert_when_damaged = false,
     healing_per_tick = 0.01,
-    collision_box = {{-0.8, -0.8}, {0.8, 0.8}},
-    selection_box = {{-0.8, -0.8}, {0.8, 0.8}},
-    sticker_box = {{-0.3, -0.5}, {0.3, 0.1}},
+    collision_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8*droidscale, 0.8*droidscale}},
+    selection_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8, 0.8*droidscale}},
+    sticker_box = {{-0.5, -0.5}, {0.5, 0.5}},
 	vision_distance = 30,
     movement_speed = 0.11,
 	minable = {hardness = 0.1, mining_time = 0.1, result = "droid-rocket"},
@@ -571,9 +596,9 @@ local terminator =
     max_health = 300 * HEALTH_SCALAR,
     alert_when_damaged = false,
     healing_per_tick = 0.02,
-    collision_box = {{-0.8, -0.8}, {0.8, 0.8}},
-    selection_box = {{-0.8, -0.8}, {0.8, 0.8}},
-    sticker_box = {{-0.3, -0.5}, {0.3, 0.1}},
+    collision_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8*droidscale, 0.8*droidscale}},
+    selection_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8, 0.8*droidscale}},
+    sticker_box = {{-0.5, -0.5}, {0.5, 0.5}},
 	vision_distance = 30,
     movement_speed = 0.18,
 	minable = {hardness = 0.1, mining_time = 0.1, result = "terminator"},
@@ -734,7 +759,7 @@ local droid_counter =  {
     collision_box = {{-0.35, -0.35}, {0.35, 0.35}},
     selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
 
-    item_slot_count = 2,
+    item_slot_count = 5,
 
     sprites =
     {

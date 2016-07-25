@@ -1,13 +1,6 @@
-Changes from 0.1.44 to 0.2.0 release:
-- added guard station
-- adjusted rocket droids projectiles so there is 0 splash area rather than 1, to fully avoid the "friendly fire" issue
-- added terminator GFX work in progress, courtesy of YuokiTani - the "Lord of Art"
-- added "laser" resistance to terminators.
-- added rally beacon
-- added bullet shells ejecting from rifle and SMG droids
-- added custom sprites for smg, rifle, and rocket droids, courtesy of YuokiTani
-- reduced terminator range by 1
-- changed icons GFX for droid assembler, guard station has a matching one.
-- reduced cost of droid assembler and guard station recipe in terms of electronic circuits
-- guard station building graphics
-- squads now pick up any item on the ground with the word "artifact" in it, so all bobs mods artifacts are now collected. 
+Changes from 0.2.0 to 0.2.1 release:
+- scaled down droids size and collision boxes etc.
+- added ai behaviour to bring back guard squads who wander too far from home (their station)
+- increased counter signal count to 5, added count signals for each droid type. 
+- increased fire rate of SMG battle droids and decreased their base damage
+- fixed rally point error when no squads in list

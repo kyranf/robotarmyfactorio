@@ -115,129 +115,6 @@ script.on_configuration_changed(function(data)
 			end
 		end 
 		
-
-		
-		--this is when I transition everything from using player.name to player.force.name
-		if data.mod_changes["robotarmy"].old_version < "0.1.44" then
-			LOGGER.log("Robot Army major version transition point - dealing with large global table migrations")
-			local forces = game.forces
-			
-			global.DroidAssemblers = global.DroidAssemblers or {}
-			global.Squads = global.Squads or {}
-			global.uniqueSquadId = global.uniqueSquadId or {}
-			global.lootChests = global.lootChests or {}
-			global.droidCounters = global.droidCounters or {}
-			
-			for _, force in pairs(forces) do
-
-				--set up all the tables for the force name, if they don't exist
-				global.DroidAssemblers[force.name] = global.DroidAssemblers[force.name] or {}
-				global.Squads[force.name] = global.Squads[force.name] or {}
-				global.uniqueSquadId[force.name] = global.uniqueSquadId[force.name] or {}
-				global.lootChests[force.name] = global.lootChests[force.name] or {}
-				global.droidCounters[force.name] = global.droidCounters[force.name] or {}
-		
-				-- if this table is empty ( means it is == {} )
-				if next(global.DroidAssemblers[force.name]) == nil then
-				
-					--fill with player.name table info if there is any.
-					for _, player in pairs(force.players) do
-				
-						-- if the player is in this force we are iterating over, and player.name version of this table exists
-						if global.DroidAssemblers[player.name] then 
-							--for each element in it... check if valid and insert into the force.name table version.
-							for _, element in pairs(global.DroidAssemblers[player.name]) do
-								if(element and element.valid) then table.insert(global.DroidAssemblers[force.name], element) end
-							end
-						
-						end
-				
-					end
-				
-				end
-				
-				if next(global.Squads[force.name]) == nil then
-					
-					--fill with player.name table info if there is any.
-					for _, player in pairs(force.players) do
-				
-						-- if the player is in this force we are iterating over, and player.name version of this table exists
-						if global.Squads[player.name] then 
-							--for each element in it... check if valid and insert into the force.name table version.
-							for _, element in pairs(global.Squads[player.name]) do
-								if(element and element.valid) then table.insert(global.Squads[force.name], element) end
-							end
-						
-						end
-				
-					end
-				
-				
-				end
-				
-				if next(global.uniqueSquadId[force.name]) == nil then
-				
-					local sum = 0
-					--fill with player.name table info if there is any.
-					for _, player in pairs(force.players) do
-				
-						-- if the player is in this force we are iterating over, and player.name version of this table exists
-						if global.uniqueSquadId[player.name] then 
-							
-							sum = sum + global.uniqueSquadId[player.name]
-						
-						end
-				
-					end
-					
-					global.uniqueSquadId[force.name] = sum + 1 --force it to be the sum of all player squadIDs, + 1, to ensure no squad-ref migration will conflict.
-				
-				
-				end
-				
-				if next(global.lootChests[force.name]) == nil then
-				
-					
-					--fill with player.name table info if there is any.
-					for _, player in pairs(force.players) do
-				
-						-- if the player is in this force we are iterating over, and player.name version of this table exists
-						if global.lootChests[player.name] then 
-							--for each element in it... check if valid and insert into the force.name table version.
-							for _, element in pairs(global.lootChests[player.name]) do
-								if(element and element.valid) then table.insert(global.lootChests[force.name], element) end
-							end
-						
-						end
-				
-					end				
-				
-				end
-				
-				if next(global.droidCounters[force.name]) == nil then
-				
-					
-					--fill with player.name table info if there is any.
-					for _, player in pairs(force.players) do
-				
-						-- if the player is in this force we are iterating over, and player.name version of this table exists
-						if global.droidCounters[player.name] then 
-							--for each element in it... check if valid and insert into the force.name table version.
-							for _, element in pairs(global.droidCounters[player.name]) do
-								if(element and element.valid) then table.insert(global.droidCounters[force.name], element) end
-							end
-						
-						end
-				
-					end				
-				
-				end
-							
-			end
-			LOGGER.log("Dealing with large global table migrations completed...")
-		
-		end
-		
 	end
 	
 end)
@@ -348,28 +225,30 @@ end)
 
 function handleBuiltRallyBeacon(event)
 
-
-	local entity = event.created_entity
-	trimSquads(game.players)
 	
-	--game.players[1].print(string.format("Rally point built, for force %s...", entity.force.name))
-	--loop through all squads on the force, checking for those who are hunting or 'assembling' and make them move to the rally point and then continue what they were doing.
-	for _, squad in pairs(global.Squads[entity.force.name]) do
-		--game.players[1].print("checking squad..")
-		if squad and squad.unitGroup and squad.unitGroup.valid then
-			--game.players[1].print("checking squad command...")
-			if squad.command ~= commands.guard and squad.command ~= commands.patrol then
+	local entity = event.created_entity
+	if global.Squads and global.Squads[entity.force.name] then
+		trimSquads(game.players)
 		
-				--game.players[1].print(string.format("Sending squad %d to rally point...", squad.squadID))
-				local pos = entity.position
-				pos.x = pos.x+2
-				pos.y = pos.y+2
-				--give them command to move. distraction by damage means if they are shot at/bit, they will at least try and defend themselves while running away.
-				squad.unitGroup.set_command({type=defines.command.go_to_location, destination=pos, distraction=defines.distraction.none})
-				--squad.unitGroup.start_moving()
+		--game.players[1].print(string.format("Rally point built, for force %s...", entity.force.name))
+		--loop through all squads on the force, checking for those who are hunting or 'assembling' and make them move to the rally point and then continue what they were doing.
+		for _, squad in pairs(global.Squads[entity.force.name]) do
+			--game.players[1].print("checking squad..")
+			if squad and squad.unitGroup and squad.unitGroup.valid then
+				--game.players[1].print("checking squad command...")
+				if squad.command ~= commands.guard and squad.command ~= commands.patrol then
 			
-			end
-		end	
+					--game.players[1].print(string.format("Sending squad %d to rally point...", squad.squadID))
+					local pos = entity.position
+					pos.x = pos.x+2
+					pos.y = pos.y+2
+					--give them command to move. distraction by damage means if they are shot at/bit, they will at least try and defend themselves while running away.
+					squad.unitGroup.set_command({type=defines.command.go_to_location, destination=pos, distraction=defines.distraction.none})
+					--squad.unitGroup.start_moving()
+				
+				end
+			end	
+		end
 	end
 end
 
@@ -447,6 +326,7 @@ function onTickHandler(event)
 	trimSquads(players) -- does some quick maintenance of the squad tables. 
 	
 	sendSquadsToBattle(players, SQUAD_SIZE_MIN_BEFORE_HUNT) -- finds all squads for all players and checks for squad size and sends to attack nearest targets
+	guardAIUpdate()
 	revealSquadChunks()
 	grabArtifacts(game.forces)
 	global.lastTick = event.tick
@@ -540,33 +420,7 @@ function onTickHandler(event)
   
   if( event.tick % BOT_COUNTERS_UPDATE_TICKRATE == 0) then
   
-	
-	--for each force in game, sum droids, then find/update droid-counters
-	for _, gameForce in pairs(game.forces) do
-		local sum = 0	
-		if global.droidCounters and global.droidCounters[gameForce.name] then
-			--sum all droids named in the spawnable list
-			for _, droidName in pairs(spawnable) do
-			
-				sum = sum + gameForce.get_entity_count(droidName)
-			
-			end
-					
-			local circuitParams = {parameters={  {index=1, count = sum, signal={type="virtual",name="signal-droid-alive-count"}} } }
-		
-		
-			maintainTable(global.droidCounters[gameForce.name])
-			
-			for _, counter in pairs(global.droidCounters[gameForce.name]) do
-				
-				if(counter.valid) then
-					counter.get_or_create_control_behavior().parameters = circuitParams
-				end
-			end
-		
-		end
-		
-	end
+	doCounterUpdate(event)
 	
   
   end

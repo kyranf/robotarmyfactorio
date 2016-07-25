@@ -35,7 +35,7 @@ function getDroidSpawnLocation(entity)
 	entPos.x = entPos.x + randX
 	entPos.y = entPos.y + randY
 	--final check, let the game find us a good spot if we've failed by now.
-	local finalPos = game.surfaces[1].find_non_colliding_position(entity.name, entPos, 2, 0.5)
+	local finalPos = entity.surface.find_non_colliding_position(entity.name, entPos, 5, 1)
 	if not finalPos then 
 		return entPos --just force it... oh well.
 	else
@@ -65,4 +65,51 @@ function countNearbyDroids(position, force, radius)
 	end
 
 	return sum
+end
+
+
+
+function doCounterUpdate(event)
+	--for each force in game, sum droids, then find/update droid-counters
+	for _, gameForce in pairs(game.forces) do
+		local sum = 0	
+		local rifleDroids = gameForce.get_entity_count("droid-rifle")
+		local battleDroids = gameForce.get_entity_count("droid-smg")
+		local rocketDroids = gameForce.get_entity_count("droid-rocket")
+		local terminators = gameForce.get_entity_count("terminator")
+		if global.droidCounters and global.droidCounters[gameForce.name] then
+			--sum all droids named in the spawnable list
+			for _, droidName in pairs(spawnable) do
+			
+				sum = sum + gameForce.get_entity_count(droidName)
+			
+			end
+			
+			
+			
+					
+			local circuitParams = {
+				parameters={  
+					{index=1, count = sum, signal={type="virtual",name="signal-droid-alive-count"}}, --end global droid count
+					{index=2, count = rifleDroids, signal={type="virtual",name="signal-droid-rifle-count"}},
+					{index=3, count = battleDroids, signal={type="virtual",name="signal-droid-smg-count"}},
+					{index=4, count = rocketDroids, signal={type="virtual",name="signal-droid-rocket-count"}},
+					{index=5, count = terminators, signal={type="virtual",name="signal-droid-terminator-count"}}
+				} --end parameters table
+			
+			}-- end circuitParams
+		
+		
+			maintainTable(global.droidCounters[gameForce.name])
+			
+			for _, counter in pairs(global.droidCounters[gameForce.name]) do
+				
+				if(counter.valid) then
+					counter.get_or_create_control_behavior().parameters = circuitParams
+				end
+			end
+		
+		end
+		
+	end
 end

@@ -66,7 +66,7 @@ local dual_laser = {
                 {
                   {
                     type = "damage",
-                    damage = {amount = 300, type = "explosion"}
+                    damage = {amount = 275, type = "explosion"}
                   },
                   {
                     type = "create-entity",
