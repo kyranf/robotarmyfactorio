@@ -351,7 +351,7 @@ local droid_flame =
       projectile_center = {-0.17, 0.2},
       animation =
 	  {
-			filename = "__robotarmy__/graphics/entity/smg_run.png",
+			filename = "__robotarmy__/graphics/entity/flame_run.png",
 			priority = "high",
 			width = 80,
 			height = 80,
@@ -404,7 +404,7 @@ local droid_flame =
     },
 	idle =
 	{
-	  filename = "__robotarmy__/graphics/entity/smg_run.png",
+	  filename = "__robotarmy__/graphics/entity/flame_run.png",
 	  priority = "high",
 	  width = 80,
 	  height = 80,
@@ -416,7 +416,7 @@ local droid_flame =
 	},
 	run_animation =
 	{
-	  filename = "__robotarmy__/graphics/entity/smg_run.png",
+	  filename = "__robotarmy__/graphics/entity/flame_run.png",
 	  priority = "high",
 	  width = 80,
 	  height = 80,

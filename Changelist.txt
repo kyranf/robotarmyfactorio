@@ -6,4 +6,4 @@ Changes from 0.2.0 to 0.2.1 release:
 - fixed rally point error when no squads in list
 - added damage scalar to attack types for using the config properly (inspired by PetePete1984 on github)
 - fixed global table for guardstations not being checked before trying to index when creating a new force (issue #42 on github by veden)
-- 
+- added firebot WIP entity and item, icon, and graphics
