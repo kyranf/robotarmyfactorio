@@ -249,7 +249,7 @@ function sendSquadsToBattle(players, minSquadSize)
 						if count then 
 							if  count >= minSquadSize or (squad.command == commands.hunt and count > SQUAD_SIZE_MIN_BEFORE_RETREAT) then
 								--get nearest enemy unit to the squad. 
-								--find the nearest enemy to the squad that is an enemy of the player's force, and max radius of 2000 tiles (10k tile diameter)
+								--find the nearest enemy to the squad that is an enemy of the player's force, and max radius of 5000 tiles (10k tile diameter)
 								local nearestEnemy = player.surface.find_nearest_enemy({position = squad.unitGroup.position, max_distance = 5000.0, force = player.force })
 								if nearestEnemy then
 								-- check if they are in a charted area
@@ -273,7 +273,7 @@ function sendSquadsToBattle(players, minSquadSize)
 							-- THIS IS THE RETREAT BEHAVIOUR
 								if squad.unitGroup.valid and (squad.unitGroup.state == defines.group_state.finished) and squad.command == commands.hunt then
 									--player.print(string.format("Sending under-strength squad id %d back to base for resupply...", squad.squadID ))
-									checkMembersAreInGroup(squad)
+									checkMembersAreInGroup(squad) -- maybe don't need to call this, we did this earlier on.
 									--player.print(string.format("squad size %d, squad state %d", squad.members.size, squad.unitGroup.state ))
 
 									

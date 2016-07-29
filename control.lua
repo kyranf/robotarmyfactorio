@@ -40,19 +40,32 @@ end)
 script.on_event(defines.events.on_force_created, function(event)
 	handleForceCreated(event)
  end)
-
 function handleForceCreated(event)
 
-	local force = event.force
-	LOGGER.log(string.format("New force detected... %s",force.name) )
-	global.DroidAssemblers[force.name] = global.DroidAssemblers[force.name] or {}
-	global.Squads[force.name] = global.Squads[force.name] or {}
-	global.uniqueSquadId[force.name] = global.uniqueSquadId[force.name] or 1
-	global.lootChests[force.name] = global.lootChests[force.name] or {}
-	global.droidCounters[force.name] = global.droidCounters[force.name] or {}
-	global.droidGuardStations[force.name] = global.droidGuardStations[force.name] or {}	
-	force.set_cease_fire(force, true) --set ceasefire on your own force. maybe this will prevent friendly fire stuff?
-	LOGGER.log("New force handler finished...")
+    local force = event.force
+    LOGGER.log(string.format("New force detected... %s",force.name) )
+    global.DroidAssemblers = global.DroidAssemblers or {}
+    global.DroidAssemblers[force.name] = global.DroidAssemblers[force.name] or {}
+
+    global.Squads = global.Squads or {}
+    global.Squads[force.name] = global.Squads[force.name] or {}
+
+    global.uniqueSquadId = global.uniqueSquadId or {}
+    global.uniqueSquadId[force.name] = global.uniqueSquadId[force.name] or 1
+
+    global.lootChests = global.lootChests or {}
+    global.lootChests[force.name] = global.lootChests[force.name] or {}
+
+    global.droidCounters = global.droidCounters or {}
+    global.droidCounters[force.name] = global.droidCounters[force.name] or {}
+
+    global.droidGuardStations = global.droidGuardStations or {}
+    global.droidGuardStations[force.name] = global.droidGuardStations[force.name] or {} 
+
+
+	--not needed as of factorio 0.13.10 which removes friendly fire issue.
+	force.set_cease_fire(force, true) --set ceasefire on your own force. maybe this will prevent friendlyfire stuff?
+    LOGGER.log("New force handler finished...")
 
 end
 

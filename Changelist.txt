@@ -4,3 +4,6 @@ Changes from 0.2.0 to 0.2.1 release:
 - increased counter signal count to 5, added count signals for each droid type. 
 - increased fire rate of SMG battle droids and decreased their base damage
 - fixed rally point error when no squads in list
+- added damage scalar to attack types for using the config properly (inspired by PetePete1984 on github)
+- fixed global table for guardstations not being checked before trying to index when creating a new force (issue #42 on github by veden)
+- 

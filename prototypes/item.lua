@@ -22,6 +22,16 @@ data:extend(
     stack_size = 25
   },
   {
+    type = "item",
+    name = "droid-flame",
+    icon = "__robotarmy__/graphics/icons/droid_flame_undep.png",
+    flags = {"goes-to-quickbar"},
+    order = "z[droid]",
+	subgroup = "capsule",
+    place_result = "droid-flame",
+    stack_size = 25
+  },
+  {
 	type = "item",
     name = "droid-smg-dummy",
     icon = "__robotarmy__/graphics/icons/droid_smg.png",
