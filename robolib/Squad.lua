@@ -80,7 +80,9 @@ function checkMembersAreInGroup(tableIN)
 		for key, unit in pairs(tableIN.members) do
 			if key ~= "size" and unit and unit.valid then pos = unit.position end
 		end
-		tableIN.unitGroup = tableIN.player.surface.create_unit_group({position=pos, force=tableIN.force})
+		
+		local surface = getFirstValidSoldier(tableIN).surface
+		tableIN.unitGroup = surface.create_unit_group({position=pos, force=tableIN.force})
 		 
 	end
 	
@@ -128,7 +130,7 @@ function maintainTable(tableIN)
 
 end
 
---input is table of squads (global.Squads[player.force.name]), and player to find closest to
+--input is table of squads (global.Squads[force.name]), and player to find closest to
 function getClosestSquad(tableIN, player, maxRange)
 	
 	local leastDist = maxRange
@@ -154,25 +156,25 @@ function getClosestSquad(tableIN, player, maxRange)
 	return leastDistSquadID
 end
 
---input is table of squads (global.Squads[player.force.name]), and position to find closest to
+--input is table of squads (global.Squads[force.name]), and position to find closest to
 function getClosestSquadToPos(tableIN, position, maxRange)
 	
 	local leastDist = maxRange
 	local leastDistSquadID = nil
 	
 	for key, squad in pairs(tableIN) do
-			--player.print("checking soldiers are in unitgroup...")
-			checkMembersAreInGroup(squad)
+		if squad and squad.unitGroup.valid then
 			local distance = util.distance(position, squad.unitGroup.position)
 			if distance <= leastDist then
 				leastDistSquadID = squad.squadID
 				leastDist = distance
 			end
+		end
 		
 	end
 	
 	if (leastDist >= maxRange or leastDistSquadID == nil) then 
-		--game.players[1].print("getClosestSquad - no squad found or squad too far away")
+		LOGGER.log("getClosestSquad - no squad found or squad too far away")
 		return nil
 	end
 	
@@ -180,12 +182,12 @@ function getClosestSquadToPos(tableIN, position, maxRange)
 	return leastDistSquadID
 end
 
-function trimSquads(players)
-	for _, player in pairs(players) do
+function trimSquads(forces)
+	for _, force in pairs(forces) do
 		
-		if global.Squads and global.Squads[player.force.name] then 
+		if global.Squads and global.Squads[force.name] then 
 		
-			for key, squad in pairs(global.Squads[player.force.name]) do	
+			for key, squad in pairs(global.Squads[force.name]) do	
 				if squad then
 
 					--player.print(string.format("squad %s, id %d, member size %d", squad, squad.squadID, squad.members.size))
@@ -206,12 +208,14 @@ function trimSquads(players)
 					
 					if removeThisSquad then
 						if PRINT_SQUAD_DEATH_MESSAGES == 1 then
-							player.print(string.format("Squad %d is no more...", squad.squadID))
+						-- using stdlib, print message to entire force
+							Game.print_force(force, string.format("Squad %d is no more...", squad.squadID))
+
 						end
-						LOGGER.log(string.format("Squad id %d from force %s has died/lost all its members...", squad.squadID, player.force.name))
+						LOGGER.log(string.format("Squad id %d from force %s has died/lost all its members...", squad.squadID, force.name))
 						
-						global.Squads[player.force.name][squad.squadID] = nil  --set the entire squad itself to nil
-						maintainTable(global.Squads[player.force.name])
+						global.Squads[force.name][squad.squadID] = nil  --set the entire squad itself to nil
+						maintainTable(global.Squads[force.name])
 					end
 				end
 			end
@@ -221,13 +225,13 @@ end
 
 
 --sends squads for each player to nearest enemy units. will not happen until squadsize is >= SQUAD_SIZE_MIN_BEFORE_HUNT
-function sendSquadsToBattle(players, minSquadSize)
+function sendSquadsToBattle(forces, minSquadSize)
 
-	for _, player in pairs(players) do
+	for _, force in pairs(forces) do
 	
-		if global.Squads[player.force.name] then
+		if global.Squads[force.name] then
 		
-			for id, squad in pairs(global.Squads[player.force.name]) do
+			for id, squad in pairs(global.Squads[force.name]) do
 				checkMembersAreInGroup(squad)
 				if squad.unitGroup then
 					--debug stuff
@@ -237,8 +241,8 @@ function sendSquadsToBattle(players, minSquadSize)
 					
 						--player.print(string.format("Squad %d is no more...", squad.squadID))
 						--table.remove(global.Squads[player.force.name], key)
-						global.Squads[player.force.name][squad.squadID] = nil
-						maintainTable(global.Squads[player.force.name])
+						global.Squads[force.name][squad.squadID] = nil
+						maintainTable(global.Squads[force.name])
 					end
 				--end debug stuff
 					if(squad.unitGroup.valid and (squad.unitGroup.state == defines.group_state.gathering or squad.unitGroup.state == defines.group_state.finished)) and squad.command ~= commands.guard then
@@ -250,11 +254,12 @@ function sendSquadsToBattle(players, minSquadSize)
 							if  count >= minSquadSize or (squad.command == commands.hunt and count > SQUAD_SIZE_MIN_BEFORE_RETREAT) then
 								--get nearest enemy unit to the squad. 
 								--find the nearest enemy to the squad that is an enemy of the player's force, and max radius of 5000 tiles (10k tile diameter)
-								local nearestEnemy = player.surface.find_nearest_enemy({position = squad.unitGroup.position, max_distance = 5000.0, force = player.force })
+								local surface = getFirstValidSoldier(squad).surface
+								local nearestEnemy = surface.find_nearest_enemy({position = squad.unitGroup.position, max_distance = 5000.0, force = force })
 								if nearestEnemy then
 								-- check if they are in a charted area
-									local charted = player.force.is_chunk_charted(player.surface, nearestEnemy.position)
-									charted = true -- force this to true for now - we'll introduce this feature later. Requires player to have explored the spot before it can be targetted for attacks.
+									
+									local charted = true   -- = player.force.is_chunk_charted(player.surface, nearestEnemy.position)
 									if charted then
 										--player.print("Sending squad off to battle...")
 										--make sure squad is good, then set command
@@ -280,23 +285,22 @@ function sendSquadsToBattle(players, minSquadSize)
 									if squad.members.size > 0 then
 										local distance = 999999
 										local entity = nil
-										-- for each player in the force, check every possible droid assembler entity and return the one with shortest distance
-										for _, playerj in pairs(player.force.players) do
-										
-											if global.DroidAssemblers and global.DroidAssemblers[playerj.force.name] then
-												for _, droidAss in pairs(global.DroidAssemblers[playerj.force.name]) do
-												
-												--distance between the droid assembler and the squad
-													if droidAss.valid then
-														local dist = util.distance(droidAss.position, squad.unitGroup.position)
-														if dist <= distance then
-															entity = droidAss
-															distance = dist
-														end	
-													end												
-												end
+										--check every possible droid assembler in that force and return the one with shortest distance
+								
+										if global.DroidAssemblers and global.DroidAssemblers[force.name] then
+											for _, droidAss in pairs(global.DroidAssemblers[force.name]) do
+											
+											--distance between the droid assembler and the squad
+												if droidAss.valid then
+													local dist = util.distance(droidAss.position, squad.unitGroup.position)
+													if dist <= distance then
+														entity = droidAss
+														distance = dist
+													end	
+												end												
 											end
 										end
+										
 										
 										--we should have the closest droid assembler now. but don't send new commands if they are already only 10 squads away from the rally point.
 										if entity and distance > 10 then
@@ -321,19 +325,21 @@ end
 
 function guardAIUpdate()
 
+	
 	local forces = game.forces
 	for _, force in pairs(forces) do
-	
+		--Game.print_force(force, "processing guard AI Update...")
 		if global.Squads and global.Squads[force.name] then
-		
+			--Game.print_force(force, "squads tables exist...")
 			-- for each squad in force, if squad is "guard" command, check positin of squad against their squad home position
 			-- and if it's too far away (15 tiles?) set them to move back to home. 
 			for _, squad in pairs(global.Squads[force.name]) do
-				if squad.unit_group and squad.unit_group.valid and squad.command == commands.guard then
+				--Game.print_force(force, "squads tables exist...")
+				if squad.unitGroup and squad.unitGroup.valid and squad.command == commands.guard then
 					
-					local distFromHome = util.distance(squad.unit_group.position, squad.home)
+					local distFromHome = util.distance(squad.unitGroup.position, squad.home)
 					if distFromHome > 15 then
-						Game.print_force(force, "Moving squad back to guard station, they strayed too far!")
+						--Game.print_force(force, "Moving squad back to guard station, they strayed too far!")
 						squad.unitGroup.set_command({type=defines.command.go_to_location, destination=squad.home, 
 													radius=DEFAULT_SQUAD_RADIUS, distraction=defines.distraction.by_anything})
 						squad.unitGroup.start_moving()
@@ -399,8 +405,8 @@ function revealSquadChunks()
 					if squad.members.size > 0 then  --if there are troops in a valid group in a valid squad. 
 						local position = squad.unitGroup.position
 						local area = {left_top = {position.x-20, position.y-20}, right_bottom = {position.x+20, position.y+20}}
-						
-						squad.force.chart(game.surfaces[1], area) --reveal the chunk they are in. 
+						local surface = getFirstValidSoldier(squad).surface
+						squad.force.chart(surface, area) --reveal the chunk they are in. 
 					end
 					
 				end
@@ -429,7 +435,9 @@ function grabArtifacts(force)
 						local position = squad.unitGroup.position
 						local areaToCheck = {left_top = {position.x-ARTIFACT_GRAB_RADIUS, position.y-ARTIFACT_GRAB_RADIUS}, right_bottom = {position.x+ARTIFACT_GRAB_RADIUS, position.y+ARTIFACT_GRAB_RADIUS}}
 						
-						local itemList = game.surfaces[1].find_entities_filtered{area=areaToCheck, type="item-entity"}
+						local surface = getFirstValidSoldier(squad).surface
+						
+						local itemList = surface.find_entities_filtered{area=areaToCheck, type="item-entity"}
 						local artifactList = {}
 						for _, item in pairs(itemList) do
 							if item.valid and item.stack.valid then

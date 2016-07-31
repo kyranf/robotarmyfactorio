@@ -146,7 +146,7 @@ function handleDroidSpawned(event)
 		global.Squads[player.force.name] = {}
 	end
 
-	trimSquads(game.players) -- maintain squad tables before checking for distance to nearest squad
+	--trimSquads(game.players) -- maintain squad tables before checking for distance to nearest squad
 	
 	local squadref = getClosestSquadToPos(global.Squads[player.force.name], entity.position, SQUAD_CHECK_RANGE)
 	
@@ -158,8 +158,9 @@ function handleDroidSpawned(event)
 	 
 
 	addMember(global.Squads[player.force.name][squadref],entity)		
-	checkMembersAreInGroup(global.Squads[player.force.name][squadref])
-
+	--checkMembersAreInGroup(global.Squads[player.force.name][squadref])
+	global.Squads[player.force.name][squadref].unitGroup.add_member(entity)
+	
 	if event.guard == true then
 		if global.Squads[player.force.name][squadref].command ~= commands.guard then
 			global.Squads[player.force.name][squadref].command = commands.guard
@@ -241,7 +242,7 @@ function handleBuiltRallyBeacon(event)
 	
 	local entity = event.created_entity
 	if global.Squads and global.Squads[entity.force.name] then
-		trimSquads(game.players)
+		trimSquads(game.forces)
 		
 		--game.players[1].print(string.format("Rally point built, for force %s...", entity.force.name))
 		--loop through all squads on the force, checking for those who are hunting or 'assembling' and make them move to the rally point and then continue what they were doing.
@@ -335,13 +336,14 @@ function onTickHandler(event)
   -- has enough time elapsed to go through and set squad orders yet?
   if event.tick > (global.lastTick + TICK_UPDATE_SQUAD_AI) then
 	
+	local forces = game.forces
 	local players = game.players -- list of players 
-	trimSquads(players) -- does some quick maintenance of the squad tables. 
+	trimSquads(forces) -- does some quick maintenance of the squad tables. 
 	
-	sendSquadsToBattle(players, SQUAD_SIZE_MIN_BEFORE_HUNT) -- finds all squads for all players and checks for squad size and sends to attack nearest targets
+	sendSquadsToBattle(forces, SQUAD_SIZE_MIN_BEFORE_HUNT) -- finds all squads for all players and checks for squad size and sends to attack nearest targets
 	guardAIUpdate()
 	revealSquadChunks()
-	grabArtifacts(game.forces)
+	grabArtifacts(forces)
 	global.lastTick = event.tick
 	
   end

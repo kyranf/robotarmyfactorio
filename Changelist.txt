@@ -7,3 +7,7 @@ Changes from 0.2.0 to 0.2.1 release:
 - added damage scalar to attack types for using the config properly (inspired by PetePete1984 on github)
 - fixed global table for guardstations not being checked before trying to index when creating a new force (issue #42 on github by veden)
 - added firebot WIP entity and item, icon, and graphics
+- optimised (removed redundant util calls) droid spawning procedure. doesn't cause lag spike when click-drag-spamming droids. 
+- fixed surface issues for finding targets, grabbing artifacts, and other surface-related activities
+- updated Factorio Stdlib to v6.0 (https://github.com/Afforess/Factorio-Stdlib/releases/tag/0.6.0)
+- new default config for squad size being 10, and squad join range being 20  tiles.

@@ -116,3 +116,15 @@ function checkGlobalTableInitStates()
 	end
 
 end
+
+function getFirstValidSoldier(squad)
+
+	for _, soldier in pairs(squad.members) do
+	
+		if soldier and soldier.valid then
+			return soldier
+		end
+	
+	end
+
+end
