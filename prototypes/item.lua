@@ -22,6 +22,16 @@ data:extend(
     stack_size = 25
   },
   {
+	type = "item",
+    name = "droid-smg-dummy",
+    icon = "__robotarmy__/graphics/icons/droid_smg.png",
+    flags = {"hidden"},
+    order = "z-z",
+	subgroup = "capsule",
+    place_result = "",
+    stack_size = 1  
+  },
+  {
     type = "item",
     name = "droid-flame",
     icon = "__robotarmy__/graphics/icons/droid_flame_undep.png",
@@ -33,8 +43,8 @@ data:extend(
   },
   {
 	type = "item",
-    name = "droid-smg-dummy",
-    icon = "__robotarmy__/graphics/icons/droid_smg.png",
+    name = "droid-flame-dummy",
+    icon = "__robotarmy__/graphics/icons/droid_flame.png",
     flags = {"hidden"},
     order = "z-z",
 	subgroup = "capsule",
@@ -151,6 +161,15 @@ data:extend(
     order = "a[items]-c[rally-beacon]",
     stack_size = 5,
   },
-  
+  {
+    type = "item",
+    name = "patrol-pole",
+    icon = "__base__/graphics/icons/medium-electric-pole.png",
+    flags = {"goes-to-quickbar"},
+    subgroup = "capsule",
+    place_result="patrol-pole",
+    order = "a[items]-c[patrol-pole]",
+    stack_size = 50,
+  },
   
 })

@@ -161,13 +161,21 @@ function handleDroidSpawned(event)
 	--checkMembersAreInGroup(global.Squads[player.force.name][squadref])
 	global.Squads[player.force.name][squadref].unitGroup.add_member(entity)
 	
+	local squadOfInterest = global.Squads[player.force.name][squadref]
+	
 	if event.guard == true then
-		if global.Squads[player.force.name][squadref].command ~= commands.guard then
-			global.Squads[player.force.name][squadref].command = commands.guard
-			global.Squads[player.force.name][squadref].home = event.guardPos
+		if squadOfInterest.command ~= commands.guard then
+			squadOfInterest.command = commands.guard
+			squadOfInterest.home = event.guardPos
 			--game.players[1].print(string.format("Setting guard squad to wander around %s", event.guardPos))
-			global.Squads[player.force.name][squadref].unitGroup.set_command({type=defines.command.wander, destination = global.Squads[player.force.name][squadref].home, distraction=defines.distraction.by_enemy})
-			global.Squads[player.force.name][squadref].unitGroup.start_moving()
+			
+			--check if the squad it just joined is patrolling, if it is, don't force any more move commands because it will be disruptive!
+			
+			if not squadOfInterest.patrolState or (squadOfInterest.patrolState and squadOfInterest.patrolState.currentWaypoint == -1) then
+				--Game.print_force(entity.force, "Setting move command to squad home..." )
+				squadOfInterest.unitGroup.set_command({type=defines.command.wander, destination = squadOfInterest.home, distraction=defines.distraction.by_enemy})
+				squadOfInterest.unitGroup.start_moving()
+			end
 		end
 	end
 	

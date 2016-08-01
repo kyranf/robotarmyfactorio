@@ -33,6 +33,10 @@ for i, force in pairs(game.forces) do
 		force.recipes["droid-rifle"].enabled=true
 		force.recipes["droid-rifle-deploy"].enabled=true
 		force.recipes["loot-chest"].enabled=true
+		force.recipes["patrol-pole"].enabled=true
+		force.recipes["rally-beacon"].enabled=true
+		force.recipes["droid-guard-station"].enabled=true
+		force.recipes["droid-assembling-machine"].enabled=true
 	end
 
 	if force.technologies["electronics"].researched then
@@ -44,6 +48,8 @@ for i, force in pairs(game.forces) do
 		force.recipes["droid-smg-deploy"].enabled=true
 		force.recipes["droid-rocket"].enabled=true
 		force.recipes["droid-rocket-deploy"].enabled=true
+		force.recipes["droid-flame"].enabled=true
+		force.recipes["droid-flame-deploy"].enabled=true
 	end
   
 	if force.technologies["military-3"].researched then

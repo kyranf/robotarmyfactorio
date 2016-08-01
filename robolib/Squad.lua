@@ -17,6 +17,9 @@ commands = { 		assemble = 1,  	-- when they spawn, this is their starting comman
 global.SquadTemplate = {squadID= 0, player=true, unitGroup = true, members = {size = 0}, home = true, force = true, radius=DEFAULT_SQUAD_RADIUS, patrolPoint1 = true, patrolPoint2 = true, currentCommand = "none"} -- this is the empty squad table template
 
 
+global.patrolState = {lastPole = nil,currentPole = nil,nextPole = nil,movingToNext = false}
+
+
 function createNewSquad(tableIN, player, entity)
 
 	if not global.uniqueSquadId then			
@@ -323,9 +326,11 @@ function sendSquadsToBattle(forces, minSquadSize)
 	end
 end
 
+
+
+
 function guardAIUpdate()
 
-	
 	local forces = game.forces
 	for _, force in pairs(forces) do
 		--Game.print_force(force, "processing guard AI Update...")
@@ -335,17 +340,102 @@ function guardAIUpdate()
 			-- and if it's too far away (15 tiles?) set them to move back to home. 
 			for _, squad in pairs(global.Squads[force.name]) do
 				--Game.print_force(force, "squads tables exist...")
-				if squad.unitGroup and squad.unitGroup.valid and squad.command == commands.guard then
+				
+				if squad.unitGroup and squad.unitGroup.valid and squad.command == commands.guard --[[and 
+					(squad.unitGroup.state == defines.group_state.finished or squad.unitGroup.state == defines.group_state.gathering) ]]-- 
+					then 
 					
-					local distFromHome = util.distance(squad.unitGroup.position, squad.home)
-					if distFromHome > 15 then
-						--Game.print_force(force, "Moving squad back to guard station, they strayed too far!")
-						squad.unitGroup.set_command({type=defines.command.go_to_location, destination=squad.home, 
-													radius=DEFAULT_SQUAD_RADIUS, distraction=defines.distraction.by_anything})
-						squad.unitGroup.start_moving()
-					
+					local surface = getFirstValidSoldier(squad).surface
+					local areaTopLeft = {x=squad.unitGroup.position.x-32, y=squad.unitGroup.position.y-32}
+					local areaBottomRight = {x=squad.unitGroup.position.x+32, y=squad.unitGroup.position.y+32}
+					local areaCheck = {areaTopLeft, areaBottomRight}	
+
+					local poleList = surface.find_entities_filtered{area = {areaTopLeft, areaBottomRight}, squad.unitGroup.position, name="patrol-pole"}
+					local poleCount = table.countValidElements(poleList)
+					if(poleCount > 1) then
+						if not squad.patrolState then
+							--Game.print_all("Making patrolstate table...")
+							squad.patrolState = {}
+
+							squad.patrolState.nextPole = nil
+							squad.patrolState.currentPole = nil
+							squad.patrolState.lastPole = nil
+							squad.patrolState.movingToNext = false
+							squad.patrolState.waypointList = {}
+							squad.patrolState.currentWaypoint = -1
+							squad.patrolState.arrived = false
+							squad.patrolState.waypointDirection = 1
+						end
+						
+							
+						if not next(squad.patrolState.waypointList) then
+							--from the squad's current position, build a waypoint list using patrol poles found in sequence.
+							
+								
+							--Game.print_all(string.format("polecount %d", poleCount))
+							buildWaypointList(squad.patrolState.waypointList, surface, areaCheck, squad, force)
+						
+						end
+						
+						local waypointCount = table.countNonNil(squad.patrolState.waypointList)
+						--Game.print_all(string.format("Squad's waypoint count: %d", waypointCount))
+						if(waypointCount >= 2) then
+							if(squad.patrolState.currentWaypoint == -1) then
+								--Game.print_all("Setting up initial conditions...")
+								squad.patrolState.currentWaypoint = 0
+								squad.patrolState.movingToNext = false
+								squad.patrolState.arrived = true
+							end
+							--check if we are going to a waypoint, if we are, check if we are close yet 
+							if(squad.patrolState.movingToNext == true) then
+								
+								--get distance from squad position to the current waypoint
+								local dist = util.distance(squad.unitGroup.position, squad.patrolState.waypointList[squad.patrolState.currentWaypoint])
+								--Game.print_all("Checking if squad is near waypoint...")
+								if dist < 5 then
+									squad.patrolState.movingToNext = false
+									squad.patrolState.arrived = true
+									--Game.print_all("Squad has arrived at waypoint!")
+								else
+									local position = squad.patrolState.waypointList[squad.patrolState.currentWaypoint]
+								
+									squad.unitGroup.set_command({type=defines.command.go_to_location, destination=position, radius=DEFAULT_SQUAD_RADIUS, 
+																distraction=defines.distraction.by_enemy})
+								
+								end
+							
+							end
+							
+							if(squad.patrolState.movingToNext == false and squad.patrolState.arrived == true) then
+								--Game.print_all("Setting new waypoint and giving orders!")
+								--adjust current waypoint, check for min/max issues, then issue command to move.
+								squad.patrolState.currentWaypoint = squad.patrolState.currentWaypoint + squad.patrolState.waypointDirection
+								
+								if squad.patrolState.currentWaypoint > waypointCount then 
+									squad.patrolState.waypointDirection = -1 --reverse the waypoint iteration direction
+									squad.patrolState.currentWaypoint = squad.patrolState.currentWaypoint - 2  --set it to the second last waypoint
+								end
+								
+								--from the direction value being negative
+								if(squad.patrolState.currentWaypoint == 0) then
+								
+									squad.patrolState.waypointDirection = 1 --reverse the waypoint iteration direction
+									squad.patrolState.currentWaypoint = squad.patrolState.currentWaypoint + 2 --set it to the second waypoint
+								
+								end
+								
+								squad.patrolState.movingToNext = true
+								squad.patrolState.arrived = false
+								
+								local position = squad.patrolState.waypointList[squad.patrolState.currentWaypoint]
+								
+								squad.unitGroup.set_command({type=defines.command.go_to_location, destination=position, radius=DEFAULT_SQUAD_RADIUS, 
+																distraction=defines.distraction.by_enemy})
+								--squad.unitGroup.start_moving()
+							
+							end
+						end
 					end
-					
 				end
 			end
 		end

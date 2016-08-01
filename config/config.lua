@@ -20,3 +20,4 @@ DAMAGE_SCALAR = 1.0 -- scales base damage by this value. default is 1.0. 0.5 mak
 					-- that into consideration.
 					
 ARTIFACT_GRAB_RADIUS = 30
+GUARD_POLE_CONNECTION_RANGE = 30 -- this is for electrical connection range and therefore spacing of patrol poles, checking range is.

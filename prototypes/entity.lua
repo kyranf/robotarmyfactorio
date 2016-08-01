@@ -127,7 +127,8 @@ local droid_smg =
       },
 	  {
         type = "fire",
-        percent = 75
+		decrease = 5,
+        percent = 95
       }
     },
     destroy_action =
@@ -265,14 +266,14 @@ local droid_flame =
     flags = {"placeable-player", "player-creation", "placeable-off-grid"},
     subgroup="creatures",
     order="e-a-b-d",
-    max_health = 120 * HEALTH_SCALAR,
+    max_health = 200 * HEALTH_SCALAR,
     alert_when_damaged = false,
     healing_per_tick = 0.01,
     collision_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8*droidscale, 0.8*droidscale}},
     selection_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8, 0.8*droidscale}},
     sticker_box = {{-0.5, -0.5}, {0.5, 0.5}},
 	vision_distance = 30,
-    movement_speed = 0.11,
+    movement_speed = 0.09,
 	minable = {hardness = 0.1, mining_time = 0.1, result = "droid-flame"},
 	pollution_to_join_attack = 0.0,
 	distraction_cooldown = 0,
@@ -282,7 +283,7 @@ local droid_flame =
     {
       {
         type = "physical",
-        decrease = 1,
+        decrease = 5,
         percent = 40
       },
       {
@@ -468,7 +469,8 @@ local droid_rifle =
       },
 	  {
         type = "fire",
-        percent = 50
+		decrease = 5,
+        percent = 95
       }
     },
     destroy_action =
@@ -641,7 +643,8 @@ local droid_rocket =
       },
 	  {
         type = "fire",
-        percent = 75
+		decrease = 5,
+        percent = 95
       }
     },
     destroy_action =
@@ -803,6 +806,7 @@ local terminator =
       },
 	  {
         type = "fire",
+		decrease = 5,
         percent = 95
       }
     },

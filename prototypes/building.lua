@@ -1,4 +1,4 @@
-
+require("config.config")
 
 local droidAssembler = {
 	type = "assembling-machine",
@@ -202,4 +202,63 @@ local rally_beacon = {
     circuit_connector_sprites = get_circuit_connector_sprites({0.1875, 0.15625}, nil, 18),
     circuit_wire_max_distance = 7.5
  }
-data:extend({droidAssembler,guardStation,rally_beacon})
+
+local patrolPole = {
+	type = "electric-pole",
+	name = "patrol-pole",
+	icon = "__base__/graphics/icons/medium-electric-pole.png",
+	flags = {"placeable-neutral", "player-creation"},
+	minable = {hardness = 0.2, mining_time = 0.5, result = "patrol-pole"},
+	max_health = 1000,
+	corpse = "small-remnants",
+	resistances =
+	{
+	  {
+		type = "fire",
+		percent = 100
+	  }
+	},
+	collision_box = {{-0.15, -0.15}, {0.15, 0.15}},
+	selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
+	drawing_box = {{-0.5, -2.8}, {0.5, 0.5}},
+	maximum_wire_distance = GUARD_POLE_CONNECTION_RANGE,
+	supply_area_distance = 0,
+	vehicle_impact_sound =  { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
+	pictures =
+	{
+	  filename = "__robotarmy__/graphics/entity/patrol-pole.png",
+	  priority = "high",
+	  width = 136,
+	  height = 122,
+	  tint = {r=1.0, g=0.5, b=0.5, a=1},
+	  direction_count = 1,
+	  shift = {1.4, -1.0}
+	},
+	connection_points =
+	{
+	  {
+		shadow =
+		{
+		  copper = {2.55, 0.4},
+		  green = {2.0, 0.4},
+		  red = {3.05, 0.4}
+		},
+		wire =
+		{
+		  copper = {-0.03125, -2.46875},
+		  green = {-0.34375, -2.46875},
+		  red = {0.25, -2.46875}
+		}
+	  }
+	},
+	radius_visualisation_picture =
+	{
+	  filename = "__base__/graphics/entity/small-electric-pole/electric-pole-radius-visualization.png",
+	  width = 12,
+	  height = 12,
+	  priority = "extra-high-no-scale"
+	},
+} 
+ 
+ 
+ data:extend({droidAssembler,guardStation,rally_beacon, patrolPole})
