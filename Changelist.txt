@@ -14,3 +14,6 @@ Changes from 0.2.0 to 0.2.1 release:
 - increased all droids fire resistances to deal with their hot friends
 - added patrol pole, guard squads will patrol continuous stretches connected by GREEN wire. 
 - moved rally beacon, droid assembler, droid guard station, unlocked by military 1 (along with patrol pole)
+- increased radius check for non-colliding locations for calls to getDroidSpawnLocation() and getGuardSpawnLocation()
+- ensure unit_groups/squads cannot add new droids if they are not on the same surface
+- 

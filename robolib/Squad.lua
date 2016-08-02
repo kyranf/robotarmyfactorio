@@ -309,10 +309,12 @@ function sendSquadsToBattle(forces, minSquadSize)
 										if entity and distance > 10 then
 											--player.print(string.format("Closest assembler found was at location x %d : y %d", entity.position.x, entity.position.y ))
 											local location = getDroidSpawnLocation(entity)
-											--player.print(string.format("Sending squad to assembler at location x %d : y %d", location.x, location.y ))
-											squad.unitGroup.set_command({type=defines.command.go_to_location, destination= location, radius=DEFAULT_SQUAD_RADIUS, distraction=defines.distraction.by_anything})
-											squad.unitGroup.start_moving()
-										
+											
+											if location ~= -1 then
+												--player.print(string.format("Sending squad to assembler at location x %d : y %d", location.x, location.y ))
+												squad.unitGroup.set_command({type=defines.command.go_to_location, destination= location, radius=DEFAULT_SQUAD_RADIUS, distraction=defines.distraction.by_anything})
+												squad.unitGroup.start_moving()
+											end
 										end
 									end
 								end

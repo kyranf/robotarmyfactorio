@@ -2,10 +2,10 @@ require("util")
 require("robolib.util")
 require("prototypes.DroidUnitList")
 require("stdlib/game")
-
+require("stdlib/log/logger")
 --gets an offset spawning location for an entity (droid assembler) 
--- should use surface.find_non_colliding_position() API call here, to check for a small square around entPos and return the result of that function instead.
--- this will help avoid getting units stuck in stuff.
+-- uses surface.find_non_colliding_position() API call here, to check for a small square around entPos and return the result of that function instead.
+-- this will help avoid getting units stuck in stuff. If that function returns nil, then we have problems so try to mention that to whoever call by ret -1
 function getDroidSpawnLocation(entity)
 	local entPos = entity.position
 	local direction = entity.direction
@@ -36,9 +36,9 @@ function getDroidSpawnLocation(entity)
 	entPos.x = entPos.x + randX
 	entPos.y = entPos.y + randY
 	--final check, let the game find us a good spot if we've failed by now.
-	local finalPos = entity.surface.find_non_colliding_position(entity.name, entPos, 5, 1)
+	local finalPos = entity.surface.find_non_colliding_position(entity.name, entPos, 10, 1)
 	if not finalPos then 
-		return entPos --just force it... oh well.
+		return -1 --we can catch this later
 	else
 		return finalPos
 	end
@@ -50,7 +50,11 @@ function getGuardSpawnLocation(entity)
 	local direction = entity.direction
 	
 	--final check, let the game find us a good spot if we've failed by now.
-	local finalPos = game.surfaces[1].find_non_colliding_position(entity.name, entPos, 10, 1)
+	local finalPos = game.surfaces[1].find_non_colliding_position(entity.name, entPos, 20, 1)
+	if not finalPos then
+		LOGGER.log("ERROR: getGuardSpawnLocation failed to find a suitable spawn location!")
+		return -1 --an error we can catch later
+	end
 	return finalPos
 end
 	

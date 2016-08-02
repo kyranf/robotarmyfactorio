@@ -137,31 +137,35 @@ function handleDroidSpawned(event)
 
 	local entity = event.created_entity
 	local player = game.players[event.player_index]
-	
+	local force = entity.force
 	--player.print(string.format("Processing new entity %s spawned by player %s", entity.name, player.name) )
 	local position = entity.position
 	
 	--if this is the first time we are using the player's tables, make it
-	if not global.Squads[player.force.name] then 
-		global.Squads[player.force.name] = {}
+	if not global.Squads[force.name] then 
+		global.Squads[force.name] = {}
 	end
 
 	--trimSquads(game.players) -- maintain squad tables before checking for distance to nearest squad
 	
-	local squadref = getClosestSquadToPos(global.Squads[player.force.name], entity.position, SQUAD_CHECK_RANGE)
+	local squadref = getClosestSquadToPos(global.Squads[force.name], entity.position, SQUAD_CHECK_RANGE)
+	
+	if(getFirstValidSoldier(global.Squads[force.name][squadref]).surface ~= entity.surface) then
+		squadref = nil  --we cannot allow a squad to be joined if it's on the wrong surface
+	end
 	
 	if  not squadref then
 		--if we didnt find a squad nearby, create one	
-		squadref = createNewSquad(global.Squads[player.force.name], player, entity)
+		squadref = createNewSquad(global.Squads[force.name], player, entity)
 
 	end
 	 
 
-	addMember(global.Squads[player.force.name][squadref],entity)		
+	addMember(global.Squads[force.name][squadref],entity)		
 	--checkMembersAreInGroup(global.Squads[player.force.name][squadref])
-	global.Squads[player.force.name][squadref].unitGroup.add_member(entity)
+	global.Squads[entity.force.name][squadref].unitGroup.add_member(entity)
 	
-	local squadOfInterest = global.Squads[player.force.name][squadref]
+	local squadOfInterest = global.Squads[force.name][squadref]
 	
 	if event.guard == true then
 		if squadOfInterest.command ~= commands.guard then
@@ -368,26 +372,28 @@ function onTickHandler(event)
 				
 				if assembler and assembler.valid and assembler.force == player.force then
 
-					local inv = assembler.get_output_inventory() --gets us a luainventory
-					local spawnableDroidName = containsSpawnableDroid(inv) -- assembler.get_item_count("droid-smg-dummy") --replace with "contains any spawnable droid"
+					local inv = assembler.get_output_inventory() --gets us a LuaInventory
+					
+					-- checks list of spawnable droid names, returns nil if none found. otherwise we get a spawnable entity name
+					local spawnableDroidName = containsSpawnableDroid(inv) 
 
 					if (spawnableDroidName ~= nil and type(spawnableDroidName) == "string") then
 					
-						
-						local droidPos =  getDroidSpawnLocation(assembler) -- uses assmbler pos, direction, and spawns droid at an offset +- random amount
-						
-						local assForce = assembler.force -- haha, ass force!
-						local returnedEntity = assembler.surface.create_entity({name = spawnableDroidName , position = droidPos, direction = defines.direction.east, force = assForce })
+						-- uses assmbler pos, direction, and spawns droid at an offset +- random amount. Does a final "find_non_colliding_position" before returning
+						local droidPos =  getDroidSpawnLocation(assembler) 
+						if droidPos ~= -1 then
 
-						if returnedEntity then
-													
-							local eventStub = {player_index = player.index, created_entity = returnedEntity}
-							handleDroidSpawned(eventStub)
-						
+							local returnedEntity = assembler.surface.create_entity({name = spawnableDroidName , position = droidPos, direction = defines.direction.east, force = assembler.force })
+
+							if returnedEntity then
+														
+								local eventStub = {player_index = player.index, created_entity = returnedEntity}
+								handleDroidSpawned(eventStub)
+							
+							end
+							
+							inv.clear() --clear output slot
 						end
-						
-						inv.clear() --clear output slot
-					
 					end
 
 				end
@@ -412,19 +418,20 @@ function onTickHandler(event)
 					--if we have a spawnable droid ready, and there is not too many droids nearby, lets spawn one!
 					if (spawnableDroidName ~= nil and type(spawnableDroidName) == "string") and nearby < GUARD_STATION_GARRISON_SIZE then
 							
-						local droidPos =  getGuardSpawnLocation(station) -- uses station pos			
-		
-						local returnedEntity = station.surface.create_entity({name = spawnableDroidName , position = droidPos, direction = defines.direction.east, force = station.force })
+							local droidPos =  getGuardSpawnLocation(station) -- uses station pos			
+			
+							if droidPos ~= -1 then 
+							local returnedEntity = station.surface.create_entity({name = spawnableDroidName , position = droidPos, direction = defines.direction.east, force = station.force })
 
-						if returnedEntity then
-													
-							local eventStub = {player_index = player.index, created_entity = returnedEntity, guard = true, guardPos = station.position}
-							handleDroidSpawned(eventStub)
-						
+							if returnedEntity then
+														
+								local eventStub = {player_index = player.index, created_entity = returnedEntity, guard = true, guardPos = station.position}
+								handleDroidSpawned(eventStub)
+							
+							end
+							
+							inv.clear() --clear output slot
 						end
-						
-						inv.clear() --clear output slot
-					
 					end
 					
 					
