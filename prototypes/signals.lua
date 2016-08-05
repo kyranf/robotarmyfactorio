@@ -32,9 +32,47 @@ data:extend(
   },
   {
     type = "virtual-signal",
-    name = "signal-droid-terminator-count",
-    icon = "__robotarmy__/graphics/icons/signal_droid_terminator_count.png",
+    name = "signal-droid-flame-count",
+    icon = "__robotarmy__/graphics/icons/signal_droid_flame_count.png",
     subgroup = "virtual-signal-number",
     order = "r[droid]-[05]"
   },
+  {
+    type = "virtual-signal",
+    name = "signal-droid-terminator-count",
+    icon = "__robotarmy__/graphics/icons/signal_droid_terminator_count.png",
+    subgroup = "virtual-signal-number",
+    order = "r[droid]-[06]"
+  },
+  
+  --settings signals
+  {
+    type = "virtual-signal",
+    name = "signal-hunt-radius",
+    icon = "__robotarmy__/graphics/icons/signal_hunt_radius.png",
+    subgroup = "virtual-signal-number",
+    order = "r[droid]-[07]"
+  },
+  {
+    type = "virtual-signal",
+    name = "signal-guard-size",
+    icon = "__robotarmy__/graphics/icons/signal_guard_size.png",
+    subgroup = "virtual-signal-number",
+    order = "r[droid]-[08]"
+  },
+  {
+    type = "virtual-signal",
+    name = "signal-retreat-size",
+    icon = "__robotarmy__/graphics/icons/signal_retreat_size.png",
+    subgroup = "virtual-signal-number",
+    order = "r[droid]-[09]"
+  },
+  {
+    type = "virtual-signal",
+    name = "signal-squad-size",
+    icon = "__robotarmy__/graphics/icons/signal_squad_size.png",
+    subgroup = "virtual-signal-number",
+    order = "r[droid]-[10]"
+  },  
+  
 })

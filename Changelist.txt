@@ -16,4 +16,10 @@ Changes from 0.2.0 to 0.2.1 release:
 - moved rally beacon, droid assembler, droid guard station, unlocked by military 1 (along with patrol pole)
 - increased radius check for non-colliding locations for calls to getDroidSpawnLocation() and getGuardSpawnLocation()
 - ensure unit_groups/squads cannot add new droids if they are not on the same surface
-- 
+- added "surface" value for squad tables by default on creation
+- added invalid/nil surface handling for squad table iterations 
+- added new settings module combinator, use this to set virtual signals as overrides for the default config.lua settings for squad hunt size, 
+	retreat size, hunt radius, guard squad size
+- added new icons for the new virtual signals
+- added firebot virtual signal for counting them
+- added German locale thanks to Mystery on the forums, plus some english to fill the gaps of new content locale

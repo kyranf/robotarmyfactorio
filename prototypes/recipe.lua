@@ -147,6 +147,18 @@ data:extend(
   },
   {
     type = "recipe",
+    name = "droid-settings",
+    enabled = false,
+    ingredients =
+    {
+      {"constant-combinator", 1},
+      {"iron-plate",20},
+      {"electronic-circuit", 25},
+    },
+    result="droid-settings",
+  },
+  {
+    type = "recipe",
     name = "loot-chest",
     enabled = false,
 	ingredients =

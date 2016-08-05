@@ -132,102 +132,6 @@ script.on_configuration_changed(function(data)
 	
 end)
 
-
-function handleDroidSpawned(event)
-
-	local entity = event.created_entity
-	local player = game.players[event.player_index]
-	local force = entity.force
-	--player.print(string.format("Processing new entity %s spawned by player %s", entity.name, player.name) )
-	local position = entity.position
-	
-	--if this is the first time we are using the player's tables, make it
-	if not global.Squads[force.name] then 
-		global.Squads[force.name] = {}
-	end
-
-	--trimSquads(game.players) -- maintain squad tables before checking for distance to nearest squad
-	
-	local squadref = getClosestSquadToPos(global.Squads[force.name], entity.position, SQUAD_CHECK_RANGE)
-	
-	if(getFirstValidSoldier(global.Squads[force.name][squadref]).surface ~= entity.surface) then
-		squadref = nil  --we cannot allow a squad to be joined if it's on the wrong surface
-	end
-	
-	if  not squadref then
-		--if we didnt find a squad nearby, create one	
-		squadref = createNewSquad(global.Squads[force.name], player, entity)
-
-	end
-	 
-
-	addMember(global.Squads[force.name][squadref],entity)		
-	--checkMembersAreInGroup(global.Squads[player.force.name][squadref])
-	global.Squads[entity.force.name][squadref].unitGroup.add_member(entity)
-	
-	local squadOfInterest = global.Squads[force.name][squadref]
-	
-	if event.guard == true then
-		if squadOfInterest.command ~= commands.guard then
-			squadOfInterest.command = commands.guard
-			squadOfInterest.home = event.guardPos
-			--game.players[1].print(string.format("Setting guard squad to wander around %s", event.guardPos))
-			
-			--check if the squad it just joined is patrolling, if it is, don't force any more move commands because it will be disruptive!
-			
-			if not squadOfInterest.patrolState or (squadOfInterest.patrolState and squadOfInterest.patrolState.currentWaypoint == -1) then
-				--Game.print_force(entity.force, "Setting move command to squad home..." )
-				squadOfInterest.unitGroup.set_command({type=defines.command.wander, destination = squadOfInterest.home, distraction=defines.distraction.by_enemy})
-				squadOfInterest.unitGroup.start_moving()
-			end
-		end
-	end
-	
-	--global.Squads[player.force.name][squadref].unitGroup.start_moving()	
-
-end
-
-function handleGuardStationPlaced(event)
-
-	local entity = event.created_entity
-	local force = entity.force
-	LOGGER.log( string.format("Adding guard station to force %s", force.name) )
-	
-	--check for droid guard station global tables first.
-	if not global.droidGuardStations then
-		global.droidGuardStations = {}
-	end
-	if not global.droidGuardStations[force.name] then
-		global.droidGuardStations[force.name] = {}
-	end
-	
-	table.insert(global.droidGuardStations[force.name], entity)
-	maintainTable(global.droidGuardStations[force.name]) -- helps remove old invalid/nil entries.
-
-end
-
-function handleDroidAssemblerPlaced(event)
-	local entity = event.created_entity
-	local force = entity.force
-	
-	--check for droid guard station global tables first.
-	if not global.DroidAssemblers then
-		global.DroidAssemblers = {}
-	end
-	if not global.DroidAssemblers[force.name] then
-		global.DroidAssemblers[force.name] = {}
-	end
-	LOGGER.log( string.format("Adding assembler to force %s", force.name) )	
-	if global.DroidAssemblers and global.DroidAssemblers[force.name] then
-		table.insert(global.DroidAssemblers[force.name], entity)
-	else
-		
-		LOGGER.log("WARNING: no global table for droid assemblers and/or the force is missing one for it")
-	end
-
-
-end
-
 script.on_event(defines.events.on_built_entity, function(event)
     
    local entity = event.created_entity
@@ -238,6 +142,8 @@ script.on_event(defines.events.on_built_entity, function(event)
 		handleGuardStationPlaced(event)
 	elseif(entity.name == "droid-counter") then
 		handleBuiltDroidCounter(event)
+	elseif(entity.name == "droid-settings") then
+		handleBuiltDroidSettings(event)
 	elseif entity.name == "loot-chest" then
 		handleBuiltLootChest(event)
 	elseif entity.name == "rally-beacon" then
@@ -249,35 +155,6 @@ script.on_event(defines.events.on_built_entity, function(event)
   
 end)
 
-function handleBuiltRallyBeacon(event)
-
-	
-	local entity = event.created_entity
-	if global.Squads and global.Squads[entity.force.name] then
-		trimSquads(game.forces)
-		
-		--game.players[1].print(string.format("Rally point built, for force %s...", entity.force.name))
-		--loop through all squads on the force, checking for those who are hunting or 'assembling' and make them move to the rally point and then continue what they were doing.
-		for _, squad in pairs(global.Squads[entity.force.name]) do
-			--game.players[1].print("checking squad..")
-			if squad and squad.unitGroup and squad.unitGroup.valid then
-				--game.players[1].print("checking squad command...")
-				if squad.command ~= commands.guard and squad.command ~= commands.patrol then
-			
-					--game.players[1].print(string.format("Sending squad %d to rally point...", squad.squadID))
-					local pos = entity.position
-					pos.x = pos.x+2
-					pos.y = pos.y+2
-					--give them command to move. distraction by damage means if they are shot at/bit, they will at least try and defend themselves while running away.
-					squad.unitGroup.set_command({type=defines.command.go_to_location, destination=pos, distraction=defines.distraction.none})
-					--squad.unitGroup.start_moving()
-				
-				end
-			end	
-		end
-	end
-end
-
 
 script.on_event(defines.events.on_robot_built_entity, function(event)
 	local entity = event.created_entity
@@ -287,6 +164,8 @@ script.on_event(defines.events.on_robot_built_entity, function(event)
 		handleGuardStationPlaced(event)
 	elseif(entity.name == "droid-counter") then
 		handleBuiltDroidCounter(event)
+	elseif(entity.name == "droid-settings") then
+		handleBuiltDroidSettings(event)
 	elseif entity.name == "rally-beacon" then
 		handleBuiltRallyBeacon(event)
 	elseif entity.name == "loot-chest" then
@@ -295,48 +174,6 @@ script.on_event(defines.events.on_robot_built_entity, function(event)
 
 end)
 
---logic for handling loot chest spawning, cannot have more than one per force.
-function handleBuiltLootChest(event)
-
-	--check if there is a global table entry for loot chests yet, make one if not.
-	if not global.lootChests then
-		global.lootChests = {}
-	end
-	
-	local chest = event.created_entity
-	local force = chest.force
-	LOGGER.log( string.format("Adding loot chest to force %s", force.name) )
-	if not global.lootChests[force.name] or not global.lootChests[force.name].valid  then
-		global.lootChests[force.name] = chest   --this is now the force's chest. 
-	else
-	
-		force.players[1].print("Error: Can only place one loot chest!")	
-		chest.surface.spill_item_stack(chest.position, {name="loot-chest", count = 1})
-		chest.destroy()
-		LOGGER.log("WARNING: Can only place one loot chest!")
-	
-	end
-
-
-
-end
-
-function handleBuiltDroidCounter(event)
-	
-	local entity = event.created_entity 
-	local entityForce = entity.force.name
-	LOGGER.log( string.format("Adding droid counter to force %s", entityForce) )
-	if not global.droidCounters then			
-		global.droidCounters = {}		
-		global.droidCounters[entityForce] = {}
-		table.insert(global.droidCounters[entityForce], entity )
-	elseif not global.droidCounters[entityForce] then 
-		global.droidCounters[entityForce] = {}
-		table.insert(global.droidCounters[entityForce], entity)
-	else
-		table.insert(global.droidCounters[entityForce], entity)
-	end
-end
 
 
 -- during the on-tick event, lets check if we need to update squad AI, spawn droids from assemblers, or update bot counters, etc
@@ -352,7 +189,7 @@ function onTickHandler(event)
 	local players = game.players -- list of players 
 	trimSquads(forces) -- does some quick maintenance of the squad tables. 
 	
-	sendSquadsToBattle(forces, SQUAD_SIZE_MIN_BEFORE_HUNT) -- finds all squads for all players and checks for squad size and sends to attack nearest targets
+	sendSquadsToBattle(forces) -- finds all squads for all players and checks for squad size and sends to attack nearest targets
 	guardAIUpdate()
 	revealSquadChunks()
 	grabArtifacts(forces)
@@ -440,9 +277,7 @@ function onTickHandler(event)
 			end
 		
 		end
-		
-		
-		
+
 	end -- end for each player in players list
 
   end
@@ -450,12 +285,11 @@ function onTickHandler(event)
   
   if( event.tick % BOT_COUNTERS_UPDATE_TICKRATE == 0) then
   
-	doCounterUpdate(event)
-	
+	doCounterUpdate()
+	checkSettingsModules()
   
   end
  
-
 
   if(event.tick % LONE_WOLF_CLEANUP_SCRIPT_PERIOD == 0) then
   
@@ -470,8 +304,3 @@ end
 script.on_event(defines.events.on_tick, function( event) 
 	onTickHandler(event)
  end)
-
- 
-
-
- 

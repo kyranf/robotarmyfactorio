@@ -14,7 +14,7 @@ commands = { 		assemble = 1,  	-- when they spawn, this is their starting comman
 					hunt = 6		-- when set, SQUD_AI will send to nearest enemy 
 			}
  
-global.SquadTemplate = {squadID= 0, player=true, unitGroup = true, members = {size = 0}, home = true, force = true, radius=DEFAULT_SQUAD_RADIUS, patrolPoint1 = true, patrolPoint2 = true, currentCommand = "none"} -- this is the empty squad table template
+global.SquadTemplate = {squadID= 0, player=true, unitGroup = true, members = {size = 0}, home = true, force = true, surface = true, radius=DEFAULT_SQUAD_RADIUS, patrolPoint1 = true, patrolPoint2 = true, currentCommand = "none"} -- this is the empty squad table template
 
 
 global.patrolState = {lastPole = nil,currentPole = nil,nextPole = nil,movingToNext = false}
@@ -39,6 +39,7 @@ function createNewSquad(tableIN, player, entity)
 	newsquad.player = player
 	newsquad.force = entity.force
 	newsquad.home = entity.position
+	newsquad.surface = entity.surface
 	newsquad.unitGroup = entity.surface.create_unit_group({position=entity.position, force=entity.force}) --use the entity who is causing the new squad to be formed, for position.
 	newsquad.squadID = squadRef
 	newsquad.patrolPoint1 = newsquad.home
@@ -70,53 +71,47 @@ end
 
 
 -- checks that all entities in the "members" sub table are present in the unitgroup
-function checkMembersAreInGroup(tableIN)
+function checkMembersAreInGroup(squad)
 	
 	--tableIN.player.print("checking soldiers are in their squad's unitgroup")
 	--does some trimming of nil members if any have died
-	maintainTable(tableIN.members)
+	maintainTable(squad.members)
 
 	--make sure the unitgroup is even available, if it's not there for some reason, create it.
-	if not tableIN.unitGroup.valid then
+	if not squad.unitGroup.valid then
 		LOGGER.log("unitgroup was invalid, making a new one")
 		local pos
-		for key, unit in pairs(tableIN.members) do
-			if key ~= "size" and unit and unit.valid then pos = unit.position end
+		for key, unit in pairs(squad.members) do
+			if key ~= "size" and unit and unit.valid then 
+				pos = unit.position 
+			end
 		end
 		
-		local surface = getFirstValidSoldier(tableIN).surface
-		tableIN.unitGroup = surface.create_unit_group({position=pos, force=tableIN.force})
-		 
+		local surface = getSquadSurface(squad)
+		squad.unitGroup = surface.create_unit_group({position=pos, force=squad.force})
+		
 	end
 	
-	for key, soldier in pairs(tableIN.members) do
+	for key, soldier in pairs(squad.members) do
 	
 		if(key ~= "size") then
 			
 			if not soldier then
-				table.remove(tableIN.members, key)
-			elseif not table.contains(tableIN.unitGroup.members, soldier) then
+				table.remove(squad.members, key)
+			elseif not table.contains(squad.unitGroup.members, soldier) then
 				if soldier.valid then
 					--tableIN.player.print(string.format("adding soldier to squad ID %d's unitgroup", tableIN.squadID))
-					tableIN.unitGroup.add_member(soldier)
+					squad.unitGroup.add_member(soldier)
 				else
 					--LOGGER.log(string.format("removing member from squad id %d member list", tableIN.squadID))
-					table.remove(tableIN.members, key)
+					table.remove(squad.members, key)
 				end
 			end
 		end
 	end
-	local memberCount = 0
-	for key, soldier in pairs(tableIN.members) do 
-		if(key ~= "size") then
-			if soldier and soldier.valid then
-					memberCount = memberCount + 1
-			end
-			
-		end
-	end
 	
-	tableIN.members.size = memberCount -- refresh the member count in the squad to accurately reflect the number of soldiers in there.
+	--now that we've been removing and adding members, lets do a re-count of squad members.
+	squad.members.size = table.countValidElements(squad.members) -- refresh the member count in the squad to accurately reflect the number of soldiers in there.
 end
 
 --examines the given table, and if it finds a nil element it will remove it
@@ -228,37 +223,36 @@ end
 
 
 --sends squads for each player to nearest enemy units. will not happen until squadsize is >= SQUAD_SIZE_MIN_BEFORE_HUNT
-function sendSquadsToBattle(forces, minSquadSize)
+function sendSquadsToBattle(forces)
 
 	for _, force in pairs(forces) do
 	
 		if global.Squads[force.name] then
 		
+			local minSquadSize = getSquadHuntSize(force)
+		
 			for id, squad in pairs(global.Squads[force.name]) do
 				checkMembersAreInGroup(squad)
 				if squad.unitGroup then
-					--debug stuff
-					if(squad.unitGroup.valid) then
-						--player.print(string.format("squad %d id %d groupstate is %d", id, squad.squadID, squad.unitGroup.state))
-					else
 					
-						--player.print(string.format("Squad %d is no more...", squad.squadID))
-						--table.remove(global.Squads[player.force.name], key)
-						global.Squads[force.name][squad.squadID] = nil
-						maintainTable(global.Squads[force.name])
-					end
-				--end debug stuff
-					if(squad.unitGroup.valid and (squad.unitGroup.state == defines.group_state.gathering or squad.unitGroup.state == defines.group_state.finished)) and squad.command ~= commands.guard then
+					if(squad.unitGroup.valid and (squad.unitGroup.state == defines.group_state.gathering or squad.unitGroup.state == defines.group_state.finished)) 	and squad.command ~= commands.guard then
 						
-						--LOGGER.log("group is gathering or finished the last task")
 				
 						local count = table.countValidElements(squad.members)
 						if count then 
 							if  count >= minSquadSize or (squad.command == commands.hunt and count > SQUAD_SIZE_MIN_BEFORE_RETREAT) then
 								--get nearest enemy unit to the squad. 
 								--find the nearest enemy to the squad that is an enemy of the player's force, and max radius of 5000 tiles (10k tile diameter)
-								local surface = getFirstValidSoldier(squad).surface
-								local nearestEnemy = surface.find_nearest_enemy({position = squad.unitGroup.position, max_distance = 5000.0, force = force })
+								local surface = getSquadSurface(squad)
+								
+								if not surface then 
+									LOGGER.log(string.format("ERROR: Surface for squad ID %d is missing or can't be determined! sendSquadsToBattle", squad.squadID))
+									goto continueSquadLoop --filthy use of goto, but there's no other way to do "continue". Not even guilty, thanks Lua.		
+								end 
+											
+								local huntRadius = getSquadHuntRange(force)
+								
+								local nearestEnemy = surface.find_nearest_enemy({position = squad.unitGroup.position, max_distance = huntRadius, force = force })
 								if nearestEnemy then
 								-- check if they are in a charted area
 									
@@ -323,6 +317,7 @@ function sendSquadsToBattle(forces, minSquadSize)
 						end
 					end
 				end
+				::continueSquadLoop::
 			end
 		end
 	end
@@ -347,7 +342,13 @@ function guardAIUpdate()
 					(squad.unitGroup.state == defines.group_state.finished or squad.unitGroup.state == defines.group_state.gathering) ]]-- 
 					then 
 					
-					local surface = getFirstValidSoldier(squad).surface
+					local surface = getSquadSurface(squad)
+								
+					if not surface then 
+						LOGGER.log(string.format("ERROR: Surface for squad ID %d is missing or can't be determined! guardAIUpdate", squad.squadID))
+						goto continueGuardAiLoop --filthy use of goto, but there's no other way to do "continue". Not even guilty, thanks Lua.		
+					end 
+					
 					local areaTopLeft = {x=squad.unitGroup.position.x-32, y=squad.unitGroup.position.y-32}
 					local areaBottomRight = {x=squad.unitGroup.position.x+32, y=squad.unitGroup.position.y+32}
 					local areaCheck = {areaTopLeft, areaBottomRight}	
@@ -439,6 +440,7 @@ function guardAIUpdate()
 						end
 					end
 				end
+				::continueGuardAiLoop::
 			end
 		end
 	end
@@ -475,12 +477,8 @@ function containsSpawnableDroid(inv)
 		end
 		
 	else
-	
-	return nil
+		return nil -- we failed to get the contents
 	end
-	
-	
-	
 end 
 
 
@@ -496,13 +494,21 @@ function revealSquadChunks()
 				if squad and squad.unitGroup.valid then
 					if squad.members.size > 0 then  --if there are troops in a valid group in a valid squad. 
 						local position = squad.unitGroup.position
-						local area = {left_top = {position.x-20, position.y-20}, right_bottom = {position.x+20, position.y+20}}
-						local surface = getFirstValidSoldier(squad).surface
+						
+						--this area should give approx 3x3 chunks revealed
+						local area = {left_top = {position.x-32, position.y-32}, right_bottom = {position.x+32, position.y+32}} 
+						
+						local surface = getSquadSurface(squad)
+								
+						if not surface then 
+							LOGGER.log(string.format("ERROR: Surface for squad ID %d is missing or can't be determined! revealSquadChunks", squad.squadID))
+							goto continueChunkLoop --filthy use of goto, but there's no other way to do "continue". Not even guilty, thanks Lua.		
+						end 
 						squad.force.chart(surface, area) --reveal the chunk they are in. 
 					end
 					
 				end
-				
+				::continueChunkLoop::
 			end
 		end
 	end
@@ -527,7 +533,12 @@ function grabArtifacts(force)
 						local position = squad.unitGroup.position
 						local areaToCheck = {left_top = {position.x-ARTIFACT_GRAB_RADIUS, position.y-ARTIFACT_GRAB_RADIUS}, right_bottom = {position.x+ARTIFACT_GRAB_RADIUS, position.y+ARTIFACT_GRAB_RADIUS}}
 						
-						local surface = getFirstValidSoldier(squad).surface
+						local surface = getSquadSurface(squad)
+								
+						if not surface then 
+							LOGGER.log(string.format("ERROR: Surface for squad ID %d is missing or can't be determined! grabArtifacts", squad.squadID))
+							goto continueGrabArtifacts --filthy use of goto, but there's no other way to do "continue". Not even guilty, thanks Lua.		
+						end 
 						
 						local itemList = surface.find_entities_filtered{area=areaToCheck, type="item-entity"}
 						local artifactList = {}
@@ -568,7 +579,7 @@ function grabArtifacts(force)
 					end
 					
 				end
-				
+				::continueGrabArtifacts::
 			end
 		end
 	end
