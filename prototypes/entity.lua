@@ -185,7 +185,7 @@ local droid_smg =
         starting_frame_speed = 0.4,
         starting_frame_speed_deviation = 0.1
       },
-      cooldown = 7,
+      cooldown = 20,
       projectile_center = {0, 0.5},
       projectile_creation_distance = 0.6,
       range = 13,
@@ -224,7 +224,7 @@ local droid_smg =
               },
               {
                 type = "damage",
-                damage = { amount = 4*DAMAGE_SCALAR , type = "physical"}
+                damage = { amount = 8*DAMAGE_SCALAR , type = "physical"}
               }
             }
           }

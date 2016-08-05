@@ -25,3 +25,6 @@ Changes from 0.2.0 to 0.2.1 release:
 - added German locale thanks to Mystery on the forums, plus some english to fill the gaps of new content locale
 - added icon for patrol pole, settings module.
 - updated icons for all droids to use their sprites, and undeployed item has grey background with black border.
+- fixed possible crashes caused by being in a factorissimo building and then leaving. if this still causes a crash,
+ you can kill all droids and from then on it should be good. use /c game.player.force.kill_all_units()
+
