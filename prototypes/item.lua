@@ -144,7 +144,7 @@ data:extend(
   {
     type = "item",
     name = "droid-settings",
-    icon = "__robotarmy__/graphics/icons/droid-counter.png",
+    icon = "__robotarmy__/graphics/icons/droid-settings.png",
     flags = {"goes-to-quickbar"},
     subgroup = "circuit-network",
     place_result="droid-settings",
@@ -166,7 +166,7 @@ data:extend(
     name = "rally-beacon",
     icon = "__robotarmy__/graphics/icons/rally-beacon.png",
     flags = {"goes-to-quickbar"},
-    subgroup = "storage",
+    subgroup = "capsule",
     place_result="rally-beacon",
     order = "a[items]-c[rally-beacon]",
     stack_size = 5,
@@ -174,11 +174,11 @@ data:extend(
   {
     type = "item",
     name = "patrol-pole",
-    icon = "__base__/graphics/icons/medium-electric-pole.png",
+    icon = "__robotarmy__/graphics/icons/patrol-pole.png",
     flags = {"goes-to-quickbar"},
     subgroup = "capsule",
     place_result="patrol-pole",
-    order = "a[items]-c[patrol-pole]",
+    order = "a[items]-d[patrol-pole]",
     stack_size = 50,
   },
   

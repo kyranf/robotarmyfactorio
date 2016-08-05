@@ -1083,7 +1083,7 @@ local droid_counter =  {
 local droid_settings =  {
     type = "constant-combinator",
     name = "droid-settings",
-    icon = "__robotarmy__/graphics/icons/droid-counter.png",
+    icon = "__robotarmy__/graphics/icons/droid-settings.png",
     flags = {"placeable-neutral", "player-creation"},
     minable = {hardness = 0.2, mining_time = 0.5, result = "droid-settings"},
     max_health = 50,
@@ -1093,12 +1093,12 @@ local droid_settings =  {
     selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
 
     item_slot_count = 6,
-
+	--Lol, i just forced them all to be the same sprite, no matter the rotation. Cheeky I know!
     sprites =
     {
       north =
       {
-        filename = "__robotarmy__/graphics/entity/droid-counter.png",
+        filename = "__robotarmy__/graphics/entity/droid-settings.png",
 		--x = 106,
      	width = 53,
 	    height = 44,
@@ -1107,7 +1107,7 @@ local droid_settings =  {
       },
       east =
       {
-        filename = "__robotarmy__/graphics/entity/droid-counter.png",
+        filename = "__robotarmy__/graphics/entity/droid-settings.png",
 		--x = 159,
      	width = 53,
 	    height = 44,
@@ -1116,7 +1116,7 @@ local droid_settings =  {
       },
       south =
       {
-        filename = "__robotarmy__/graphics/entity/droid-counter.png",
+        filename = "__robotarmy__/graphics/entity/droid-settings.png",
 		width = 53,
 	    height = 44,
 		frame_count = 1,
@@ -1124,7 +1124,7 @@ local droid_settings =  {
       },
       west =
       {
-        filename = "__robotarmy__/graphics/entity/droid-counter.png",
+        filename = "__robotarmy__/graphics/entity/droid-settings.png",
 		--x = 106,
      	width = 53,
 	    height = 44,

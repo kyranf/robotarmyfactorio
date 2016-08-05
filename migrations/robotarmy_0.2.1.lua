@@ -41,6 +41,7 @@ for i, force in pairs(game.forces) do
 
 	if force.technologies["electronics"].researched then
 		force.recipes["droid-counter"].enabled=true
+		force.recipes["droid-settings"].enabled = true
 	end
 
 	if force.technologies["military-2"].researched then

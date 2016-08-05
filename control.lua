@@ -7,6 +7,7 @@ require("prototypes.DroidUnitList") -- so we know what is spawnable
 require("stdlib/log/logger")
 LOGGER = Logger.new("robotarmy", "robot_army_logs", true, {log_ticks = true})
 
+global.runOnce = false
 
 script.on_init(function() 
 
@@ -103,16 +104,24 @@ script.on_configuration_changed(function(data)
 	if data.mod_changes ~= nil and data.mod_changes["robotarmy"] ~= nil and data.mod_changes["robotarmy"].old_version ~= nil then  -- Mod was changed
 		LOGGER.log("Robot Army mod changed version - checking research and recipe unlocks...")
 		for _,force in pairs(game.forces) do
-			
-			--Tech Additions for droids and droid counter combinator
+			Game.print_force(force, "Robot Army mod changed version - checking research and recipe unlocks...")
+			force.reset_recipes()
+			force.reset_technologies()
+				
+			--force all of the known recipes to be enabled if the appropriate research is already done. 
 			if force.technologies["military"].researched then
 				force.recipes["droid-rifle"].enabled=true
 				force.recipes["droid-rifle-deploy"].enabled=true
 				force.recipes["loot-chest"].enabled=true
+				force.recipes["patrol-pole"].enabled=true
+				force.recipes["rally-beacon"].enabled=true
+				force.recipes["droid-guard-station"].enabled=true
+				force.recipes["droid-assembling-machine"].enabled=true
 			end
 
 			if force.technologies["electronics"].researched then
 				force.recipes["droid-counter"].enabled=true
+				force.recipes["droid-settings"].enabled = true
 			end
 
 			if force.technologies["military-2"].researched then
@@ -120,12 +129,23 @@ script.on_configuration_changed(function(data)
 				force.recipes["droid-smg-deploy"].enabled=true
 				force.recipes["droid-rocket"].enabled=true
 				force.recipes["droid-rocket-deploy"].enabled=true
+				force.recipes["droid-flame"].enabled=true
+				force.recipes["droid-flame-deploy"].enabled=true
 			end
 		  
 			if force.technologies["military-3"].researched then
 				force.recipes["terminator"].enabled=true
 				force.recipes["terminator-deploy"].enabled=true
 			end
+			
+			--adding a guard staion table entry for each force in the game.
+
+			global.droidGuardStations[force.name] = global.droidGuardStations[force.name] or {}	
+			global.Squads[force.name] = global.Squads[force.name] or {}
+			global.DroidAssemblers[force.name] = global.DroidAssemblers[force.name] or {}
+			global.droidCounters[force.name] = global.droidCounters[force.name] or {}
+			global.lootChests[force.name] = global.lootChests[force.name] or {}
+			global.uniqueSquadId[force.name] = global.uniqueSquadId[force.name] or 1
 		end 
 		
 	end
@@ -178,6 +198,19 @@ end)
 
 -- during the on-tick event, lets check if we need to update squad AI, spawn droids from assemblers, or update bot counters, etc
 function onTickHandler(event)
+
+	if not global.runOnce then
+		LOGGER.log("Running the runOnce function to reset recipes and tech to ensure all are correct...")
+		--force reset every force's recipes and techs. I'm sick of it not doing this for me!
+		for _, force in pairs(game.forces) do
+			force.reset_recipes()
+			force.reset_technologies()
+		end
+		global.runOnce = true
+	
+	end
+
+
 
 	if not global.lastTick then
 		global.lastTick = 0
@@ -253,7 +286,7 @@ function onTickHandler(event)
 					local nearby = countNearbyDroids(station.position, station.force, 30) --inputs are position, force, and radius
 										
 					--if we have a spawnable droid ready, and there is not too many droids nearby, lets spawn one!
-					if (spawnableDroidName ~= nil and type(spawnableDroidName) == "string") and nearby < GUARD_STATION_GARRISON_SIZE then
+					if (spawnableDroidName ~= nil and type(spawnableDroidName) == "string") and nearby < getSquadGuardSize(station.force) then
 							
 							local droidPos =  getGuardSpawnLocation(station) -- uses station pos			
 			

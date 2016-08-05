@@ -23,3 +23,5 @@ Changes from 0.2.0 to 0.2.1 release:
 - added new icons for the new virtual signals
 - added firebot virtual signal for counting them
 - added German locale thanks to Mystery on the forums, plus some english to fill the gaps of new content locale
+- added icon for patrol pole, settings module.
+- updated icons for all droids to use their sprites, and undeployed item has grey background with black border.

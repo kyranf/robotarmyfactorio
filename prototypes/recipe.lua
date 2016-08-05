@@ -216,7 +216,7 @@ data:extend(
 	  {"steel-plate",5},
 	  {"electronic-circuit", 5},
 	},	
-    result = "rally-beacon",
+    result = "patrol-pole",
 	requester_paste_multiplier = 1
   },
 })
@@ -243,4 +243,6 @@ table.insert(data.raw["technology"]["military-2"].effects,{type="unlock-recipe",
 table.insert(data.raw["technology"]["military-3"].effects,{type="unlock-recipe",recipe="terminator-deploy"})
 table.insert(data.raw["technology"]["military-3"].effects,{type="unlock-recipe",recipe="terminator"})  
 
-table.insert(data.raw["technology"]["electronics"].effects,{type="unlock-recipe",recipe="droid-counter"})  
+table.insert(data.raw["technology"]["electronics"].effects,{type="unlock-recipe",recipe="droid-counter"})
+table.insert(data.raw["technology"]["electronics"].effects,{type="unlock-recipe",recipe="droid-settings"})
+ 
