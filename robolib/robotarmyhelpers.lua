@@ -203,7 +203,13 @@ function checkValidSignalSetting(force, signal, count)
 	
 	elseif signal == "signal-hunt-radius" then
 		
-		if count >= 0 then  --all we care about is positive numbers here, and 0 is also okay (nobody will hunt, ever.)
+		-- Change the 10000 at your own risk. Don't come whining to me if you change this to something silly like 5000000 and then let the slider get that high
+		-- because each squad will the seach a massive radius, and even though the game has optimised this call well, I fear the FPS will be so bad you won't be able to change
+		-- the slider and you'll have to load from a recent save. 
+		if count > 10000 then
+			Game.print_force(force, string.format("WARNING: The droid settings signal %s must be less than 10,000 for performance reasons!", signal))
+			return false
+		elseif count >= 0 then  --all we care about is positive numbers here, and 0 is also okay (nobody will hunt, ever.)
 			return true
 		else
 			Game.print_force(force, string.format("WARNING: The droid settings signal %s must be positive!", signal))
