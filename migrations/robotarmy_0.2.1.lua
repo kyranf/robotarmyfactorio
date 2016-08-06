@@ -1,28 +1,12 @@
 game.reload_script()
 
-if not global.Squads then
-	global.Squads = {}
-end
 
-if not global.uniqueSquadId then
-	global.uniqueSquadId = {}
-end
-
-if not global.DroidAssemblers then 
-	global.DroidAssemblers = {}
-end
-
-if not global.droidCounters then
-	global.droidCounters = {}
-end
-
-if not global.lootChests then
-	global.lootChests = {}
-end
-
-if not global.droidGuardStations then
-	global.droidGuardStations = {}
-end		
+global.Squads = global.Squads or {}
+global.uniqueSquadId = global.uniqueSquadId or {}
+global.DroidAssemblers = global.DroidAssemblers or {}
+global.droidCounters = global.droidCounters or {}
+global.lootChests = global.lootChests or {}
+global.droidGuardStations = global.droidGuardStations or {}
 
 for i, force in pairs(game.forces) do 
 	force.reset_recipes()
@@ -58,6 +42,8 @@ for i, force in pairs(game.forces) do
 		force.recipes["terminator-deploy"].enabled=true
 	end
 	
+	
+
 	--adding a guard staion table entry for each force in the game.
 
 	global.droidGuardStations[force.name] = global.droidGuardStations[force.name] or {}	

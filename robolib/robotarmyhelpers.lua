@@ -258,6 +258,20 @@ function doCounterUpdate()
 				if(counter.valid) then
 					
 					local currentParams = counter.get_or_create_control_behavior().parameters 
+					local lengthOld = #currentParams.parameters
+					local lengthNew = #circuitParams.parameters
+					Game.print_force(counter.force, string.format("counter number of signals %d, number of new signals %d",lengthOld, lengthNew))
+					
+					if lengthOld ~= lengthNew then
+					
+						local pos = counter.position
+						local surface = counter.surface
+						counter.destroy()
+						counter = surface.create_entity({name = "droid-counter" , position = pos, direction = defines.direction.east, force = gameForce })
+						Game.print_force(counter.force, string.format("Counter replaced at X %d,Y %d to update signal output table. Will need new wires if you had any!", pos.x, pos.y))
+						
+					end
+					
 					
 					counter.get_or_create_control_behavior().parameters = circuitParams
 				end

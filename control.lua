@@ -103,6 +103,14 @@ script.on_configuration_changed(function(data)
 	 end
 	if data.mod_changes ~= nil and data.mod_changes["robotarmy"] ~= nil and data.mod_changes["robotarmy"].old_version ~= nil then  -- Mod was changed
 		LOGGER.log("Robot Army mod changed version - checking research and recipe unlocks...")
+		
+		global.Squads = global.Squads or {}
+		global.uniqueSquadId = global.uniqueSquadId or {}
+		global.DroidAssemblers = global.DroidAssemblers or {}
+		global.droidCounters = global.droidCounters or {}
+		global.lootChests = global.lootChests or {}
+		global.droidGuardStations = global.droidGuardStations or {}
+		
 		for _,force in pairs(game.forces) do
 			Game.print_force(force, "Robot Army mod changed version - checking research and recipe unlocks...")
 			force.reset_recipes()
@@ -137,9 +145,10 @@ script.on_configuration_changed(function(data)
 				force.recipes["terminator"].enabled=true
 				force.recipes["terminator-deploy"].enabled=true
 			end
+
 			
 			--adding a guard staion table entry for each force in the game.
-
+			
 			global.droidGuardStations[force.name] = global.droidGuardStations[force.name] or {}	
 			global.Squads[force.name] = global.Squads[force.name] or {}
 			global.DroidAssemblers[force.name] = global.DroidAssemblers[force.name] or {}
