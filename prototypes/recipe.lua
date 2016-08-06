@@ -185,6 +185,7 @@ data:extend(
     type = "recipe",
     name = "droid-flame",
     enabled = false,
+	category = "advanced-crafting",
 	ingredients =
 	{
       {"steel-plate", 5},
@@ -194,18 +195,19 @@ data:extend(
     
 	},	
     result = "droid-flame",
-	requester_paste_multiplier = 1
+
   },
   {  
     type = "recipe",
     name = "droid-flame-deploy",
     enabled = false,
+	category = "droids",
 	ingredients =
 	{
 	  {"droid-flame",1}
 	},	
     result = "droid-flame-dummy",
-	requester_paste_multiplier = 1
+
   },
   {  
     type = "recipe",

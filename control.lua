@@ -168,7 +168,7 @@ script.on_event(defines.events.on_built_entity, function(event)
 		handleBuiltLootChest(event)
 	elseif entity.name == "rally-beacon" then
 		handleBuiltRallyBeacon(event)	
-	elseif table.contains(squadCapable, entity.name) then --squadCapable is defined in DroidUnitList.
+	elseif entity.type == "unit" and table.contains(squadCapable, entity.name) then --squadCapable is defined in DroidUnitList.
 		handleDroidSpawned(event) --this deals with droids spawning
 	end
 	
