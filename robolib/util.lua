@@ -19,10 +19,10 @@ function table.countNonNil(table)
 end
 
 --specifically useful for squad member table counting, because it avoids the key = 'size' as a valid countable element.
-function table.countValidElements(table)
+function table.countValidElements(inputTable)
 	local count = 0
-	for key, element in pairs(table) do
-		if element and key ~= "size" then
+	for key, element in pairs(inputTable) do
+		if element and key ~= "size" then --avoids issue of squad member table contains an additional entry for size
 			
 			if element.valid then
 				count = count + 1
@@ -72,5 +72,47 @@ end
 function convertToEntityNames(str)
  local s = repchars(str, "0", "-")
  return s
+
+end
+
+
+--any new global tables we need to add, just add them in here and it will be easier to maintain 
+function checkGlobalTableInitStates()
+
+		
+	if not global.Squads then
+		global.Squads = {}
+	end
+
+	if not global.uniqueSquadId then
+		global.uniqueSquadId = {}
+	end
+
+	if not global.DroidAssemblers then 
+		global.DroidAssemblers = {}
+	end
+
+	if not global.droidCounters then
+		global.droidCounters = {}
+	end
+
+	if not global.lootChests then
+		global.lootChests = {}
+	end
+
+	if not global.droidGuardStations then
+		global.droidGuardStations = {}
+	end		
+
+	local forceList = game.forces
+	for _, force in pairs(forceList) do
+		global.droidGuardStations[force.name] = global.droidGuardStations[force.name] or {}	
+		global.Squads[force.name] = global.Squads[force.name] or {}
+		global.DroidAssemblers[force.name] = global.DroidAssemblers[force.name] or {}
+		global.droidCounters[force.name] = global.droidCounters[force.name] or {}
+		global.lootChests[force.name] = global.lootChests[force.name] or {}
+		global.uniqueSquadId[force.name] = global.uniqueSquadId[force.name] or 1
+
+	end
 
 end

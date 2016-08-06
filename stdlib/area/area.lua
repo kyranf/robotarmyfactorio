@@ -1,10 +1,25 @@
 --- Area module
--- @module area
+-- @module Area
 
 require 'stdlib/core'
 require 'stdlib/area/position'
 
 Area = {}
+
+--- Returns the size of the space contained in the 2d area
+-- @param area the area
+-- @return size of the area
+function Area.area(area)
+    fail_if_missing(area, "missing area value")
+    area = Area.to_table(area)
+
+    local left_top = Position.to_table(area.left_top)
+    local right_bottom = Position.to_table(area.right_bottom)
+
+    local dx = math.abs(left_top.x - right_bottom.x)
+    local dy = math.abs(left_top.y - right_bottom.y)
+    return dx * dy
+end
 
 --- Tests if a position {x, y} is inside (inclusive) of area
 -- @param area the area
