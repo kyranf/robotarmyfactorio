@@ -92,6 +92,7 @@ function checkMembersAreInGroup(squad)
 		
 	end
 	
+	::retryCheckMembership::
 	for key, soldier in pairs(squad.members) do
 	
 		if(key ~= "size") then
@@ -100,8 +101,16 @@ function checkMembersAreInGroup(squad)
 				table.remove(squad.members, key)
 			elseif not table.contains(squad.unitGroup.members, soldier) then
 				if soldier.valid then
+				
+					if soldier.surface == squad.unitGroup.surface then
 					--tableIN.player.print(string.format("adding soldier to squad ID %d's unitgroup", tableIN.squadID))
-					squad.unitGroup.add_member(soldier)
+						squad.unitGroup.add_member(soldier)
+					else
+						LOGGER.log("Destroying unit group, and creating a replacement on the correct surface")
+						squad.unitGroup.destroy()
+						soldier.surface.create_unit_group({position=soldier.position, force=soldier.force})
+						--goto retryCheckMembership
+					end
 				else
 					--LOGGER.log(string.format("removing member from squad id %d member list", tableIN.squadID))
 					table.remove(squad.members, key)
@@ -373,8 +382,7 @@ function guardAIUpdate()
 							
 						if not next(squad.patrolState.waypointList) then
 							--from the squad's current position, build a waypoint list using patrol poles found in sequence.
-							
-								
+													
 							--Game.print_all(string.format("polecount %d", poleCount))
 							buildWaypointList(squad.patrolState.waypointList, surface, areaCheck, squad, force)
 						
@@ -400,6 +408,7 @@ function guardAIUpdate()
 									squad.patrolState.arrived = true
 									--Game.print_all("Squad has arrived at waypoint!")
 								else
+									
 									local position = squad.patrolState.waypointList[squad.patrolState.currentWaypoint]
 								
 									squad.unitGroup.set_command({type=defines.command.go_to_location, destination=position, radius=DEFAULT_SQUAD_RADIUS, 
