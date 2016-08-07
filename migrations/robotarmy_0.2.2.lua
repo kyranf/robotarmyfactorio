@@ -53,30 +53,6 @@ for i, force in pairs(game.forces) do
 	global.lootChests[force.name] = global.lootChests[force.name] or {}
 	global.uniqueSquadId[force.name] = global.uniqueSquadId[force.name] or 1
 	
-	
-	
-
-	if global.Squads and global.Squads[force.name] then
-
-		for _, squad in pairs(global.Squads[force.name]) do
-			-- on the first member of the squad where the unit_group surface doesn't match the member entity's surface, 
-			-- kill the unit_group and skip to next squad. The next time the function "check members are in groups" is called it will
-			-- find and fix the missing unit_group and when the unit_group is rebuilt it should be good from then on.
-			if squad.unitGroup and squad.unitGroup.valid then
-					local surface = squad.unitGroup.surface
-					for key, member in pairs(squad.members) do 
-												
-						if key ~= "size" and member.surface ~= surface then
-							squad.unitGroup.destroy()
-							--LOGGER.log("Unit_group destroyed to avoid surface errors")
-							goto nextSquad
-							
-						end
-					end
-				end
-				::nextSquad::
-		end
-	end
 
 end
 

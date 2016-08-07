@@ -76,34 +76,14 @@ function convertToEntityNames(str)
 end
 
 
---any new global tables we need to add, just add them in here and it will be easier to maintain 
+--any new global tables we need to add, just add them in here and it will be easier to maintain. not used yet.
 function checkGlobalTableInitStates()
-
-		
-	if not global.Squads then
-		global.Squads = {}
-	end
-
-	if not global.uniqueSquadId then
-		global.uniqueSquadId = {}
-	end
-
-	if not global.DroidAssemblers then 
-		global.DroidAssemblers = {}
-	end
-
-	if not global.droidCounters then
-		global.droidCounters = {}
-	end
-
-	if not global.lootChests then
-		global.lootChests = {}
-	end
-
-	if not global.droidGuardStations then
-		global.droidGuardStations = {}
-	end		
-
+	global.Squads = global.Squads or {}
+	global.uniqueSquadId = global.uniqueSquadId or {}
+	global.DroidAssemblers = global.DroidAssemblers or {}
+	global.droidCounters = global.droidCounters or {}
+	global.lootChests = global.lootChests or {}
+	global.droidGuardStations = global.droidGuardStations or {}
 	local forceList = game.forces
 	for _, force in pairs(forceList) do
 		global.droidGuardStations[force.name] = global.droidGuardStations[force.name] or {}	
