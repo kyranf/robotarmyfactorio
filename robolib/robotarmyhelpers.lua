@@ -260,7 +260,7 @@ function doCounterUpdate()
 					local currentParams = counter.get_or_create_control_behavior().parameters 
 					local lengthOld = #currentParams.parameters
 					local lengthNew = #circuitParams.parameters
-					Game.print_force(counter.force, string.format("counter number of signals %d, number of new signals %d",lengthOld, lengthNew))
+					--Game.print_force(counter.force, string.format("counter number of signals %d, number of new signals %d",lengthOld, lengthNew))
 					
 					if lengthOld ~= lengthNew then
 					
@@ -269,7 +269,7 @@ function doCounterUpdate()
 						counter.destroy()
 						counter = surface.create_entity({name = "droid-counter" , position = pos, direction = defines.direction.east, force = gameForce })
 						Game.print_force(counter.force, string.format("Counter replaced at X %d,Y %d to update signal output table. Will need new wires if you had any!", pos.x, pos.y))
-						
+						table.insert(global.droidCounters[gameForce.name], counter) -- insert the new counter so it can get updated again
 					end
 					
 					
@@ -284,7 +284,7 @@ function sendSquadHome(squad)
 
 	local distFromHome = util.distance(squad.unitGroup.position, squad.home)
 	if distFromHome > 15 then
-		Game.print_force(force, "Moving squad back to guard station, they strayed too far!")
+		--Game.print_force(force, "Moving squad back to guard station, they strayed too far!")
 		squad.unitGroup.set_command({type=defines.command.go_to_location, destination=squad.home, 
 									radius=DEFAULT_SQUAD_RADIUS, distraction=defines.distraction.by_anything})
 		squad.unitGroup.start_moving()
