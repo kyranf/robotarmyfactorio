@@ -221,6 +221,88 @@ data:extend(
     result = "patrol-pole",
 	requester_paste_multiplier = 1
   },
+  -- adding in support for Klonan's Combat Units 
+  	{
+		type = "recipe",
+		name = "defender-unit",
+		enabled = false,
+		category = "advanced-crafting",
+		energy_required = 8,
+		ingredients =
+		{
+		  {"piercing-rounds-magazine", 1},
+		  {"electronic-circuit", 5},
+		  {"iron-gear-wheel", 5},
+		},
+		result = "defender-unit"
+	},
+	{
+		type = "recipe",
+		name = "defender-unit-deploy",
+		enabled = false,
+		category = "droids",
+		ingredients =
+		{
+		  {"defender-unit", 1}
+		  
+		},
+		result = "defender-unit-dummy"
+	}, 
+	
+  	{
+		type = "recipe",
+		name = "distractor-unit",
+		enabled = false,
+		category = "advanced-crafting",
+		energy_required = 8,
+		ingredients =
+		{
+		  {"piercing-rounds-magazine", 1},
+		  {"advanced-circuit", 3},
+		  {"steel-plate", 5},
+		},
+		result = "distractor-unit"
+	},
+	{
+		type = "recipe",
+		name = "distractor-unit-deploy",
+		enabled = false,
+		category = "droids",
+		ingredients =
+		{
+		  {"distractor-unit", 1}
+		  
+		},
+		result = "distractor-unit-dummy"
+	},
+	
+	{
+		type = "recipe",
+		name = "destroyer-unit",
+		enabled = false,
+		category = "advanced-crafting",
+		energy_required = 8,
+		ingredients =
+		{
+		  {"piercing-rounds-magazine", 5},
+		  {"processing-unit", 5},
+		  {"steel-plate", 5},
+		},
+		result = "destroyer-unit"
+	},
+	{
+		type = "recipe",
+		name = "destroyer-unit-deploy",
+		enabled = false,
+		category = "droids",
+		ingredients =
+		{
+		  {"destroyer-unit", 1}
+		  
+		},
+		result = "destroyer-unit-dummy"
+	},
+  
 })
 
 
@@ -247,4 +329,10 @@ table.insert(data.raw["technology"]["military-3"].effects,{type="unlock-recipe",
 
 table.insert(data.raw["technology"]["electronics"].effects,{type="unlock-recipe",recipe="droid-counter"})
 table.insert(data.raw["technology"]["electronics"].effects,{type="unlock-recipe",recipe="droid-settings"})
- 
+
+table.insert(data.raw["technology"]["combat-robotics"].effects,{type="unlock-recipe", recipe="defender-unit"})
+table.insert(data.raw["technology"]["combat-robotics"].effects,{type="unlock-recipe", recipe="defender-unit-deploy"})
+table.insert(data.raw["technology"]["combat-robotics"].effects,{type="unlock-recipe", recipe="distractor-unit"})
+table.insert(data.raw["technology"]["combat-robotics"].effects,{type="unlock-recipe", recipe="distractor-unit-deploy"})
+table.insert(data.raw["technology"]["combat-robotics"].effects,{type="unlock-recipe", recipe="destroyer-unit"})
+table.insert(data.raw["technology"]["combat-robotics"].effects,{type="unlock-recipe", recipe="destroyer-unit-deploy"})

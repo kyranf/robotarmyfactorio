@@ -3,6 +3,7 @@ require("robolib.util")
 require("prototypes.DroidUnitList")
 require("stdlib/game")
 require("stdlib/log/logger")
+require("robolib.Squad")
 --gets an offset spawning location for an entity (droid assembler) 
 -- uses surface.find_non_colliding_position() API call here, to check for a small square around entPos and return the result of that function instead.
 -- this will help avoid getting units stuck in stuff. If that function returns nil, then we have problems so try to mention that to whoever call by ret -1
@@ -379,7 +380,7 @@ function getClosestWayPoint(waypointList, position)
 														
 	end
 	
-	Game.print_all(string.format("closest waypoint fount at index %d", closestIndex) )
+	--Game.print_all(string.format("closest waypoint fount at index %d", closestIndex) )
 	return closestIndex
 
 end
@@ -543,32 +544,77 @@ function handleBuiltDroidCounter(event)
 	end
 end
 
+function doBeaconUpdate()
+	
+	if global.Squads then
+	
+		trimSquads(game.forces)
+		for _,force in pairs(game.forces) do
+			if global.Squads[force.name] then
+				--if this force has any rally beacons in its table
+				if(global.rallyBeacons and global.rallyBeacons[force.name] and table.countValidElements(global.rallyBeacons[force.name]) >= 1) then
+					for _, squad in pairs(global.Squads[force.name]) do
+					
+						if squad and squad.unitGroup and squad.unitGroup.valid then
+						
+							if squad.command ~= commands.guard and squad.command ~= commands.patrol then
+						
+								--find nearest rally pole to squad position and send them there. 
+								local squadPos = squad.unitGroup.position
+								local closestRallyBeacon = getClosestEntity(squadPos, global.rallyBeacons[force.name]) --find closest rallyBeacon to move towards
+								local beaconPos = closestRallyBeacon.position
+								local surface = squad.unitGroup.surface
+								beaconPos.x = beaconPos.x+2
+								beaconPos.y = beaconPos.y+2
+								local dist = util.distance(beaconPos, squad.unitGroup.position)
+								if(dist >= 20) then
+								--give them command to move.
+									squad.rally = true
+									squad.unitGroup.destroy()
+									checkMembersAreInGroup(squad) --this recreates the unitgroup and re-adds the members
+									squad.unitGroup.set_command({type=defines.command.go_to_location, destination=beaconPos, distraction=defines.distraction.none})
+									squad.unitGroup.start_moving()
+								--else if(dist > 20 ) then
+								--	squad.rally = nil
+								end
+							
+							end
+						end
+					end
+				else
+					--if no rally beacons, make sure no squads are stuck with rally == true
+					for _, squad in pairs(global.Squads[force.name]) do
+					
+						if squad and squad.unitGroup and squad.unitGroup.valid then
+							if squad.rally == true then 
+								squad.rally = false
+								
+							end
+						end
+						
+					end
+				end
+			end
+		end
+	end
+end
+
+
 
 function handleBuiltRallyBeacon(event)
 
-	local entity = event.created_entity
-	if global.Squads and global.Squads[entity.force.name] then
-		trimSquads(game.forces)
-		
-		--game.players[1].print(string.format("Rally point built, for force %s...", entity.force.name))
-		--loop through all squads on the force, checking for those who are hunting or 'assembling' and make them move to the rally point and then continue what they were doing.
-		for _, squad in pairs(global.Squads[entity.force.name]) do
-			--game.players[1].print("checking squad..")
-			if squad and squad.unitGroup and squad.unitGroup.valid then
-				--game.players[1].print("checking squad command...")
-				if squad.command ~= commands.guard and squad.command ~= commands.patrol then
-			
-					--game.players[1].print(string.format("Sending squad %d to rally point...", squad.squadID))
-					local pos = entity.position
-					pos.x = pos.x+2
-					pos.y = pos.y+2
-					--give them command to move. distraction by damage means if they are shot at/bit, they will at least try and defend themselves while running away.
-					squad.unitGroup.set_command({type=defines.command.go_to_location, destination=pos, distraction=defines.distraction.none})
-					--squad.unitGroup.start_moving()
-				
-				end
-			end	
-		end
+	local entity = event.created_entity 
+	local entityForce = entity.force.name
+	LOGGER.log( string.format("Adding rally beacon to force %s", entityForce) )
+	if not global.rallyBeacons then			
+		global.rallyBeacons = {}		
+		global.rallyBeacons[entityForce] = {}
+		table.insert(global.rallyBeacons[entityForce], entity )
+	elseif not global.rallyBeacons[entityForce] then 
+		global.rallyBeacons[entityForce] = {}
+		table.insert(global.rallyBeacons[entityForce], entity)
+	else
+		table.insert(global.rallyBeacons[entityForce], entity)
 	end
 end
 
@@ -605,10 +651,11 @@ function handleDroidSpawned(event)
 	addMember(global.Squads[force.name][squadref],entity)		
 	--checkMembersAreInGroup(global.Squads[player.force.name][squadref])
 	global.Squads[entity.force.name][squadref].unitGroup.add_member(entity)
-	
-	local squadOfInterest = global.Squads[force.name][squadref]
-	
+		
+	--code to handle adding new member to a squad that is guarding/patrolling
 	if event.guard == true then
+		 
+		local squadOfInterest = global.Squads[force.name][squadref]
 		if squadOfInterest.command ~= commands.guard then
 			squadOfInterest.command = commands.guard
 			squadOfInterest.home = event.guardPos
