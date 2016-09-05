@@ -96,3 +96,26 @@ function checkGlobalTableInitStates()
 	end
 
 end
+
+--waypointList is a list of LuaPositions, 
+function getClosestEntity(position, entityList)
+
+	local dist = 0
+	local distance = 999999
+	local closestEntity = nil
+	for index, entity in pairs(entityList) do
+	
+	--distance between the droid assembler and the squad
+		if entity and entity.valid then
+			dist = util.distance(entity.position, position)
+			if dist <= distance then
+				closestEntity = entity
+				distance = dist
+			end	
+		end
+														
+	end
+
+	return closestEntity
+
+end

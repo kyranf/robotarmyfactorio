@@ -111,6 +111,68 @@ data:extend(
 	place_result = "",
 	stack_size = 1  
 	},
+	
+	{
+		type = "item",
+		name = "defender-unit",
+		icon = "__robotarmy__/graphics/icons/defender_unit_undep.png",
+		flags = {"goes-to-quickbar"},
+		order = "x[combatrobot]",
+		subgroup = "capsule",
+		place_result = "defender-unit",
+		stack_size = 25
+	},
+	{
+		type = "item",
+		name = "defender-unit-dummy",
+		icon = "__robotarmy__/graphics/icons/defender.png",
+		flags = {"hidden"},
+		order = "z-z",
+		subgroup = "capsule",
+		place_result = "",
+		stack_size = 1  
+	},
+	
+	{
+		type = "item",
+		name = "distractor-unit",
+		icon = "__robotarmy__/graphics/icons/distractor_unit_undep.png",
+		flags = {"goes-to-quickbar"},
+		order = "y[combatrobot]",
+		subgroup = "capsule",
+		place_result = "distractor-unit",
+		stack_size = 25
+	},
+	{
+		type = "item",
+		name = "distractor-unit-dummy",
+		icon = "__robotarmy__/graphics/icons/distractor.png",
+		flags = {"hidden"},
+		order = "z-z",
+		subgroup = "capsule",
+		place_result = "",
+		stack_size = 1  
+	},
+	{
+		type = "item",
+		name = "destroyer-unit",
+		icon = "__robotarmy__/graphics/icons/destroyer_unit_undep.png",
+		flags = {"goes-to-quickbar"},
+		order = "z[combatrobot]",
+		subgroup = "capsule",
+		place_result = "destroyer-unit",
+		stack_size = 25
+	},
+	{
+		type = "item",
+		name = "destroyer-unit-dummy",
+		icon = "__robotarmy__/graphics/icons/destroyer.png",
+		flags = {"hidden"},
+		order = "z-z",
+		subgroup = "capsule",
+		place_result = "",
+		stack_size = 1  
+	},
   {
     type = "item",
     name = "droid-assembling-machine",

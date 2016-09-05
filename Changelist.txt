@@ -1,3 +1,4 @@
-Changes from 0.2.1 to 0.2.2 release:
-- fixed counters from old save games not liking going from 2 signal slots to 6 slots
-- fixed on_configuration_changed error when no guardstations were present.
+Changes from 0.2.2 to 0.2.3 release:
+- changed rally beacon behaviour now works as a constant attactor of squads. squads move to nearest beacon. can have multiple beacons active at once
+- added Klonan's "Combat Units" mod units and they are fully integrated and can be used in exactly the same way as droids. needs balancing. open to suggestions
+- 

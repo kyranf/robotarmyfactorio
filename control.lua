@@ -32,6 +32,10 @@ script.on_init(function()
 		global.lootChests = {}
 	end
 	
+	if not global.rallyBeacons then
+		global.rallyBeacons = {}
+	end
+	
 	if not global.droidGuardStations then
 		global.droidGuardStations = {}
 	end		
@@ -41,6 +45,7 @@ end)
 script.on_event(defines.events.on_force_created, function(event)
 	handleForceCreated(event)
  end)
+ 
 function handleForceCreated(event)
 
     local force = event.force
@@ -63,14 +68,16 @@ function handleForceCreated(event)
     global.droidGuardStations = global.droidGuardStations or {}
     global.droidGuardStations[force.name] = global.droidGuardStations[force.name] or {} 
 
-
+	global.rallyBeacons = global.rallyBeacons or {}
+	global.rallyBeacons[force.name] = global.rallyBeacons[force.name] or {}
+	
 	--not needed as of factorio 0.13.10 which removes friendly fire issue.
 	force.set_cease_fire(force, true) --set ceasefire on your own force. maybe this will prevent friendlyfire stuff?
     LOGGER.log("New force handler finished...")
 
 end
 
-
+--[[
 script.on_configuration_changed(function(data) 
  
 	 if data.mod_changes ~= nil and data.mod_changes["robotarmy"] ~= nil and data.mod_changes["robotarmy"].old_version == nil then  -- Mod was added
@@ -160,7 +167,7 @@ script.on_configuration_changed(function(data)
 	end
 	
 end)
-
+]]--
 script.on_event(defines.events.on_built_entity, function(event)
     
    local entity = event.created_entity
@@ -325,10 +332,18 @@ function onTickHandler(event)
   end
   
   
+  
   if( event.tick % BOT_COUNTERS_UPDATE_TICKRATE == 0) then
   
 	doCounterUpdate()
 	checkSettingsModules()
+  
+  end
+ 
+  --once every 3 seconds on the 5th tick, run the rally pole command for each force that has them active.
+  if(event.tick % 180 == 5) then
+	
+	doBeaconUpdate()
   
   end
  

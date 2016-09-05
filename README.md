@@ -1,8 +1,8 @@
-# Robot Army mod for Factorio V0.13+
+# Robot Army mod for Factorio V0.14+
 
 ## Version  
-0.2.2,
-Known to be compatible with Factorio v0.13.15
+0.2.3,
+Known to be compatible with Factorio v0.14.3
 
 
 ## Description  
@@ -13,6 +13,10 @@ Please see specific info about this mod's content [on the GitHub Wiki page](http
 The Factorio Forums thread can be found here: [Forum link](https://forums.factorio.com/viewtopic.php?f=97&t=23543)  
 
 Mod portal link here: [Mod Portal](https://mods.factorio.com/mods/kyranzor/robotarmy)
+
+## Credits
+YuokiTani for the great models of the Droids
+Klonan for his Combat Units and permission to integrate the mod into mine
 
 ## Donations
 If you are feeling generous or thankful for the work i've done, feel free to donate to me so I can bribe my wife with chocolate to help her put up with my late nights! Click the image below:  

@@ -79,7 +79,7 @@ function checkMembersAreInGroup(squad)
 
 	--make sure the unitgroup is even available, if it's not there for some reason, create it.
 	if not squad.unitGroup.valid then
-		LOGGER.log("unitgroup was invalid, making a new one")
+		--LOGGER.log("unitgroup was invalid, making a new one")
 		local pos
 		for key, unit in pairs(squad.members) do
 			if key ~= "size" and unit and unit.valid then 
@@ -106,7 +106,7 @@ function checkMembersAreInGroup(squad)
 					--tableIN.player.print(string.format("adding soldier to squad ID %d's unitgroup", tableIN.squadID))
 						squad.unitGroup.add_member(soldier)
 					else
-						LOGGER.log("Destroying unit group, and creating a replacement on the correct surface")
+						--LOGGER.log("Destroying unit group, and creating a replacement on the correct surface")
 						squad.unitGroup.destroy()
 						soldier.surface.create_unit_group({position=soldier.position, force=soldier.force})
 						--goto retryCheckMembership
@@ -249,7 +249,8 @@ function sendSquadsToBattle(forces)
 				
 						local count = table.countValidElements(squad.members)
 						if count then 
-							if  count >= minSquadSize or (squad.command == commands.hunt and count > SQUAD_SIZE_MIN_BEFORE_RETREAT) then
+							if  (count >= minSquadSize or (squad.command == commands.hunt and count > SQUAD_SIZE_MIN_BEFORE_RETREAT )) and (squad.rally == false or squad.rally == nil)  then
+
 								--get nearest enemy unit to the squad. 
 								--find the nearest enemy to the squad that is an enemy of the player's force, and max radius of 5000 tiles (10k tile diameter)
 								local surface = getSquadSurface(squad)
