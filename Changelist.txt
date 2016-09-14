@@ -1,4 +1,3 @@
-Changes from 0.2.2 to 0.2.3 release:
-- changed rally beacon behaviour now works as a constant attactor of squads. squads move to nearest beacon. can have multiple beacons active at once
-- added Klonan's "Combat Units" mod units and they are fully integrated and can be used in exactly the same way as droids. needs balancing. open to suggestions
+Changes from 0.2.3 to 0.2.4 release:
+- recipe adjustment for clockwork rifle bot if Bob's electronics is enabled (thanks Nexela!)
 - 
