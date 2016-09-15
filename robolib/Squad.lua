@@ -230,6 +230,205 @@ function trimSquads(forces)
 	end
 end
 
+function checkBattleAI(squad, squadSize)
+
+	checkMembersAreInGroup(squad)
+	if squad.unitGroup then
+		
+		if(squad.unitGroup.valid and (squad.unitGroup.state == defines.group_state.gathering or squad.unitGroup.state == defines.group_state.finished)) 	and squad.command ~= commands.guard then
+			
+
+			local count = table.countValidElements(squad.members)
+			if count then 
+				if  (count >= minSquadSize or (squad.command == commands.hunt and count > SQUAD_SIZE_MIN_BEFORE_RETREAT )) and (squad.rally == false or squad.rally == nil)  then
+
+					--get nearest enemy unit to the squad. 
+					--find the nearest enemy to the squad that is an enemy of the player's force, and max radius of 5000 tiles (10k tile diameter)
+					local surface = getSquadSurface(squad)
+					
+					if not surface then 
+						LOGGER.log(string.format("ERROR: Surface for squad ID %d is missing or can't be determined! sendSquadsToBattle", squad.squadID))
+						return
+					end 
+								
+					local huntRadius = getSquadHuntRange(force)
+					
+					local nearestEnemy = surface.find_nearest_enemy({position = squad.unitGroup.position, max_distance = huntRadius, force = force })
+					if nearestEnemy then
+					-- check if they are in a charted area
+						
+						local charted = true   -- = player.force.is_chunk_charted(player.surface, nearestEnemy.position)
+						if charted then
+							--player.print("Sending squad off to battle...")
+							--make sure squad is good, then set command
+							checkMembersAreInGroup(squad)
+							squad.command = commands.hunt -- sets the squad's high level role to hunt. not really used yet
+							squad.unitGroup.set_command({type=defines.command.attack_area, destination= nearestEnemy.position, radius=50, distraction=defines.distraction.by_anything})
+							squad.unitGroup.start_moving()
+						else
+							--player.print("enemy found but in un-charted area...")								
+						end
+					else
+						--player.print("cannot find nearby target!!")
+					end
+				else
+				
+				-- THIS IS THE RETREAT BEHAVIOUR
+					if squad.unitGroup.valid and (squad.unitGroup.state == defines.group_state.finished) and squad.command == commands.hunt then
+						--player.print(string.format("Sending under-strength squad id %d back to base for resupply...", squad.squadID ))
+						checkMembersAreInGroup(squad) -- maybe don't need to call this, we did this earlier on.
+						--player.print(string.format("squad size %d, squad state %d", squad.members.size, squad.unitGroup.state ))
+
+						
+						if squad.members.size > 0 then
+							local distance = 999999
+							local entity = nil
+							--check every possible droid assembler in that force and return the one with shortest distance
+					
+							if global.DroidAssemblers and global.DroidAssemblers[force.name] then
+								for _, droidAss in pairs(global.DroidAssemblers[force.name]) do
+								
+								--distance between the droid assembler and the squad
+									if droidAss.valid then
+										local dist = util.distance(droidAss.position, squad.unitGroup.position)
+										if dist <= distance then
+											entity = droidAss
+											distance = dist
+										end	
+									end												
+								end
+							end
+							
+							
+							--we should have the closest droid assembler now. but don't send new commands if they are already only 10 squads away from the rally point.
+							if entity and distance > 10 then
+								--player.print(string.format("Closest assembler found was at location x %d : y %d", entity.position.x, entity.position.y ))
+								local location = getDroidSpawnLocation(entity)
+								
+								if location ~= -1 then
+									--player.print(string.format("Sending squad to assembler at location x %d : y %d", location.x, location.y ))
+									squad.unitGroup.set_command({type=defines.command.go_to_location, destination= location, radius=DEFAULT_SQUAD_RADIUS, distraction=defines.distraction.by_anything})
+									squad.unitGroup.start_moving()
+								end
+							end
+						end
+					end
+					
+				end
+			end
+		end
+	end
+end
+
+function checkGuardAI(squad)
+
+
+	if squad.unitGroup and squad.unitGroup.valid and squad.command == commands.guard --[[and 
+		(squad.unitGroup.state == defines.group_state.finished or squad.unitGroup.state == defines.group_state.gathering) ]]-- 
+		then 
+		
+		local surface = getSquadSurface(squad)
+					
+		if not surface then 
+			LOGGER.log(string.format("ERROR: Surface for squad ID %d is missing or can't be determined! guardAIUpdate", squad.squadID))
+			return		
+		end 
+		
+		local areaTopLeft = {x=squad.unitGroup.position.x-32, y=squad.unitGroup.position.y-32}
+		local areaBottomRight = {x=squad.unitGroup.position.x+32, y=squad.unitGroup.position.y+32}
+		local areaCheck = {areaTopLeft, areaBottomRight}	
+
+		local poleList = surface.find_entities_filtered{area = {areaTopLeft, areaBottomRight}, squad.unitGroup.position, name="patrol-pole"}
+		local poleCount = table.countValidElements(poleList)
+		if(poleCount > 1) then
+			if not squad.patrolState then
+				--Game.print_all("Making patrolstate table...")
+				squad.patrolState = {}
+
+				squad.patrolState.nextPole = nil
+				squad.patrolState.currentPole = nil
+				squad.patrolState.lastPole = nil
+				squad.patrolState.movingToNext = false
+				squad.patrolState.waypointList = {}
+				squad.patrolState.currentWaypoint = -1
+				squad.patrolState.arrived = false
+				squad.patrolState.waypointDirection = 1
+			end
+			
+				
+			if not next(squad.patrolState.waypointList) then
+				--from the squad's current position, build a waypoint list using patrol poles found in sequence.
+										
+				--Game.print_all(string.format("polecount %d", poleCount))
+				buildWaypointList(squad.patrolState.waypointList, surface, areaCheck, squad, force)
+			
+			end
+			
+			local waypointCount = table.countNonNil(squad.patrolState.waypointList)
+			--Game.print_all(string.format("Squad's waypoint count: %d", waypointCount))
+			if(waypointCount >= 2) then
+				if(squad.patrolState.currentWaypoint == -1) then
+					--Game.print_all("Setting up initial conditions...")
+					squad.patrolState.currentWaypoint = 0
+					squad.patrolState.movingToNext = false
+					squad.patrolState.arrived = true
+				end
+				--check if we are going to a waypoint, if we are, check if we are close yet 
+				if(squad.patrolState.movingToNext == true) then
+					
+					--get distance from squad position to the current waypoint
+					local dist = util.distance(squad.unitGroup.position, squad.patrolState.waypointList[squad.patrolState.currentWaypoint])
+					--Game.print_all("Checking if squad is near waypoint...")
+					if dist < 5 then
+						squad.patrolState.movingToNext = false
+						squad.patrolState.arrived = true
+						--Game.print_all("Squad has arrived at waypoint!")
+					else
+						
+						local position = squad.patrolState.waypointList[squad.patrolState.currentWaypoint]
+					
+						squad.unitGroup.set_command({type=defines.command.go_to_location, destination=position, radius=DEFAULT_SQUAD_RADIUS, 
+													distraction=defines.distraction.by_enemy})
+					
+					end
+				
+				end
+				
+				if(squad.patrolState.movingToNext == false and squad.patrolState.arrived == true) then
+					--Game.print_all("Setting new waypoint and giving orders!")
+					--adjust current waypoint, check for min/max issues, then issue command to move.
+					squad.patrolState.currentWaypoint = squad.patrolState.currentWaypoint + squad.patrolState.waypointDirection
+					
+					if squad.patrolState.currentWaypoint > waypointCount then 
+						squad.patrolState.waypointDirection = -1 --reverse the waypoint iteration direction
+						squad.patrolState.currentWaypoint = squad.patrolState.currentWaypoint - 2  --set it to the second last waypoint
+					end
+					
+					--from the direction value being negative
+					if(squad.patrolState.currentWaypoint == 0) then
+					
+						squad.patrolState.waypointDirection = 1 --reverse the waypoint iteration direction
+						squad.patrolState.currentWaypoint = squad.patrolState.currentWaypoint + 2 --set it to the second waypoint
+					
+					end
+					
+					squad.patrolState.movingToNext = true
+					squad.patrolState.arrived = false
+					
+					local position = squad.patrolState.waypointList[squad.patrolState.currentWaypoint]
+					
+					squad.unitGroup.set_command({type=defines.command.go_to_location, destination=position, radius=DEFAULT_SQUAD_RADIUS, 
+													distraction=defines.distraction.by_enemy})
+					--squad.unitGroup.start_moving()
+				
+				end
+			end
+		end
+	end
+
+
+end
+
 
 --sends squads for each player to nearest enemy units. will not happen until squadsize is >= SQUAD_SIZE_MIN_BEFORE_HUNT
 function sendSquadsToBattle(forces)

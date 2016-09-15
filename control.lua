@@ -5,6 +5,7 @@ require("robolib.robotarmyhelpers") -- random helper functions related to the ro
 require("robolib.Squad") -- allows us to control squads, add entities to squads, etc.
 require("prototypes.DroidUnitList") -- so we know what is spawnable
 require("stdlib/log/logger")
+require("stdlib/game")
 LOGGER = Logger.new("robotarmy", "robot_army_logs", true, {log_ticks = true})
 
 global.runOnce = false
@@ -39,6 +40,10 @@ script.on_init(function()
 	if not global.droidGuardStations then
 		global.droidGuardStations = {}
 	end		
+	
+	if not global.updateTable then
+		global.updateTable = {}
+	end	
 	LOGGER.log("Robot Army mod Init script finished...")
 end)
 
@@ -71,103 +76,16 @@ function handleForceCreated(event)
 	global.rallyBeacons = global.rallyBeacons or {}
 	global.rallyBeacons[force.name] = global.rallyBeacons[force.name] or {}
 	
+	global.updateTable = global.updateTable or {}
+	global.updateTable[force.name] = global.updateTable[force.name] or {}
+	
 	--not needed as of factorio 0.13.10 which removes friendly fire issue.
 	force.set_cease_fire(force, true) --set ceasefire on your own force. maybe this will prevent friendlyfire stuff?
     LOGGER.log("New force handler finished...")
 
 end
 
---[[
-script.on_configuration_changed(function(data) 
- 
-	 if data.mod_changes ~= nil and data.mod_changes["robotarmy"] ~= nil and data.mod_changes["robotarmy"].old_version == nil then  -- Mod was added
-		LOGGER.log("Robot Army mod added - setting up research and recipe unlocks...")
-		for _,force in pairs(game.forces) do
 
-			--Tech Additions for droids and droid counter combinator
-			if force.technologies["military"].researched then
-				force.recipes["droid-rifle"].enabled=true
-				force.recipes["droid-rifle-deploy"].enabled=true
-				force.recipes["loot-chest"].enabled=true
-			end
-
-			if force.technologies["electronics"].researched then
-				force.recipes["droid-counter"].enabled=true
-			end
-
-			if force.technologies["military-2"].researched then
-				force.recipes["droid-smg"].enabled=true
-				force.recipes["droid-smg-deploy"].enabled=true
-				force.recipes["droid-rocket"].enabled=true
-				force.recipes["droid-rocket-deploy"].enabled=true
-			end
-		  
-			if force.technologies["military-3"].researched then
-				force.recipes["terminator"].enabled=true
-				force.recipes["terminator-deploy"].enabled=true
-			end
-		end     
-	 end
-	if data.mod_changes ~= nil and data.mod_changes["robotarmy"] ~= nil and data.mod_changes["robotarmy"].old_version ~= nil then  -- Mod was changed
-		LOGGER.log("Robot Army mod changed version - checking research and recipe unlocks...")
-		
-		global.Squads = global.Squads or {}
-		global.uniqueSquadId = global.uniqueSquadId or {}
-		global.DroidAssemblers = global.DroidAssemblers or {}
-		global.droidCounters = global.droidCounters or {}
-		global.lootChests = global.lootChests or {}
-		global.droidGuardStations = global.droidGuardStations or {}
-		
-		for _,force in pairs(game.forces) do
-			Game.print_force(force, "Robot Army mod changed version - checking research and recipe unlocks...")
-			force.reset_recipes()
-			force.reset_technologies()
-				
-			--force all of the known recipes to be enabled if the appropriate research is already done. 
-			if force.technologies["military"].researched then
-				force.recipes["droid-rifle"].enabled=true
-				force.recipes["droid-rifle-deploy"].enabled=true
-				force.recipes["loot-chest"].enabled=true
-				force.recipes["patrol-pole"].enabled=true
-				force.recipes["rally-beacon"].enabled=true
-				force.recipes["droid-guard-station"].enabled=true
-				force.recipes["droid-assembling-machine"].enabled=true
-			end
-
-			if force.technologies["electronics"].researched then
-				force.recipes["droid-counter"].enabled=true
-				force.recipes["droid-settings"].enabled = true
-			end
-
-			if force.technologies["military-2"].researched then
-				force.recipes["droid-smg"].enabled=true
-				force.recipes["droid-smg-deploy"].enabled=true
-				force.recipes["droid-rocket"].enabled=true
-				force.recipes["droid-rocket-deploy"].enabled=true
-				force.recipes["droid-flame"].enabled=true
-				force.recipes["droid-flame-deploy"].enabled=true
-			end
-		  
-			if force.technologies["military-3"].researched then
-				force.recipes["terminator"].enabled=true
-				force.recipes["terminator-deploy"].enabled=true
-			end
-
-			
-			--adding a guard staion table entry for each force in the game.
-			
-			global.droidGuardStations[force.name] = global.droidGuardStations[force.name] or {}	
-			global.Squads[force.name] = global.Squads[force.name] or {}
-			global.DroidAssemblers[force.name] = global.DroidAssemblers[force.name] or {}
-			global.droidCounters[force.name] = global.droidCounters[force.name] or {}
-			global.lootChests[force.name] = global.lootChests[force.name] or {}
-			global.uniqueSquadId[force.name] = global.uniqueSquadId[force.name] or 1
-		end 
-		
-	end
-	
-end)
-]]--
 script.on_event(defines.events.on_built_entity, function(event)
     
    local entity = event.created_entity
@@ -231,20 +149,25 @@ function onTickHandler(event)
 	if not global.lastTick then
 		global.lastTick = 0
 	end
+	
+	
+	
   -- has enough time elapsed to go through and set squad orders yet?
   if event.tick > (global.lastTick + TICK_UPDATE_SQUAD_AI) then
 	
 	local forces = game.forces
 	local players = game.players -- list of players 
 	trimSquads(forces) -- does some quick maintenance of the squad tables. 
-	
-	sendSquadsToBattle(forces) -- finds all squads for all players and checks for squad size and sends to attack nearest targets
-	guardAIUpdate()
-	revealSquadChunks()
-	grabArtifacts(forces)
+
 	global.lastTick = event.tick
 	
   end
+  
+  
+  runTableTickUpdates() -- new function that uses the new tick table update method
+  
+  
+  
   
   if (event.tick % ASSEMBLER_UPDATE_TICKRATE == 0) then
 
@@ -361,3 +284,51 @@ end
 script.on_event(defines.events.on_tick, function( event) 
 	onTickHandler(event)
  end)
+
+ 
+
+function runTableTickUpdates(tick)
+	
+	if not global.updateTable or not global.Squads then 
+		Game.print_all("Update Table or squads table is missing! Can't run update functions")
+		return 
+	end
+	
+	
+	for i, force in pairs(game.forces) do
+
+		if not global.updateTable[force.name] or not global.Squads[force.name]  then 
+			Game.print_all("Update Table or squad table for force is missing! Can't run update functions - force name:")
+			Game.print_all(force.name)
+			return 
+		end
+		 
+		--for the current tick, look at the global table for that tick (mod 60) and any squad references in there.
+		local minSquadSize = getSquadHuntSize(force)
+		
+		for i, squadref in pairs(global.updateTables[force.name][tick]) do
+			
+			if squadref and global.Squads[force.name][squadref] then
+				local squad = global.Squads[force.name][squadref]
+				
+				if squad.unitGroup and squad.unitGroup.valid then  --important for basically every AI command/routine
+				
+				--CHECK IF SQUAD IS A GUARD SQUAD, AND CHOOSE WHICH AI FUNCTION TO CALL
+					if squad.command == commands.guard then 
+						checkGuardAI(squad) --remove checks in this function for command and validity
+					else
+						checkBattleAI(squad, minSquadSize) --remove checks in this function for validity and possibly command
+					end
+					
+					
+					
+					
+				
+					--revealSquadChunks()
+					--grabArtifacts(forces)
+			
+			end
+		end
+	end
+	
+end
