@@ -474,9 +474,15 @@ function getSquadSurface(squad)
 	end 
 
 	if not squad.surface then 
-		local unit = getFirstValidSoldier(squad)
-		squad.surface = unit.surface -- save this shit for next time!
-		return unit.surface
+	-- new code to support getting surface from the squad's unit_group itself, if it currently exists
+		if squad.unitGroup and squad.unitGroup.valid then
+			squad.surface = squad.unitGroup.surface
+			return squad.surface
+		else 
+			local unit = getFirstValidSoldier(squad)
+			squad.surface = unit.surface -- save this shit for next time!
+			return unit.surface
+		end
 	else
 		return squad.surface
 	end

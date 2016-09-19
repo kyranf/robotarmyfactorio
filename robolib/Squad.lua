@@ -49,6 +49,10 @@ function createNewSquad(tableIN, player, entity)
 	
 	tableIN[squadRef] = newsquad
 	
+	local tick = getLeastFullTickTable(entity.force) --get the least utilised tick in the tick table
+	
+	table.insert(global.updateTable[entity.force.name][tick], squadRef) --insert this squad reference to the least used tick for running its AI
+	LOGGER.log(string.format( "Added squadref %d for AI update to tick table index %d", squadRef, tick) )
 	return squadRef
 end
 
@@ -231,7 +235,8 @@ function trimSquads(forces)
 end
 
 function checkBattleAI(squad, squadSize)
-
+	
+	local force = squad.force
 	checkMembersAreInGroup(squad)
 	if squad.unitGroup then
 		
@@ -240,7 +245,7 @@ function checkBattleAI(squad, squadSize)
 
 			local count = table.countValidElements(squad.members)
 			if count then 
-				if  (count >= minSquadSize or (squad.command == commands.hunt and count > SQUAD_SIZE_MIN_BEFORE_RETREAT )) and (squad.rally == false or squad.rally == nil)  then
+				if  (count >= squadSize or (squad.command == commands.hunt and count > SQUAD_SIZE_MIN_BEFORE_RETREAT )) and (squad.rally == false or squad.rally == nil)  then
 
 					--get nearest enemy unit to the squad. 
 					--find the nearest enemy to the squad that is an enemy of the player's force, and max radius of 5000 tiles (10k tile diameter)
@@ -321,7 +326,6 @@ function checkBattleAI(squad, squadSize)
 end
 
 function checkGuardAI(squad)
-
 
 	if squad.unitGroup and squad.unitGroup.valid and squad.command == commands.guard --[[and 
 		(squad.unitGroup.state == defines.group_state.finished or squad.unitGroup.state == defines.group_state.gathering) ]]-- 
@@ -470,7 +474,7 @@ function sendSquadsToBattle(forces)
 										--player.print("Sending squad off to battle...")
 										--make sure squad is good, then set command
 										checkMembersAreInGroup(squad)
-										squad.command = commands.hunt -- sets the squad's high level role to hunt. not really used yet
+										squad.command = commands.hunt
 										squad.unitGroup.set_command({type=defines.command.attack_area, destination= nearestEnemy.position, radius=50, distraction=defines.distraction.by_anything})
 										squad.unitGroup.start_moving()
 									else
@@ -723,6 +727,82 @@ function revealSquadChunks()
 	end
 	
 
+end
+
+function revealChunksBySquad(squad)
+
+	if squad and squad.unitGroup.valid then
+		if squad.members.size > 0 then  --if there are troops in a valid group in a valid squad. 
+			local position = squad.unitGroup.position
+			
+			--this area should give approx 3x3 chunks revealed
+			local area = {left_top = {position.x-32, position.y-32}, right_bottom = {position.x+32, position.y+32}} 
+			
+			local surface = getSquadSurface(squad)
+					
+			if not surface then 
+				LOGGER.log(string.format("ERROR: Surface for squad ID %d is missing or can't be determined! revealSquadChunks", squad.squadID))
+				return		
+			end 
+			squad.force.chart(surface, area) --reveal the chunk they are in. 
+		end
+		
+	end
+end
+
+
+function grabArtifactsBySquad(squad)
+	local force = squad.force
+	local chest = global.lootChests[force.name]
+	if not chest or not chest.valid then return end
+	
+	if squad and squad.unitGroup.valid then
+		if squad.members.size > 0 then  --if there are troops in a valid group in a valid squad. 
+			local position = squad.unitGroup.position
+			local areaToCheck = {left_top = {position.x-ARTIFACT_GRAB_RADIUS, position.y-ARTIFACT_GRAB_RADIUS}, right_bottom = {position.x+ARTIFACT_GRAB_RADIUS, position.y+ARTIFACT_GRAB_RADIUS}}
+			
+			local surface = getSquadSurface(squad)
+					
+			if not surface then 
+				LOGGER.log(string.format("ERROR: Surface for squad ID %d is missing or can't be determined! grabArtifacts", squad.squadID))
+				return		
+			end 
+			
+			local itemList = surface.find_entities_filtered{area=areaToCheck, type="item-entity"}
+			local artifactList = {}
+			for _, item in pairs(itemList) do
+				if item.valid and item.stack.valid then
+				
+					if string.find(item.stack.name,"artifact") then
+						table.insert(artifactList, {name = item.stack.name, count = item.stack.count}) --inserts the LuaSimpleStack table (of name and count) to the artifacts list for later use
+						
+						item.destroy()
+					
+					end
+				end
+			end
+			
+			
+			if artifactList ~= {} then
+				--player.print(string.format("Squad ID %d found %d artifacts!", squad.squadID , artifactCount))
+				--player.insert({name="alien-artifact", count = artifactCount})
+				
+				local cannotInsert = false
+				for _, itemStack in pairs(artifactList) do
+					if(chest.can_insert(itemStack)) then 
+						chest.insert(itemStack)
+					else
+						cannotInsert = true
+					end								
+				end
+				if cannotInsert then
+													
+					Game.print_force(force, "Your loot chest is too full! Cannot add more until there is room!")
+					
+				end
+			end
+		end
+	end
 end
 
 function grabArtifacts(force)
