@@ -1,3 +1,6 @@
+require("stdlib/game")
+require("stdlib/log/logger")
+
 function table.contains(table, element)
   for _, value in pairs(table) do
     if value == element then
@@ -119,3 +122,48 @@ function getClosestEntity(position, entityList)
 	return closestEntity
 
 end
+
+--input is a sub-table of global.updateTable, and is the table for a particular force
+function fillTableWithTickEntries(inputTable)
+	
+	for i = 1, 60 do
+	   inputTable[i] = {}
+	end
+
+end
+
+
+function getLeastFullTickTable(force)
+	
+	if not global.updateTable then global.updateTable = {} end
+	if not global.updateTable[force.name] then global.updateTable[force.name] = {} end
+	
+	--check if the table has the 1st tick in it. if not, then go through and fill the table
+	if not global.updateTable[force.name][1] then 
+		Game.print_all("filling update tick table")
+		fillTableWithTickEntries(global.updateTable[force.name]) -- make sure it has got the 0-59 tick entries initialized
+	end
+	
+	local forceTickTable = global.updateTable[force.name]
+	
+	--the forceTickTable consists of 60 entries, from 1 to 60 representing 60 ticks. 
+	--each entry is indexed by tick.
+	--each entry is another table, which consists of any number of squad references 
+	
+	local lowestCount = false
+	local lowestIndex = 0
+	
+	for tick, tickTable in pairs(forceTickTable) do
+	
+		local count = table.countNonNil(tickTable)
+		if not lowestCount or count < lowestCount then
+			lowestCount = count
+			lowestIndex = tick
+		end
+		
+	end
+	
+	return lowestIndex
+end
+
+
