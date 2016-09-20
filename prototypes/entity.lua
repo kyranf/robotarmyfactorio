@@ -9,7 +9,7 @@ droidSmgTint =  {r=0.8, g=1, b=1, a=1}
 droidFlameTint = {r=1.0, g=0.5, b=0.5, a=1}
 droidRocketTint = {r=0.8, g=0.8, b=1, a=1}
 droidRifleTint = {r=0.8, g=1, b=0.8, a=1}
-
+droidMapColour = {r = .05, g = .70, b = .29}
 function make_laser_sounds(volume)
     return
     {
@@ -107,6 +107,7 @@ local droid_smg =
 	pollution_to_join_attack = 0.0,
 	distraction_cooldown = 0,
     distance_per_frame =  0.05,
+	friendly_map_color = droidMapColour,
 	dying_explosion = "medium-explosion",
 	resistances =
     {
@@ -278,6 +279,7 @@ local droid_flame =
 	pollution_to_join_attack = 0.0,
 	distraction_cooldown = 0,
     distance_per_frame =  0.05,
+	friendly_map_color = droidMapColour,
 	dying_explosion = "medium-explosion",
 	resistances =
     {
@@ -445,6 +447,7 @@ local droid_rifle =
     sticker_box = {{-0.5, -0.5}, {0.5, 0.5}},
 	vision_distance = 30,
     movement_speed = 0.08,
+	friendly_map_color = droidMapColour,
 	minable = {hardness = 0.1, mining_time = 0.1, result = "droid-rifle"},
 	pollution_to_join_attack = 0.0,
 	distraction_cooldown = 0,
@@ -618,6 +621,7 @@ local droid_rocket =
     selection_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8, 0.8*droidscale}},
     sticker_box = {{-0.5, -0.5}, {0.5, 0.5}},
 	vision_distance = 30,
+	friendly_map_color = droidMapColour,
     movement_speed = 0.11,
 	minable = {hardness = 0.1, mining_time = 0.1, result = "droid-rocket"},
 	pollution_to_join_attack = 0.0,
@@ -772,6 +776,7 @@ local terminator =
     max_health = 300 * HEALTH_SCALAR,
     alert_when_damaged = false,
     healing_per_tick = 0.02,
+	friendly_map_color = droidMapColour,
     collision_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8*droidscale, 0.8*droidscale}},
     selection_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8, 0.8*droidscale}},
     sticker_box = {{-0.5, -0.5}, {0.5, 0.5}},
