@@ -155,20 +155,7 @@ function onTickHandler(event)
 	if not global.lastTick then
 		global.lastTick = 0
 	end
-	
-	
-	
-  -- has enough time elapsed to go through and set squad orders yet?
-  if event.tick > (global.lastTick + TICK_UPDATE_SQUAD_AI) then
-	
-	local forces = game.forces
-	local players = game.players -- list of players 
-	trimSquads(forces) -- does some quick maintenance of the squad tables. 
-
-	global.lastTick = event.tick
-	
-  end
-  
+	 
   
   runTableTickUpdates(event.tick) -- new function that uses the new tick table update method
   

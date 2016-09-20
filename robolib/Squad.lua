@@ -76,13 +76,13 @@ end
 
 -- checks that all entities in the "members" sub table are present in the unitgroup
 function checkMembersAreInGroup(squad)
-	
+	if not squad then LOGGER.log("tried to check a squad that doesn't exist!") return end
 	--tableIN.player.print("checking soldiers are in their squad's unitgroup")
 	--does some trimming of nil members if any have died
 	maintainTable(squad.members)
 
 	--make sure the unitgroup is even available, if it's not there for some reason, create it.
-	if not squad.unitGroup.valid then
+	if not squad.unitGroup or not squad.unitGroup.valid then
 		--LOGGER.log("unitgroup was invalid, making a new one")
 		local pos
 		for key, unit in pairs(squad.members) do
@@ -202,7 +202,7 @@ function trimSquad(squad)
 	if squad then
 
 		--player.print(string.format("squad %s, id %d, member size %d", squad, squad.squadID, squad.members.size))
-
+		local squadForce = squad.force
 		local removeThisSquad = false	
 		maintainTable(squad.members);
 
@@ -220,13 +220,13 @@ function trimSquad(squad)
 		if removeThisSquad then
 			if PRINT_SQUAD_DEATH_MESSAGES == 1 then
 			-- using stdlib, print message to entire force
-				Game.print_force(force, string.format("Squad %d is no more...", squad.squadID))
+				Game.print_force(squadForce, string.format("Squad %d is no more...", squad.squadID))
 
 			end
-			LOGGER.log(string.format("Squad id %d from force %s has died/lost all its members...", squad.squadID, force.name))
+			LOGGER.log(string.format("Squad id %d from force %s has died/lost all its members...", squad.squadID, squadForce.name))
 			
-			global.Squads[force.name][squad.squadID] = nil  --set the entire squad itself to nil
-			maintainTable(global.Squads[force.name])
+			global.Squads[squadForce.name][squad.squadID] = nil  --set the entire squad itself to nil
+			maintainTable(global.Squads[squadForce.name])
 		end
 	end
 end
@@ -304,7 +304,7 @@ function checkBattleAI(squad, squadSize)
 						if charted then
 							--player.print("Sending squad off to battle...")
 							--make sure squad is good, then set command
-							checkMembersAreInGroup(squad)
+
 							squad.command = commands.hunt -- sets the squad's high level role to hunt. not really used yet
 							squad.unitGroup.set_command({type=defines.command.attack_area, destination= nearestEnemy.position, radius=50, distraction=defines.distraction.by_anything})
 							squad.unitGroup.start_moving()
@@ -511,7 +511,7 @@ function sendSquadsToBattle(forces)
 									if charted then
 										--player.print("Sending squad off to battle...")
 										--make sure squad is good, then set command
-										checkMembersAreInGroup(squad)
+										
 										squad.command = commands.hunt
 										squad.unitGroup.set_command({type=defines.command.attack_area, destination= nearestEnemy.position, radius=50, distraction=defines.distraction.by_anything})
 										squad.unitGroup.start_moving()
