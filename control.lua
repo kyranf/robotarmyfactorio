@@ -334,8 +334,10 @@ function runTableTickUpdates(tick)
 		for i, squadref in pairs(global.updateTable[force.name][tickToProcess]) do
 			
 			if squadref and global.Squads[force.name][squadref] then
-				local squad = global.Squads[force.name][squadref]		
-				checkMembersAreInGroup(squad)
+				local squad = global.Squads[force.name][squadref]
+				trimSquad(squad) --if it's empty, but hasn't been trimmed yet, then checkMembersAreInGroup will not have a good time.
+				checkMembersAreInGroup(squad) -- if we have a squad with dudes in it, but they aren't in a unit_group, fix that.
+				
 				if squad.unitGroup and squad.unitGroup.valid then  --important for basically every AI command/routine
 					--LOGGER.log(string.format( "AI for squadref %d in tick table index %d is being executed now...", squadref, tickToProcess) )
 				--CHECK IF SQUAD IS A GUARD SQUAD, AND CHOOSE WHICH AI FUNCTION TO CALL

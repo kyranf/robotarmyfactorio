@@ -91,9 +91,12 @@ function checkMembersAreInGroup(squad)
 			end
 		end
 		
-		local surface = getSquadSurface(squad)
-		squad.unitGroup = surface.create_unit_group({position=pos, force=squad.force})
-		
+		if pos ~= nil then
+			local surface = getSquadSurface(squad)
+			squad.unitGroup = surface.create_unit_group({position=pos, force=squad.force})
+		else
+			return --gtfo, there is something wrong here
+		end
 	end
 	
 	::retryCheckMembership::
@@ -191,6 +194,41 @@ function getClosestSquadToPos(tableIN, position, maxRange)
 	
 	--game.players[1].print(string.format("closest squad found: %d tiles away from given position, ID %d", leastDist, leastDistSquadID))
 	return leastDistSquadID
+end
+
+
+function trimSquad(squad) 
+
+	if squad then
+
+		--player.print(string.format("squad %s, id %d, member size %d", squad, squad.squadID, squad.members.size))
+
+		local removeThisSquad = false	
+		maintainTable(squad.members);
+
+		local count = table.countValidElements(squad.members)			
+							
+		if count == 0 then
+			if squad.unitGroup.valid then
+				squad.unitGroup.destroy()
+			end
+			if squad.unitGroup then squad.unitGroup = nil end
+			removeThisSquad = true
+			
+		end
+
+		if removeThisSquad then
+			if PRINT_SQUAD_DEATH_MESSAGES == 1 then
+			-- using stdlib, print message to entire force
+				Game.print_force(force, string.format("Squad %d is no more...", squad.squadID))
+
+			end
+			LOGGER.log(string.format("Squad id %d from force %s has died/lost all its members...", squad.squadID, force.name))
+			
+			global.Squads[force.name][squad.squadID] = nil  --set the entire squad itself to nil
+			maintainTable(global.Squads[force.name])
+		end
+	end
 end
 
 function trimSquads(forces)
