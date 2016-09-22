@@ -49,7 +49,6 @@ function runTableTickUpdates(forces, tickProcessIndex)
             if not global_fixupTickTablesForForceName(force.name) then return end
 
             --for the current tick, look at the global table for that tick (mod 60) and any squad references in there.
-
             --LOGGER.log(string.format("Processing AI for AI tick %d of 60", tickProcessIndex))
             for i, squadref in pairs(global.updateTable[force.name][tickProcessIndex]) do
 
