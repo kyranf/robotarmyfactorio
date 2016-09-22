@@ -8,57 +8,6 @@ require("stdlib/log/logger")
 require("stdlib/game")
 
 
-function global_ensureTablesExist()
-    if not global.updateTable then global.updateTable = {} end
-    if not global.Squads then global.Squads = {} end
-end
-
-
-function global_fixupTickTablesForForceName(force_name)
-    if not global.updateTable[force_name] then global.updateTable[force_name] = {} end
-
-    --check if the table has the 1st tick in it. if not, then go through and fill the table
-    if not global.updateTable[force_name][1] then
-        Game.print_all("filling update tick table")
-        fillTableWithTickEntries(global.updateTable[force_name]) -- make sure it has got the 1-60 tick entries initialized
-    end
-
-    if not global.updateTable[force_name] or not global.Squads[force_name]  then
-        -- this is a more-or-less fatal error
-        Game.print_all("Update Table or squad table for force is missing! Can't run update functions - force name:")
-        Game.print_all(force_name)
-        if not global.updateTable[force_name] then
-            Game.print_all("missing update table...")
-        end
-
-        if not global.Squads[force_name] then
-            Game.print_all("missing squad table...")
-        end
-        return false
-    end
-    return true
-end
-
-
-function updateForceSquad(force, squad)
-   trimSquad(squad) --if it's empty, but hasn't been trimmed yet, then checkMembersAreInGroup will not have a good time.
-   checkMembersAreInGroup(squad) -- if we have a squad with dudes in it, but they aren't in a unit_group, fix that.
-
-   if squad.unitGroup and squad.unitGroup.valid then  --important for basically every AI command/routine
-      --LOGGER.log(string.format( "AI for squadref %d in tick table index %d is being executed now...", squadref, tickProcessIndex) )
-      --CHECK IF SQUAD IS A GUARD SQUAD, AND CHOOSE WHICH AI FUNCTION TO CALL
-      if squad.command == commands.guard then
-         checkGuardAI(squad) --remove checks in this function for command and validity
-      else
-         checkBattleAI(squad, getSquadHuntSize(force)) --remove checks in this function for validity and possibly command
-      end
-
-      revealChunksBySquad(squad)
-      grabArtifactsBySquad(squad)
-   end
-end
-
-
 function runTableTickUpdates(forces, tickProcessIndex)
     global_ensureTablesExist()
 
@@ -71,7 +20,9 @@ function runTableTickUpdates(forces, tickProcessIndex)
             --LOGGER.log(string.format("Processing AI for AI tick %d of 60", tickProcessIndex))
             for i, squadref in pairs(global.updateTable[force.name][tickProcessIndex]) do
                 if squadref and global.Squads[force.name][squadref] then
-                    updateForceSquad(force, global.Squads[force.name][squadref])
+                    -- local squad = global.Squads[force.name][squadref]
+                    -- if not squad.force then squad.force = force
+                    updateSquad(global.Squads[force.name][squadref])
                 end
             end
         end -- if enemy or neutral, do nothing for this force
