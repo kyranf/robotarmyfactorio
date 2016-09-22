@@ -12,45 +12,45 @@ LOGGER = Logger.new("robotarmy", "robot_army_logs", true, {log_ticks = true})
 global.runOnce = false
 
 function init_robotarmy()
-	LOGGER.log("Robot Army mod Init script running...")
-	if not global.Squads then
-		global.Squads = {}
-	end
+    LOGGER.log("Robot Army mod Init script running...")
+    if not global.Squads then
+        global.Squads = {}
+    end
 
-	if not global.uniqueSquadId then
-		global.uniqueSquadId = {}
-	end
+    if not global.uniqueSquadId then
+        global.uniqueSquadId = {}
+    end
 
-	if not global.DroidAssemblers then
-		global.DroidAssemblers = {}
-	end
+    if not global.DroidAssemblers then
+        global.DroidAssemblers = {}
+    end
 
-	if not global.droidCounters then
-		global.droidCounters = {}
-	end
+    if not global.droidCounters then
+        global.droidCounters = {}
+    end
 
-	if not global.lootChests then
-		global.lootChests = {}
-	end
+    if not global.lootChests then
+        global.lootChests = {}
+    end
 
-	if not global.rallyBeacons then
-		global.rallyBeacons = {}
-	end
+    if not global.rallyBeacons then
+        global.rallyBeacons = {}
+    end
 
-	if not global.droidGuardStations then
-		global.droidGuardStations = {}
-	end
+    if not global.droidGuardStations then
+        global.droidGuardStations = {}
+    end
 
-	if not global.updateTable then
-		global.updateTable = {}
-	end
+    if not global.updateTable then
+        global.updateTable = {}
+    end
 
-	--deal with player force as default set-up process
+    --deal with player force as default set-up process
 
-	handleForceCreated(game.forces["player"])
-	handleForceCreated(game.forces["enemy"])
-	handleForceCreated(game.forces["neutral"])
-	LOGGER.log("Robot Army mod Init script finished...")
+    handleForceCreated(game.forces["player"])
+    handleForceCreated(game.forces["enemy"])
+    handleForceCreated(game.forces["neutral"])
+    LOGGER.log("Robot Army mod Init script finished...")
 end
 
 script.on_init(init_robotarmy)
