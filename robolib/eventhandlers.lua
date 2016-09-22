@@ -40,6 +40,25 @@ function global_fixupTickTablesForForceName(force_name)
 end
 
 
+function updateForceSquad(force, squad)
+   trimSquad(squad) --if it's empty, but hasn't been trimmed yet, then checkMembersAreInGroup will not have a good time.
+   checkMembersAreInGroup(squad) -- if we have a squad with dudes in it, but they aren't in a unit_group, fix that.
+
+   if squad.unitGroup and squad.unitGroup.valid then  --important for basically every AI command/routine
+      --LOGGER.log(string.format( "AI for squadref %d in tick table index %d is being executed now...", squadref, tickProcessIndex) )
+      --CHECK IF SQUAD IS A GUARD SQUAD, AND CHOOSE WHICH AI FUNCTION TO CALL
+      if squad.command == commands.guard then
+         checkGuardAI(squad) --remove checks in this function for command and validity
+      else
+         checkBattleAI(squad, getSquadHuntSize(force)) --remove checks in this function for validity and possibly command
+      end
+
+      revealChunksBySquad(squad)
+      grabArtifactsBySquad(squad)
+   end
+end
+
+
 function runTableTickUpdates(forces, tickProcessIndex)
     global_ensureTablesExist()
 
@@ -51,24 +70,8 @@ function runTableTickUpdates(forces, tickProcessIndex)
             --for the current tick, look at the global table for that tick (mod 60) and any squad references in there.
             --LOGGER.log(string.format("Processing AI for AI tick %d of 60", tickProcessIndex))
             for i, squadref in pairs(global.updateTable[force.name][tickProcessIndex]) do
-
                 if squadref and global.Squads[force.name][squadref] then
-                    local squad = global.Squads[force.name][squadref]
-                    trimSquad(squad) --if it's empty, but hasn't been trimmed yet, then checkMembersAreInGroup will not have a good time.
-                    checkMembersAreInGroup(squad) -- if we have a squad with dudes in it, but they aren't in a unit_group, fix that.
-
-                    if squad.unitGroup and squad.unitGroup.valid then  --important for basically every AI command/routine
-                        --LOGGER.log(string.format( "AI for squadref %d in tick table index %d is being executed now...", squadref, tickProcessIndex) )
-                        --CHECK IF SQUAD IS A GUARD SQUAD, AND CHOOSE WHICH AI FUNCTION TO CALL
-                        if squad.command == commands.guard then
-                            checkGuardAI(squad) --remove checks in this function for command and validity
-                        else
-                            checkBattleAI(squad, getSquadHuntSize(force)) --remove checks in this function for validity and possibly command
-                        end
-
-                        revealChunksBySquad(squad)
-                        grabArtifactsBySquad(squad)
-                    end
+                    updateForceSquad(force, global.Squads[force.name][squadref])
                 end
             end
         end -- if enemy or neutral, do nothing for this force
