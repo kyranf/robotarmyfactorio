@@ -4,6 +4,8 @@ require("prototypes.DroidUnitList")
 require("stdlib/game")
 require("stdlib/log/logger")
 require("robolib.Squad")
+
+
 --gets an offset spawning location for an entity (droid assembler)
 -- uses surface.find_non_colliding_position() API call here, to check for a small square around entPos and return the result of that function instead.
 -- this will help avoid getting units stuck in stuff. If that function returns nil, then we have problems so try to mention that to whoever call by ret -1
@@ -44,6 +46,28 @@ function getDroidSpawnLocation(entity)
     end
 end
 
+
+function mergeSquads(squadA, squadB)
+	-- confirm that these can reasonably be merged
+	if squadA.player ~= squadB.player or
+		squadA.force ~= squadB.force
+	then return nil end
+
+	squadB.unitGroup.destroy()  -- do this first to see if it helps us move members over
+	for key, soldier in pairs(squadB.members) do
+		if key ~= "size" then
+			if soldier and soldier.valid then
+				addMemberToSquad(squadA, soldier)
+			end
+		end
+	end
+
+	checkMembersAreInGroup(squadA)
+	deleteSquad(squadB)
+	return squadA
+end
+
+
 --entity is the guard station
 function getGuardSpawnLocation(entity)
     local entPos = entity.position
@@ -56,6 +80,66 @@ function getGuardSpawnLocation(entity)
         return -1 --an error we can catch later
     end
     return finalPos
+end
+
+
+--input is table of squads (global.Squads[force.name]), and player to find closest to
+function getClosestSquad(tableIN, player, maxRange)
+
+    local leastDist = maxRange
+    local leastDistSquadID = nil
+
+    for key, squad in pairs(tableIN) do
+        --player.print("checking soldiers are in unitgroup...")
+        checkMembersAreInGroup(squad)
+        local distance = util.distance(player.position, squad.unitGroup.position)
+        if distance <= leastDist then
+            leastDistSquadID = squad.squadID
+            leastDist = distance
+        end
+
+    end
+
+    if (leastDist == maxRange or leastDistSquadID == nil) then
+        --player.print("getClosestSquad - no squad found or squad too far away")
+        return nil
+    end
+
+    --player.print(string.format("closest squad found: %d tiles away from player", leastDist))
+    return leastDistSquadID
+end
+
+
+--input is table of squads (global.Squads[force.name]), and position to find closest to
+function getClosestSquadToPos(tableIN, position, maxRange, ignore_squad, only_with_squad_command)
+
+    local leastDist = maxRange
+	local closest_squad = nil
+
+    for key, squad in pairs(tableIN) do
+        if squad and squad.unitGroup and squad.unitGroup.valid then
+			if ignore_squad and squad == ignore_squad then
+				goto continue
+			end
+			if only_with_squad_command and only_with_squad_command ~= squad.command then
+				goto continue
+			end
+            local distance = util.distance(position, squad.unitGroup.position)
+            if distance <= leastDist then
+                closest_squad = squad
+                leastDist = distance
+            end
+        end
+		::continue::
+    end
+
+    if (leastDist >= maxRange or closest_squad == nil) then
+        LOGGER.log("getClosestSquadToPos - no squad found or squad too far away")
+        return nil
+    end
+
+    --game.players[1].print(string.format("closest squad found: %d tiles away from given position, ID %d", leastDist, leastDistSquadID))
+    return closest_squad
 end
 
 
@@ -229,7 +313,7 @@ function doCounterUpdate()
                 } --end parameters table
             }-- end circuitParams
 
-            maintainTable(global.droidCounters[gameForce.name])
+            removeNilsFromTable(global.droidCounters[gameForce.name])
 
             for _, counter in pairs(global.droidCounters[gameForce.name]) do
                 if(counter.valid) then
@@ -487,56 +571,6 @@ function handleBuiltDroidCounter(event)
 end
 
 
-function doBeaconUpdate()
-    if global.Squads then
-        trimSquads(game.forces)
-        for _,force in pairs(game.forces) do
-            if global.Squads[force.name] then
-                --if this force has any rally beacons in its table
-                if(global.rallyBeacons and global.rallyBeacons[force.name] and table.countValidElements(global.rallyBeacons[force.name]) >= 1) then
-                    for _, squad in pairs(global.Squads[force.name]) do
-                        if squad and squad.unitGroup and squad.unitGroup.valid then
-                            if squad.command ~= commands.guard and squad.command ~= commands.patrol then
-
-                                --find nearest rally pole to squad position and send them there.
-                                local squadPos = squad.unitGroup.position
-                                local closestRallyBeacon = getClosestEntity(squadPos, global.rallyBeacons[force.name]) --find closest rallyBeacon to move towards
-                                local beaconPos = closestRallyBeacon.position
-                                local surface = squad.unitGroup.surface
-                                beaconPos.x = beaconPos.x+2
-                                beaconPos.y = beaconPos.y+2
-                                local dist = util.distance(beaconPos, squad.unitGroup.position)
-                                if(dist >= 20) then
-                                    --give them command to move.
-                                    squad.rally = true
-                                    squad.unitGroup.destroy()
-                                    checkMembersAreInGroup(squad) --this recreates the unitgroup and re-adds the members
-                                    squad.unitGroup.set_command({type=defines.command.go_to_location, destination=beaconPos, distraction=defines.distraction.none})
-                                    squad.unitGroup.start_moving()
-                                    --else if(dist > 20 ) then
-                                    --  squad.rally = nil
-                                end
-
-                            end
-                        end
-                    end
-                else
-                    --if no rally beacons, make sure no squads are stuck with rally == true
-                    for _, squad in pairs(global.Squads[force.name]) do
-                        if squad and squad.unitGroup and squad.unitGroup.valid then
-                            if squad.rally == true then
-                                squad.rally = false
-
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-end
-
-
 function handleBuiltRallyBeacon(event)
     local entity = event.created_entity
     local entityForce = entity.force.name
@@ -566,21 +600,22 @@ function handleDroidSpawned(event)
         global.Squads[force.name] = {}
     end
 
-    --trimSquads(game.players) -- maintain squad tables before checking for distance to nearest squad
-
-    local squadref = getClosestSquadToPos(global.Squads[force.name], entity.position, SQUAD_CHECK_RANGE)
+	local squadref = nil
+    local closest_squad = getClosestSquadToPos(global.Squads[force.name], entity.position, SQUAD_CHECK_RANGE)
+	if closest_squad then
+		squadref = closest_squad.squadID
+	end
     if(getSquadSurface(global.Squads[force.name][squadref]) ~= entity.surface) then
         squadref = nil  --we cannot allow a squad to be joined if it's on the wrong surface
     end
 
-    if  not squadref then
+    if not squadref then
         --if we didnt find a squad nearby, create one
         squadref = createNewSquad(global.Squads[force.name], player, entity)
     end
 
-    addMember(global.Squads[force.name][squadref],entity)
+    addMemberToSquad(global.Squads[force.name][squadref], entity)
     --checkMembersAreInGroup(global.Squads[player.force.name][squadref])
-    global.Squads[entity.force.name][squadref].unitGroup.add_member(entity)
 
     --code to handle adding new member to a squad that is guarding/patrolling
     if event.guard == true then
@@ -616,7 +651,7 @@ function handleGuardStationPlaced(event)
     end
 
     table.insert(global.droidGuardStations[force.name], entity)
-    maintainTable(global.droidGuardStations[force.name]) -- helps remove old invalid/nil entries.
+    removeNilsFromTable(global.droidGuardStations[force.name]) -- helps remove old invalid/nil entries.
 end
 
 
@@ -669,4 +704,57 @@ function global_fixupTickTablesForForceName(force_name)
         return false
     end
     return true
+end
+
+
+function global_findClosestForceAssemblerToPosition(position, force_name)
+    local distance = 999999
+    local entity = nil
+    --check every possible droid assembler in that force and return the one with shortest distance
+
+    if global.DroidAssemblers and global.DroidAssemblers[force_name] then
+        for _, droidAss in pairs(global.DroidAssemblers[force_name]) do
+
+            --distance between the droid assembler and the squad
+            if droidAss.valid then
+                local dist = util.distance(droidAss.position, position)
+                if dist <= distance then
+                    entity = droidAss
+                    distance = dist
+                end
+            end
+        end
+    else
+        player.print("Apparently there are no droid assemblers to retreat to?")
+    end
+    return entity, distance
+end
+
+
+--checks if the inventory passed contains a spawnable droid item type listed in DroidUnitList.lua
+function containsSpawnableDroid(inv)
+    --LOGGER.log("checking spawnable droid")
+    local itemList = inv.get_contents()
+
+    if itemList then
+        for item, count in pairs(itemList) do
+            --LOGGER.log(string.format("item inv list %s , %s", item, count))
+            local itemName = convertToMatchable(item)
+            --LOGGER.log(item)
+
+            for i, j in pairs(spawnable) do
+                --LOGGER.log(string.format("spawnable list %s , %s", i, j))
+                local spawnable = convertToMatchable(j)
+                --LOGGER.log(spawnable)
+                if(string.find(itemName, spawnable)) then --example, in "droid-smg-dummy" find "droid-smg", but the names have been adjusted to replace '-' with '0' to allow string.find to work. turns out hyphens are an escape charater, THANKS LUA!!
+                    --convert to spawnable entity name
+                    local realName = convertToEntityNames(spawnable)
+                    return realName -- should return the name of the item as a string which is then spawnable. eg "droid-smg"
+                end
+                -- if the entry 'j' is found in the item name for example droid-smg is found in droid-smg-dummy
+            end
+        end
+    else
+        return nil -- we failed to get the contents
+    end
 end
