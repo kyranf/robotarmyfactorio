@@ -47,27 +47,6 @@ function getDroidSpawnLocation(entity)
 end
 
 
-function mergeSquads(squadA, squadB)
-	-- confirm that these can reasonably be merged
-	if squadA.player ~= squadB.player or
-		squadA.force ~= squadB.force
-	then return nil end
-
-	squadB.unitGroup.destroy()  -- do this first to see if it helps us move members over
-	for key, soldier in pairs(squadB.members) do
-		if key ~= "size" then
-			if soldier and soldier.valid then
-				addMemberToSquad(squadA, soldier)
-			end
-		end
-	end
-
-	checkMembersAreInGroup(squadA)
-	deleteSquad(squadB)
-	return squadA
-end
-
-
 --entity is the guard station
 function getGuardSpawnLocation(entity)
     local entPos = entity.position
@@ -83,64 +62,6 @@ function getGuardSpawnLocation(entity)
 end
 
 
---input is table of squads (global.Squads[force.name]), and player to find closest to
-function getClosestSquad(tableIN, player, maxRange)
-
-    local leastDist = maxRange
-    local leastDistSquadID = nil
-
-    for key, squad in pairs(tableIN) do
-        --player.print("checking soldiers are in unitgroup...")
-        checkMembersAreInGroup(squad)
-        local distance = util.distance(player.position, squad.unitGroup.position)
-        if distance <= leastDist then
-            leastDistSquadID = squad.squadID
-            leastDist = distance
-        end
-
-    end
-
-    if (leastDist == maxRange or leastDistSquadID == nil) then
-        --player.print("getClosestSquad - no squad found or squad too far away")
-        return nil
-    end
-
-    --player.print(string.format("closest squad found: %d tiles away from player", leastDist))
-    return leastDistSquadID
-end
-
-
---input is table of squads (global.Squads[force.name]), and position to find closest to
-function getClosestSquadToPos(tableIN, position, maxRange, ignore_squad, only_with_squad_command)
-
-    local leastDist = maxRange
-	local closest_squad = nil
-
-    for key, squad in pairs(tableIN) do
-        if squad and squad.unitGroup and squad.unitGroup.valid then
-			if ignore_squad and squad == ignore_squad then
-				goto continue
-			end
-			if only_with_squad_command and only_with_squad_command ~= squad.command then
-				goto continue
-			end
-            local distance = util.distance(position, squad.unitGroup.position)
-            if distance <= leastDist then
-                closest_squad = squad
-                leastDist = distance
-            end
-        end
-		::continue::
-    end
-
-    if (leastDist >= maxRange or closest_squad == nil) then
-        LOGGER.log("getClosestSquadToPos - no squad found or squad too far away")
-        return nil
-    end
-
-    --game.players[1].print(string.format("closest squad found: %d tiles away from given position, ID %d", leastDist, leastDistSquadID))
-    return closest_squad
-end
 
 
 --function to count nearby droids. counts in a 32 tile radius, which is 1 chunk.
@@ -584,55 +505,6 @@ function handleBuiltRallyBeacon(event)
         table.insert(global.rallyBeacons[entityForce], entity)
     else
         table.insert(global.rallyBeacons[entityForce], entity)
-    end
-end
-
-
-function handleDroidSpawned(event)
-    local entity = event.created_entity
-    local player = game.players[event.player_index]
-    local force = entity.force
-    --player.print(string.format("Processing new entity %s spawned by player %s", entity.name, player.name) )
-    local position = entity.position
-
-    --if this is the first time we are using the player's tables, make it
-    if not global.Squads[force.name] then
-        global.Squads[force.name] = {}
-    end
-
-	local squadref = nil
-    local closest_squad = getClosestSquadToPos(global.Squads[force.name], entity.position, SQUAD_CHECK_RANGE)
-	if closest_squad then
-		squadref = closest_squad.squadID
-	end
-    if(getSquadSurface(global.Squads[force.name][squadref]) ~= entity.surface) then
-        squadref = nil  --we cannot allow a squad to be joined if it's on the wrong surface
-    end
-
-    if not squadref then
-        --if we didnt find a squad nearby, create one
-        squadref = createNewSquad(global.Squads[force.name], player, entity)
-    end
-
-    addMemberToSquad(global.Squads[force.name][squadref], entity)
-    --checkMembersAreInGroup(global.Squads[player.force.name][squadref])
-
-    --code to handle adding new member to a squad that is guarding/patrolling
-    if event.guard == true then
-        local squadOfInterest = global.Squads[force.name][squadref]
-        if squadOfInterest.command ~= commands.guard then
-            squadOfInterest.command = commands.guard
-            squadOfInterest.home = event.guardPos
-            --game.players[1].print(string.format("Setting guard squad to wander around %s", event.guardPos))
-
-            --check if the squad it just joined is patrolling, if it is, don't force any more move commands because it will be disruptive!
-
-            if not squadOfInterest.patrolState or (squadOfInterest.patrolState and squadOfInterest.patrolState.currentWaypoint == -1) then
-                --Game.print_force(entity.force, "Setting move command to squad home..." )
-                squadOfInterest.unitGroup.set_command({type=defines.command.wander, destination = squadOfInterest.home, distraction=defines.distraction.by_enemy})
-                squadOfInterest.unitGroup.start_moving()
-            end
-        end
     end
 end
 
