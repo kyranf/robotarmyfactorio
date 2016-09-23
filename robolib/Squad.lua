@@ -309,7 +309,7 @@ function global_findClosestForceAssemblerToPosition(position, force_name)
             end
         end
     else
-        player.print("Apparently there are no droid assemblers to retreat to?")
+        --Game.print_force(game.forces[force_name], "Apparently there are no droid assemblers to retreat to?")
     end
     return entity, distance
 end
@@ -337,7 +337,7 @@ function orderSquadToRetreat(squad)
                     squad.unitGroup.set_command({type=defines.command.go_to_location,
                                                  destination=location,
                                                  radius=DEFAULT_SQUAD_RADIUS,
-                                                 distraction=defines.distraction.by_anything})
+                                                 distraction=defines.distraction.by_enemy})
                     squad.unitGroup.start_moving()
                 else
                     -- player.print("Couldn't get location for droid spawn location!!")
@@ -381,10 +381,12 @@ function orderSquadToHunt(squad)
             squad.unitGroup.set_command({type=defines.command.attack_area, destination= nearestEnemy.position, radius=50, distraction=defines.distraction.by_anything})
             squad.unitGroup.start_moving()
         else
-            player.print("enemy found but in un-charted area...")
+            Game.print_force(squad.force, "enemy found but in un-charted area...") -- this is debug spam - if we see this, deal with it properly in code and remove this
         end
     else
-        player.print("cannot find nearby target!!")
+        --Game.print_force(squad.force, "cannot find nearby target!!") -- this is debug spam - if we see this, deal with it properly in code and remove this
+        -- update - I encountered this on a fresh start map and placing down units before any biters (or chunks they live in) had been generated yet. 
+        -- we need an "idle" behaviour I think, such as returning to the squad "home" which is set when they are first made at an assembler, or the player's position. 
     end
 end
 
@@ -400,11 +402,12 @@ function checkBattleAI(squad, squadSize)
                 and
             squad.command ~= commands.guard) then
 
+            local retreatSize = getSquadRetreatSize(squad.force) --this grabs the current retreat size setting - either default from config file, or in-game override from settings module
             local count = table.countValidElements(squad.members)
             if count then
                 if (count >= squadSize or
                         (squad.command == commands.hunt and
-                             count > SQUAD_SIZE_MIN_BEFORE_RETREAT )
+                             count > retreatSize )
                     and (squad.rally == false or squad.rally == nil)) then
 
                     orderSquadToHunt(squad)
@@ -412,7 +415,10 @@ function checkBattleAI(squad, squadSize)
                     orderSquadToRetreat(squad)
                 end
             else
-                player.print("No count available for group!!!")
+                --if we see this happening in game, should deal with it and remove this. 
+                --during the tick this event happens, the "trim squad" should have dealt with this
+                Game.print_force(squad.force, "No count available for group!!!") 
+                    
             end
         end
     end
