@@ -564,7 +564,12 @@ function global_fixupTickTablesForForceName(force_name)
 
     if not global.updateTable[force_name] or not global.Squads[force_name]  then
         -- this is a more-or-less fatal error
-        Game.print_all("Update Table or squad table for force is missing! Can't run update functions - force name:")
+        -- in the condition of a new game, and you haven't placed a squad yet, can have issues with player force not having the squad table init yet.
+        global.Squads[force_name] = {}
+        return false
+
+        --disabling below code for now
+        --[[Game.print_all("Update Table or squad table for force is missing! Can't run update functions - force name:")
         Game.print_all(force_name)
         if not global.updateTable[force_name] then
             Game.print_all("missing update table...")
@@ -573,7 +578,7 @@ function global_fixupTickTablesForForceName(force_name)
         if not global.Squads[force_name] then
             Game.print_all("missing squad table...")
         end
-        return false
+        return false]]--
     end
     return true
 end
@@ -597,7 +602,7 @@ function global_findClosestForceAssemblerToPosition(position, force_name)
             end
         end
     else
-        player.print("Apparently there are no droid assemblers to retreat to?")
+        Game.print_force(game.forces[force_name], "Apparently there are no droid assemblers to retreat to?")
     end
     return entity, distance
 end

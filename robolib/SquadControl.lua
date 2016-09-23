@@ -34,7 +34,7 @@ function orderSquadToAssembler(squad, assembler)
 		squad.unitGroup.set_command({type=defines.command.go_to_location,
 									 destination=location,
 									 radius=DEFAULT_SQUAD_RADIUS,
-									 distraction=defines.distraction.by_anything})
+									 distraction=defines.distraction.by_enemy})
 		squad.unitGroup.start_moving()
 	else
 		-- player.print("Couldn't get location for droid spawn location!!")
@@ -85,8 +85,6 @@ end
 
 
 function orderSquadToHunt(squad)
-    local player = game.players[1] -- for debug printing
-
     --get nearest enemy unit to the squad.
     --find the nearest enemy to the squad that is an enemy of the player's force, and max radius of 5000 tiles (10k tile diameter)
     local surface = getSquadSurface(squad)
@@ -110,10 +108,12 @@ function orderSquadToHunt(squad)
             squad.unitGroup.set_command({type=defines.command.attack_area, destination= nearestEnemy.position, radius=50, distraction=defines.distraction.by_anything})
             squad.unitGroup.start_moving()
         else
-            player.print("enemy found but in un-charted area...")
+            Game.print_force(squad.force, "enemy found but in un-charted area...") -- this is debug spam - if we see this, deal with it properly in code and remove this
         end
     else
-        player.print("cannot find nearby target!!")
+        --Game.print_force(squad.force, "cannot find nearby target!!") -- this is debug spam - if we see this, deal with it properly in code and remove this
+        -- update - I encountered this on a fresh start map and placing down units before any biters (or chunks they live in) had been generated yet.
+        -- we need an "idle" behaviour I think, such as returning to the squad "home" which is set when they are first made at an assembler, or the player's position.
     end
 end
 
