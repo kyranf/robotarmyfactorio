@@ -31,7 +31,7 @@ function createNewSquad(tableIN, player, entity)
     end
 
     --get next unique ID number and increment it
-    local squadRef = global.uniqueSquadId[entity.force.name]
+    local squadID = global.uniqueSquadId[entity.force.name]
     global.uniqueSquadId[entity.force.name] = global.uniqueSquadId[entity.force.name] + 1
 
     local newsquad = shallowcopy(global.SquadTemplate)
@@ -41,19 +41,19 @@ function createNewSquad(tableIN, player, entity)
     newsquad.home = entity.position
     newsquad.surface = entity.surface
     newsquad.unitGroup = entity.surface.create_unit_group({position=entity.position, force=entity.force}) --use the entity who is causing the new squad to be formed, for position.
-    newsquad.squadID = squadRef
+    newsquad.squadID = squadID
     newsquad.patrolPoint1 = newsquad.home
     newsquad.patrolPoint2 = newsquad.home
-    newsquad.members = {size = -1}
+    newsquad.members = {}
     newsquad.command = commands.assemble
+	newsquad.numMembers = 0
 
-    tableIN[squadRef] = newsquad
+    tableIN[squadID] = newsquad
 
     local tick = getLeastFullTickTable(entity.force) --get the least utilised tick in the tick table
-
-    table.insert(global.updateTable[entity.force.name][tick], squadRef) --insert this squad reference to the least used tick for running its AI
-    LOGGER.log(string.format( "Added squadref %d for AI update to tick table index %d", squadRef, tick) )
-    return squadRef
+    table.insert(global.updateTable[entity.force.name][tick], squadID) --insert this squad reference to the least used tick for running its AI
+    LOGGER.log(string.format( "Added squadref %d for AI update to tick table index %d", squadID, tick) )
+    return squad
 end
 
 
@@ -64,12 +64,8 @@ function addMemberToSquad(squad, soldier)
 	if squad and soldier then
 		table.insert(squad.members, soldier)
 		squad.unitGroup.add_member(soldier)
-		--catch for initial condition
-		if (squad.members.size == -1) then
-			squad.members.size = 0
-		end
 
-		squad.members.size = squad.members.size + 1
+		squad.numMembers = squad.numMembers + 1
 	else
 		Game.print_force(soldier.force.name, "Tried to addMember to invalid table!")
 	end
@@ -91,9 +87,8 @@ function mergeSquads(squadA, squadB)
 		end
 	end
 
-	checkMembersAreInGroup(squadA)
 	deleteSquad(squadB)
-	return squadA
+	return validateSquadIntegrity(trimSquad(squadA))
 end
 
 
@@ -105,13 +100,13 @@ function getClosestSquad(tableIN, player, maxRange)
 
     for key, squad in pairs(tableIN) do
         --player.print("checking soldiers are in unitgroup...")
-        checkMembersAreInGroup(squad)
-        local distance = util.distance(player.position, squad.unitGroup.position)
-        if distance <= leastDist then
-            leastDistSquadID = squad.squadID
-            leastDist = distance
-        end
-
+        if validateSquadIntegrity(squad) then
+			local distance = util.distance(player.position, squad.unitGroup.position)
+			if distance <= leastDist then
+				leastDistSquadID = squad.squadID
+				leastDist = distance
+			end
+		end
     end
 
     if (leastDist == maxRange or leastDistSquadID == nil) then
@@ -125,16 +120,16 @@ end
 
 
 --input is table of squads (global.Squads[force.name]), and position to find closest to
-function getClosestSquadToPos(tableIN, position, maxRange, ignore_squad, only_with_squad_command)
-
+function getClosestSquadToPos(forceSquads, position, maxRange, ignore_squad, only_with_squad_command)
     local leastDist = maxRange
 	local closest_squad = nil
 
-    for key, squad in pairs(tableIN) do
-        if squad and squad.unitGroup and squad.unitGroup.valid then
-			if ignore_squad and squad == ignore_squad then
-				goto continue
-			end
+    for key, squad in pairs(forceSquads) do
+		if ignore_squad and squad == ignore_squad then
+			goto continue
+		end
+		squad = validateSquadIntegrity(squad)
+        if squad then
 			if only_with_squad_command and only_with_squad_command ~= squad.command then
 				goto continue
 			end
@@ -158,16 +153,18 @@ end
 
 
 -- checks that all entities in the "members" sub table are present in the unitgroup
-function checkMembersAreInGroup(squad)
-    if not squad then LOGGER.log("tried to check a squad that doesn't exist!") return end
-    -- removeNilsFromTable(squad.members)
+function validateSquadIntegrity(squad)
+    if not squad then LOGGER.log("tried to validate a squad that doesn't exist!") return nil end
+    if not squad.members then LOGGER.log("Tried to validate a squad with no member table!") return nil end
+
+	squad.members.size = nil -- removing old 'size' table entry
 
     --make sure the unitgroup is even available, if it's not there for some reason, create it.
     if not squad.unitGroup or not squad.unitGroup.valid then
         --LOGGER.log("unitgroup was invalid, making a new one")
-        local pos
+        local pos = nil
         for key, unit in pairs(squad.members) do
-            if key ~= "size" and unit and unit.valid then
+            if unit and unit.valid then
                 pos = unit.position
             end
         end
@@ -176,57 +173,55 @@ function checkMembersAreInGroup(squad)
             local surface = getSquadSurface(squad)
             squad.unitGroup = surface.create_unit_group({position=pos, force=squad.force})
         else
-            return --gtfo, there is something wrong here
+			Game.print_force(squad.force, "Bad error -- cannot find position for any unit in squad.")
+            return nil --gtfo, there is something wrong here
         end
     end
 
     ::retryCheckMembership::
     for key, soldier in pairs(squad.members) do
-
-        if(key ~= "size") then
-            if not soldier then
-                table.remove(squad.members, key)
-            elseif not table.contains(squad.unitGroup.members, soldier) then
-                if soldier.valid then
-
-                    if soldier.surface == squad.unitGroup.surface then
-                        --tableIN.player.print(string.format("adding soldier to squad ID %d's unitgroup", tableIN.squadID))
-                        squad.unitGroup.add_member(soldier)
-                    else
-                        --LOGGER.log("Destroying unit group, and creating a replacement on the correct surface")
-                        squad.unitGroup.destroy()
-                        soldier.surface.create_unit_group({position=soldier.position, force=soldier.force})
-                        --goto retryCheckMembership
-                    end
-                else
-                    --LOGGER.log(string.format("removing member from squad id %d member list", tableIN.squadID))
-                    table.remove(squad.members, key)
-                end
-            end
-        end
+		if not soldier or not soldier.valid then
+			squad.members[key] = nil -- this also happens in trimSquad
+		elseif not table.contains(squad.unitGroup.members, soldier) then
+			if soldier.surface == squad.unitGroup.surface then
+				--tableIN.player.print(string.format("adding soldier to squad ID %d's unitgroup", tableIN.squadID))
+				squad.unitGroup.add_member(soldier)
+			else
+				--LOGGER.log("Destroying unit group, and creating a replacement on the correct surface")
+				squad.unitGroup.destroy()
+				soldier.surface.create_unit_group({position=soldier.position, force=soldier.force})
+				--goto retryCheckMembership
+			end
+		end
     end
 
     --now that we've been removing and adding members, lets do a re-count of squad members.
-    squad.members.size = table.countValidElements(squad.members) -- refresh the member count in the squad to accurately reflect the number of soldiers in there.
+    squad.numMembers = table.countValidElements(squad.members) -- refresh the member count in the squad to accurately reflect the number of soldiers in there.
+	return squad
 end
 
 
 function trimSquad(squad, print_msg)
     if squad then
-        --player.print(string.format("squad %s, id %d, member size %d", squad, squad.squadID, squad.members.size))
-        local removeThisSquad = true
+        --player.print(string.format("trimming squad %s, id %d, member size %d", squad, squad.squadID, squad.numMembers))
+		squad.numMembers = 0
 		if squad.members then
-			-- removeNilsFromTable(squad.members)
-			squad.numMembers = table.countValidElements(squad.members)
-			if squad.numMembers > 0 then removeThisSquad = false end
+			squad.members.size = nil -- removing old 'size' table entry
+			for key, droid in pairs(squad.members) do
+				if droid and droid.valid then
+					squad.numMembers = squad.numMembers + 1
+				else
+					-- Game.print_force(squad.force, "trimSquad: removing invalid droid from squad.")
+					squad.members[key] = nil
+				end
+			end
 		end
-
-        if removeThisSquad then
+		if squad.numMembers == 0 then
 			deleteSquad(squad, print_msg)
-			return false
+			return nil
 		end
     end
-	return true
+	return squad
 end
 
 
@@ -265,7 +260,7 @@ end
 
 function revealChunksBySquad(squad)
     if squad and squad.unitGroup and squad.unitGroup.valid then
-        if squad.members.size > 0 then  --if there are troops in a valid group in a valid squad.
+        if squad.numMembers > 0 then  --if there are troops in a valid group in a valid squad.
             local position = squad.unitGroup.position
 
             --this area should give approx 3x3 chunks revealed
@@ -289,7 +284,7 @@ function grabArtifactsBySquad(squad)
     if not chest or not chest.valid then return end
 
     if squad and squad.unitGroup and squad.unitGroup.valid then
-        if squad.members.size > 0 then  --if there are troops in a valid group in a valid squad.
+        if squad.numMembers > 0 then  --if there are troops in a valid group in a valid squad.
             local surface = getSquadSurface(squad)
             if not surface then
                 LOGGER.log(string.format("ERROR: Surface for squad ID %d is missing or can't be determined! grabArtifacts", squad.squadID))
@@ -333,48 +328,46 @@ end
 
 
 function handleDroidSpawned(event)
-    local entity = event.created_entity
+    local droid = event.created_entity
     local player = game.players[event.player_index]
-    local force = entity.force
-    --player.print(string.format("Processing new entity %s spawned by player %s", entity.name, player.name) )
-    local position = entity.position
+    local force = droid.force
+    --player.print(string.format("Processing new entity %s spawned by player %s", droid.name, player.name) )
+    local position = droid.position
 
     --if this is the first time we are using the player's tables, make it
     if not global.Squads[force.name] then
         global.Squads[force.name] = {}
     end
 
-	local squadref = nil
-    local closest_squad = getClosestSquadToPos(global.Squads[force.name], entity.position, SQUAD_CHECK_RANGE)
-	if closest_squad then
-		squadref = closest_squad.squadID
-	end
-    if(getSquadSurface(global.Squads[force.name][squadref]) ~= entity.surface) then
-        squadref = nil  --we cannot allow a squad to be joined if it's on the wrong surface
+    local squad = getClosestSquadToPos(global.Squads[force.name], droid.position, SQUAD_CHECK_RANGE)
+    if (getSquadSurface(squad) ~= droid.surface) then
+        squad = nil  --we cannot allow a squad to be joined if it's on the wrong surface
     end
 
-    if not squadref then
+    if not squad then
         --if we didnt find a squad nearby, create one
-        squadref = createNewSquad(global.Squads[force.name], player, entity)
+        squad = createNewSquad(global.Squads[force.name], player, droid)
     end
 
-    addMemberToSquad(global.Squads[force.name][squadref], entity)
-    --checkMembersAreInGroup(global.Squads[player.force.name][squadref])
+    addMemberToSquad(squad, droid)
 
     --code to handle adding new member to a squad that is guarding/patrolling
     if event.guard == true then
-        local squadOfInterest = global.Squads[force.name][squadref]
-        if squadOfInterest.command ~= commands.guard then
-            squadOfInterest.command = commands.guard
-            squadOfInterest.home = event.guardPos
+        if squad.command ~= commands.guard then
+            squad.command = commands.guard
+            squad.home = event.guardPos
             --game.players[1].print(string.format("Setting guard squad to wander around %s", event.guardPos))
 
-            --check if the squad it just joined is patrolling, if it is, don't force any more move commands because it will be disruptive!
-
-            if not squadOfInterest.patrolState or (squadOfInterest.patrolState and squadOfInterest.patrolState.currentWaypoint == -1) then
-                --Game.print_force(entity.force, "Setting move command to squad home..." )
-                squadOfInterest.unitGroup.set_command({type=defines.command.wander, destination = squadOfInterest.home, distraction=defines.distraction.by_enemy})
-                squadOfInterest.unitGroup.start_moving()
+            --check if the squad it just joined is patrolling,
+			-- if it is, don't force any more move commands because it will be disruptive!
+            if not squad.patrolState or
+				(squad.patrolState and squad.patrolState.currentWaypoint == -1)
+			then
+                --Game.print_force(droid.force, "Setting move command to squad home..." )
+                squad.unitGroup.set_command({type=defines.command.wander,
+											 destination = squad.home,
+											 distraction=defines.distraction.by_enemy})
+                squad.unitGroup.start_moving()
             end
         end
     end

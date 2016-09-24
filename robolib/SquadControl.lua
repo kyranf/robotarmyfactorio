@@ -6,8 +6,7 @@ require("stdlib/game")
 
 
 function updateSquad(squad)
-    if trimSquad(squad) then
-		checkMembersAreInGroup(squad) -- if we have a squad with dudes in it, but they aren't in a unit_group, fix that.
+    if validateSquadIntegrity(trimSquad(squad)) then -- if not, that means this squad has been deleted
 		if squad.unitGroup and squad.unitGroup.valid then  --important for basically every AI command/routine
 			--LOGGER.log(string.format( "AI for squadref %d in tick table index %d is being executed now...", squadref, tickProcessIndex) )
 			--CHECK IF SQUAD IS A GUARD SQUAD, AND CHOOSE WHICH AI FUNCTION TO CALL
@@ -54,7 +53,7 @@ function attemptToMergeRetreatingSquadWithNearestAssemblingSquad(squad, range)
 			Game.print_force(squad.force, string.format(
 								 "Merged squad %d into squad %d",
 								 oldsquadID, squad.squadID))
-			if squad.members.size >= getSquadHuntSize(squad.force) then
+			if squad.numMembers >= getSquadHuntSize(squad.force) then
 				squad.command = commands.hunt
 			else
 				squad.command = squad.assemble
@@ -122,24 +121,17 @@ function executeBattleAI(squad)
 	if squad.unitGroup.state == defines.group_state.gathering
 		or squad.unitGroup.state == defines.group_state.finished
 	then
-		local count = table.countValidElements(squad.members)
-		if count then
-			-- either hunt or retreat
-			if (count >= getSquadHuntSize(squad.force)
-				    -- large enough to start hunting
-					or
-					-- already hunting and not small enough to retreat
-					(squad.command == commands.hunt and
-						 count > getSquadRetreatSize(squad.force)))
-			then
-				orderSquadToHunt(squad)
-			else
-				orderSquadToRetreat(squad)
-			end
+		-- either hunt or retreat
+		if (squad.numMembers >= getSquadHuntSize(squad.force)
+			-- large enough to start hunting
+				or
+				-- already hunting and not small enough to retreat
+				(squad.command == commands.hunt and
+					 squad.numMembers > getSquadRetreatSize(squad.force)))
+		then
+			orderSquadToHunt(squad)
 		else
-			Game.print_force(squad.force, string.format(
-								 "No valid members in squad %d!", squad.squadID))
-			trimSquad(squad)
+			orderSquadToRetreat(squad)
 		end
 	end -- other states include moving, attacking, or attacking distraction.
 	    -- in these cases, leave the droids alone until they 'need' to be ordered again.
@@ -271,7 +263,7 @@ function doRallyBeaconUpdate()
                                     --give them command to move.
                                     squad.rally = true
                                     squad.unitGroup.destroy()
-                                    checkMembersAreInGroup(squad) --this recreates the unitgroup and re-adds the members
+                                    validateSquadIntegrity(squad) --this recreates the unitgroup and re-adds the members
                                     squad.unitGroup.set_command({type=defines.command.go_to_location, destination=beaconPos, distraction=defines.distraction.none})
                                     squad.unitGroup.start_moving()
                                     --else if(dist > 20 ) then
