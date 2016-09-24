@@ -182,6 +182,7 @@ function validateSquadIntegrity(squad)
     for key, soldier in pairs(squad.members) do
 		if not soldier or not soldier.valid then
 			squad.members[key] = nil -- this also happens in trimSquad
+			squad.numMembers = squad.numMembers - 1
 		elseif not table.contains(squad.unitGroup.members, soldier) then
 			if soldier.surface == squad.unitGroup.surface then
 				--tableIN.player.print(string.format("adding soldier to squad ID %d's unitgroup", tableIN.squadID))
@@ -195,8 +196,6 @@ function validateSquadIntegrity(squad)
 		end
     end
 
-    --now that we've been removing and adding members, lets do a re-count of squad members.
-    squad.numMembers = table.countValidElements(squad.members) -- refresh the member count in the squad to accurately reflect the number of soldiers in there.
 	return squad
 end
 
