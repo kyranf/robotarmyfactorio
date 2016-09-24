@@ -52,8 +52,9 @@ function createNewSquad(tableIN, player, entity)
 
     local tick = getLeastFullTickTable(entity.force) --get the least utilised tick in the tick table
     table.insert(global.updateTable[entity.force.name][tick], squadID) --insert this squad reference to the least used tick for running its AI
+	Game.print_force(entity.force, string.format("Created new squad %d", squadID))
     LOGGER.log(string.format( "Added squadref %d for AI update to tick table index %d", squadID, tick) )
-    return squad
+    return newsquad
 end
 
 
@@ -216,6 +217,7 @@ function trimSquad(squad, print_msg)
 			end
 		end
 		if squad.numMembers == 0 then
+			Game.print_force(squad.force, string.format("trimSquad Deleting squad %d", squad.squadID))
 			deleteSquad(squad, print_msg)
 			return nil
 		end
@@ -339,13 +341,16 @@ function handleDroidSpawned(event)
     end
 
     local squad = getClosestSquadToPos(global.Squads[force.name], droid.position, SQUAD_CHECK_RANGE)
-    if (getSquadSurface(squad) ~= droid.surface) then
+    if squad and getSquadSurface(squad) ~= droid.surface then
         squad = nil  --we cannot allow a squad to be joined if it's on the wrong surface
     end
 
     if not squad then
         --if we didnt find a squad nearby, create one
         squad = createNewSquad(global.Squads[force.name], player, droid)
+		if not squad then
+			Game.print_force(force, "Failed to create squad for newly spawned droid!!")
+		end
     end
 
     addMemberToSquad(squad, droid)
