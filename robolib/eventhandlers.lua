@@ -7,7 +7,7 @@ require("prototypes.DroidUnitList") -- so we know what is spawnable
 require("stdlib/log/logger")
 require("stdlib/game")
 
-global.runOnce = false
+
 
 
 function runOnceCheck(game_forces)
@@ -21,9 +21,6 @@ function runOnceCheck(game_forces)
         global.runOnce = true
     end
 
-    -- if not global.lastTick then
-    --  global.lastTick = 0
-    -- end
 end
 
 
@@ -37,11 +34,13 @@ function runForceSquadUpdatesForTick(forces, tickProcessIndex)
 
             --for the current tick, look at the global table for that tick (mod 60) and any squad references in there.
             --LOGGER.log(string.format("Processing AI for AI tick %d of 60", tickProcessIndex))
-            for i, squadref in pairs(global.updateTable[force.name][tickProcessIndex]) do
-                if squadref and global.Squads[force.name][squadref] then
+            local forceTickTable = global.updateTable[force.name]
+            local squadTable = global.Squads[force.name]
+            for i, squadref in pairs(forceTickTable[tickProcessIndex]) do
+                if squadref and squadTable[squadref] then
                     -- local squad = global.Squads[force.name][squadref]
                     -- if not squad.force then squad.force = force
-                    updateSquad(global.Squads[force.name][squadref])
+                    updateSquad(squadTable[squadref])
                 end
             end
         end -- if enemy or neutral, do nothing for this force
@@ -49,11 +48,12 @@ function runForceSquadUpdatesForTick(forces, tickProcessIndex)
 end
 
 
-function processDroidAssemblersForPlayer(player)
-    if global.DroidAssemblers and global.DroidAssemblers[player.force.name] then
-        --for each building in their list using name as key\
-        for index, assembler in pairs(global.DroidAssemblers[player.force.name]) do
-            if assembler and assembler.valid and assembler.force == player.force then
+function processDroidAssemblers(force)
+    if global.DroidAssemblers and global.DroidAssemblers[force.name] then
+        --for each building in their list using name as key
+        for index, assembler in pairs(global.DroidAssemblers[force.name]) do
+            if assembler and assembler.valid and assembler.force == force then
+                local player = assembler.last_user
                 local inv = assembler.get_output_inventory() --gets us a LuaInventory
                 -- checks list of spawnable droid names, returns nil if none found. otherwise we get a spawnable entity name
                 local spawnableDroidName = containsSpawnableDroid(inv)
@@ -79,12 +79,13 @@ function processDroidAssemblersForPlayer(player)
 end
 
 
-function processDroidGuardStationsForPlayer(player)
+function processDroidGuardStations(force)
     --handle guard station spawning here
-    if global.droidGuardStations and global.droidGuardStations[player.force.name] then
-        for _, station in pairs(global.droidGuardStations[player.force.name]) do
-            if station and station.valid and station.force == player.force then
+    if global.droidGuardStations and global.droidGuardStations[force.name] then
+        for _, station in pairs(global.droidGuardStations[force.name]) do
+            if station and station.valid and station.force == force then
                 local inv = station.get_output_inventory() --gets us a luainventory
+                local player = station.last_user 
                 local spawnableDroidName = containsSpawnableDroid(inv)
                 local nearby = countNearbyDroids(station.position, station.force, 30) --inputs are position, force, and radius
                 --if we have a spawnable droid ready, and there is not too many droids nearby, lets spawn one!
@@ -105,10 +106,10 @@ function processDroidGuardStationsForPlayer(player)
 end
 
 
-function processAssemblersForPlayers(players)
-    for _, player in pairs(players) do
-        processDroidAssemblersForPlayer(player)
-        processDroidGuardStationsForPlayer(player)
+function processAssemblers(forces)
+    for _, force in pairs(forces) do
+        processDroidAssemblers(force)
+        processDroidGuardStations(force)
     end
 end
 
@@ -158,13 +159,13 @@ end -- handleOnRobotBuiltEntity
 -- MAIN ENTRY POINT IN-GAME
 -- during the on-tick event, lets check if we need to update squad AI, spawn droids from assemblers, or update bot counters, etc
 function handleTick(event)
+    local forces = game.forces
+    runOnceCheck(forces)  -- sanity checks
 
-    runOnceCheck(game.forces)  -- sanity checks
-
-    runForceSquadUpdatesForTick(game.forces, event.tick % 60 + 1)  -- updates AI for squads; spreads load across all 60 ticks per game second
+    runForceSquadUpdatesForTick(forces, event.tick % 60 + 1)  -- updates AI for squads; spreads load across all 60 ticks per game second
 
     if (event.tick % ASSEMBLER_UPDATE_TICKRATE == 0) then
-        processAssemblersForPlayers(game.players)
+        processAssemblers(forces)
     end
 
     if (event.tick % BOT_COUNTERS_UPDATE_TICKRATE == 0) then
@@ -177,10 +178,6 @@ function handleTick(event)
         doRallyBeaconUpdate()
     end
 
-    if(event.tick % LONE_WOLF_CLEANUP_SCRIPT_PERIOD == 0) then
-        --begin lone-wolf cleanup process. finds and removes units who are not in a unitGroup
-        --this is unfinished, will be in next release
-    end
 end -- handleTick
 
 
@@ -210,7 +207,6 @@ function handleForceCreated(force)
     global.updateTable = global.updateTable or {}
     global.updateTable[force.name] = global.updateTable[force.name] or {}
 
-    --not needed as of factorio 0.13.10 which removes friendly fire issue.
-    force.set_cease_fire(force, true) --set ceasefire on your own force. maybe this will prevent friendlyfire stuff?
+
     LOGGER.log("New force handler finished...")
 end
