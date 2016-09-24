@@ -2,13 +2,32 @@ require("util")
 require("config.config") -- config for squad control mechanics - important for anyone using
 require("robolib.util") -- some utility functions not necessarily related to robot army mod
 require("robolib.robotarmyhelpers") -- random helper functions related to the robot army mod
-require("robolib.Squad") -- allows us to control squads, add entities to squads, etc.
+require("robolib.SquadControl") -- allows us to control squads, add entities to squads, etc.
 require("prototypes.DroidUnitList") -- so we know what is spawnable
 require("stdlib/log/logger")
 require("stdlib/game")
 
+global.runOnce = false
 
-function runTableTickUpdates(forces, tickProcessIndex)
+
+function runOnceCheck(game_forces)
+    if not global.runOnce then
+        LOGGER.log("Running the runOnce function to reset recipes and tech to ensure all are correct...")
+        --force reset every force's recipes and techs. I'm sick of it not doing this for me!
+        for _, force in pairs(game_forces) do
+            force.reset_recipes()
+            force.reset_technologies()
+        end
+        global.runOnce = true
+    end
+
+    -- if not global.lastTick then
+    --  global.lastTick = 0
+    -- end
+end
+
+
+function runForceSquadUpdatesForTick(forces, tickProcessIndex)
     global_ensureTablesExist()
 
     for i, force in pairs(forces) do
@@ -136,30 +155,13 @@ function handleOnRobotBuiltEntity(event)
 end -- handleOnRobotBuiltEntity
 
 
-function runOnceCheck(game_forces)
-    if not global.runOnce then
-        LOGGER.log("Running the runOnce function to reset recipes and tech to ensure all are correct...")
-        --force reset every force's recipes and techs. I'm sick of it not doing this for me!
-        for _, force in pairs(game_forces) do
-            force.reset_recipes()
-            force.reset_technologies()
-        end
-        global.runOnce = true
-    end
-
-    -- if not global.lastTick then
-    --  global.lastTick = 0
-    -- end
-end
-
-
 -- MAIN ENTRY POINT IN-GAME
 -- during the on-tick event, lets check if we need to update squad AI, spawn droids from assemblers, or update bot counters, etc
 function handleTick(event)
 
     runOnceCheck(game.forces)  -- sanity checks
 
-    runTableTickUpdates(game.forces, event.tick % 60 + 1)  -- updates AI for squads; spreads load across all 60 ticks per game second
+    runForceSquadUpdatesForTick(game.forces, event.tick % 60 + 1)  -- updates AI for squads; spreads load across all 60 ticks per game second
 
     if (event.tick % ASSEMBLER_UPDATE_TICKRATE == 0) then
         processAssemblersForPlayers(game.players)
@@ -172,7 +174,7 @@ function handleTick(event)
 
     --once every 3 seconds on the 5th tick, run the rally pole command for each force that has them active.
     if (event.tick % 180 == 5) then
-        doBeaconUpdate()
+        doRallyBeaconUpdate()
     end
 
     if(event.tick % LONE_WOLF_CLEANUP_SCRIPT_PERIOD == 0) then

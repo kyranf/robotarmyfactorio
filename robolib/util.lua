@@ -2,6 +2,17 @@ require("stdlib/game")
 require("stdlib/log/logger")
 
 
+--examines the given table, and if it finds a nil element it will remove it
+--from the table.
+function removeNilsFromTable(tableIN)
+    for i, element in pairs(tableIN) do
+        if element == nil then
+            table.remove(tableIN, i)
+        end
+    end
+end
+
+
 function table.contains(table, element)
     for _, value in pairs(table) do
         if value == element then
@@ -23,15 +34,12 @@ function table.countNonNil(table)
 end
 
 
---specifically useful for squad member table counting, because it avoids the key = 'size' as a valid countable element.
 function table.countValidElements(inputTable)
     local count = 0
+	inputTable["size"] = nil -- we're no longer keeping size in the members table.
     for key, element in pairs(inputTable) do
-        if element and key ~= "size" then --avoids issue of squad member table contains an additional entry for size
-
-            if element.valid then
-                count = count + 1
-            end
+        if element and element.valid then
+			count = count + 1
         end
     end
     return count

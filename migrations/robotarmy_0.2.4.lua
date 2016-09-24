@@ -69,6 +69,7 @@ for i, force in pairs(game.forces) do
 
     for _,squad in pairs(global.Squads[force.name]) do
         if squad then
+			if squad.members then squad.members.size = nil end -- removing old 'size' table entry
             local found = false
             --for tick table 1-60, check if the table contains this squad's ID
             for _, tickTable in pairs(global.updateTable[force.name]) do
