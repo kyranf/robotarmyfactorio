@@ -8,7 +8,7 @@ require("prototypes.DroidUnitList") -- so we know what is spawnable
 require("stdlib/log/logger")
 require("stdlib/game")
 LOGGER = Logger.new("robotarmy", "robot_army_logs", true, {log_ticks = true})
-
+global.runOnce = false
 function init_robotarmy()
     LOGGER.log("Robot Army mod Init script running...")
     if not global.Squads then

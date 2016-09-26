@@ -90,7 +90,7 @@ function orderSquadToHunt(squad)
     local surface = getSquadSurface(squad)
 
     if not surface then
-        LOGGER.log(string.format("ERROR: Surface for squad ID %d is missing or can't be determined! sendSquadsToBattle", squad.squadID))
+        --LOGGER.log(string.format("ERROR: Surface for squad ID %d is missing or can't be determined! sendSquadsToBattle", squad.squadID))
         return
     end
 
@@ -144,7 +144,7 @@ function executeGuardAI(squad)
         local surface = getSquadSurface(squad)
 
         if not surface then
-            LOGGER.log(string.format("ERROR: Surface for squad ID %d is missing or can't be determined! guardAIUpdate", squad.squadID))
+            --LOGGER.log(string.format("ERROR: Surface for squad ID %d is missing or can't be determined! guardAIUpdate", squad.squadID))
             return
         end
 
@@ -243,18 +243,22 @@ end
 
 function doRallyBeaconUpdate()
     if global.Squads then
-        trimSquads(game.forces)
+        
         for _,force in pairs(game.forces) do
-            if global.Squads[force.name] then
+            local forceName = force.name
+            if global.Squads[forceName] then
                 --if this force has any rally beacons in its table
-                if(global.rallyBeacons and global.rallyBeacons[force.name] and table.countValidElements(global.rallyBeacons[force.name]) >= 1) then
-                    for _, squad in pairs(global.Squads[force.name]) do
+                if(global.rallyBeacons and global.rallyBeacons[forceName] and table.countValidElements(global.rallyBeacons[forceName]) >= 1) then
+                    
+                    local forceBeacons = global.rallyBeacons[forceName]
+                    local forceSquads = global.Squads[forceName]
+                    for _, squad in pairs(forceSquads) do
                         if squad and squad.unitGroup and squad.unitGroup.valid then
                             if squad.command ~= commands.guard and squad.command ~= commands.patrol then
 
                                 --find nearest rally pole to squad position and send them there.
                                 local squadPos = squad.unitGroup.position
-                                local closestRallyBeacon = getClosestEntity(squadPos, global.rallyBeacons[force.name]) --find closest rallyBeacon to move towards
+                                local closestRallyBeacon = getClosestEntity(squadPos, forceBeacons) --find closest rallyBeacon to move towards
                                 local beaconPos = closestRallyBeacon.position
                                 local surface = squad.unitGroup.surface
                                 beaconPos.x = beaconPos.x+2
@@ -277,7 +281,7 @@ function doRallyBeaconUpdate()
                 else
                     --if no rally beacons, make sure no squads are stuck with rally == true
                     for _, squad in pairs(global.Squads[force.name]) do
-                        if squad then squad.rally = false end
+                       if squad then squad.rally = false end
                     end
                 end
             end

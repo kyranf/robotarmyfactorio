@@ -55,7 +55,7 @@ function getGuardSpawnLocation(entity)
     --final check, let the game find us a good spot if we've failed by now.
     local finalPos = game.surfaces[1].find_non_colliding_position(entity.name, entPos, 20, 1)
     if not finalPos then
-        LOGGER.log("ERROR: getGuardSpawnLocation failed to find a suitable spawn location!")
+        --LOGGER.log("ERROR: getGuardSpawnLocation failed to find a suitable spawn location!")
         return -1 --an error we can catch later
     end
     return finalPos
@@ -439,14 +439,14 @@ function handleBuiltLootChest(event)
 
     local chest = event.created_entity
     local force = chest.force
-    LOGGER.log( string.format("Adding loot chest to force %s", force.name) )
+    --LOGGER.log( string.format("Adding loot chest to force %s", force.name) )
     if not global.lootChests[force.name] or not global.lootChests[force.name].valid  then
         global.lootChests[force.name] = chest   --this is now the force's chest.
     else
         Game.print_force(force,"Error: Can only place one loot chest!")
         chest.surface.spill_item_stack(chest.position, {name="loot-chest", count = 1})
         chest.destroy()
-        LOGGER.log("WARNING: Can only place one loot chest!")
+        --LOGGER.log("WARNING: Can only place one loot chest!")
     end
 end
 
@@ -462,14 +462,14 @@ function handleBuiltDroidSettings(event)
     local force = entity.force
 
     if not global.settingsModule[force.name] or not global.settingsModule[force.name].valid  then
-        LOGGER.log( string.format("Adding settings module to force %s", force.name) )
+        --LOGGER.log( string.format("Adding settings module to force %s", force.name) )
         global.settingsModule[force.name] = entity   --this is now the force's settings module.
     else
 
         Game.print_force(force,"Error: Can only place one settings module!")
         entity.surface.spill_item_stack(entity.position, {name="droid-settings", count = 1})
         entity.destroy()
-        LOGGER.log("WARNING: Can only place one settings module!")
+        --LOGGER.log("WARNING: Can only place one settings module!")
 
     end
 end
@@ -478,7 +478,7 @@ end
 function handleBuiltDroidCounter(event)
     local entity = event.created_entity
     local entityForce = entity.force.name
-    LOGGER.log( string.format("Adding droid counter to force %s", entityForce) )
+    --LOGGER.log( string.format("Adding droid counter to force %s", entityForce) )
     if not global.droidCounters then
         global.droidCounters = {}
         global.droidCounters[entityForce] = {}
@@ -495,7 +495,7 @@ end
 function handleBuiltRallyBeacon(event)
     local entity = event.created_entity
     local entityForce = entity.force.name
-    LOGGER.log( string.format("Adding rally beacon to force %s", entityForce) )
+    --LOGGER.log( string.format("Adding rally beacon to force %s", entityForce) )
     if not global.rallyBeacons then
         global.rallyBeacons = {}
         global.rallyBeacons[entityForce] = {}
@@ -512,7 +512,7 @@ end
 function handleGuardStationPlaced(event)
     local entity = event.created_entity
     local force = entity.force
-    LOGGER.log( string.format("Adding guard station to force %s", force.name) )
+    --LOGGER.log( string.format("Adding guard station to force %s", force.name) )
 
     --check for droid guard station global tables first.
     if not global.droidGuardStations then
@@ -538,11 +538,11 @@ function handleDroidAssemblerPlaced(event)
     if not global.DroidAssemblers[force.name] then
         global.DroidAssemblers[force.name] = {}
     end
-    LOGGER.log( string.format("Adding assembler to force %s", force.name) )
+    --LOGGER.log( string.format("Adding assembler to force %s", force.name) )
     if global.DroidAssemblers and global.DroidAssemblers[force.name] then
         table.insert(global.DroidAssemblers[force.name], entity)
     else
-        LOGGER.log("WARNING: no global table for droid assemblers and/or the force is missing one for it")
+        --LOGGER.log("WARNING: no global table for droid assemblers and/or the force is missing one for it")
     end
 end
 

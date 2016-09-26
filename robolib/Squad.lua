@@ -53,7 +53,7 @@ function createNewSquad(tableIN, player, entity)
     local tick = getLeastFullTickTable(entity.force) --get the least utilised tick in the tick table
     table.insert(global.updateTable[entity.force.name][tick], squadID) --insert this squad reference to the least used tick for running its AI
 	Game.print_force(entity.force, string.format("Created new squad %d", squadID))
-    LOGGER.log(string.format( "Added squadref %d for AI update to tick table index %d", squadID, tick) )
+    --LOGGER.log(string.format( "Added squadref %d for AI update to tick table index %d", squadID, tick) )
     return newsquad
 end
 
@@ -80,8 +80,7 @@ end
 
 function mergeSquads(squadA, squadB)
 	-- confirm that these can reasonably be merged
-	if squadA.player ~= squadB.player or
-		squadA.force ~= squadB.force or
+    if squadA.force ~= squadB.force or
 		squadA.unitGroup.surface ~= squadB.unitGroup.surface
 	then return nil end -- then it can't be merged!
 
@@ -160,7 +159,7 @@ function getClosestSquadToPos(forceSquads, position, maxRange, ignore_squad, onl
     end
 
     if (leastDist >= maxRange or closest_squad == nil) then
-        LOGGER.log("getClosestSquadToPos - no squad found or squad too far away")
+        --LOGGER.log("getClosestSquadToPos - no squad found or squad too far away")
         return nil
     end
 
@@ -171,14 +170,8 @@ end
 
 -- checks that all entities in the "members" sub table are present in the unitgroup
 function validateSquadIntegrity(squad)
-    if not squad then
-		LOGGER.log("tried to validate a squad that doesn't exist!") return nil
-	end
-    if not squad.members then
-		Game.print_force(squad.force, "Tried to validate a squad with no member table!")
-		LOGGER.log("Tried to validate a squad with no member table!")
-		return nil
-	end
+    if not squad then  return nil end --LOGGER.log("tried to validate a squad that doesn't exist!")
+    if not squad.members then  return nil end --LOGGER.log("Tried to validate a squad with no member table!")
 
 	squad.members.size = nil -- removing old 'size' table entry
 
@@ -246,7 +239,7 @@ function trimSquad(squad, print_msg)
 			end
 		end
 		if squad.numMembers == 0 then
-			Game.print_force(squad.force, string.format("trimSquad Deleting squad %d", squad.squadID))
+			--Game.print_force(squad.force, string.format("trimSquad Deleting squad %d", squad.squadID))
 			deleteSquad(squad, print_msg)
 			return nil
 		end
@@ -269,7 +262,7 @@ function deleteSquad(squad, print_msg)
 		-- using stdlib, print message to entire force
 		Game.print_force(squad.force, string.format("Squad %d is no more...", squad.squadID))
 	end
-	LOGGER.log(string.format("Squad id %d from force %s has died/lost all its members...", squad.squadID, squad.force.name))
+	--LOGGER.log(string.format("Squad id %d from force %s has died/lost all its members...", squad.squadID, squad.force.name))
 
 	global.Squads[squad.force.name][squad.squadID] = nil  --set the entire squad itself to nil
 end
@@ -297,7 +290,7 @@ function revealChunksBySquad(squad)
             local surface = getSquadSurface(squad)
 
             if not surface then
-                LOGGER.log(string.format("ERROR: Surface for squad ID %d is missing or can't be determined! revealSquadChunks", squad.squadID))
+                --LOGGER.log(string.format("ERROR: Surface for squad ID %d is missing or can't be determined! revealSquadChunks", squad.squadID))
                 return
             end
             squad.force.chart(surface, area) --reveal the chunk they are in.
@@ -315,7 +308,7 @@ function grabArtifactsBySquad(squad)
         if squad.numMembers > 0 then  --if there are troops in a valid group in a valid squad.
             local surface = getSquadSurface(squad)
             if not surface then
-                LOGGER.log(string.format("ERROR: Surface for squad ID %d is missing or can't be determined! grabArtifacts", squad.squadID))
+                --LOGGER.log(string.format("ERROR: Surface for squad ID %d is missing or can't be determined! grabArtifacts", squad.squadID))
                 return
             end
 
