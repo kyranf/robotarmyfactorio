@@ -62,13 +62,18 @@ end
 -- probably obtained by them being the nearest squad to the player,
 -- or when a fresh squad is spawned
 function addMemberToSquad(squad, soldier)
-	if squad and soldier then
+ 	if squad and soldier then
+		-- Game.print_force(squad.force, string.format(
+		-- 					 "Adding soldier %s to squad %d",
+		-- 					 tostring(soldier), squad.squadID))
+		Game.print_force(squad.force, string.format(
+							 "Adding soldier to squad %s",
+							 tostring(soldier)))
 		table.insert(squad.members, soldier)
 		squad.unitGroup.add_member(soldier)
-
 		squad.numMembers = squad.numMembers + 1
 	else
-		Game.print_force(soldier.force.name, "Tried to addMember to invalid table!")
+		Game.print_force(Game.forces[1], "Tried to addMember to invalid table!")
 	end
 end
 
@@ -76,15 +81,25 @@ end
 function mergeSquads(squadA, squadB)
 	-- confirm that these can reasonably be merged
 	if squadA.player ~= squadB.player or
-		squadA.force ~= squadB.force
-	then return nil end
+		squadA.force ~= squadB.force or
+		squadA.unitGroup.surface ~= squadB.unitGroup.surface
+	then return nil end -- then it can't be merged!
 
-	squadB.unitGroup.destroy()  -- do this first to see if it helps us move members over
+	Game.print_force(squadB.force, string.format(
+						 "size of squad %d is %d",
+						 squadB.squadID, squadB.numMembers))
+
+	-- squadB.unitGroup.destroy()  -- do this first to see if it helps us move members over
+	-- squadB.unitGroup = nil
 	for key, soldier in pairs(squadB.members) do
-		if key ~= "size" then
-			if soldier and soldier.valid then
-				addMemberToSquad(squadA, soldier)
-			end
+		if soldier and soldier.valid then
+			Game.print_force(squadA.force, string.format("mergeSquads adding droid %s to squad %d",
+										   tostring(soldier), squadA.squadID))
+			addMemberToSquad(squadA, soldier)
+		-- elseif soldier and not soldier.valid then
+		-- 	Game.print_force(squadA.force, "invalid soldier can't be merged")
+		-- else
+		-- 	Game.print_force(squadA.force, "why a nil soldier??")
 		end
 	end
 
@@ -130,6 +145,7 @@ function getClosestSquadToPos(forceSquads, position, maxRange, ignore_squad, onl
 			goto continue
 		end
 		squad = validateSquadIntegrity(squad)
+		Game.print_force("Failed to validate squad in getClosestSquadToPos")
         if squad then
 			if only_with_squad_command and only_with_squad_command ~= squad.command then
 				goto continue
@@ -155,8 +171,14 @@ end
 
 -- checks that all entities in the "members" sub table are present in the unitgroup
 function validateSquadIntegrity(squad)
-    if not squad then LOGGER.log("tried to validate a squad that doesn't exist!") return nil end
-    if not squad.members then LOGGER.log("Tried to validate a squad with no member table!") return nil end
+    if not squad then
+		LOGGER.log("tried to validate a squad that doesn't exist!") return nil
+	end
+    if not squad.members then
+		Game.print_force(squad.force, "Tried to validate a squad with no member table!")
+		LOGGER.log("Tried to validate a squad with no member table!")
+		return nil
+	end
 
 	squad.members.size = nil -- removing old 'size' table entry
 
@@ -186,9 +208,16 @@ function validateSquadIntegrity(squad)
 			squad.numMembers = squad.numMembers - 1
 		elseif not table.contains(squad.unitGroup.members, soldier) then
 			if soldier.surface == squad.unitGroup.surface then
-				--tableIN.player.print(string.format("adding soldier to squad ID %d's unitgroup", tableIN.squadID))
+				Game.print_force(squad.force, string.format(
+									 "syncing soldier %s in UG %s to squad ID %d's unitgroup %s at position (%d,%d), distance %d",
+									 tostring(soldier), tostring(soldier.unit_group),
+									 squad.squadID, tostring(squad.unitGroup),
+									 soldier.position.x, soldier.position.y,
+									 util.distance(soldier.position, squad.unitGroup.position)))
 				squad.unitGroup.add_member(soldier)
 			else
+				Game.print_force(squad.force, string.format(
+									 "destroying unit group for squad ID %d", squad.squadID))
 				--LOGGER.log("Destroying unit group, and creating a replacement on the correct surface")
 				squad.unitGroup.destroy()
 				soldier.surface.create_unit_group({position=soldier.position, force=soldier.force})
@@ -211,7 +240,7 @@ function trimSquad(squad, print_msg)
 				if droid and droid.valid then
 					squad.numMembers = squad.numMembers + 1
 				else
-					-- Game.print_force(squad.force, "trimSquad: removing invalid droid from squad.")
+					Game.print_force(squad.force, "trimSquad: removing invalid droid from squad.")
 					squad.members[key] = nil
 				end
 			end
@@ -242,9 +271,7 @@ function deleteSquad(squad, print_msg)
 	end
 	LOGGER.log(string.format("Squad id %d from force %s has died/lost all its members...", squad.squadID, squad.force.name))
 
-	-- table.remove(global.Squads[squadForce.name], squad.squadID)
 	global.Squads[squad.force.name][squad.squadID] = nil  --set the entire squad itself to nil
-	-- removeNilsFromTable(global.Squads[squad.force.name])
 end
 
 

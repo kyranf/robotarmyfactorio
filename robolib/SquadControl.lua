@@ -47,6 +47,7 @@ function attemptToMergeRetreatingSquadWithNearestAssemblingSquad(squad, range)
 											   range,
 											   squad, -- ignore self
 											   commands.assemble)
+	Game.print_force(squad.force, "Attempting to merge squad")
 	if closest_squad then
 		local oldsquadID = closest_squad.squadID
 		if mergeSquads(squad, closest_squad) then

@@ -38,10 +38,15 @@ function runForceSquadUpdatesForTick(forces, tickProcessIndex)
             --for the current tick, look at the global table for that tick (mod 60) and any squad references in there.
             --LOGGER.log(string.format("Processing AI for AI tick %d of 60", tickProcessIndex))
             for i, squadref in pairs(global.updateTable[force.name][tickProcessIndex]) do
-                if squadref and global.Squads[force.name][squadref] then
-                    -- local squad = global.Squads[force.name][squadref]
-                    -- if not squad.force then squad.force = force
-                    updateSquad(global.Squads[force.name][squadref])
+                if squadref then
+					if global.Squads[force.name][squadref] then
+						-- local squad = global.Squads[force.name][squadref]
+						-- if not squad.force then squad.force = force
+						updateSquad(global.Squads[force.name][squadref])
+					else
+						-- the squad has been deleted at some point, so let's stop looping over it here.
+						global.updateTable[force.name][tickProcessIndex][i] = nil
+					end
                 end
             end
         end -- if enemy or neutral, do nothing for this force
