@@ -114,6 +114,16 @@ function checkGlobalTableInitStates()
 end
 
 
+function global_canAnyPlayersSeeThisEntity(entity)
+	for key, player in pairs(game.players) do
+		if player and util.distance(player.position, entity.position) < PLAYER_VIEW_RADIUS then
+			return true
+		end
+	end
+	return false
+end
+
+
 --waypointList is a list of LuaPositions,
 function getClosestEntity(position, entityList)
     local dist = 0
@@ -136,6 +146,7 @@ end
 
 --input is a sub-table of global.updateTable, and is the table for a particular force
 function fillTableWithTickEntries(inputTable)
+	-- Game.print_all("filling update tick table")
     for i = 1, 60 do
         inputTable[i] = {}
     end
@@ -148,7 +159,6 @@ function getLeastFullTickTable(force)
 
     --check if the table has the 1st tick in it. if not, then go through and fill the table
     if not global.updateTable[force.name][1] then
-        Game.print_all("filling update tick table")
         fillTableWithTickEntries(global.updateTable[force.name]) -- make sure it has got the 0-59 tick entries initialized
     end
 

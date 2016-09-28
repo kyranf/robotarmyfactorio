@@ -83,6 +83,11 @@ for i, force in pairs(game.forces) do
                 local tick = getLeastFullTickTable(force) --get the least utilised tick in the tick table
                 table.insert(global.updateTable[force.name][tick], squad.squadID) --insert this squad reference to the least used tick for running its AI
             end
+			squad.memberUnitGroupErrors = {}
+			for key, soldier in pairs(squad.members) do
+				squad.memberUnitGroupErrors[key] = 0
+			end
+			squad.unitGroupFailures = 0
         end
     end
 end

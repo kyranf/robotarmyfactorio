@@ -538,73 +538,45 @@ function handleDroidAssemblerPlaced(event)
     if not global.DroidAssemblers[force.name] then
         global.DroidAssemblers[force.name] = {}
     end
-    --LOGGER.log( string.format("Adding assembler to force %s", force.name) )
-    if global.DroidAssemblers and global.DroidAssemblers[force.name] then
-        table.insert(global.DroidAssemblers[force.name], entity)
-    else
-        --LOGGER.log("WARNING: no global table for droid assemblers and/or the force is missing one for it")
-    end
+
+    LOGGER.log(string.format("Adding assembler to force %s", force.name))
+	table.insert(global.DroidAssemblers[force.name], entity)
 end
 
 
-function global_ensureTablesExist()
-    if not global.updateTable then global.updateTable = {} end
-    if not global.Squads then global.Squads = {} end
-end
-
-
-function global_fixupTickTablesForForceName(force_name)
-    if not global.updateTable[force_name] then global.updateTable[force_name] = {} end
-
-    --check if the table has the 1st tick in it. if not, then go through and fill the table
-    if not global.updateTable[force_name][1] then
-        Game.print_all("filling update tick table")
-        fillTableWithTickEntries(global.updateTable[force_name]) -- make sure it has got the 1-60 tick entries initialized
-    end
-
-    if not global.updateTable[force_name] or not global.Squads[force_name]  then
-        -- this is a more-or-less fatal error
-        -- in the condition of a new game, and you haven't placed a squad yet, can have issues with player force not having the squad table init yet.
-        global.Squads[force_name] = {}
-        return false
-
-        --disabling below code for now
-        --[[Game.print_all("Update Table or squad table for force is missing! Can't run update functions - force name:")
-        Game.print_all(force_name)
-        if not global.updateTable[force_name] then
-            Game.print_all("missing update table...")
-        end
-
-        if not global.Squads[force_name] then
-            Game.print_all("missing squad table...")
-        end
-        return false]]--
-    end
-    return true
-end
-
-
-function global_findClosestForceAssemblerToPosition(position, force_name)
+function findClosestAssemblerToPosition(assemblers, position)
     local distance = 999999
     local entity = nil
     --check every possible droid assembler in that force and return the one with shortest distance
 
-    if global.DroidAssemblers and global.DroidAssemblers[force_name] then
-        for _, droidAss in pairs(global.DroidAssemblers[force_name]) do
-
-            --distance between the droid assembler and the squad
-            if droidAss.valid then
-                local dist = util.distance(droidAss.position, position)
-                if dist <= distance then
-                    entity = droidAss
-                    distance = dist
-                end
-            end
-        end
+	if assemblers then
+		for dkey, droidAss in pairs(assemblers) do
+			--distance between the droid assembler and the squad
+			if droidAss.valid then
+				local dist = util.distance(droidAss.position, position)
+				if dist <= distance then
+					entity = droidAss
+					distance = dist
+				end
+			else
+				assemblers[dkey] = nil
+			end
+		end
     else
-        Game.print_force(game.forces[force_name], "Apparently there are no droid assemblers to retreat to?")
+        LOGGER.log("There are no droid assemblers to retreat to.")
     end
     return entity, distance
+end
+
+
+function findNearbyAssemblers(assemblers, position, range)
+	local tempTable = {}
+	for dkey, assembler in pairs(assemblers) do
+		if assembler.valid and util.distance(position, assembler.position) < range then
+			tempTable[#tempTable + 1] = assembler
+		end
+	end
+	return tempTable
 end
 
 
