@@ -93,25 +93,23 @@ end
 
 
 --any new global tables we need to add, just add them in here and it will be easier to maintain. not used yet.
-function checkGlobalTableInitStates()
-    global.Squads = global.Squads or {}
-    global.uniqueSquadId = global.uniqueSquadId or {}
-    global.DroidAssemblers = global.DroidAssemblers or {}
-    global.droidCounters = global.droidCounters or {}
-    global.lootChests = global.lootChests or {}
-    global.droidGuardStations = global.droidGuardStations or {}
-    local forceList = game.forces
-    for _, force in pairs(forceList) do
-        global.droidGuardStations[force.name] = global.droidGuardStations[force.name] or {}
-        global.Squads[force.name] = global.Squads[force.name] or {}
-        global.DroidAssemblers[force.name] = global.DroidAssemblers[force.name] or {}
-        global.droidCounters[force.name] = global.droidCounters[force.name] or {}
-        global.lootChests[force.name] = global.lootChests[force.name] or {}
-        global.uniqueSquadId[force.name] = global.uniqueSquadId[force.name] or 1
-
-    end
-
-end
+-- function checkGlobalTableInitStates()
+--     global.Squads = global.Squads or {}
+--     global.uniqueSquadId = global.uniqueSquadId or {}
+--     global.DroidAssemblers = global.DroidAssemblers or {}
+--     global.droidCounters = global.droidCounters or {}
+--     global.lootChests = global.lootChests or {}
+--     global.droidGuardStations = global.droidGuardStations or {}
+--     local forceList = game.forces
+--     for _, force in pairs(forceList) do
+--         global.droidGuardStations[force.name] = global.droidGuardStations[force.name] or {}
+--         global.Squads[force.name] = global.Squads[force.name] or {}
+--         global.DroidAssemblers[force.name] = global.DroidAssemblers[force.name] or {}
+--         global.droidCounters[force.name] = global.droidCounters[force.name] or {}
+--         global.lootChests[force.name] = global.lootChests[force.name] or {}
+--         global.uniqueSquadId[force.name] = global.uniqueSquadId[force.name] or 1
+--     end
+-- end
 
 
 function global_canAnyPlayersSeeThisEntity(entity)

@@ -8,6 +8,7 @@ function global_ensureTablesExist()
 	if not global.AssemblerRetreatTables then global.AssemblerRetreatTables = {} end
 	if not global.RetreatingSquads then global.RetreatingSquads = {} end
 	if not global.DroidAssemblers then global.DroidAssemblers = {} end
+	global.droidGuardStations = global.droidGuardStations or {}
 end
 
 
@@ -56,6 +57,18 @@ function global_fixupTickTablesForForceName(force_name)
 	end
 	if not global.RetreatingSquads[force_name] then
 		global.RetreatingSquads[force_name] = {}
+	end
+	if not global.droidGuardStations[force_name] then
+		global.droidGuardStations[force_name] = {}
+	end
+	if not global.droidCounters[force_name] then
+		global.droidCounters[force_name] = {}
+	end
+	if not global.lootChests[force_name] then
+		global.lootChests[force_name] = {}
+	end
+	if not global.uniqueSquadId[force_name] then
+		global.uniqueSquadId[force_name] = {}
 	end
 
     if not global.updateTable[force_name] or not global.Squads[force_name]  then

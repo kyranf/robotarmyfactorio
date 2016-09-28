@@ -24,31 +24,27 @@ function orderSquadToRetreat(squad)
 
 		if distance > AT_ASSEMBLER_RANGE then
 			-- don't give orders to retreat to a location we are already making progress towards
-			if not (assembler == squad.retreatToAssembler and squad.lastBattleOrderPos and
-				util.distance(squad.unitGroup.position, squad.lastBattleOrderPos)
-						> SANITY_CHECK_PROGRESS_DISTANCE)
-			then
+			local makingProgress = isSquadMovingAwayFromLastPosition(squad)
+			if not makingProgress or assembler ~= squad.retreatToAssembler then
 				-- issue an actual retreat command
 				debugSquadOrder(squad, "RETREAT TO ASSEMBLER", assembler.position)
-
-				addSquadToRetreatTables(squad, assembler)
-				orderToAssembler(squad.unitGroup, assembler)
+				orderToAssembler(squad.unitGroup, assembler, not makingProgress)
 				squad.unitGroup.start_moving()
-			else
-				addSquadToRetreatTables(squad, assembler)
 			end
-		elseif squad.command == commands.hunt or isTimeForMergeCheck(squad) then
+		elseif squad.command == commands.hunt then
 			-- we're close enough already, and we haven't checked recently.
 			-- check for nearby squads to merge
-			addSquadToRetreatTables(squad, assembler)
 			squad.command = commands.assemble -- so we don't check again soon
 			attemptToMergeSquadWithNearbyAssemblingSquad(
 				squad, global.RetreatingSquads[squad.force.name], AT_ASSEMBLER_RANGE * 2)
+
 			-- this last function call may actually invalidate the squad
-		elseif not squad.retreatToAssembler then
-			addSquadToRetreatTables(squad, assembler)
+			if squad.deleted then return end
 		end
 
+		-- new assemblers may have been placed since the last retreat order,
+		-- so re-add to retreat tables just in case
+		addSquadToRetreatTables(squad, assembler)
 		squad.lastBattleOrderTick = game.tick
 		squad.lastBattleOrderPos = lastPos
 	end
@@ -56,11 +52,10 @@ end
 
 
 function addSquadToRetreatTables(squad, targetAssembler)
-	LOGGER.log(string.format("Adding squad %d to retreat tables.", squad.squadID))
 	-- look for nearby assemblers and add squad to those tables as well
 	retreatAssemblers = findNearbyAssemblers(global.DroidAssemblers[squad.force.name],
 											 targetAssembler.position, AT_ASSEMBLER_RANGE)
-	for i=1, #retreatAssemblers do -- cool/faster iteration syntax
+	for i=1, #retreatAssemblers do -- cool/faster iteration syntax for list-like table
 		local assembler = retreatAssemblers[i]
 		LOGGER.log(string.format("Adding squad %d to retreat table of assembler at (%d,%d)",
 								 squad.squadID, assembler.position.x, assembler.position.y))
@@ -81,7 +76,7 @@ function checkRetreatAssemblersForMergeableSquads(assemblerRetreatTable)
 		else -- assembler is still valid; proceed
 			local mergeableSquad = nil
 			local mergeableSquadDist = nil
-			LOGGER.log(string.format("Trying to merge squads near assembler at (%d,%d)",
+			LOGGER.log(string.format("Trying to merge retreating squads near assembler at (%d,%d)",
 									 assembler.position.x, assembler.position.y))
 			local squadCount = 0
 			local squadCloseCount = 0
@@ -96,9 +91,9 @@ function checkRetreatAssemblersForMergeableSquads(assemblerRetreatTable)
 						-- then this squad is close enough to be merged, if it is still valid
 						if validateSquadIntegrity(squad) then
 							squadCloseCount = squadCloseCount + 1
-							LOGGER.log(string.format(
-										   " ---- Squad %d sz %d is near its retreating assembler.",
-										   squad.squadID, squad.numMembers))
+							-- LOGGER.log(string.format(
+							-- 			   " ---- Squad %d sz %d is near its retreating assembler.",
+							-- 			   squad.squadID, squad.numMembers))
 							if mergeableSquad then -- we already found a mergeable squad nearby
 								-- are we close enough to this other squad to merge?
 								if util.distance(mergeableSquad.unitGroup.position,
@@ -124,19 +119,19 @@ function checkRetreatAssemblersForMergeableSquads(assemblerRetreatTable)
 								mergeableSquadDist = dist
 							end
 						else
+							-- squad is invalid. don't check again
 							squads[squadID] = nil
 						end
-					elseif dist < 100 then
-						LOGGER.log(string.format("Squad %d is not close enough, but is at %d",
-												 squad.squadID, dist))
 					end
 				end
 			end
 			if squadCount == 0 then
-				assemblerRetreatTable[assembler] = nil -- don't iterate over this one again
+				-- don't iterate over this assembler again until it is 'recreated'
+				-- by a squad trying to retreat to it
+				assemblerRetreatTable[assembler] = nil
 			end
-			LOGGER.log(string.format("We examined %d squads, of which %d were near this assembler",
-									 squadCount, squadCloseCount))
+			LOGGER.log(string.format("Assembler merge examined %d squads, of which %d were near this assembler at (%d,%d)",
+									 squadCount, squadCloseCount, assembler.position.x, assembler.position.y))
 		end
 	end
 end

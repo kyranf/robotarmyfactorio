@@ -92,7 +92,6 @@ function isOldBattleOrder(squad)
 		(squad.lastBattleOrderTick + SANITY_CHECK_PERIOD_SECONDS * 60 < game.tick and
 			 util.distance(squad.lastBattleOrderPos, squad.unitGroup.position)
 			 < SANITY_CHECK_PROGRESS_DISTANCE)
-		or (squad.retreatToAssembler and isTimeForMergeCheck(squad))
 end
 
 
@@ -398,8 +397,8 @@ function isSquadInRetreatNearAssembler(squad)
 		return true
 	else
 		local nearestAssembler = findClosestAssemblerToPosition(
-			global.DroidAssemblers[force.name], squad_position)
-		if nearestAssembler and util.dist(nearestAssembler.position, squad_position) then
+			global.DroidAssemblers[squad.force.name], squad_position)
+		if nearestAssembler and util.distance(nearestAssembler.position, squad_position) then
 			return true
 		end
 	end
@@ -500,22 +499,34 @@ function validateSquadIntegrity(squad)
 end
 
 
-function orderToAssembler(orderable, assembler)
+function isSquadMovingAwayFromLastPosition(squad)
+	if not squad.lastBattleOrderPos then return true end
+	return util.distance(squad.unitGroup.position, squad.lastBattleOrderPos) > SANITY_CHECK_PROGRESS_DISTANCE
+end
+
+
+function orderToAssembler(orderable, assembler, ignore_distractions)
 	local position = getDroidSpawnLocation(assembler)
 	if position ~= -1 then
 		-- RETREAT!
 		-- orderable.set_command({type=defines.command.go_to_location,
 		-- 					   destination=position,
 		-- 					   distraction=defines.distraction.by_enemy})
+		local distraction_type = defines.distraction.by_damage
+		if ignore_distractions then
+			LOGGER.log(string.format("Ignoring all distractions on the way to assembler at %d,%d",
+									 assembler.position.x, assembler.position.y))
+			distraction_type = defines.distraction.none
+		end
 		orderable.set_command({type=defines.command.compound,
 							   structure_type=defines.compound_command.return_last,
 							   commands={
 								   {type=defines.command.go_to_location,
 									destination=position,
-									distraction=defines.distraction_by_enemy},
+									distraction=distraction_type},
 								   {type=defines.command.wander,
 									destination=position,
-									distraction=defines.distraction_by_enemy},
+									distraction=distraction_type},
 		}})
 	else
 		LOGGER.log("Failed to find a droid spawn position near the requested assembler!")
