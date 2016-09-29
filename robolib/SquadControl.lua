@@ -56,7 +56,7 @@ end
 function executeBattleAI(squad)
 	if squad.unitGroup.state == defines.group_state.gathering
 		or squad.unitGroup.state == defines.group_state.finished
-		or (isOldBattleOrder(squad) and not isAttacking(squad))
+		or (not isAttacking(squad) and isOldBattleOrder(squad))
 	then -- needs battle orders of some kind
 		if not validateSquadIntegrity(squad) then return end
 		if shouldHunt(squad) then

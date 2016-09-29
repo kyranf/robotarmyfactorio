@@ -21,6 +21,7 @@ function orderSquadToRetreat(squad)
 
 	if assembler then
 		local lastPos = squad.unitGroup.position
+		squad.command = commands.assemble
 
 		if distance > AT_ASSEMBLER_RANGE then
 			-- don't give orders to retreat to a location we are already making progress towards
@@ -31,15 +32,19 @@ function orderSquadToRetreat(squad)
 				orderToAssembler(squad.unitGroup, assembler, not makingProgress)
 				squad.unitGroup.start_moving()
 			end
-		elseif squad.command == commands.hunt then
-			-- we're close enough already, and we haven't checked recently.
-			-- check for nearby squads to merge
-			success, squad = attemptToMergeSquadWithNearbyAssemblingSquad(
-				squad, global.RetreatingSquads[squad.force.name], AT_ASSEMBLER_RANGE * 2)
-			squad.command = commands.assemble -- we're no longer actively retreating, just passively waiting
-			-- this last function call may actually invalidate the squad
-			if squad.deleted then return end
 		end
+		-- elseif squad.command == commands.hunt then
+		-- 	-- we're close enough already, and we haven't checked recently.
+		-- 	-- check for nearby squads to merge
+		-- 	success, squad = attemptToMergeSquadWithNearbyAssemblingSquad(
+		-- 		squad, global.RetreatingSquads[squad.force.name], AT_ASSEMBLER_RANGE * 2)
+		-- 	squad.command = commands.assemble -- we're no longer actively retreating, just passively waiting
+		-- 	if success and shouldHunt(squad) then
+		-- 		orderSquadToHunt(squad)
+		-- 	end
+		-- 	-- this last function call may actually invalidate the squad
+		-- 	if squad.deleted then return end
+		-- end
 
 		-- new assemblers may have been placed since the last retreat order,
 		-- so re-add to retreat tables just in case
