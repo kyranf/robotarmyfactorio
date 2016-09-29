@@ -63,7 +63,13 @@ end
 function deleteSquad(squad, suppress_msg)
     local print_msg = not suppress_msg and PRINT_SQUAD_DEATH_MESSAGES
 
-    squad.members = nil -- get rid of members table first
+	-- remove all members!
+	if squad.members then
+		for key, member in pairs(squad.members) do
+			squad.members[key] = nil
+		end
+		squad.members = nil -- get rid of members table first
+	end
     squad.numMembers = 0
 
     if squad.unitGroup and squad.unitGroup.valid then
@@ -86,7 +92,8 @@ end
 
 
 function isOldBattleOrder(squad)
-    return not squad.lastBattleOrderTick or not squad.lastBattleOrderPos or
+	if not squad.lastBattleOrderTick then squad.lastBattleOrderTick = 0 end
+    return not squad.lastBattleOrderPos or
         (squad.lastBattleOrderTick + SANITY_CHECK_PERIOD_SECONDS * 60 < game.tick and
              util.distance(getSquadPos(squad), squad.lastBattleOrderPos)
              < SANITY_CHECK_PROGRESS_DISTANCE)
@@ -381,6 +388,7 @@ function retreatMisbehavingLoneWolf(soldier)
     if assembler then
         local loneWolfSquad = createNewSquad(global.Squads[soldier.force.name], soldier)
         if loneWolfSquad then
+			LOGGER.log(string.format("About to order lone wolf squad %d to retreat...", loneWolfSquad.squadID))
             addMemberToSquad(loneWolfSquad, soldier)
             orderSquadToRetreat(loneWolfSquad)
         end
@@ -388,6 +396,7 @@ function retreatMisbehavingLoneWolf(soldier)
 end
 
 
+-- this function won't print a squad death message. do your own printing.
 function disbandAndRetreatEntireSquad(squad, current_pos)
 	if not isSquadNearAssembler(squad, current_pos) then
 		-- if we're already very close to a retreat location, this could cause basically an infinite loop.
@@ -399,7 +408,7 @@ function disbandAndRetreatEntireSquad(squad, current_pos)
 	else
 		LOGGER.log(string.format("Can't retreat individual members of squad %d because it's already near an assembler.", squad.squadID))
 	end
-	deleteSquad(squad)
+	deleteSquad(squad, true) -- don't print a message, because we already should have
 end
 
 

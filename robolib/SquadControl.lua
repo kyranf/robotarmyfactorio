@@ -54,10 +54,12 @@ end
 
 
 function executeBattleAI(squad)
-	if squad.unitGroup.state == defines.group_state.gathering
-		or squad.unitGroup.state == defines.group_state.finished
-		or (not isAttacking(squad) and isOldBattleOrder(squad))
-	then -- needs battle orders of some kind
+	if ((squad.unitGroup.state == defines.group_state.gathering
+			or squad.unitGroup.state == defines.group_state.finished)
+			and squad.command ~= commands.assemble) -- no orders, but not assembling
+		or
+		(not isAttacking(squad) and isOldBattleOrder(squad)) -- not attacking, and needs a periodic re-check
+	then -- needs orders of some kind
 		if not validateSquadIntegrity(squad) then return end
 		if shouldHunt(squad) then
 			-- local msg = string.format("ordering squad %d to hunt", squad.squadID)

@@ -21,6 +21,9 @@ function orderSquadToRetreat(squad)
 
 	if assembler then
 		local lastPos = squad.unitGroup.position
+		LOGGER.log(string.format("Ordering squad %d of size %d near (%d,%d) to retreat %d m to assembler at (%d,%d)",
+								 squad.squadID, squad.numMembers, lastPos.x, lastPos.y,
+								 distance, assembler.position.x, assembler.position.y))
 		squad.command = commands.assemble
 
 		if distance > AT_ASSEMBLER_RANGE then
