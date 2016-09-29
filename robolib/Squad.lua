@@ -312,7 +312,7 @@ function recreateUnitGroupForSquad(squad, pos)
 end
 
 
--- this function is sufficient for basic operations, but does not validate that the squad has members.
+-- this function is sufficient for basic operations, but does not always fully validate the squad
 function squadStillExists(squad)
     if squad and squad.members and global.Squads[squad.force.name][squad.squadID] then
         if not squad.numMembers then
@@ -323,7 +323,7 @@ function squadStillExists(squad)
         end
         return squad
     else
-		if not (squad.unitGroup and squad.unitGroup.valid) then
+		if not squad.unitGroup or not squad.unitGroup.valid then
 			 --  squad is missing major components; do a full check
 			return validateSquadIntegrity(squad)
 		else
@@ -432,12 +432,13 @@ function validateSquadIntegrity(squad)
 
     squad = inGameSquadMigration(squad)
 
+	local pos = getSquadAvgPosition(squad)
+
      -- validate the unit group
     if not squad.unitGroup or not squad.unitGroup.valid then
         squad.lastBattleOrderFailures = squad.lastBattleOrderFailures + 3
         LOGGER.log(string.format("--- WARNING: squad %d at +++ order failures %d", squad.squadID,
                                  squad.lastBattleOrderFailures))
-		local pos = getSquadAvgPosition(squad)
 		if squad.lastBattleOrderFailures >= 10 then
 			-- this probably means that we're trying to attack a location that can't be attacked
 			squadFailedTooManyOrders(squad, pos)
@@ -480,7 +481,7 @@ function validateSquadIntegrity(squad)
                     LOGGER.log(msg)
                     teleportSoldierToUnitGroup(soldier, squad.unitGroup) -- if the teleport succeeds, this will add the soldier to the unit group
                 else -- tried teleporting a few times, or didn't because player present
-                    if not isSquadNearAssembler(squad) then
+                    if not isSquadNearAssembler(squad, pos) then
                         local msg = string.format(
                             "!*!*!*!*! ERROR: After many attempts, failed to reintegrate soldier %d at (%d,%d) with squad %d. " ..
                                 "Therefore the soldier is being asked to retreat on its own.",
