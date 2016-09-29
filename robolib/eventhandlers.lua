@@ -148,10 +148,23 @@ function tickForces(forces, tick)
 				processDroidAssemblers(force)
 				processDroidGuardStations(force)
 			end
-			if (tick + 17) % ASSEMBLER_MERGE_TICKRATE == 0 then
-				checkRetreatAssemblersForMergeableSquads(global.AssemblerRetreatTables[force.name])
-			end
+			processRetreatChecksForTick(force, tick)
 			processSquadUpdatesForTick(force.name, tick % 60 + 1)
+		end
+	end
+end
+
+
+function processRetreatChecksForTick(force, tick)
+	local forceAssemblerRetreatTable = global.AssemblerRetreatTables[force.name]
+	for assemblerIdx, squads in pairs(forceAssemblerRetreatTable) do
+		if assemblerIdx % ASSEMBLER_MERGE_TICKRATE == tick % ASSEMBLER_MERGE_TICKRATE then
+			local assembler = global.DroidAssemblers[force.name][assemblerIdx]
+			if not assembler.valid or not checkRetreatAssemblerForMergeableSquads(assembler, squads) then
+				-- don't iterate over this assembler again until it is 'recreated'
+				-- by a squad trying to retreat to it
+				forceAssemblerRetreatTable[assemblerIdx] = nil
+			end
 		end
 	end
 end

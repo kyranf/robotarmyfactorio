@@ -24,35 +24,6 @@ function updateSquad(squad)
 end
 
 
-function attemptToMergeSquadWithNearbyAssemblingSquad(squad, otherSquads, range)
-	if not squad.unitGroup then
-		LOGGER.log(string.format("Attempting to merge squad %d %s", squad.squadID, tostring(squad)))
-	else
-		local msg = string.format("Attempting to merge squad %d at (%d,%d) with a nearby assembling squad.",
-								  squad.squadID, squad.unitGroup.position.x, squad.unitGroup.position.y)
-		LOGGER.log(msg)
-	end
-	local closest_squad = getCloseEnoughSquadToSquad(
-		otherSquads, squad, range, {commands.assemble})
-	if closest_squad then
-		local mergedSquad = mergeSquads(squad, closest_squad)
-		if mergedSquad then
-			return true, mergedSquad
-		else
-			local msg = string.format("Failed to merge squad %d into squad %d!",
-									  squad.squadID, closestSquad.squadID)
-			-- Game.print_force(squad.force, msg)
-			LOGGER.log(msg)
-		end
-	else
-		local msg = string.format("Failed to find a close enough squad to %d for merging.", squad.squadID)
-		-- Game.print_force(squad.force, msg)
-		LOGGER.log(msg)
-	end
-	return false, squad
-end
-
-
 function orderSquadToHunt(squad)
     --get nearest enemy unit to the squad.
     --find the nearest enemy to the squad that is an enemy of the player's force, and max radius of 5000 tiles (10k tile diameter)
@@ -94,26 +65,6 @@ function executeBattleAI(squad)
 			orderSquadToHunt(squad)
 		else
 			orderSquadToRetreat(squad)
-			-- if squad.retreatToAssembler and squad.retreatToAssembler.valid then
-			-- 	squad.lastBattleOrderTick = game.tick
-			-- 	orderToAssembler(squad.unitGroup, squad.retreatToAssembler)
-			-- else
-			-- 	assembler, distance = findClosestAssemblerToPosition(
-			-- 		global.DroidAssemblers[squad.force.name],
-			-- 		squad.unitGroup.position)
-			-- 	if distance > AT_ASSEMBLER_RANGE then
-			-- 		orderSquadToRetreat(squad)
-			-- 	elseif assembler and (squad.command == commands.hunt or isTimeForMergeCheck(squad)) then
-			-- 		squad.command = commands.assemble
-			-- 		success, squad = attemptToMergeSquadWithNearbyAssemblingSquad(
-			-- 			squad, global.RetreatingSquads[squad.force.name], AT_ASSEMBLER_RANGE * 2)
-			-- 		if shouldHunt(squad) then
-			-- 			orderSquadToHunt(squad)
-			-- 		else
-			-- 			orderSquadToWander(squad, getDroidSpawnLocation(assembler))
-			-- 		end
-			-- 	end
-			-- end
 		end
 	end -- other states include moving, attacking, or attacking distraction.
 	-- in these cases, leave the droids alone until they 'need' to be ordered again.

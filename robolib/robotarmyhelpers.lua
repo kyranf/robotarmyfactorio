@@ -546,7 +546,7 @@ end
 
 function findClosestAssemblerToPosition(assemblers, position)
     local distance = 999999
-    local entity = nil
+    local closestAssembler = nil
     --check every possible droid assembler in that force and return the one with shortest distance
 
 	if assemblers then
@@ -555,7 +555,7 @@ function findClosestAssemblerToPosition(assemblers, position)
 			if droidAss.valid then
 				local dist = util.distance(droidAss.position, position)
 				if dist <= distance then
-					entity = droidAss
+					closestAssembler = droidAss
 					distance = dist
 				end
 			else
@@ -565,7 +565,7 @@ function findClosestAssemblerToPosition(assemblers, position)
     else
         LOGGER.log("There are no droid assemblers to retreat to.")
     end
-    return entity, distance
+    return closestAssembler, distance
 end
 
 
