@@ -93,24 +93,32 @@ end
 
 
 --any new global tables we need to add, just add them in here and it will be easier to maintain. not used yet.
-function checkGlobalTableInitStates()
-    global.Squads = global.Squads or {}
-    global.uniqueSquadId = global.uniqueSquadId or {}
-    global.DroidAssemblers = global.DroidAssemblers or {}
-    global.droidCounters = global.droidCounters or {}
-    global.lootChests = global.lootChests or {}
-    global.droidGuardStations = global.droidGuardStations or {}
-    local forceList = game.forces
-    for _, force in pairs(forceList) do
-        global.droidGuardStations[force.name] = global.droidGuardStations[force.name] or {}
-        global.Squads[force.name] = global.Squads[force.name] or {}
-        global.DroidAssemblers[force.name] = global.DroidAssemblers[force.name] or {}
-        global.droidCounters[force.name] = global.droidCounters[force.name] or {}
-        global.lootChests[force.name] = global.lootChests[force.name] or {}
-        global.uniqueSquadId[force.name] = global.uniqueSquadId[force.name] or 1
+-- function checkGlobalTableInitStates()
+--     global.Squads = global.Squads or {}
+--     global.uniqueSquadId = global.uniqueSquadId or {}
+--     global.DroidAssemblers = global.DroidAssemblers or {}
+--     global.droidCounters = global.droidCounters or {}
+--     global.lootChests = global.lootChests or {}
+--     global.droidGuardStations = global.droidGuardStations or {}
+--     local forceList = game.forces
+--     for _, force in pairs(forceList) do
+--         global.droidGuardStations[force.name] = global.droidGuardStations[force.name] or {}
+--         global.Squads[force.name] = global.Squads[force.name] or {}
+--         global.DroidAssemblers[force.name] = global.DroidAssemblers[force.name] or {}
+--         global.droidCounters[force.name] = global.droidCounters[force.name] or {}
+--         global.lootChests[force.name] = global.lootChests[force.name] or {}
+--         global.uniqueSquadId[force.name] = global.uniqueSquadId[force.name] or 1
+--     end
+-- end
 
-    end
 
+function global_canAnyPlayersSeeThisEntity(entity)
+	for key, player in pairs(game.players) do
+		if player and util.distance(player.position, entity.position) < PLAYER_VIEW_RADIUS then
+			return true
+		end
+	end
+	return false
 end
 
 
@@ -136,6 +144,7 @@ end
 
 --input is a sub-table of global.updateTable, and is the table for a particular force
 function fillTableWithTickEntries(inputTable)
+	-- Game.print_all("filling update tick table")
     for i = 1, 60 do
         inputTable[i] = {}
     end
@@ -148,7 +157,6 @@ function getLeastFullTickTable(force)
 
     --check if the table has the 1st tick in it. if not, then go through and fill the table
     if not global.updateTable[force.name][1] then
-        Game.print_all("filling update tick table")
         fillTableWithTickEntries(global.updateTable[force.name]) -- make sure it has got the 0-59 tick entries initialized
     end
 

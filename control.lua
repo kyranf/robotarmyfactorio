@@ -4,13 +4,18 @@ require("robolib.util") -- some utility functions not necessarily related to rob
 require("robolib.robotarmyhelpers") -- random helper functions related to the robot army mod
 require("robolib.Squad") -- allows us to control squads, add entities to squads, etc.
 require("robolib.eventhandlers")
+require("robolib.onload")
 require("prototypes.DroidUnitList") -- so we know what is spawnable
 require("stdlib/log/logger")
 require("stdlib/game")
+
 LOGGER = Logger.new("robotarmy", "robot_army_logs", true, {log_ticks = true})
+
 global.runOnce = false
+
 function init_robotarmy()
     LOGGER.log("Robot Army mod Init script running...")
+
     if not global.Squads then
         global.Squads = {}
     end
@@ -50,6 +55,7 @@ function init_robotarmy()
     handleForceCreated(game.forces["neutral"])
     LOGGER.log("Robot Army mod Init script finished...")
 end
+
 
 script.on_init(init_robotarmy)
 
