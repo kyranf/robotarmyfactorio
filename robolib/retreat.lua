@@ -43,6 +43,11 @@ function orderSquadToRetreat(squad)
 		addSquadToRetreatTables(squad, assembler)
 		squad.command.tick = game.tick
 		squad.command.pos = lastPos
+	else
+		local msg = string.format("There are no droid assemblers to which squad %d can retreat. You should build at least one.",
+								  squad.squadID)
+		LOGGER.log(msg)
+		Game.print_force(squad.force, msg)
 	end
 end
 

@@ -92,12 +92,12 @@ function migrateDroidAssemblersTo_0_2_4(force)
 	-- index these by their globally unique "unit_number" instead.
 	local forceAssemblers = global.DroidAssemblers[force.name]
 	for dkey, assembler in pairs(forceAssemblers) do
-		if dkey ~= assembler.unit_number then
+		if not assembler or not assembler.valid then
 			forceAssemblers[dkey] = nil
-			if assembler.valid then
-				LOGGER.log(string.format("Moving assembler to new index %d from %d", assembler.unit_number, dkey))
-				forceAssemblers[assembler.unit_number] = assembler
-			end
+		elseif dkey ~= assembler.unit_number then
+			forceAssemblers[dkey] = nil
+			LOGGER.log(string.format("Moving assembler to new index %d from %d", assembler.unit_number, dkey))
+			forceAssemblers[assembler.unit_number] = assembler
 		end
 	end
 end

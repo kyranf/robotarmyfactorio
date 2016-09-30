@@ -214,7 +214,11 @@ end
 
 
 function getSquadPos(squad)
-	if squad.unitGroup then return squad.unitGroup.position else return getSquadAvgPosition(squad) end
+	if squad.unitGroup and squad.unitGroup.valid then
+		return squad.unitGroup.position
+	else
+		return getSquadAvgPosition(squad)
+	end
 end
 
 
@@ -407,12 +411,31 @@ end
 
 -- this function won't print a squad death message. do your own printing.
 function disbandAndRetreatEntireSquad(squad, current_pos)
-	if not isSquadNearAssembler(squad, current_pos) then
+	if squad.numMembers == 1 and squad.unitGroup and squad.unitGroup.valid then
+		orderSquadToRetreat(squad)
+	elseif not isSquadNearAssembler(squad, current_pos) then
 		-- if we're already very close to a retreat location, this could cause basically an infinite loop.
 		-- so only do it if we're far enough away that there will be a chance to do something about the issue eventually.
+		local retreatSquadSize = getSquadRetreatSize(squad.force)
+		if retreatSquadSize >= squad.numMembers then
+			retreatSquadSize = squad.numMembers / 2 + 1
+		elseif retreatSquadSize * 2 > squad.numMembers then
+			retreatSquadSize = squad.numMembers / 2
+		end
+		local counter = 0
+		local retreatSquad = nil
 		for key, soldier in pairs(squad.members) do
+			if not retreatSquad then
+				retreatSquad = createNewSquad(global.Squads[squad.force.name], soldier)
+			end
 			removeMemberFromSquad(squad, key)
-			retreatMisbehavingLoneWolf(soldier)
+			addMemberToSquad(retreatSquad, soldier)
+			counter = counter + 1
+			if counter >= retreatSquadSize then
+				orderSquadToRetreat(retreatSquad)
+				retreatSquad = nil
+				counter = 0
+			end
 		end
 	else
 		LOGGER.log(string.format("Can't retreat individual members of squad %d because it's already near an assembler.", squad.squadID))
@@ -449,19 +472,30 @@ function validateSquadIntegrity(squad)
 		return nil
 	else
 		squad = trimSquad(squad)
+		if not squad then return nil end
 	end
 
 	local pos = getSquadPos(squad)
+	local wander = false
 
      -- validate the unit group
     if not squad.unitGroup or not squad.unitGroup.valid then
         squad.unitGroupFailures = squad.unitGroupFailures + 1
         LOGGER.log(string.format("--- WARNING: squad %d at +++ unitGroup failures %d", squad.squadID,
                                  squad.unitGroupFailures))
-		if squad.unitGroupFailures >= MAX_UNIT_GROUP_FAILURES then
+		if squad.unitGroupFailures >= MAX_UNITGROUP_FAILURES then
 			-- this probably means that we're trying to attack a location that can't be attacked
-			squadFailedTooManyOrders(squad, pos)
-			return nil
+			if not isSquadNearAssembler(squad, pos) then
+				squadFailedTooManyOrders(squad, pos)
+				return nil
+			else
+				-- otherwise reset all individual soldier problems, and recreate unitGroup
+				-- we'll just hang out at the assembler for a while until the problems are solved
+				for key, soldier in pairs(squad.members) do
+					squad.memberUnitGroupErrors[key] = 0
+				end
+				wander = true
+			end
 		end
 		squad.unitGroup = recreateUnitGroupForSquad(squad, pos)
 		if not squad.unitGroup or not squad.unitGroup.valid then
@@ -530,6 +564,16 @@ function validateSquadIntegrity(squad)
         end
     end
 
+	if wander then
+		local msg = string.format("Squad %d is unable to complete its orders. It will wander near (%d,%d).",
+								  squad.squadID, pos.x, pos.y)
+		LOGGER.log(msg)
+		Game.print_force(squad.force, msg)
+		orderSquadToWander(squad, pos)
+		squad.unitGroupFailures = 0
+		return nil
+	end
+
     return squad
 end
 
@@ -568,6 +612,8 @@ end
 
 function revealChunksBySquad(squad)
     if squad and squad.unitGroup and squad.unitGroup.valid then
+		if squadOrderNeedsRefresh(squad) then squad = trimSquad(squad) end
+		if not squad then return end
         if squad.numMembers > 0 then  --if there are troops in a valid group in a valid squad.
             local position = squad.unitGroup.position
             --this area should give approx 3x3 chunks revealed
@@ -607,9 +653,7 @@ function grabArtifactsBySquad(squad)
 
                     if string.find(item.stack.name,"artifact") then
                         table.insert(artifactList, {name = item.stack.name, count = item.stack.count}) --inserts the LuaSimpleStack table (of name and count) to the artifacts list for later use
-
                         item.destroy()
-
                     end
                 end
             end
@@ -646,6 +690,7 @@ function orderSquadToWander(squad, position)
                                  destination = position,
                                  distraction=defines.distraction.by_enemy})
 	squad.command.tick = game.tick
+	squad.command.state_changed_since_last_command = false
 	squad.unitGroup.start_moving()
 end
 

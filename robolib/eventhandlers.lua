@@ -67,8 +67,8 @@ function processSpawnedDroid(droid, guard, guardPos)
 
     --code to handle adding new member to a squad that is guarding/patrolling
     if guard == true then
-        if squad.command ~= commands.guard then
-            squad.command = commands.guard
+        if squad.command.type ~= commands.guard then
+            squad.command.type = commands.guard
             squad.home = guardPos
             --game.players[1].print(string.format("Setting guard squad to wander around %s", event.guardPos))
 
