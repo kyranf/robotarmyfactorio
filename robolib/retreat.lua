@@ -90,8 +90,8 @@ end
 function checkRetreatAssemblerForMergeableSquads(assembler, squads)
 	local mergeableSquad = nil
 	local mergeableSquadDist = nil
-	LOGGER.log(string.format("Trying to merge retreating squads near assembler at (%d,%d)",
-							 assembler.position.x, assembler.position.y))
+	-- LOGGER.log(string.format("Trying to merge retreating squads near assembler at (%d,%d)",
+	-- 						 assembler.position.x, assembler.position.y))
 	local squadCount = 0
 	local squadCloseCount = 0
 	for squadID, squad in pairs(squads) do
@@ -142,7 +142,7 @@ function checkRetreatAssemblerForMergeableSquads(assembler, squads)
 			end
 		end
 	end
-	LOGGER.log(string.format("Assembler merge examined %d squads, of which %d were near this assembler at (%d,%d)",
-							 squadCount, squadCloseCount, assembler.position.x, assembler.position.y))
+	-- LOGGER.log(string.format("Assembler merge examined %d squads, of which %d were near this assembler at (%d,%d)",
+	-- 						 squadCount, squadCloseCount, assembler.position.x, assembler.position.y))
 	if squadCount == 0 then return false else return true end
 end

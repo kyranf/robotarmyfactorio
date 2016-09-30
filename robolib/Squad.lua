@@ -300,18 +300,19 @@ end
 function teleportSoldierToUnitGroup(soldier, unitGroup)
     -- naive teleport to unitgroup location
     local teleport_pos = soldier.surface.find_non_colliding_position(
-        soldier.name, unitGroup.position, 5, 1)
+        soldier.name, unitGroup.position, SQUAD_UNITGROUP_FAILURE_DISTANCE_ESTIMATE/2, 1)
     if teleport_pos then
         if not soldier.teleport(teleport_pos) then
             local msg = "Failed to teleport soldier to squad!!!"
             LOGGER.log(msg)
         else
-            unitGroup.add_member(soldier)
+			return true
         end
     else
         local msg = "Failed to find teleport position!!"
         LOGGER.log(msg)
     end
+	return false
 end
 
 
@@ -442,9 +443,9 @@ end
 
 
 function squadFailedTooManyOrders(squad, current_pos)
-	local msg = string.format("ERROR: Squad %d of size %d at position (%d,%d) has failed to follow orders and is being disbanded.",
+	local msg = string.format("ERROR: Squad %d of size %d at position (%d,%d) has failed to follow its last order to (%d,%d) and is being disbanded.",
 							  squad.squadID, squad.numMembers,
-							  current_pos.x, current_pos.y, squad.unitGroupFailures)
+							  current_pos.x, current_pos.y, squad.command.dest.x, squad.command.dest.y)
 	LOGGER.log(msg)
 	Game.print_force(squad.force, msg)
 
@@ -478,8 +479,8 @@ function validateSquadIntegrity(squad)
      -- validate the unit group
     if not squad.unitGroup or not squad.unitGroup.valid then
         squad.unitGroupFailures = squad.unitGroupFailures + 1
-        LOGGER.log(string.format("--- WARNING: squad %d at +++ unitGroup failures %d", squad.squadID,
-                                 squad.unitGroupFailures))
+        LOGGER.log(string.format("--- WARNING: squad %d size %d at (%d,%d) has now had %d UnitGroup failures.",
+								 squad.squadID, squad.numMembers, pos.x, pos.y, squad.unitGroupFailures))
 		if squad.unitGroupFailures >= MAX_UNITGROUP_FAILURES then
 			-- this probably means that we're trying to attack a location that can't be attacked
 			if not isSquadNearAssembler(squad, pos) then
@@ -506,7 +507,7 @@ function validateSquadIntegrity(squad)
     ::retryCheckMembership::
     for key, soldier in pairs(squad.members) do
         if not soldier or not soldier.valid then
-            removeMemberFromSquad(squad, key)
+            removeMemberFromSquad(squad, key) -- this should never happen since we've already trimmed the squad
         elseif not table.contains(squad.unitGroup.members, soldier) then
             if soldier.surface == squad.unitGroup.surface then
 				local soldier_group_distance = util.distance(pos, soldier.position)
@@ -518,35 +519,40 @@ function validateSquadIntegrity(squad)
 						not global_canAnyPlayersSeeThisEntity(squad.unitGroup)
 					then
 						local msg = string.format(
-							"   >>>>>  Teleporting wayward soldier %d about %d to its squad's (%d) location (%d,%d)",
+							"   >>>>>  Teleporting wayward soldier %d about %d m to location of its squad %d at (%d,%d)",
 							key, soldier_group_distance,
 							squad.squadID, squad.unitGroup.position.x,
 							squad.unitGroup.position.y)
 						LOGGER.log(msg)
 						teleportSoldierToUnitGroup(soldier, squad.unitGroup) -- if the teleport succeeds, this will add the soldier to the unit group
+						squad.unitGroup.add_member(soldier)
 					else
-						local msg = string.format("Re-adding soldier %d of squad %d to unitGroup, attempt %d",
-												  key, squad.squadID, squad.memberUnitGroupErrors[key])
+						local msg = string.format("Re-add soldier %d of squad %d sz %d to unitGroup, attempt %d",
+												  key, squad.squadID, squad.numMembers, squad.memberUnitGroupErrors[key])
 						LOGGER.log(msg)
 						squad.unitGroup.add_member(soldier)
 					end
-                else -- tried teleporting a few times, or didn't because player present
-                    if not isSquadNearAssembler(squad, pos) then
+                else -- tried teleporting a few times, or couldn't because player present
+					-- no point in disbanding a single-soldier squad, or one that is already at an assembler
+                    if not isSquadNearAssembler(squad, pos) and squad.numMembers > 1 then
                         local msg = string.format(
-                            "!*!*!*!*! ERROR: After many attempts, failed to reintegrate soldier %d at (%d,%d) with squad %d. " ..
+                            "!*!*!*!*! ERROR: After many attempts, failed to reintegrate soldier %d at (%d,%d) with squad %d sz %d. " ..
                                 "Therefore the soldier is being asked to retreat on its own.",
-                            key, soldier.position.x, soldier.position.y, squad.squadID)
+                            key, soldier.position.x, soldier.position.y, squad.squadID, squad.numMembers)
                         LOGGER.log(msg)
                         removeMemberFromSquad(squad, soldier_key)
                         retreatMisbehavingLoneWolf(soldier)
                     else
                         local msg = string.format("WARNING: Can't remove misbehaving soldier at distance %d " ..
-                                                      "from squad %d and ask it to retreat " ..
-                                                      "because it's already at the nearest assembler. " ..
-													  "This will eventually result in the unit group losing cohesion and being disbanded.",
+                                                      "from squad %d size %d at (%d,%d) and ask it to retreat " ..
+                                                      "because it's already at the nearest assembler or is too small. " ..
+													  "This will probably result in the unit group losing cohesion and being disbanded.",
                                                   util.distance(soldier.position, squad.unitGroup.position),
-                                                  squad.squadID)
+                                                  squad.squadID, squad.numMembers, pos.x, pos.y)
                         LOGGER.log(msg)
+						squad.memberUnitGroupErrors[key] = 0
+						squad.unitGroup.add_member(soldier)
+						wander = true
                     end
                 end
             else -- the unit group and the soldier are on different surfaces. very odd, but let's try to fix it.
@@ -562,8 +568,8 @@ function validateSquadIntegrity(squad)
     end
 
 	if wander then
-		local msg = string.format("Squad %d is unable to complete its orders. It will wander near (%d,%d).",
-								  squad.squadID, pos.x, pos.y)
+		local msg = string.format("Squad %d of size %d is unable to complete its orders to go to (%d,%d). It will wander near (%d,%d).",
+								  squad.squadID, squad.numMembers, squad.command.dest.x, squad.command.dest.y, pos.x, pos.y)
 		LOGGER.log(msg)
 		Game.print_force(squad.force, msg)
 		orderSquadToWander(squad, pos)
