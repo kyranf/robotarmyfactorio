@@ -540,7 +540,7 @@ function handleDroidAssemblerPlaced(event)
     end
 
     LOGGER.log(string.format("Adding assembler to force %s", force.name))
-	table.insert(global.DroidAssemblers[force.name], entity)
+	global.DroidAssemblers[force.name][entity.unit_number] = entity
 end
 
 

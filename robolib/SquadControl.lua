@@ -10,7 +10,7 @@ function updateSquad(squad)
     if squadStillExists(squad) then -- if not, that means this squad has been deleted
 		--LOGGER.log(string.format( "AI for squadref %d in tick table index %d is being executed now...", squadref, tickProcessIndex) )
 		--CHECK IF SQUAD IS A GUARD SQUAD, AND CHOOSE WHICH AI FUNCTION TO CALL
-		if squad.command == commands.guard then
+		if squad.command.type == commands.guard then
 			executeGuardAI(squad)
 		elseif not squad.rally then
 			executeBattleAI(squad)
@@ -20,6 +20,25 @@ function updateSquad(squad)
 
 		revealChunksBySquad(squad)
 		grabArtifactsBySquad(squad)
+	end
+end
+
+
+function executeBattleAI(squad)
+	local attacking = isAttacking(squad)
+	if attacking then squad.command.state_changed_since_last_command = true end
+	if (not attacking) and (squad.command.state_changed_since_last_command or
+							  squadOrderNeedsRefresh(squad))
+	then
+		squad.command.state_changed_since_last_command = false
+		LOGGER.log(string.format("Squad %d Needs orders of some kind %d at %d",
+								 squad.squadID, squad.command.type, game.tick))
+		if not validateSquadIntegrity(squad) then return end
+		if shouldHunt(squad) then
+			orderSquadToHunt(squad)
+		else
+			orderSquadToRetreat(squad)
+		end
 	end
 end
 
@@ -50,26 +69,6 @@ function orderSquadToHunt(squad)
         -- update - I encountered this on a fresh start map and placing down units before any biters (or chunks they live in) had been generated yet.
         -- we need an "idle" behaviour I think, such as returning to the squad "home" which is set when they are first made at an assembler, or the player's position.
     end
-end
-
-
-function executeBattleAI(squad)
-	if ((squad.unitGroup.state == defines.group_state.gathering
-			or squad.unitGroup.state == defines.group_state.finished)
-			and squad.command ~= commands.assemble) -- no orders, but not assembling
-		or
-		(not isAttacking(squad) and isOldBattleOrder(squad)) -- not attacking, and needs a periodic re-check
-	then -- needs orders of some kind
-		if not validateSquadIntegrity(squad) then return end
-		if shouldHunt(squad) then
-			-- local msg = string.format("ordering squad %d to hunt", squad.squadID)
-			-- Game.print_force(squad.force, msg)
-			orderSquadToHunt(squad)
-		else
-			orderSquadToRetreat(squad)
-		end
-	end -- other states include moving, attacking, or attacking distraction.
-	-- in these cases, leave the droids alone until they 'need' to be ordered again.
 end
 
 
@@ -170,8 +169,8 @@ function executeGuardAI(squad)
 				--squad.unitGroup.start_moving()
 			end
 		end
-	elseif isOldBattleOrder(squad) then
-		squad.lastBattleOrderTick = game.tick
+	elseif squad.command.tick + SANITY_CHECK_PERIOD_SECONDS * 60 < game.tick then
+		squad.command.tick = game.tick
 		validateSquadIntegrity(squad)
 	end
 end
@@ -179,7 +178,6 @@ end
 
 function doRallyBeaconUpdate()
     if global.Squads then
-
         for _,force in pairs(game.forces) do
             local forceName = force.name
             if global.Squads[forceName] then
@@ -190,8 +188,9 @@ function doRallyBeaconUpdate()
                     local forceSquads = global.Squads[forceName]
                     for _, squad in pairs(forceSquads) do
                         if squad and squad.unitGroup and squad.unitGroup.valid then
-                            if squad.command ~= commands.guard and squad.command ~= commands.patrol then
-
+                            if squad.command.type ~= commands.guard
+								and squad.command.type ~= commands.patrol
+							then
                                 --find nearest rally pole to squad position and send them there.
                                 local squadPos = squad.unitGroup.position
                                 local closestRallyBeacon = getClosestEntity(squadPos, forceBeacons) --find closest rallyBeacon to move towards

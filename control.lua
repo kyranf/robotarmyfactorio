@@ -62,4 +62,6 @@ script.on_init(init_robotarmy)
 script.on_event(defines.events.on_force_created, handleForceCreated)
 script.on_event(defines.events.on_built_entity, handleOnBuiltEntity)
 script.on_event(defines.events.on_robot_built_entity, handleOnRobotBuiltEntity)
-script.on_event(defines.events.on_tick, handleTick)
+
+-- this on tick handler will get replaced on the first tick after 'live' migrations have run
+script.on_event(defines.events.on_tick, bootstrap_migration_on_first_tick)

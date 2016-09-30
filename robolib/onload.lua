@@ -2,6 +2,26 @@ require("robolib.Squad")
 require("stdlib/log/logger")
 require("stdlib/game")
 
+
+function bootstrap_migration_on_first_tick(event)
+	LOGGER.log("Running first tick migrations...")
+	local forces = game.forces
+
+	runOnceCheck(forces)
+	global_ensureTablesExist()
+
+	for fkey, force in pairs(forces) do
+		if force.name ~= "enemy" and force.name ~= "neutral" then
+			migrateForce(fkey, force)
+		end
+	end
+
+	-- substitute the 'normal' tick handler, and run it manually this time
+	script.on_event(defines.events.on_tick, handleTick)
+	handleTick(event)
+end
+
+
 function global_ensureTablesExist()
     if not global.updateTable then global.updateTable = {} end
     if not global.Squads then global.Squads = {} end
@@ -12,41 +32,73 @@ function global_ensureTablesExist()
 end
 
 
-function global_migrateSquadsToTickTable(forces)
-	LOGGER.log("verifying tick tables...")
-	-- ensure all squads are actually in the tick Tables
-	for fkey, force in pairs(forces) do
-		if force.name ~= "enemy" and force.name ~= "neutral" then
-			global_fixupTickTablesForForceName(force.name)
-			if not global.Squads[force.name] then goto continue end
-			for skey, squad in pairs(global.Squads[force.name]) do
-				local found = false
-				for tkey, tickTable in pairs(global.updateTable[force.name]) do
-					if table.contains(tickTable, squad.squadID) then
-						found = true
-						break
-					end
-				end
-				if not found then
-					squad = validateSquadIntegrity(squad)
-					if squad then
-						LOGGER.log(string.format("Inserting squad %d of size %d into tickTables", squad.squadID, squad.numMembers))
-						table.insert(global.updateTable[force.name][squad.squadID % 60 + 1], squad.squadID)
-					end
-				end
-			end
+function migrateForce(fkey, force)
+	LOGGER.log(string.format("Migrating force %s...", force.name))
+	global_fixupTickTablesForForceName(force.name)
+	for skey, squad in pairs(global.Squads[force.name]) do
+		migrateSquad(skey, squad)
+	end
 
-			-- index these by their globally unique "unit_number" instead.
-			local forceAssemblers = global.DroidAssemblers[force.name]
-			for dkey, assembler in pairs(forceAssemblers) do
-				forceAssemblers[dkey] = nil
-				if assembler.valid then
-					LOGGER.log(string.format("Moving assembler to new index %d from %d", assembler.unit_number, dkey))
-					forceAssemblers[assembler.unit_number] = assembler
-				end
+	migrateDroidAssemblersTo_0_2_4(force)
+end
+
+
+function migrateSquad(skey, squad)
+	migrateSquadTo_0_2_4(squad)
+end
+
+
+function migrateSquadTo_0_2_4(squad)
+    squad.members.size = nil -- removing old 'size' table entry
+
+	if not squad.command then
+		-- this shouldn't happen, but just in case...
+		squad.command = makeCommandTable(commands.hunt)
+	elseif type(squad.command) ~= "table" then
+		-- this is the normal migration path
+		LOGGER.log(string.format("Migrating squad %d command table", squad.squadID))
+		local pos = getSquadPos(squad)
+		squad.command = makeCommandTable(squad.command, pos, pos)
+	end
+	squad.unitGroupFailures = squad.unitGroupFailures or 0
+    squad.numMembers = squad.numMembers or 0
+
+	if not squad.memberUnitGroupErrors then
+		squad.memberUnitGroupErrors = {}
+        for key, soldier in pairs(squad.members) do
+            squad.memberUnitGroupErrors[key] = 0
+        end
+    end
+
+	-- put squad in tick tables if not there already
+	local found = false
+	for tkey, tickTable in pairs(global.updateTable[squad.force.name]) do
+		if table.contains(tickTable, squad.squadID) then
+			found = true
+			break
+		end
+	end
+	if not found then
+		squad = validateSquadIntegrity(squad)
+		if squad then
+			LOGGER.log(string.format("Inserting squad %d of size %d into tickTables", squad.squadID, squad.numMembers))
+			table.insert(global.updateTable[squad.force.name][squad.squadID % 60 + 1], squad.squadID)
+		end
+	end
+end
+
+
+function migrateDroidAssemblersTo_0_2_4(force)
+	-- index these by their globally unique "unit_number" instead.
+	local forceAssemblers = global.DroidAssemblers[force.name]
+	for dkey, assembler in pairs(forceAssemblers) do
+		if dkey ~= assembler.unit_number then
+			forceAssemblers[dkey] = nil
+			if assembler.valid then
+				LOGGER.log(string.format("Moving assembler to new index %d from %d", assembler.unit_number, dkey))
+				forceAssemblers[assembler.unit_number] = assembler
 			end
 		end
-		::continue::
 	end
 end
 

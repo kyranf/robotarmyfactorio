@@ -216,13 +216,6 @@ end -- handleOnRobotBuiltEntity
 -- during the on-tick event, lets check if we need to update squad AI, spawn droids from assemblers, or update bot counters, etc
 function handleTick(event)
     local forces = game.forces
-	-- sanity/migration checks
-    runOnceCheck(forces)
-	global_ensureTablesExist()
-	if not global.migratedTickTablesTo_0_2_4 then
-		global_migrateSquadsToTickTable(forces)
-		global.migratedTickTablesTo_0_2_4 = true
-	end
 
 	tickForces(forces, event.tick)
 

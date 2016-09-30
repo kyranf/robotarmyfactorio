@@ -20,6 +20,18 @@ global.SquadTemplate = {squadID= 0, player=true, unitGroup = true, members = {si
 global.patrolState = {lastPole = nil,currentPole = nil,nextPole = nil,movingToNext = false}
 
 
+function makeCommandTable(cmd_type, pos, dest)
+	local command = {}
+	command.type = cmd_type
+	command.tick = 0
+	command.pos = pos or {x = 0, y = 0}
+	command.dest = dest or {x = 0, y = 0}
+	command.distance = util.distance(command.pos, command.dest)
+	command.state_changed_since_last_command = true
+	return command
+end
+
+
 function createNewSquad(forceSquadsTable, entity)
     if not global.uniqueSquadId then
         global.uniqueSquadId = {}
@@ -42,16 +54,15 @@ function createNewSquad(forceSquadsTable, entity)
     newsquad.squadID = squadID
     newsquad.patrolPoint1 = newsquad.home
     newsquad.patrolPoint2 = newsquad.home
-    newsquad.command = commands.assemble
 
     newsquad.members = {}
     newsquad.memberUnitGroupErrors = {}
     newsquad.numMembers = 0
 
-    newsquad.lastBattleOrderFailures = 0
-    newsquad.lastBattleOrderTick = nil -- we use this to periodically sanity check the squad
-    newsquad.lastBattleOrderPos = nil
-
+    newsquad.unitGroupFailures = 0
+	newsquad.command = makeCommandTable(commands.assemble,
+										newsquad.unitGroup.position,
+										newsquad.unitGroup.position)
     forceSquadsTable[squadID] = newsquad
 
     local tick = global_getLeastFullTickTable(entity.force) --get the least utilised tick in the tick table
@@ -91,23 +102,17 @@ function deleteSquad(squad, suppress_msg)
 end
 
 
-function isOldBattleOrder(squad)
-	if not squad.lastBattleOrderTick then squad.lastBattleOrderTick = 0 end
-    return not squad.lastBattleOrderPos or
-        (squad.lastBattleOrderTick + SANITY_CHECK_PERIOD_SECONDS * 60 < game.tick and
-             util.distance(getSquadPos(squad), squad.lastBattleOrderPos)
-             < SANITY_CHECK_PROGRESS_DISTANCE)
-end
-
-
-function isTimeForMergeCheck(squad)
-    return not squad.lastBattleOrderTick or
-        squad.lastBattleOrderTick + MERGE_CHECK_PERIOD_SECONDS * 60 < game.tick
-end
-
-
-function markSquadReadyForOrder(squad)
-    squad.lastBattleOrderTick = 0
+function squadOrderNeedsRefresh(squad)
+	-- explaining the math:
+	-- if our last order was given a while ago, and we haven't gone anywhere in the meantime
+	-- then it's time to give another order.
+	-- However, for orders which requested that the squad path a very long distance,
+	-- we want to make sure we gave the pather plenty of time to make that calculation
+	local squadPos = getSquadPos(squad)
+	local sanity_check_period = SANITY_CHECK_PERIOD_SECONDS * 60 *
+		(squad.command.distance / SANITY_CHECK_PATH_DISTANCE_DIV_FACTOR + 1)
+	local its_been_awhile = game.tick > (squad.command.tick + sanity_check_period)
+	return its_been_awhile
 end
 
 
@@ -122,7 +127,14 @@ function addMemberToSquad(squad, soldier)
         table.insert(squad.members, soldier)
         table.insert(squad.memberUnitGroupErrors, 0)
         squad.unitGroup.add_member(soldier)
+
+		local bigEnoughToHunt = shouldHunt(squad)
         squad.numMembers = squad.numMembers + 1
+		if not bigEnoughToHunt and shouldHunt(squad) then
+			LOGGER.log(string.format("State of squad %d changed because of size difference", squad.squadID))
+			squad.command.state_changed_since_last_command = true
+		end
+
         LOGGER.log(string.format( "Adding soldier to squad %d, squad size is now %d", squad.squadID, squad.numMembers))
     else
         Game.print_force(Game.forces[1], "Tried to addMember to invalid table!")
@@ -157,11 +169,12 @@ function mergeSquads(squadA, squadB)
         squadA = tempS
     end
 
-    LOGGER.log(string.format("MERGING squad %d sz %d (%d,%d) into squad %d sz %d (%d,%d)!",
+    LOGGER.log(string.format("MERGING squad %d sz %d (%d,%d) into squad %d sz %d (%d,%d) cmd %d!",
                              squadB.squadID, squadB.numMembers,
                              squadB.unitGroup.position.x, squadB.unitGroup.position.y,
                              squadA.squadID, squadA.numMembers,
-                             squadA.unitGroup.position.x, squadA.unitGroup.position.y))
+                             squadA.unitGroup.position.x, squadA.unitGroup.position.y,
+							 squadA.command.type))
 
     for key, soldier in pairs(squadB.members) do
         if soldier and soldier.valid then
@@ -172,6 +185,7 @@ function mergeSquads(squadA, squadB)
 
     local mergedSquad = validateSquadIntegrity(squadA)
     if mergedSquad then
+		mergedSquad.unitGroupFailures = 0
         local msg = string.format("Merged squad %d into squad %d, now of size %d",
                                   squadB.squadID, squadA.squadID, mergedSquad.numMembers)
         LOGGER.log(msg)
@@ -188,7 +202,7 @@ end
 function shouldHunt(squad)
     return squad.numMembers >= getSquadHuntSize(squad.force)
         or
-        (squad.command == commands.hunt and
+        (squad.command.type == commands.hunt and
              squad.numMembers > getSquadRetreatSize(squad.force))
 end
 
@@ -205,7 +219,7 @@ end
 
 
 function getSquadAvgPosition(squad)
-    local pos = nil
+    local pos = {x = 0, y = 0}
     local totx = 0
     local toty = 0
     local count = 0
@@ -237,7 +251,7 @@ function getClosestSquadToPos(forceSquads, position, maxRange, ignore_squad,
             squad = validateSquadIntegrity(squad)
         end
         if squad then
-            if only_with_squad_commands and not table.contains(only_with_squad_commands, squad.command) then
+            if only_with_squad_commands and not table.contains(only_with_squad_commands, squad.command.type) then
                 goto continue -- we're not interested in a squad with this active command
             end
             local distance = util.distance(position, squad.unitGroup.position)
@@ -263,7 +277,7 @@ end
 function getCloseEnoughSquadToSquad(forceSquads, squad, closeEnough, only_with_commands)
     for key, otherSquad in pairs(forceSquads) do
         if squad == otherSquad then goto continue end
-        if only_with_commands and not table.contains(only_with_commands, otherSquad.command) then
+        if only_with_commands and not table.contains(only_with_commands, otherSquad.command.type) then
             goto continue
         end
         otherSquad = validateSquadIntegrity(otherSquad)
@@ -301,8 +315,6 @@ end
 
 
 function recreateUnitGroupForSquad(squad, pos)
-    squad.lastBattleOrderTick = 0 -- needs a new command
-
     local unitGroup = nil
     if pos ~= nil then
 		local surface = getSquadSurface(squad)
@@ -310,7 +322,9 @@ function recreateUnitGroupForSquad(squad, pos)
 		if not squad.unitGroup then
 			local msg = string.format("Very bad -- cannot create unit group for squad %d", squad.squadID)
 			LOGGER.log(msg)
-        end
+        else
+			squad.command.state_changed_since_last_command = true
+		end
     else
         local msg = string.format("Bad error -- cannot find position for any unit in squad %d.", squad.squadID)
         LOGGER.log(msg)
@@ -321,28 +335,23 @@ end
 
 -- this function is sufficient for basic operations, but does not always fully validate the squad
 function squadStillExists(squad)
-    if squad and squad.members and global.Squads[squad.force.name][squad.squadID] then
-        if not squad.numMembers then
-            squad = trimSquad(squad)
-        end
-        if not squad.unitGroup or not squad.unitGroup.valid then -- it very likely doesn't have members
-            squad = validateSquadIntegrity(squad)
-        end
-        return squad
-    else
+	if not squad or squad.deleted then
+		return nil
+	else
 		if not squad.unitGroup or not squad.unitGroup.valid then
-			 --  squad is missing major components; do a full check
-			return validateSquadIntegrity(squad)
-		else
-			-- looks like it just needs a sanity check
-			return trimSquad(squad)
+			squad = validateSquadIntegrity(squad)
+		elseif not squad.members or not squad.numMembers or squad.numMembers < 2 or
+			not global.Squads[squad.force.name][squad.squadID]
+		then
+			squad = trimSquad(squad)
 		end
-    end
+	end
+	return squad
 end
 
 
 function trimSquad(squad, suppress_msg)
-    if squad.deleted then return nil end
+    if not squad or squad.deleted then return nil end
     if squad then
         --player.print(string.format("trimming squad %s, id %d, member size %d", squad, squad.squadID, squad.numMembers))
         squad.numMembers = 0
@@ -415,7 +424,7 @@ end
 function squadFailedTooManyOrders(squad, current_pos)
 	local msg = string.format("ERROR: Squad %d of size %d at position (%d,%d) has failed to follow orders and is being disbanded.",
 							  squad.squadID, squad.numMembers,
-							  current_pos.x, current_pos.y, squad.lastBattleOrderFailures)
+							  current_pos.x, current_pos.y, squad.unitGroupFailures)
 	LOGGER.log(msg)
 	Game.print_force(squad.force, msg)
 
@@ -436,19 +445,20 @@ end
 -- checks that all entities in the "members" sub table are present in the unitgroup and that the unit group exists
 -- this function is fairly expensive, so don't call it unless necessary.
 function validateSquadIntegrity(squad)
-    if squad then squad = trimSquad(squad) end
-    if not squad then return nil end --LOGGER.log("tried to validate a squad that doesn't exist!")
+    if not squad then
+		return nil
+	else
+		squad = trimSquad(squad)
+	end
 
-    squad = inGameSquadMigration(squad)
-
-	local pos = getSquadAvgPosition(squad)
+	local pos = getSquadPos(squad)
 
      -- validate the unit group
     if not squad.unitGroup or not squad.unitGroup.valid then
-        squad.lastBattleOrderFailures = squad.lastBattleOrderFailures + 3
-        LOGGER.log(string.format("--- WARNING: squad %d at +++ order failures %d", squad.squadID,
-                                 squad.lastBattleOrderFailures))
-		if squad.lastBattleOrderFailures >= 10 then
+        squad.unitGroupFailures = squad.unitGroupFailures + 1
+        LOGGER.log(string.format("--- WARNING: squad %d at +++ unitGroup failures %d", squad.squadID,
+                                 squad.unitGroupFailures))
+		if squad.unitGroupFailures >= MAX_UNIT_GROUP_FAILURES then
 			-- this probably means that we're trying to attack a location that can't be attacked
 			squadFailedTooManyOrders(squad, pos)
 			return nil
@@ -459,9 +469,6 @@ function validateSquadIntegrity(squad)
 			cantCreateUnitGroup(squad, pos)
 			return nil
 		end
-    elseif squad.lastBattleOrderFailures > 0 and squad.lastBattleOrderTick + 60 < game.tick then
-        squad.lastBattleOrderFailures = squad.lastBattleOrderFailures - 1
-        LOGGER.log(string.format("squad %d at - order failures %d", squad.squadID, squad.lastBattleOrderFailures))
     end
 
     -- check each droid individually to confirm that it is part of the unitGroup
@@ -471,24 +478,27 @@ function validateSquadIntegrity(squad)
             removeMemberFromSquad(squad, key)
         elseif not table.contains(squad.unitGroup.members, soldier) then
             if soldier.surface == squad.unitGroup.surface then
+				local soldier_group_distance = util.distance(pos, soldier.position)
                 squad.memberUnitGroupErrors[key] = squad.memberUnitGroupErrors[key] + 1
-                if squad.memberUnitGroupErrors[key] < 3 then
-                    local msg = string.format("Re-adding soldier %d of squad %d to unitGroup, attempt %d",
-                                              key, squad.squadID, squad.memberUnitGroupErrors[key])
-                    LOGGER.log(msg)
-                    squad.unitGroup.add_member(soldier)
-                elseif squad.memberUnitGroupErrors[key] < 5 and USE_TELEPORTATION_FIX and
-                    not global_canAnyPlayersSeeThisEntity(soldier) and
-                    not global_canAnyPlayersSeeThisEntity(squad.unitGroup)
-                then -- we can cheat by teleporting the entity :/
-                    local msg = string.format(
-                        "   >>>>>  Teleporting wayward soldier %d about %d to its squad's (%d) location (%d,%d)",
-                        key, util.distance(soldier.position,
-                                           squad.unitGroup.position),
-                        squad.squadID, squad.unitGroup.position.x,
-                        squad.unitGroup.position.y)
-                    LOGGER.log(msg)
-                    teleportSoldierToUnitGroup(soldier, squad.unitGroup) -- if the teleport succeeds, this will add the soldier to the unit group
+                if squad.memberUnitGroupErrors[key] < 5 then
+					if soldier_group_distance > SQUAD_UNITGROUP_FAILURE_DISTANCE_ESTIMATE and
+						USE_TELEPORTATION_FIX and
+						not global_canAnyPlayersSeeThisEntity(soldier) and
+						not global_canAnyPlayersSeeThisEntity(squad.unitGroup)
+					then
+						local msg = string.format(
+							"   >>>>>  Teleporting wayward soldier %d about %d to its squad's (%d) location (%d,%d)",
+							key, soldier_group_distance,
+							squad.squadID, squad.unitGroup.position.x,
+							squad.unitGroup.position.y)
+						LOGGER.log(msg)
+						teleportSoldierToUnitGroup(soldier, squad.unitGroup) -- if the teleport succeeds, this will add the soldier to the unit group
+					else
+						local msg = string.format("Re-adding soldier %d of squad %d to unitGroup, attempt %d",
+												  key, squad.squadID, squad.memberUnitGroupErrors[key])
+						LOGGER.log(msg)
+						squad.unitGroup.add_member(soldier)
+					end
                 else -- tried teleporting a few times, or didn't because player present
                     if not isSquadNearAssembler(squad, pos) then
                         local msg = string.format(
@@ -512,9 +522,8 @@ function validateSquadIntegrity(squad)
                 local msg = string.format("Destroying unit group for squad ID %d because a soldier is on the wrong surface.", squad.squadID)
                 LOGGER.log(msg)
                 squad.unitGroup.destroy()
-                soldier.surface.create_unit_group({position=soldier.position, force=soldier.force})
-                squad.lastBattleOrderTick = 0 -- needs a new command
-                --goto retryCheckMembership
+				squad.unitGroup = recreateUnitGroupForSquad(squad, pos)
+				if not squad.unitGroup then return nil end
             end
         elseif squad.memberUnitGroupErrors[key] > 0 then
             squad.memberUnitGroupErrors[key] = squad.memberUnitGroupErrors[key] - 1
@@ -526,8 +535,8 @@ end
 
 
 function isSquadMovingAwayFromLastPosition(squad)
-    if not squad.lastBattleOrderPos then return true end
-    return util.distance(squad.unitGroup.position, squad.lastBattleOrderPos) > SANITY_CHECK_PROGRESS_DISTANCE
+    if not squad.command.pos then return true end
+    return util.distance(squad.unitGroup.position, squad.command.pos) > SANITY_CHECK_PROGRESS_DISTANCE
 end
 
 
@@ -625,27 +634,28 @@ function grabArtifactsBySquad(squad)
 end
 
 
+-- this is currently only used by the 'guard' system
 function orderSquadToWander(squad, position)
-    squad.lastBattleOrderTick = game.tick
-    squad.lastBattleOrderPos = squad.unitGroup.position
+    squad.command.pos = squad.unitGroup.position
+	squad.command.type = commands.assemble
+	squad.command.dest = position
+	squad.command.distance = util.distance(position, squad.command.pos)
+
     debugSquadOrder(squad, "WANDER", position)
     squad.unitGroup.set_command({type=defines.command.wander,
                                  destination = position,
                                  distraction=defines.distraction.by_enemy})
-    squad.unitGroup.start_moving()
+	squad.command.tick = game.tick
+	squad.unitGroup.start_moving()
 end
 
 
 function orderSquadToAttack(squad, position)
     --make sure squad is good, then set command
-    squad.command = commands.hunt -- sets the squad's high level role to hunt.
-    if squad.lastBattleOrderTick + 60 >= game.tick then
-        -- we may be trying to issue bad attack orders...
-        squad.lastBattleOrderFailures = squad.lastBattleOrderFailures + 2
-        LOGGER.log(string.format("--- WARNING: Squad %d at ++ order failures %d", squad.squadID, squad.lastBattleOrderFailures))
-    end
-    squad.lastBattleOrderTick = game.tick
-    squad.lastBattleOrderPos = squad.unitGroup.position
+    squad.command.type = commands.hunt -- sets the squad's high level role to hunt.
+    squad.command.pos = squad.unitGroup.position
+	squad.command.dest = position
+	squad.command.distance = util.distance(position, squad.command.pos)
 
     squad.retreatAssembler = nil
 	global.RetreatingSquads[squad.force.name][squad.squadID] = nil
@@ -654,6 +664,8 @@ function orderSquadToAttack(squad, position)
     squad.unitGroup.set_command({type=defines.command.attack_area,
                                  destination=position,
                                  radius=50, distraction=defines.distraction.by_anything})
+	squad.command.state_changed_since_last_command = false
+    squad.command.tick = game.tick
     squad.unitGroup.start_moving()
 end
 
@@ -663,45 +675,17 @@ function debugPrintSquad(squad)
     if squad.unitGroup then ug_state = squad.unitGroup.state end
     local msg = string.format("sqd %d, sz %d, ug? %s, ugst %s, cmd %s, tick %d",
                               squad.squadID, squad.numMembers, tostring(squad.unitGroup ~= nil),
-                              tostring(ug_state), tostring(squad.command), game.tick)
+                              tostring(ug_state), tostring(squad.command.type), game.tick)
     Game.print_force(squad.force, msg)
     LOGGER.log(msg)
 end
 
 
 function debugSquadOrder(squad, orderName, position)
-    local msg = string.format("Ordering squad %d (%d: %d,%d) to %s at (%d,%d).",
+    local msg = string.format("Ordering squad %d sz %d at (%d,%d) to %s at (%d,%d), a distance of %d; last order was %d ticks ago",
                               squad.squadID, squad.numMembers,
                               squad.unitGroup.position.x, squad.unitGroup.position.y,
-                              orderName, position.x, position.y)
+                              orderName, position.x, position.y, squad.command.distance,
+							  game.tick - squad.command.tick)
     LOGGER.log(msg)
-end
-
-
-function inGameSquadMigration(squad)
-    -- missed migration to 0.2.4
-    squad.members.size = nil -- removing old 'size' table entry
-    if not squad.memberUnitGroupErrors then
-        squad.memberUnitGroupErrors = {}
-        for key, soldier in pairs(squad.members) do
-            squad.memberUnitGroupErrors[key] = 0
-        end
-    end
-    if not squad.lastBattleOrderFailures then
-        squad.lastBattleOrderFailures = 0
-        LOGGER.log(string.format("squad %d at 0 failures %d", squad.squadID, squad.lastBattleOrderFailures))
-    end
-    if not squad.lastBattleOrderTick then squad.lastBattleOrderTick = 0 end
-    return squad
-end
-
-
-function trimSquads(forces)
-    for _, force in pairs(forces) do
-        if global.Squads and global.Squads[force.name] then
-            for key, squad in pairs(global.Squads[force.name]) do
-                trimSquad(squad)
-            end
-        end
-    end
 end
