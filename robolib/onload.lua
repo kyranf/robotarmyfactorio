@@ -8,7 +8,7 @@ function global_ensureTablesExist()
 	if not global.AssemblerRetreatTables then global.AssemblerRetreatTables = {} end
 	if not global.RetreatingSquads then global.RetreatingSquads = {} end
 	if not global.DroidAssemblers then global.DroidAssemblers = {} end
-	global.droidGuardStations = global.droidGuardStations or {}
+	if not global.droidGuardStations then global.droidGuardStations = {} end
 end
 
 
@@ -33,6 +33,16 @@ function global_migrateSquadsToTickTable(forces)
 						LOGGER.log(string.format("Inserting squad %d of size %d into tickTables", squad.squadID, squad.numMembers))
 						table.insert(global.updateTable[force.name][squad.squadID % 60 + 1], squad.squadID)
 					end
+				end
+			end
+
+			-- index these by their globally unique "unit_number" instead.
+			local forceAssemblers = global.DroidAssemblers[force.name]
+			for dkey, assembler in pairs(forceAssemblers) do
+				forceAssemblers[dkey] = nil
+				if assembler.valid then
+					LOGGER.log(string.format("Moving assembler to new index %d from %d", assembler.unit_number, dkey))
+					forceAssemblers[assembler.unit_number] = assembler
 				end
 			end
 		end

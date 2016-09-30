@@ -19,7 +19,7 @@ LONE_WOLF_CLEANUP_SCRIPT_PERIOD = 18000 -- how often to find and deal with droid
 GUARD_STATION_GARRISON_SIZE = 10 -- limit to how many a guard station will spawn based on counting nearby droids
 
 USE_TELEPORTATION_FIX = 1
-SANITY_CHECK_PERIOD_SECONDS = 30
+SANITY_CHECK_PERIOD_SECONDS = 60
 SANITY_CHECK_PROGRESS_DISTANCE = 30  -- 30 tiles in 60 seconds is veeerrry generous :)
 MERGE_CHECK_PERIOD_SECONDS = 5
 PRINT_SQUAD_DEATH_MESSAGES = 1

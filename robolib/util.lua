@@ -112,6 +112,7 @@ end
 -- end
 
 
+-- TODO: improve this to use zoom level and stuff
 function global_canAnyPlayersSeeThisEntity(entity)
 	for key, player in pairs(game.players) do
 		if player and util.distance(player.position, entity.position) < PLAYER_VIEW_RADIUS then
@@ -136,7 +137,6 @@ function getClosestEntity(position, entityList)
                 distance = dist
             end
         end
-
     end
     return closestEntity
 end
@@ -151,7 +151,7 @@ function fillTableWithTickEntries(inputTable)
 end
 
 
-function getLeastFullTickTable(force)
+function global_getLeastFullTickTable(force)
     if not global.updateTable then global.updateTable = {} end
     if not global.updateTable[force.name] then global.updateTable[force.name] = {} end
 
@@ -168,13 +168,11 @@ function getLeastFullTickTable(force)
     local lowestCount = false
     local lowestIndex = 0
     for tick, tickTable in pairs(forceTickTable) do
-
         local count = table.countNonNil(tickTable)
         if not lowestCount or count < lowestCount then
             lowestCount = count
             lowestIndex = tick
         end
-
     end
     return lowestIndex
 end
