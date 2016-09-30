@@ -30,7 +30,6 @@ function executeBattleAI(squad)
 	if (not attacking) and (squad.command.state_changed_since_last_command or
 							  squadOrderNeedsRefresh(squad))
 	then
-		squad.command.state_changed_since_last_command = false
 		LOGGER.log(string.format("Squad %d Needs orders of some kind %d at %d",
 								 squad.squadID, squad.command.type, game.tick))
 		if not validateSquadIntegrity(squad) then return end
@@ -39,13 +38,12 @@ function executeBattleAI(squad)
 		else
 			orderSquadToRetreat(squad)
 		end
+		squad.command.state_changed_since_last_command = false
 	end
 end
 
 
 function orderSquadToHunt(squad)
-    --get nearest enemy unit to the squad.
-    --find the nearest enemy to the squad that is an enemy of the player's force, and max radius of 5000 tiles (10k tile diameter)
     local surface = getSquadSurface(squad)
     if not surface then
         LOGGER.log(string.format("ERROR: Surface for squad ID %d is missing or can't be determined!", squad.squadID))
@@ -53,7 +51,14 @@ function orderSquadToHunt(squad)
     end
 
     local huntRadius = getSquadHuntRange(squad.force)
-    local nearestEnemy = surface.find_nearest_enemy({position = squad.unitGroup.position,
+	local huntOrigin = squad.unitGroup.position
+	if usesAssemblerCentricTargeting(squad.force) then
+		local assembler, distance = findClosestAssemblerToPosition(global.DroidAssemblers[squad.force.name],
+																   squad.unitGroup.position)
+		if assembler then huntOrigin = assembler.position end
+	end
+
+    local nearestEnemy = surface.find_nearest_enemy({position = huntOrigin,
 													 max_distance = huntRadius,
 													 force = squad.force })
     if nearestEnemy then

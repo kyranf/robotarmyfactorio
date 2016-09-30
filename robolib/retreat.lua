@@ -11,33 +11,24 @@ require("stdlib/game")
 function orderSquadToRetreat(squad)
 	local assembler = nil
 	local distance = 999999
-	if squad.retreatToAssembler and squad.retreatToAssembler.valid then
-		assembler = squad.retreatToAssembler
-		distance = util.distance(squad.unitGroup.position, assembler.position)
-	else
-		assembler, distance = findClosestAssemblerToPosition(
-			global.DroidAssemblers[squad.force.name], squad.unitGroup.position)
-	end
+	assembler, distance = findClosestAssemblerToPosition(
+		global.DroidAssemblers[squad.force.name], squad.unitGroup.position)
 
 	if assembler then
 		local lastPos = squad.unitGroup.position
 		squad.command.type = commands.assemble
 
 		if distance > AT_ASSEMBLER_RANGE then
-			-- don't reissue orders to retreat to a location we are already making progress towards
-			local makingProgress = isSquadMovingAwayFromLastPosition(squad)
-			if not makingProgress or assembler ~= squad.retreatToAssembler then
-				LOGGER.log(string.format("Ordering squad %d of size %d near (%d,%d) to retreat %d m to assembler at (%d,%d)",
-										 squad.squadID, squad.numMembers, lastPos.x, lastPos.y,
-										 distance, assembler.position.x, assembler.position.y))
-				-- issue an actual retreat command
-				squad.command.dest = assembler.position
-				squad.command.distance = distance
-				debugSquadOrder(squad, "RETREAT TO ASSEMBLER", assembler.position)
-				orderToAssembler(squad.unitGroup, assembler, not makingProgress)
-				squad.command.state_changed_since_last_command = false
-				squad.unitGroup.start_moving()
-			end
+			LOGGER.log(string.format("Ordering squad %d of size %d near (%d,%d) to retreat %d m to assembler at (%d,%d)",
+									 squad.squadID, squad.numMembers, lastPos.x, lastPos.y,
+									 distance, assembler.position.x, assembler.position.y))
+			-- issue an actual retreat command
+			squad.command.dest = assembler.position
+			squad.command.distance = distance
+			debugSquadOrder(squad, "RETREAT TO ASSEMBLER", assembler.position)
+			orderToAssembler(squad.unitGroup, assembler)
+			squad.command.state_changed_since_last_command = false
+			squad.unitGroup.start_moving()
 		end
 
 		addSquadToRetreatTables(squad, assembler)

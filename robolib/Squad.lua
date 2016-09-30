@@ -103,12 +103,9 @@ end
 
 
 function squadOrderNeedsRefresh(squad)
-	-- explaining the math:
-	-- if our last order was given a while ago, and we haven't gone anywhere in the meantime
-	-- then it's time to give another order.
+	-- if our last order was given a while ago, then it's time to give another order.
 	-- However, for orders which requested that the squad path a very long distance,
-	-- we want to make sure we gave the pather plenty of time to make that calculation
-	local squadPos = getSquadPos(squad)
+	-- we want to make sure we gave the pather plenty of time to make that calculation.
 	local sanity_check_period = SANITY_CHECK_PERIOD_SECONDS * 60 *
 		(squad.command.distance / SANITY_CHECK_PATH_DISTANCE_DIV_FACTOR + 1)
 	local its_been_awhile = game.tick > (squad.command.tick + sanity_check_period)
@@ -121,7 +118,7 @@ end
 -- or when a fresh squad is spawned
 function addMemberToSquad(squad, soldier)
     if squad and soldier then
-        local msg = string.format("Adding member %s to squad %d of size %d", tostring(soldier), squad.squadID, squad.numMembers)
+        local msg = string.format("Adding soldier (%s) to squad %d of size %d", tostring(soldier), squad.squadID, squad.numMembers)
         LOGGER.log(msg)
 
         table.insert(squad.members, soldier)
@@ -605,7 +602,7 @@ function orderToAssembler(orderable, assembler, ignore_distractions)
                                     distraction=distraction_type},
         }})
     else
-        LOGGER.log("Failed to find a droid spawn position near the requested assembler!")
+        LOGGER.log("ERROR: Failed to find a droid spawn position near the requested assembler!")
     end
 end
 

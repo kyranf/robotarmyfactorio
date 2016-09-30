@@ -62,12 +62,9 @@ function getGuardSpawnLocation(entity)
 end
 
 
-
-
 --function to count nearby droids. counts in a 32 tile radius, which is 1 chunk.
 --inputs are position, force, and radius
 function countNearbyDroids(position, force, radius)
-
     local sum = 0
     local surface = game.surfaces[1] --hardcoded for surface 1. this means underground/space whatever surfaces are not handled.
     for _, droid in pairs(spawnable) do
@@ -111,6 +108,15 @@ function getSquadHuntRange(force)
     else
         return SQUAD_HUNT_RADIUS --default one set in config.lua
     end
+end
+
+
+function usesAssemblerCentricTargeting(force)
+	if global.settings and global.settings[force.name] and global.settings[force.name].assemblerCentricTargeting then
+		return global.settings[force.name].assemblerCentricTargeting
+	else
+		return ASSEMBLER_CENTRIC_TARGETING
+	end
 end
 
 

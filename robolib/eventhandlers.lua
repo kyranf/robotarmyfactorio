@@ -40,7 +40,7 @@ function processSquadUpdatesForTick(force_name, tickProcessIndex)
 end
 
 
-function processSpawnedDroid(droid, guard, guardPos)
+function processSpawnedDroid(droid, guard, guardPos, manuallyPlaced)
     local force = droid.force
     --player.print(string.format("Processing new entity %s spawned by player %s", droid.name, player.name) )
     local position = droid.position
@@ -64,6 +64,11 @@ function processSpawnedDroid(droid, guard, guardPos)
     end
 
     addMemberToSquad(squad, droid)
+	if manuallyPlaced then
+		LOGGER.log(string.format("Manually placed droid causing squad %d to request new orders.",
+								 squad.squadID))
+		squad.command.state_changed_since_last_command = true
+	end
 
     --code to handle adding new member to a squad that is guarding/patrolling
     if guard == true then
@@ -189,7 +194,7 @@ function handleOnBuiltEntity(event)
     elseif entity.name == "rally-beacon" then
         handleBuiltRallyBeacon(event)
     elseif entity.type == "unit" and table.contains(squadCapable, entity.name) then --squadCapable is defined in DroidUnitList.
-        processSpawnedDroid(entity) --this deals with droids spawning
+        processSpawnedDroid(entity, false, nil, true) --this deals with droids spawning
     end
 end -- handleOnBuiltEntity
 
