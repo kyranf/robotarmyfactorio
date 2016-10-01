@@ -70,8 +70,8 @@ function processSpawnedDroid(droid, guard, guardPos, manuallyPlaced)
 		squad.command.state_changed_since_last_command = true
 	end
 
-    --code to handle adding new member to a squad that is guarding/patrolling
-    if guard == true then
+    -- code to handle adding new member to a squad that is guarding/patrolling
+    if guard == true or squad.command.type == commands.guard then
         if squad.command.type ~= commands.guard then
             squad.command.type = commands.guard
             squad.home = guardPos
@@ -83,7 +83,7 @@ function processSpawnedDroid(droid, guard, guardPos, manuallyPlaced)
 				(squad.patrolState and squad.patrolState.currentWaypoint == -1)
 			then
                 --Game.print_force(droid.force, "Setting move command to squad home..." )
-				orderSquadToWander(squad, squad.home)
+				orderSquadToWander(squad, squad.home, true)
             end
         end
     end

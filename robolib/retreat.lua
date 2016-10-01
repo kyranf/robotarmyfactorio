@@ -63,7 +63,7 @@ function addSquadToRetreatTables(squad, targetAssembler)
 	local forceRetreatTables = global.AssemblerRetreatTables[squad.force.name]
 	for i=1, #retreatAssemblers do -- cool/faster iteration syntax for list-like table
 		local assembler = retreatAssemblers[i]
-		LOGGER.log(string.format("Adding squad %d to retreat table of assembler at (%d,%d)",
+		LOGGER.log(string.format("Inserting squad %d into retreat table of assembler at (%d,%d)",
 								 squad.squadID, assembler.position.x, assembler.position.y))
 		if not forceRetreatTables[assembler.unit_number] then
 			forceRetreatTables[assembler.unit_number] = {}

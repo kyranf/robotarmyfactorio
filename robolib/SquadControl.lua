@@ -175,6 +175,7 @@ function executeGuardAI(squad)
 			end
 		end
 	elseif squad.command.tick + SANITY_CHECK_PERIOD_SECONDS * 60 < game.tick then
+		-- validate, but then wait a while before validating again
 		squad.command.tick = game.tick
 		validateSquadIntegrity(squad)
 	end

@@ -466,7 +466,7 @@ end
 -- checks that all entities in the "members" sub table are present in the unitgroup and that the unit group exists
 -- this function is fairly expensive, so don't call it unless necessary.
 function validateSquadIntegrity(squad)
-    if not squad then
+    if not squad or squad.deleted then
 		return nil
 	else
 		squad = trimSquad(squad)
@@ -581,12 +581,6 @@ function validateSquadIntegrity(squad)
 end
 
 
-function isSquadMovingAwayFromLastPosition(squad)
-    if not squad.command.pos then return true end
-    return util.distance(squad.unitGroup.position, squad.command.pos) > SANITY_CHECK_PROGRESS_DISTANCE
-end
-
-
 function orderToAssembler(orderable, assembler, ignore_distractions)
     local position = getDroidSpawnLocation(assembler)
     if position ~= -1 then
@@ -681,14 +675,21 @@ function grabArtifactsBySquad(squad)
 end
 
 
--- this is currently only used by the 'guard' system
-function orderSquadToWander(squad, position)
+-- wander and guard are different, but only in the way they will
+-- be interpreted at future game ticks. both result in a command
+-- to 'wander' at the location specified.
+function orderSquadToWander(squad, position, guard)
     squad.command.pos = squad.unitGroup.position
+	local COMMAND_NAME = "WANDER"
 	squad.command.type = commands.assemble
+	if guard then
+		squad.command.type = commands.guard
+		COMMAND_NAME = "GUARD"
+	end
 	squad.command.dest = position
 	squad.command.distance = util.distance(position, squad.command.pos)
 
-    debugSquadOrder(squad, "WANDER", position)
+    debugSquadOrder(squad, COMMAND_NAME, position)
     squad.unitGroup.set_command({type=defines.command.wander,
                                  destination = position,
                                  distraction=defines.distraction.by_enemy})
