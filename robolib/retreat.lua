@@ -16,9 +16,9 @@ function orderSquadToRetreat(squad)
 
 	if assembler then
 		local lastPos = squad.unitGroup.position
-		squad.command.type = commands.assemble
+		squad.command.type = commands.assemble -- takes us out of hunt mode until we're big enough
 
-		if distance > AT_ASSEMBLER_RANGE then
+		if distance > AT_ASSEMBLER_RANGE / 2 then
 			LOGGER.log(string.format("Ordering squad %d of size %d near (%d,%d) to retreat %d m to assembler at (%d,%d)",
 									 squad.squadID, squad.numMembers, lastPos.x, lastPos.y,
 									 distance, assembler.position.x, assembler.position.y))
@@ -40,19 +40,6 @@ function orderSquadToRetreat(squad)
 		LOGGER.log(msg)
 		Game.print_force(squad.force, msg)
 	end
-end
-
-
-function attemptToMergeSquadWithNearbyAssemblingSquad(squad, otherSquads, range)
-	local closest_squad = getCloseEnoughSquadToSquad(
-		otherSquads, squad, range, {commands.assemble})
-	if closest_squad then
-		local mergedSquad = mergeSquads(squad, closest_squad)
-		if mergedSquad then
-			return true, mergedSquad
-		end
-	end
-	return false, squad
 end
 
 

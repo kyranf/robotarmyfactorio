@@ -9,6 +9,7 @@ function bootstrap_migration_on_first_tick(event)
 
 	runOnceCheck(forces)
 	global_ensureTablesExist()
+    ses_statistics.sessionStartTick = game.tick
 
 	for fkey, force in pairs(forces) do
 		if force.name ~= "enemy" and force.name ~= "neutral" then

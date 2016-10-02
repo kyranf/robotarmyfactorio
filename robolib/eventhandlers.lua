@@ -155,6 +155,9 @@ function tickForces(forces, tick)
 			end
 			processRetreatChecksForTick(force, tick)
 			processSquadUpdatesForTick(force.name, tick % 60 + 1)
+            if tick % 1200 == 0 then
+                log_session_statistics(force)
+            end
 		end
 	end
 end
