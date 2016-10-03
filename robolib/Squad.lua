@@ -763,8 +763,6 @@ function debugSquadOrder(squad, orderName, position)
     LOGGER.log(msg)
 end
 
-DEBUG = 1
-
 function log_session_statistics(force)
     local seconds = (game.tick - ses_statistics.sessionStartTick) / 60 + 1
     local minutes = (game.tick - ses_statistics.sessionStartTick) / 3600 + 1
