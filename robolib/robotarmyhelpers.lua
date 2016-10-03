@@ -47,6 +47,24 @@ function getDroidSpawnLocation(entity)
 end
 
 
+function getAssemblerRetreatLocation(assembler)
+    local retreatPos = assembler.position
+    local direction = assembler.direction
+
+    -- based on direction of building, set offset for spawn location
+    if(direction == defines.direction.east) then
+        retreatPos = ({x = retreatPos.x - 5,y = retreatPos.y }) end
+    if(direction == defines.direction.north) then
+        retreatPos = ({x = retreatPos.x,y = retreatPos.y + 5 }) end
+    if(direction == defines.direction.south) then
+        retreatPos = ({x = retreatPos.x,y = retreatPos.y - 5 }) end
+    if(direction == defines.direction.west) then
+        retreatPos = ({x = retreatPos.x + 5,y = retreatPos.y }) end
+
+    return retreatPos
+end
+
+
 --entity is the guard station
 function getGuardSpawnLocation(entity)
     local entPos = entity.position
@@ -603,6 +621,13 @@ end
 function isEntityNearAssembler(entity, entity_position)
     local nearestAssembler, distance = findClosestAssemblerToPosition(
         global.DroidAssemblers[entity.force.name], entity_position)
+    if nearestAssembler then
+        local spawnPos = getDroidSpawnLocation(nearestAssembler)
+        if spawnPos then
+            distance = util.distance(spawnPos, entity_position)
+        end
+    end
+
     if nearestAssembler and distance < AT_ASSEMBLER_RANGE then
         return true
     else

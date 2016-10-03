@@ -730,9 +730,6 @@ function orderSquadToAttack(squad, position)
     squad.command.dest = position
     squad.command.distance = util.distance(position, squad.command.pos)
 
-    squad.retreatAssembler = nil
-    global.RetreatingSquads[squad.force.name][squad.squadID] = nil
-
     debugSquadOrder(squad, "*ATTACK*", position)
     squad.unitGroup.set_command({type=defines.command.attack_area,
                                  destination=position,

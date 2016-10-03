@@ -64,7 +64,6 @@ function addSquadToRetreatTables(squad, targetAssembler)
         end
         forceRetreatTables[assembler.unit_number][squad.squadID] = squad
     end
-    squad.retreatToAssembler = targetAssembler
 end
 
 
