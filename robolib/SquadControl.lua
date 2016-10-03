@@ -72,26 +72,16 @@ function orderSquadToHunt(squad)
         return
     end
 
-
+    local huntRadius = getSquadHuntRange(squad.force)
     local huntOrigin = squad.unitGroup.position
     if usesAssemblerCentricTargeting(squad.force) then
         local assembler, distance = findClosestAssemblerToPosition(global.DroidAssemblers[squad.force.name],
                                                                    squad.unitGroup.position)
         if assembler then huntOrigin = assembler.position end
     end
-
-    local huntRadius =  500 -- experiment to see if this is any faster
     local nearestEnemy = surface.find_nearest_enemy({position = huntOrigin,
                                                      max_distance = huntRadius,
                                                      force = squad.force })
-    if not nearestEnemy then
-        Game.print_force(squad.force, "searching a second time")
-        huntRadius = getSquadHuntRange(squad.force)
-        nearestEnemy = surface.find_nearest_enemy({position = huntOrigin,
-                                                   max_distance = huntRadius,
-                                                   force = squad.force })
-    end
-
     if nearestEnemy then
         -- check if they are in a charted area
         local charted = true   -- = player.force.is_chunk_charted(player.surface, nearestEnemy.position)

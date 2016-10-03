@@ -467,7 +467,6 @@ function disbandAndRetreatEntireSquad(squad, current_pos)
 end
 
 
-
 -- checks that all entities in the "members" sub table are present in the unitgroup and that the unit group exists
 -- this function is fairly expensive, so don't call it unless necessary.
 function validateSquadIntegrity(squad)
@@ -520,6 +519,7 @@ function validateSquadIntegrity(squad)
         else
             recreatedUG = true
         end
+        recreatedUG = true
     end
 
     -- check each droid individually to confirm that it is part of the unitGroup
@@ -568,7 +568,7 @@ function validateSquadIntegrity(squad)
                     if not isSquadNearAssembler(squad, pos) and squad.numMembers > 1 then
                         ses_statistics.soldierSquadDepartures = ses_statistics.soldierSquadDepartures + 1
                         local msg = string.format(
-                            "!*!*!*!*! ERROR: After many attempts, failed to reintegrate soldier %d at (%d,%d), %d m from squad %d sz %d. " ..
+                            "!*!*!*!*! ERROR: After many attempts, failed to reintegrate soldier %d at (%d,%d) %d m from squad %d sz %d. " ..
                                 "Therefore the soldier is being asked to retreat on its own.",
                             key, soldier.position.x, soldier.position.y, soldier_group_distance, squad.squadID, squad.numMembers)
                         LOGGER.log(msg)
@@ -616,32 +616,6 @@ function validateSquadIntegrity(squad)
     end
 
     return squad
-end
-
-
-function orderToAssembler(orderable, assembler, ignore_distractions)
-    local position = getDroidSpawnLocation(assembler)
-    if position ~= -1 then
-        -- RETREAT!
-        local distraction_type = defines.distraction.by_damage
-        if ignore_distractions then
-            LOGGER.log(string.format("Ignoring all distractions on the way to assembler at %d,%d",
-                                     assembler.position.x, assembler.position.y))
-            distraction_type = defines.distraction.none
-        end
-        orderable.set_command({type=defines.command.compound,
-                               structure_type=defines.compound_command.return_last,
-                               commands={
-                                   {type=defines.command.go_to_location,
-                                    destination=position,
-                                    distraction=distraction_type},
-                                   {type=defines.command.wander,
-                                    destination=position,
-                                    distraction=distraction_type},
-        }})
-    else
-        LOGGER.log("ERROR: Failed to find a droid spawn position near the requested assembler!")
-    end
 end
 
 
