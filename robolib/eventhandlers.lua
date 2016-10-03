@@ -22,25 +22,25 @@ end
 
 
 function processSquadUpdatesForTick(force_name, tickProcessIndex)
-	--for the current tick, look at the global table for that tick (mod 60) and any squad references in there.
-	--LOGGER.log(string.format("Processing AI for AI tick %d of 60", tickProcessIndex))
-	local forceTickTable = global.updateTable[force_name]
-	local squadTable = global.Squads[force_name]
-	for i, squadref in pairs(forceTickTable[tickProcessIndex]) do
-		if squadref and squadTable[squadref] then
-			-- local squad = global.Squads[force_name][squadref]
-			-- if not squad.force then squad.force = force
-			updateSquad(squadTable[squadref])
-		else
-			-- the squad has been deleted at some point, so let's stop looping over it here.
-			LOGGER.log(string.format("Removing nil squad %d from tick table", squadref))
-			global.updateTable[force_name][tickProcessIndex][i] = nil
-		end
-	end
+    --for the current tick, look at the global table for that tick (mod 60) and any squad references in there.
+    --LOGGER.log(string.format("Processing AI for AI tick %d of 60", tickProcessIndex))
+    local forceTickTable = global.updateTable[force_name]
+    local squadTable = global.Squads[force_name]
+    for i, squadref in pairs(forceTickTable[tickProcessIndex]) do
+        if squadref and squadTable[squadref] then
+            -- local squad = global.Squads[force_name][squadref]
+            -- if not squad.force then squad.force = force
+            updateSquad(squadTable[squadref])
+        else
+            -- the squad has been deleted at some point, so let's stop looping over it here.
+            LOGGER.log(string.format("Removing nil squad %d from tick table", squadref))
+            global.updateTable[force_name][tickProcessIndex][i] = nil
+        end
+    end
 end
 
 
-function processSpawnedDroid(droid, guard, guardPos)
+function processSpawnedDroid(droid, guard, guardPos, manuallyPlaced)
     local force = droid.force
     --player.print(string.format("Processing new entity %s spawned by player %s", droid.name, player.name) )
     local position = droid.position
@@ -58,27 +58,32 @@ function processSpawnedDroid(droid, guard, guardPos)
     if not squad then
         --if we didnt find a squad nearby, create one
         squad = createNewSquad(global.Squads[force.name], droid)
-		if not squad then
-			Game.print_force(force, "Failed to create squad for newly spawned droid!!")
-		end
+        if not squad then
+            Game.print_force(force, "Failed to create squad for newly spawned droid!!")
+        end
     end
 
     addMemberToSquad(squad, droid)
+    if manuallyPlaced then
+        LOGGER.log(string.format("Manually placed droid causing squad %d to request new orders.",
+                                 squad.squadID))
+        squad.command.state_changed_since_last_command = true
+    end
 
-    --code to handle adding new member to a squad that is guarding/patrolling
-    if guard == true then
+    -- code to handle adding new member to a squad that is guarding/patrolling
+    if guard == true or squad.command.type == commands.guard then
         if squad.command.type ~= commands.guard then
             squad.command.type = commands.guard
             squad.home = guardPos
             --game.players[1].print(string.format("Setting guard squad to wander around %s", event.guardPos))
 
             --check if the squad it just joined is patrolling,
-			-- if it is, don't force any more move commands because it will be disruptive!
+            -- if it is, don't force any more move commands because it will be disruptive!
             if not squad.patrolState or
-				(squad.patrolState and squad.patrolState.currentWaypoint == -1)
-			then
+                (squad.patrolState and squad.patrolState.currentWaypoint == -1)
+            then
                 --Game.print_force(droid.force, "Setting move command to squad home..." )
-				orderSquadToWander(squad, squad.home)
+                orderSquadToWander(squad, squad.home, true)
             end
         end
     end
@@ -142,31 +147,34 @@ end
 
 
 function tickForces(forces, tick)
-	for _, force in pairs(forces) do
-		if force.name ~= "enemy" and force.name ~= "neutral" then
-			if tick % ASSEMBLER_UPDATE_TICKRATE == 0 then
-				processDroidAssemblers(force)
-				processDroidGuardStations(force)
-			end
-			processRetreatChecksForTick(force, tick)
-			processSquadUpdatesForTick(force.name, tick % 60 + 1)
-		end
-	end
+    for _, force in pairs(forces) do
+        if force.name ~= "enemy" and force.name ~= "neutral" then
+            if tick % ASSEMBLER_UPDATE_TICKRATE == 0 then
+                processDroidAssemblers(force)
+                processDroidGuardStations(force)
+            end
+            processRetreatChecksForTick(force, tick)
+            processSquadUpdatesForTick(force.name, tick % 60 + 1)
+            if tick % 1200 == 0 then
+                log_session_statistics(force)
+            end
+        end
+    end
 end
 
 
 function processRetreatChecksForTick(force, tick)
-	local forceAssemblerRetreatTable = global.AssemblerRetreatTables[force.name]
-	for assemblerIdx, squads in pairs(forceAssemblerRetreatTable) do
-		if assemblerIdx % ASSEMBLER_MERGE_TICKRATE == tick % ASSEMBLER_MERGE_TICKRATE then
-			local assembler = global.DroidAssemblers[force.name][assemblerIdx]
-			if not assembler.valid or not checkRetreatAssemblerForMergeableSquads(assembler, squads) then
-				-- don't iterate over this assembler again until it is 'recreated'
-				-- by a squad trying to retreat to it
-				forceAssemblerRetreatTable[assemblerIdx] = nil
-			end
-		end
-	end
+    local forceAssemblerRetreatTable = global.AssemblerRetreatTables[force.name]
+    for assemblerIdx, squads in pairs(forceAssemblerRetreatTable) do
+        if assemblerIdx % ASSEMBLER_MERGE_TICKRATE == tick % ASSEMBLER_MERGE_TICKRATE then
+            local assembler = global.DroidAssemblers[force.name][assemblerIdx]
+            if not assembler.valid or not checkRetreatAssemblerForMergeableSquads(assembler, squads) then
+                -- don't iterate over this assembler again until it is 'recreated'
+                -- by a squad trying to retreat to it
+                forceAssemblerRetreatTable[assemblerIdx] = nil
+            end
+        end
+    end
 end
 
 
@@ -189,7 +197,7 @@ function handleOnBuiltEntity(event)
     elseif entity.name == "rally-beacon" then
         handleBuiltRallyBeacon(event)
     elseif entity.type == "unit" and table.contains(squadCapable, entity.name) then --squadCapable is defined in DroidUnitList.
-        processSpawnedDroid(entity) --this deals with droids spawning
+        processSpawnedDroid(entity, false, nil, true) --this deals with droids spawning
     end
 end -- handleOnBuiltEntity
 
@@ -217,7 +225,7 @@ end -- handleOnRobotBuiltEntity
 function handleTick(event)
     local forces = game.forces
 
-	tickForces(forces, event.tick)
+    tickForces(forces, event.tick)
 
     if (event.tick % BOT_COUNTERS_UPDATE_TICKRATE == 0) then
         doCounterUpdate()

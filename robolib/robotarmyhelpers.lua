@@ -62,12 +62,9 @@ function getGuardSpawnLocation(entity)
 end
 
 
-
-
 --function to count nearby droids. counts in a 32 tile radius, which is 1 chunk.
 --inputs are position, force, and radius
 function countNearbyDroids(position, force, radius)
-
     local sum = 0
     local surface = game.surfaces[1] --hardcoded for surface 1. this means underground/space whatever surfaces are not handled.
     for _, droid in pairs(spawnable) do
@@ -110,6 +107,15 @@ function getSquadHuntRange(force)
         return global.settings[force.name].huntRangeOverride    --overriden value from settings combinator for that force
     else
         return SQUAD_HUNT_RADIUS --default one set in config.lua
+    end
+end
+
+
+function usesAssemblerCentricTargeting(force)
+    if global.settings and global.settings[force.name] and global.settings[force.name].assemblerCentricTargeting then
+        return global.settings[force.name].assemblerCentricTargeting
+    else
+        return ASSEMBLER_CENTRIC_TARGETING
     end
 end
 
@@ -540,7 +546,7 @@ function handleDroidAssemblerPlaced(event)
     end
 
     LOGGER.log(string.format("Adding assembler to force %s", force.name))
-	global.DroidAssemblers[force.name][entity.unit_number] = entity
+    global.DroidAssemblers[force.name][entity.unit_number] = entity
 end
 
 
@@ -549,19 +555,19 @@ function findClosestAssemblerToPosition(assemblers, position)
     local closestAssembler = nil
     --check every possible droid assembler in that force and return the one with shortest distance
 
-	if assemblers then
-		for dkey, droidAss in pairs(assemblers) do
-			--distance between the droid assembler and the squad
-			if droidAss.valid then
-				local dist = util.distance(droidAss.position, position)
-				if dist <= distance then
-					closestAssembler = droidAss
-					distance = dist
-				end
-			else
-				assemblers[dkey] = nil
-			end
-		end
+    if assemblers then
+        for dkey, droidAss in pairs(assemblers) do
+            --distance between the droid assembler and the squad
+            if droidAss.valid then
+                local dist = util.distance(droidAss.position, position)
+                if dist <= distance then
+                    closestAssembler = droidAss
+                    distance = dist
+                end
+            else
+                assemblers[dkey] = nil
+            end
+        end
     else
         LOGGER.log("There are no droid assemblers to retreat to.")
     end
@@ -569,14 +575,50 @@ function findClosestAssemblerToPosition(assemblers, position)
 end
 
 
+--- This function should always been used when giving any kind of
+--- 'move' command.
+--- This is because otherwise units/unitGroups sometimes decide
+--- to arrive at their location and then do something really random,
+--- like running towards and nesting inside your factory or mining facilities,
+--- since they have no active command anymore. This avoids that,
+--- since the 'wander' command doesn't ever 'expire'.
+function setGoThenWanderCompoundCommand(commandable, position, radius, distraction_type)
+    local d_type = distraction_type or defines.distraction.by_damage
+    commandable.set_command(
+        {type=defines.command.compound,
+         structure_type=defines.compound_command.return_last,
+         commands={
+             {type=defines.command.go_to_location,
+              destination=position,
+              distraction=d_type},
+             {type=defines.command.wander,
+              destination=position,
+              distraction=d_type},
+         }
+        }
+    )
+end
+
+
+function isEntityNearAssembler(entity, entity_position)
+    local nearestAssembler, distance = findClosestAssemblerToPosition(
+        global.DroidAssemblers[entity.force.name], entity_position)
+    if nearestAssembler and distance < AT_ASSEMBLER_RANGE then
+        return true
+    else
+        return false
+    end
+end
+
+
 function findNearbyAssemblers(assemblers, position, range)
-	local tempTable = {}
-	for dkey, assembler in pairs(assemblers) do
-		if assembler.valid and util.distance(position, assembler.position) < range then
-			tempTable[#tempTable + 1] = assembler
-		end
-	end
-	return tempTable
+    local tempTable = {}
+    for dkey, assembler in pairs(assemblers) do
+        if assembler.valid and util.distance(position, assembler.position) < range then
+            tempTable[#tempTable + 1] = assembler
+        end
+    end
+    return tempTable
 end
 
 
