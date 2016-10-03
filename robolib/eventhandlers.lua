@@ -67,8 +67,8 @@ function processSpawnedDroid(droid, guard, guardPos)
 
     --code to handle adding new member to a squad that is guarding/patrolling
     if guard == true then
-        if squad.command ~= commands.guard then
-            squad.command = commands.guard
+        if squad.command.type ~= commands.guard then
+            squad.command.type = commands.guard
             squad.home = guardPos
             --game.players[1].print(string.format("Setting guard squad to wander around %s", event.guardPos))
 
@@ -216,13 +216,6 @@ end -- handleOnRobotBuiltEntity
 -- during the on-tick event, lets check if we need to update squad AI, spawn droids from assemblers, or update bot counters, etc
 function handleTick(event)
     local forces = game.forces
-	-- sanity/migration checks
-    runOnceCheck(forces)
-	global_ensureTablesExist()
-	if not global.migratedTickTablesTo_0_2_4 then
-		global_migrateSquadsToTickTable(forces)
-		global.migratedTickTablesTo_0_2_4 = true
-	end
 
 	tickForces(forces, event.tick)
 

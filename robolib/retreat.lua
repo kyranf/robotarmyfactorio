@@ -21,39 +21,33 @@ function orderSquadToRetreat(squad)
 
 	if assembler then
 		local lastPos = squad.unitGroup.position
-		LOGGER.log(string.format("Ordering squad %d of size %d near (%d,%d) to retreat %d m to assembler at (%d,%d)",
-								 squad.squadID, squad.numMembers, lastPos.x, lastPos.y,
-								 distance, assembler.position.x, assembler.position.y))
-		squad.command = commands.assemble
+		squad.command.type = commands.assemble
 
 		if distance > AT_ASSEMBLER_RANGE then
-			-- don't give orders to retreat to a location we are already making progress towards
+			-- don't reissue orders to retreat to a location we are already making progress towards
 			local makingProgress = isSquadMovingAwayFromLastPosition(squad)
 			if not makingProgress or assembler ~= squad.retreatToAssembler then
+				LOGGER.log(string.format("Ordering squad %d of size %d near (%d,%d) to retreat %d m to assembler at (%d,%d)",
+										 squad.squadID, squad.numMembers, lastPos.x, lastPos.y,
+										 distance, assembler.position.x, assembler.position.y))
 				-- issue an actual retreat command
+				squad.command.dest = assembler.position
+				squad.command.distance = distance
 				debugSquadOrder(squad, "RETREAT TO ASSEMBLER", assembler.position)
 				orderToAssembler(squad.unitGroup, assembler, not makingProgress)
+				squad.command.state_changed_since_last_command = false
 				squad.unitGroup.start_moving()
 			end
 		end
-		-- elseif squad.command == commands.hunt then
-		-- 	-- we're close enough already, and we haven't checked recently.
-		-- 	-- check for nearby squads to merge
-		-- 	success, squad = attemptToMergeSquadWithNearbyAssemblingSquad(
-		-- 		squad, global.RetreatingSquads[squad.force.name], AT_ASSEMBLER_RANGE * 2)
-		-- 	squad.command = commands.assemble -- we're no longer actively retreating, just passively waiting
-		-- 	if success and shouldHunt(squad) then
-		-- 		orderSquadToHunt(squad)
-		-- 	end
-		-- 	-- this last function call may actually invalidate the squad
-		-- 	if squad.deleted then return end
-		-- end
 
-		-- new assemblers may have been placed since the last retreat order,
-		-- so re-add to retreat tables just in case
 		addSquadToRetreatTables(squad, assembler)
-		squad.lastBattleOrderTick = game.tick
-		squad.lastBattleOrderPos = lastPos
+		squad.command.tick = game.tick
+		squad.command.pos = lastPos
+	else
+		local msg = string.format("There are no droid assemblers to which squad %d can retreat. You should build at least one.",
+								  squad.squadID)
+		LOGGER.log(msg)
+		Game.print_force(squad.force, msg)
 	end
 end
 
@@ -110,12 +104,15 @@ function checkRetreatAssemblerForMergeableSquads(assembler, squads)
 	local squadCount = 0
 	local squadCloseCount = 0
 	for squadID, squad in pairs(squads) do
-		if not squadStillExists(squad) or shouldHunt(squad) then
+		if not squadStillExists(squad) then
 			squads[squadID] = nil
+		elseif shouldHunt(squad) then
+			squads[squadID] = nil
+			squad.state_changed_since_last_command = true
 		else
+			local squadPos = getSquadPos(squad)
 			squadCount = squadCount + 1
-			local dist = util.distance(squad.unitGroup.position,
-									   assembler.position)
+			local dist = util.distance(squadPos, assembler.position)
 			if dist < MERGE_RANGE then
 				-- then this squad is close enough to be merged, if it is still valid
 				if validateSquadIntegrity(squad) then
@@ -126,7 +123,7 @@ function checkRetreatAssemblerForMergeableSquads(assembler, squads)
 					if mergeableSquad then -- we already found a mergeable squad nearby
 						-- are we close enough to this other squad to merge?
 						if util.distance(mergeableSquad.unitGroup.position,
-										 squad.unitGroup.position) < MERGE_RANGE
+										 squadPos) < MERGE_RANGE
 						then
 							mergeableSquad = mergeSquads(squad, mergeableSquad)
 							if shouldHunt(mergeableSquad) then
