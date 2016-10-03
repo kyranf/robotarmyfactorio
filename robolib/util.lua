@@ -36,10 +36,10 @@ end
 
 function table.countValidElements(inputTable)
     local count = 0
-	inputTable["size"] = nil -- we're no longer keeping size in the members table.
+    inputTable["size"] = nil -- we're no longer keeping size in the members table.
     for key, element in pairs(inputTable) do
         if element and element.valid then
-			count = count + 1
+            count = count + 1
         end
     end
     return count
@@ -114,12 +114,12 @@ end
 
 -- TODO: improve this to use zoom level and stuff
 function global_canAnyPlayersSeeThisEntity(entity)
-	for key, player in pairs(game.players) do
-		if player and util.distance(player.position, entity.position) < PLAYER_VIEW_RADIUS then
-			return true
-		end
-	end
-	return false
+    for key, player in pairs(game.players) do
+        if player and util.distance(player.position, entity.position) < PLAYER_VIEW_RADIUS then
+            return true
+        end
+    end
+    return false
 end
 
 
@@ -144,7 +144,7 @@ end
 
 --input is a sub-table of global.updateTable, and is the table for a particular force
 function fillTableWithTickEntries(inputTable)
-	-- Game.print_all("filling update tick table")
+    -- Game.print_all("filling update tick table")
     for i = 1, 60 do
         inputTable[i] = {}
     end

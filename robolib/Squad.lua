@@ -521,8 +521,8 @@ function validateSquadIntegrity(squad)
                             squad.unitGroup.position.y)
                         LOGGER.log(msg)
                         if teleportSoldierToUnitGroup(soldier, squad.unitGroup) then
-							squad.memberUnitGroupErrors[key] = squad.memberUnitGroupErrors[key] - 1
-						end
+                            squad.memberUnitGroupErrors[key] = squad.memberUnitGroupErrors[key] - 1
+                        end
                         squad.unitGroup.add_member(soldier)
                     else
                         local msg = string.format("Re-add soldier %d of squad %d sz %d to unitGroup, attempt %d",

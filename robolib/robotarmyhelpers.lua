@@ -112,11 +112,11 @@ end
 
 
 function usesAssemblerCentricTargeting(force)
-	if global.settings and global.settings[force.name] and global.settings[force.name].assemblerCentricTargeting then
-		return global.settings[force.name].assemblerCentricTargeting
-	else
-		return ASSEMBLER_CENTRIC_TARGETING
-	end
+    if global.settings and global.settings[force.name] and global.settings[force.name].assemblerCentricTargeting then
+        return global.settings[force.name].assemblerCentricTargeting
+    else
+        return ASSEMBLER_CENTRIC_TARGETING
+    end
 end
 
 
@@ -546,7 +546,7 @@ function handleDroidAssemblerPlaced(event)
     end
 
     LOGGER.log(string.format("Adding assembler to force %s", force.name))
-	global.DroidAssemblers[force.name][entity.unit_number] = entity
+    global.DroidAssemblers[force.name][entity.unit_number] = entity
 end
 
 
@@ -555,19 +555,19 @@ function findClosestAssemblerToPosition(assemblers, position)
     local closestAssembler = nil
     --check every possible droid assembler in that force and return the one with shortest distance
 
-	if assemblers then
-		for dkey, droidAss in pairs(assemblers) do
-			--distance between the droid assembler and the squad
-			if droidAss.valid then
-				local dist = util.distance(droidAss.position, position)
-				if dist <= distance then
-					closestAssembler = droidAss
-					distance = dist
-				end
-			else
-				assemblers[dkey] = nil
-			end
-		end
+    if assemblers then
+        for dkey, droidAss in pairs(assemblers) do
+            --distance between the droid assembler and the squad
+            if droidAss.valid then
+                local dist = util.distance(droidAss.position, position)
+                if dist <= distance then
+                    closestAssembler = droidAss
+                    distance = dist
+                end
+            else
+                assemblers[dkey] = nil
+            end
+        end
     else
         LOGGER.log("There are no droid assemblers to retreat to.")
     end
@@ -601,13 +601,13 @@ end
 
 
 function findNearbyAssemblers(assemblers, position, range)
-	local tempTable = {}
-	for dkey, assembler in pairs(assemblers) do
-		if assembler.valid and util.distance(position, assembler.position) < range then
-			tempTable[#tempTable + 1] = assembler
-		end
-	end
-	return tempTable
+    local tempTable = {}
+    for dkey, assembler in pairs(assemblers) do
+        if assembler.valid and util.distance(position, assembler.position) < range then
+            tempTable[#tempTable + 1] = assembler
+        end
+    end
+    return tempTable
 end
 
 
