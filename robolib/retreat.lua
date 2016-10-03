@@ -18,7 +18,7 @@ function orderSquadToRetreat(squad)
         if not retreatPos then
             LOGGER.log("ERROR: Failed to find a droid spawn position near the found assembler!")
             orderSquadToWander(squad, currentPos)
-            return nil -- we failed to retreat, but eventually we'll get ordered to do so again..
+            return -- we failed to retreat, but eventually we'll get ordered to do so again..
         end
         distance = util.distance(retreatPos, currentPos)
 
@@ -33,13 +33,13 @@ function orderSquadToRetreat(squad)
             squad.command.distance = distance
             debugSquadOrder(squad, "RETREAT TO ASSEMBLER", retreatPos)
             setGoThenWanderCompoundCommand(squad.unitGroup, retreatPos)
-            squad.command.state_changed_since_last_command = false
             squad.unitGroup.start_moving()
         end
 
         addSquadToRetreatTables(squad, assembler)
         squad.command.tick = game.tick
         squad.command.pos = currentPos
+        squad.command.state_changed_since_last_command = false
     else
         local msg = string.format("There are no droid assemblers to which squad %d can retreat. You should build at least one.",
                                   squad.squadID)

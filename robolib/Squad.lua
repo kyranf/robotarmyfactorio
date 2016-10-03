@@ -24,6 +24,7 @@ ses_statistics = {
     squadsCreated = 0,
     squadsDeleted = 0,
     unitGroupFailures = 0,
+    createUnitGroupSuccesses = 0,
     createUnitGroupFailures = 0,
     soldierUnitGroupDepartures = 0,
     soldierUnitGroupReadds = 0,
@@ -73,10 +74,11 @@ function createNewSquad(forceSquadsTable, entity)
     newsquad.patrolPoint2 = newsquad.home
 
     newsquad.members = {}
-    newsquad.memberUnitGroupErrors = {}
     newsquad.numMembers = 0
 
     newsquad.unitGroupFailures = 0
+    newsquad.mostRecentUnitGroupRemovalTick = {}
+
     newsquad.command = makeCommandTable(commands.assemble,
                                         newsquad.unitGroup.position,
                                         newsquad.unitGroup.position)
@@ -116,7 +118,6 @@ function deleteSquad(squad, suppress_msg)
 
         global.Squads[squad.force.name][squad.squadID] = nil  --set the entire squad itself to nil
     end
-    global.RetreatingSquads[squad.force.name][squad.squadID] = nil
     squad.deleted = true
     ses_statistics.squadsDeleted = ses_statistics.squadsDeleted + 1
 end
@@ -142,7 +143,7 @@ function addMemberToSquad(squad, soldier)
         LOGGER.log(msg)
 
         table.insert(squad.members, soldier)
-        table.insert(squad.memberUnitGroupErrors, 0)
+        table.insert(squad.mostRecentUnitGroupRemovalTick, 1)
         squad.unitGroup.add_member(soldier)
 
         local bigEnoughToHunt = shouldHunt(squad)
@@ -166,7 +167,7 @@ function removeMemberFromSquad(squad, soldier_key)
         LOGGER.log(msg)
 
         squad.members[soldier_key] = nil
-        squad.memberUnitGroupErrors[soldier_key] = nil
+        squad.mostRecentUnitGroupRemovalTick[soldier_key] = nil
         squad.numMembers = squad.numMembers - 1
     end
     return squad
@@ -340,23 +341,24 @@ end
 
 
 function recreateUnitGroupForSquad(squad, pos)
-    local unitGroup = nil
     if pos ~= nil then
         local surface = getSquadSurface(squad)
-        unitGroup = surface.create_unit_group({position=pos, force=squad.force})
-        if not squad.unitGroup then
-            ses_statistics.createUnitGroupFailures = ses_statistics.createUnitGroupFailures + 1
-            local msg = string.format("Very bad -- cannot create unit group for squad %d", squad.squadID)
-            LOGGER.log(msg)
-        else
+        local unitGroup = surface.create_unit_group({position=pos, force=squad.force})
+        if unitGroup then
+            ses_statistics.createUnitGroupSuccesses = ses_statistics.createUnitGroupSuccesses + 1
             squad.command.state_changed_since_last_command = true
+            LOGGER.log(string.format("Recreated unit group at (%d,%d) for squad %d of size %d.",
+                                     pos.x, pos.y, squad.squadID, squad.numMembers))
+            return unitGroup
         end
+        local msg = string.format("Very bad -- cannot create unit group for squad %d", squad.squadID)
+        LOGGER.log(msg)
     else
-        ses_statistics.createUnitGroupFailures = ses_statistics.createUnitGroupFailures + 1
         local msg = string.format("Bad error -- cannot find position for any unit in squad %d.", squad.squadID)
         LOGGER.log(msg)
     end
-    return unitGroup
+    ses_statistics.createUnitGroupFailures = ses_statistics.createUnitGroupFailures + 1
+    return nil
 end
 
 
@@ -389,9 +391,7 @@ function trimSquad(squad, suppress_msg)
                 else
                     -- Game.print_force(squad.force, "trimSquad: removing invalid droid from squad.")
                     squad.members[key] = nil
-                    if squad.memberUnitGroupErrors then
-                        squad.memberUnitGroupErrors[key] = nil
-                    end
+                    squad.mostRecentUnitGroupRemovalTick[key] = nil
                 end
             end
         end
@@ -401,17 +401,6 @@ function trimSquad(squad, suppress_msg)
         end
     end
     return squad
-end
-
-
-function isSquadNearAssembler(squad, squad_position)
-    local nearestAssembler, distance = findClosestAssemblerToPosition(
-        global.DroidAssemblers[squad.force.name], squad_position)
-    if nearestAssembler and distance < AT_ASSEMBLER_RANGE then
-        return true
-    else
-        return false
-    end
 end
 
 
@@ -435,7 +424,7 @@ end
 function disbandAndRetreatEntireSquad(squad, current_pos)
     if squad.numMembers == 1 and squad.unitGroup and squad.unitGroup.valid then
         orderSquadToRetreat(squad)
-    elseif not isSquadNearAssembler(squad, current_pos) then
+    elseif not isEntityNearAssembler(squad, current_pos) then
         ses_statistics.disbands = ses_statistics.disbands + 1
         -- if we're already very close to a retreat location, this could cause basically an infinite loop.
         -- so only do it if we're far enough away that there will be a chance to do something about the issue eventually.
@@ -467,136 +456,151 @@ function disbandAndRetreatEntireSquad(squad, current_pos)
 end
 
 
+function attemptToTeleport(squad, soldier, key, soldier_group_distance)
+    if USE_TELEPORTATION_FIX and
+        not global_canAnyPlayersSeeThisEntity(soldier) and
+        not global_canAnyPlayersSeeThisEntity(squad.unitGroup)
+    then
+        local msg = string.format(
+            "   >>>>>  Teleporting wayward soldier %d about %d m to location of its squad %d at (%d,%d)",
+            key, soldier_group_distance,
+            squad.squadID, squad.unitGroup.position.x,
+            squad.unitGroup.position.y)
+        LOGGER.log(msg)
+        if teleportSoldierToUnitGroup(soldier, squad.unitGroup) then
+            ses_statistics.soldierUnitGroupReadds = ses_statistics.soldierUnitGroupReadds + 1
+            ses_statistics.teleports = ses_statistics.teleports + 1
+            squad.unitGroup.add_member(soldier)
+            return true
+        end
+    end
+    if USE_TELEPORTATION_FIX then
+        LOGGER.log(string.format("Failed to teleport wayward soldier %d to squad %d.", key, squad.squadID))
+        ses_statistics.failedTeleports = ses_statistics.failedTeleports + 1
+    end
+    return false
+end
+
+
+function attemptToKickSoldierOut(squad, soldier, key, squad_pos, soldier_group_distance)
+    if squad.numMembers > 1 and not
+        (isEntityNearAssembler(squad, squad_pos) and isEntityNearAssembler(soldier, soldier.position))
+    then
+        ses_statistics.soldierSquadDepartures = ses_statistics.soldierSquadDepartures + 1
+        local msg = string.format(
+            "!*!*!*!*! ERROR: failed to reintegrate soldier %d at (%d,%d) %d m from squad %d sz %d. " ..
+                "Therefore the soldier is being asked to retreat on its own.",
+            key, soldier.position.x, soldier.position.y, soldier_group_distance, squad.squadID, squad.numMembers)
+        LOGGER.log(msg)
+        removeMemberFromSquad(squad, key)
+        retreatMisbehavingLoneWolf(soldier)
+        return true
+    else
+        local msg = string.format("WARNING: Can't remove misbehaving soldier at distance %d " ..
+                                      "from squad %d size %d at (%d,%d) and ask it to retreat " ..
+                                      "because it's already at the nearest assembler or is too small. " ..
+                                      "This will probably result in the unit group losing cohesion and being disbanded.",
+                                  util.distance(soldier.position, squad_pos),
+                                  squad.squadID, squad.numMembers, pos.x, pos.y)
+        LOGGER.log(msg)
+        squad.mostRecentUnitGroupRemovalTick[key] = 1
+        return false
+    end
+end
+
+
+SAFE_SOLDIER_UNITGROUP_REMOVAL_TICKS = 300 -- 5 seconds
+
 -- checks that all entities in the "members" sub table are present in the unitgroup and that the unit group exists
 -- this function is fairly expensive, so don't call it unless necessary.
+-- returns a 2-tuple
+-- - 1) squad itself if squad still exists, nil if not
+-- - 2) true if squad may be issued a command/used, false if not
 function validateSquadIntegrity(squad)
-    if not squad or squad.deleted then
-        return nil
-    else
-        squad = trimSquad(squad)
-        if not squad then return nil end
-    end
+    squad = trimSquad(squad)
+    if not squad then return nil end
 
     local pos = getSquadPos(squad)
     local wander = false
+    local retreat = false
     local recreatedUG = false
 
      -- validate the unit group
     if not squad.unitGroup or not squad.unitGroup.valid then
-        ses_statistics.unitGroupFailures = ses_statistics.unitGroupFailures + 1
         squad.unitGroupFailures = squad.unitGroupFailures + 1
+        ses_statistics.unitGroupFailures = ses_statistics.unitGroupFailures + 1
         LOGGER.log(string.format("--- WARNING: squad %d size %d at (%d,%d) has now had %d UnitGroup failures.",
                                  squad.squadID, squad.numMembers, pos.x, pos.y, squad.unitGroupFailures))
-        if squad.unitGroupFailures > MAX_UNITGROUP_FAILURES then
-            -- this probably means that we're trying to attack a location that can't be attacked
-            if not isSquadNearAssembler(squad, pos) and squad.numMembers > 1 then
-                local msg = string.format("ERROR: Squad %d of size %d at position (%d,%d) has failed to follow its last order to (%d,%d) and is being disbanded.",
-                                          squad.squadID, squad.numMembers,
-                                          pos.x, pos.y, squad.command.dest.x, squad.command.dest.y)
-                LOGGER.log(msg)
-                Game.print_force(squad.force, msg)
-                disbandAndRetreatEntireSquad(squad, pos)
-                return nil
-            else
-                -- otherwise reset all individual soldier problems, and recreate unitGroup
-                -- we'll just hang out at the assembler for a while until the problems are solved
-                for key, soldier in pairs(squad.members) do
-                    squad.memberUnitGroupErrors[key] = 0
-                end
-                wander = true
-            end
-        end
+
         squad.unitGroup = recreateUnitGroupForSquad(squad, pos) -- do this
         if not squad.unitGroup or not squad.unitGroup.valid then
-            -- apparently we can't even create a unit group. This is pretty bad.
-            local msg = string.format("ERROR: Squad %d of size %d near (%d,%d) has lost cohesion and is being disbanded.",
+            -- apparently we can't even create a unit group.
+            -- all we can really do is try disbanding the squad and see if that helps.
+            local msg = string.format("VERY BAD ERROR: Squad %d of size %d near (%d,%d) has gone rogue and is being disbanded.",
                                       squad.squadID, squad.numMembers, pos.x, pos.y)
             LOGGER.log(msg)
             Game.print_force(squad.force, msg)
-
             disbandAndRetreatEntireSquad(squad, pos)
-            return nil
-        else
-            recreatedUG = true
+            return nil, false
         end
+
         recreatedUG = true
+
+        if squad.unitGroupFailures > MAX_CONSECUTIVE_UNITGROUP_FAILURES_BEFORE_RETREAT then
+            if squad.command.type ~= squad.assemble then
+                -- try retreating (maybe our attack location is unpathable)
+                retreat = true
+            else
+                -- we tried retreating, or already were told to retreat.
+                -- retreating didn't work. try wandering in place for a while.
+                wander = true
+                squad.unitGroupFailures = 0 -- reset this to give us another chance to retreat eventually.
+            end
+        end
     end
 
     -- check each droid individually to confirm that it is part of the unitGroup
-    ::retryCheckMembership::
     for key, soldier in pairs(squad.members) do
-        if not soldier or not soldier.valid then
-            removeMemberFromSquad(squad, key) -- this should never happen since we've already trimmed the squad
-        elseif not table.contains(squad.unitGroup.members, soldier) then
+        if not table.contains(squad.unitGroup.members, soldier) then
             if not recreatedUG then
                 ses_statistics.soldierUnitGroupDepartures = ses_statistics.soldierUnitGroupDepartures + 1
             end
-
-            if soldier.surface == squad.unitGroup.surface then
-                if not recreatedUG then
-                    -- we increment by 2 and decrement by 1 so that a squad has to essentially pass two
-                    -- consecutive checks in order to get back down where it was before it failed one.
-                    squad.memberUnitGroupErrors[key] = squad.memberUnitGroupErrors[key] + 2
-                end
-                local soldier_group_distance = util.distance(pos, soldier.position)
-                if squad.memberUnitGroupErrors[key] <= 6 then -- 3 consecutive failed checks will result in failure.
-                    if soldier_group_distance > SQUAD_UNITGROUP_FAILURE_DISTANCE_ESTIMATE and
-                        USE_TELEPORTATION_FIX and
-                        not global_canAnyPlayersSeeThisEntity(soldier) and
-                        not global_canAnyPlayersSeeThisEntity(squad.unitGroup)
-                    then
-                        ses_statistics.soldierUnitGroupReadds = ses_statistics.soldierUnitGroupReadds + 1
-                        local msg = string.format(
-                            "   >>>>>  Teleporting wayward soldier %d about %d m to location of its squad %d at (%d,%d)",
-                            key, soldier_group_distance,
-                            squad.squadID, squad.unitGroup.position.x,
-                            squad.unitGroup.position.y)
-                        LOGGER.log(msg)
-                        if teleportSoldierToUnitGroup(soldier, squad.unitGroup) then
-                            squad.memberUnitGroupErrors[key] = squad.memberUnitGroupErrors[key] - 1
-                        end
-                        squad.unitGroup.add_member(soldier)
-                    else
-                        local msg = string.format("Re-add soldier %d of squad %d sz %d to unitGroup, attempt %d",
-                                                  key, squad.squadID, squad.numMembers, squad.memberUnitGroupErrors[key])
-                        LOGGER.log(msg)
-                        ses_statistics.soldierUnitGroupReadds = ses_statistics.soldierUnitGroupReadds + 1
-                        squad.unitGroup.add_member(soldier)
-                    end
-                else -- tried teleporting a few times, or couldn't because player present
-                    -- no point in disbanding a single-soldier squad, or one that is already at an assembler
-                    if not isSquadNearAssembler(squad, pos) and squad.numMembers > 1 then
-                        ses_statistics.soldierSquadDepartures = ses_statistics.soldierSquadDepartures + 1
-                        local msg = string.format(
-                            "!*!*!*!*! ERROR: After many attempts, failed to reintegrate soldier %d at (%d,%d) %d m from squad %d sz %d. " ..
-                                "Therefore the soldier is being asked to retreat on its own.",
-                            key, soldier.position.x, soldier.position.y, soldier_group_distance, squad.squadID, squad.numMembers)
-                        LOGGER.log(msg)
-                        removeMemberFromSquad(squad, key)
-                        retreatMisbehavingLoneWolf(soldier)
-                    else
-                        local msg = string.format("WARNING: Can't remove misbehaving soldier at distance %d " ..
-                                                      "from squad %d size %d at (%d,%d) and ask it to retreat " ..
-                                                      "because it's already at the nearest assembler or is too small. " ..
-                                                      "This will probably result in the unit group losing cohesion and being disbanded.",
-                                                  util.distance(soldier.position, squad.unitGroup.position),
-                                                  squad.squadID, squad.numMembers, pos.x, pos.y)
-                        LOGGER.log(msg)
-                        squad.memberUnitGroupErrors[key] = 0
-                        ses_statistics.soldierUnitGroupReadds = ses_statistics.soldierUnitGroupReadds + 1
-                        squad.unitGroup.add_member(soldier)
-                        wander = true
-                    end
-                end
-            else -- the unit group and the soldier are on different surfaces. very odd, but let's try to fix it.
-                local msg = string.format("Destroying unit group for squad ID %d because a soldier is on the wrong surface.", squad.squadID)
+            if soldier.surface ~= squad.unitGroup.surface then
+                -- the unit group and the soldier are on different surfaces. Very odd, but let's try to fix it.
+                local msg = string.format("BAD ERROR: Destroying unit group for squad ID %d because a soldier is on the wrong surface.", squad.squadID)
                 LOGGER.log(msg)
                 squad.unitGroup.destroy()
                 squad.unitGroup = recreateUnitGroupForSquad(squad, pos)
                 if not squad.unitGroup then return nil end
+            else -- (everyone is on the same surface)
+                local soldier_group_distance = util.distance(pos, soldier.position)
+                if soldier_group_distance > SQUAD_UNITGROUP_FAILURE_DISTANCE_ESTIMATE then
+                    -- far! - attempt to teleport. This may fix many problems.
+                    if not attemptToTeleport(squad, soldier, key, soldier_group_distance) then
+                        -- kick out
+                        if not attemptToKickSoldierOut(squad, soldier, key, pos, soldier_group_distance) then
+                            squad.unitGroup.add_member(soldier)
+                            wander = true -- the whole squad must now suffer for this soldier
+                            ses_statistics.soldierUnitGroupReadds = ses_statistics.soldierUnitGroupReadds + 1
+                        end
+                    end
+                else
+                    -- not far
+                    if not recreatedUG then
+                        if game.tick < squad.mostRecentUnitGroupRemovalTick[key] + SAFE_SOLDIER_UNITGROUP_REMOVAL_TICKS then
+                            -- not far, but there was another recent issue
+                            attemptToKickSoldierOut(squad, soldier, key, pos, soldier_group_distance)
+                        else -- not far and no recent issues
+                            squad.unitGroup.add_member(soldier)
+                            squad.mostRecentUnitGroupRemovalTick[key] = game.tick
+                            ses_statistics.soldierUnitGroupReadds = ses_statistics.soldierUnitGroupReadds + 1
+                        end
+                    else -- everybody was kicked out, so we're just re-adding everybody
+                        squad.unitGroup.add_member(soldier)
+                        ses_statistics.soldierUnitGroupReadds = ses_statistics.soldierUnitGroupReadds + 1
+                    end
+                end
             end
-        elseif squad.memberUnitGroupErrors[key] > 0 then
-            squad.memberUnitGroupErrors[key] = squad.memberUnitGroupErrors[key] - 1
         end
     end
 
@@ -606,16 +610,22 @@ function validateSquadIntegrity(squad)
     -- of an assembler, so the order is it undoubtedly failing is just as likely to
     -- be the same retreat order we're about to give.
     if wander then
-        local msg = string.format("Squad %d of size %d is unable to complete its orders to go to (%d,%d). It will wander near (%d,%d).",
+        local msg = string.format("Squad %d of size %d has been unable to complete its orders to go to (%d,%d). It will wander near (%d,%d).",
                                   squad.squadID, squad.numMembers, squad.command.dest.x, squad.command.dest.y, pos.x, pos.y)
         LOGGER.log(msg)
         Game.print_force(squad.force, msg)
         orderSquadToWander(squad, pos)
-        squad.unitGroupFailures = 0
-        return nil
+        return squad, false
+    elseif retreat then
+        local msg = string.format("Squad %d of size %d has been unable to complete its orders to go to (%d,%d). It will retreat.",
+                                  squad.squadID, squad.numMembers, squad.command.dest.x, squad.command.dest.y)
+        LOGGER.log(msg)
+        Game.print_force(squad.force, msg)
+        orderSquadToRetreat(squad)
+        return squad, false
+    else
+        return squad, true
     end
-
-    return squad
 end
 
 

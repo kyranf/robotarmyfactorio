@@ -575,14 +575,14 @@ function findClosestAssemblerToPosition(assemblers, position)
 end
 
 
---- This function should always been used when giving any kind of command
---- other than a direct 'wander' command.
+--- This function should always been used when giving any kind of
+--- 'move' command.
 --- This is because otherwise units/unitGroups sometimes decide
 --- to arrive at their location and then do something really random,
 --- like running towards and nesting inside your factory or mining facilities,
 --- since they have no active command anymore. This avoids that,
 --- since the 'wander' command doesn't ever 'expire'.
-function setGoThenWanderCompoundCommand(commandable, position, distraction_type)
+function setGoThenWanderCompoundCommand(commandable, position, radius, distraction_type)
     local d_type = distraction_type or defines.distraction.by_damage
     commandable.set_command(
         {type=defines.command.compound,
@@ -597,6 +597,17 @@ function setGoThenWanderCompoundCommand(commandable, position, distraction_type)
          }
         }
     )
+end
+
+
+function isEntityNearAssembler(entity, entity_position)
+    local nearestAssembler, distance = findClosestAssemblerToPosition(
+        global.DroidAssemblers[entity.force.name], entity_position)
+    if nearestAssembler and distance < AT_ASSEMBLER_RANGE then
+        return true
+    else
+        return false
+    end
 end
 
 

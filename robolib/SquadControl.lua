@@ -48,11 +48,18 @@ function executeBattleAI(squad)
     -- DEBUG
 
     local attacking = isAttacking(squad)
-    if attacking then squad.command.state_changed_since_last_command = true end
+    if attacking then
+        -- squad.command.state_changed_since_last_command = true
+        if not squad.command.state_changed_since_last_command then
+            squad.command.state_changed_since_last_command = true
+            LOGGER.log(string.format("Squad %d is attacking - once it no longer is attacking, it will need an order.", squad.squadID))
+        end
+    end
     if (not attacking) and (squad.command.state_changed_since_last_command or
                               squadOrderNeedsRefresh(squad))
     then
-        if not validateSquadIntegrity(squad) then return end
+        squad, issue_command = validateSquadIntegrity(squad)
+        if not squad or not issue_command then return end
         LOGGER.log(string.format("Squad %d Needs orders of some kind %d at %d",
                                  squad.squadID, squad.command.type, game.tick))
         if shouldHunt(squad) then
@@ -60,7 +67,6 @@ function executeBattleAI(squad)
         else
             orderSquadToRetreat(squad)
         end
-        squad.command.state_changed_since_last_command = false
     end
 end
 

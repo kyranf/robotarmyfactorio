@@ -61,13 +61,14 @@ function migrateSquadTo_0_2_4(squad)
         local pos = getSquadPos(squad)
         squad.command = makeCommandTable(squad.command, pos, pos)
     end
+
     squad.unitGroupFailures = squad.unitGroupFailures or 0
     squad.numMembers = squad.numMembers or 0
 
-    if not squad.memberUnitGroupErrors then
-        squad.memberUnitGroupErrors = {}
+    if not squad.mostRecentUnitGroupRemovalTick then
+        squad.mostRecentUnitGroupRemovalTick = {}
         for key, soldier in pairs(squad.members) do
-            squad.memberUnitGroupErrors[key] = 0
+            squad.mostRecentUnitGroupRemovalTick[key] = 1
         end
     end
 
