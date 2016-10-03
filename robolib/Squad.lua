@@ -359,7 +359,6 @@ function trimSquad(squad, suppress_msg)
         --player.print(string.format("trimming squad %s, id %d, member size %d", squad, squad.squadID, squad.numMembers))
         squad.numMembers = 0
         if squad.members then
-            squad.members.size = nil -- removing old 'size' table entry
             for key, droid in pairs(squad.members) do
                 if droid and droid.valid then
                     squad.numMembers = squad.numMembers + 1
@@ -443,27 +442,6 @@ function disbandAndRetreatEntireSquad(squad, current_pos)
 end
 
 
-function squadFailedTooManyOrders(squad, current_pos)
-    local msg = string.format("ERROR: Squad %d of size %d at position (%d,%d) has failed to follow its last order to (%d,%d) and is being disbanded.",
-                              squad.squadID, squad.numMembers,
-                              current_pos.x, current_pos.y, squad.command.dest.x, squad.command.dest.y)
-    LOGGER.log(msg)
-    Game.print_force(squad.force, msg)
-
-    disbandAndRetreatEntireSquad(squad, current_pos)
-end
-
-
-function cantCreateUnitGroup(squad, current_pos)
-    local msg = string.format("ERROR: Squad %d of size %d near (%d,%d) has lost cohesion and is being disbanded.",
-                              squad.squadID, squad.numMembers, current_pos.x, current_pos.y)
-    LOGGER.log(msg)
-    Game.print_force(squad.force, msg)
-
-    disbandAndRetreatEntireSquad(squad, current_pos)
-end
-
-
 -- checks that all entities in the "members" sub table are present in the unitgroup and that the unit group exists
 -- this function is fairly expensive, so don't call it unless necessary.
 function validateSquadIntegrity(squad)
@@ -476,6 +454,7 @@ function validateSquadIntegrity(squad)
 
     local pos = getSquadPos(squad)
     local wander = false
+    local recreatedUG = false
 
      -- validate the unit group
     if not squad.unitGroup or not squad.unitGroup.valid then
@@ -485,7 +464,13 @@ function validateSquadIntegrity(squad)
         if squad.unitGroupFailures > MAX_UNITGROUP_FAILURES then
             -- this probably means that we're trying to attack a location that can't be attacked
             if not isSquadNearAssembler(squad, pos) and squad.numMembers > 1 then
-                squadFailedTooManyOrders(squad, pos)
+                local msg = string.format("ERROR: Squad %d of size %d at position (%d,%d) has failed to follow its last order to (%d,%d) and is being disbanded.",
+                                          squad.squadID, squad.numMembers,
+                                          pos.x, pos.y, squad.command.dest.x, squad.command.dest.y)
+                LOGGER.log(msg)
+                Game.print_force(squad.force, msg)
+
+                disbandAndRetreatEntireSquad(squad, pos)
                 return nil
             else
                 -- otherwise reset all individual soldier problems, and recreate unitGroup
@@ -499,9 +484,15 @@ function validateSquadIntegrity(squad)
         squad.unitGroup = recreateUnitGroupForSquad(squad, pos) -- do this
         if not squad.unitGroup or not squad.unitGroup.valid then
             -- apparently we can't even create a unit group. This is pretty bad.
-            cantCreateUnitGroup(squad, pos)
+            local msg = string.format("ERROR: Squad %d of size %d near (%d,%d) has lost cohesion and is being disbanded.",
+                                      squad.squadID, squad.numMembers, pos.x, pos.y)
+            LOGGER.log(msg)
+            Game.print_force(squad.force, msg)
+
+            disbandAndRetreatEntireSquad(squad, pos)
             return nil
         end
+        recreatedUG = true
     end
 
     -- check each droid individually to confirm that it is part of the unitGroup
@@ -512,9 +503,11 @@ function validateSquadIntegrity(squad)
         elseif not table.contains(squad.unitGroup.members, soldier) then
             if soldier.surface == squad.unitGroup.surface then
                 local soldier_group_distance = util.distance(pos, soldier.position)
-				-- we increment by 2 and decrement by 1 so that a squad has to essentially pass two
-				-- consecutive checks in order to get back down where it was before it failed one.
-                squad.memberUnitGroupErrors[key] = squad.memberUnitGroupErrors[key] + 2
+                if not recreatedUG then
+                    -- we increment by 2 and decrement by 1 so that a squad has to essentially pass two
+                    -- consecutive checks in order to get back down where it was before it failed one.
+                    squad.memberUnitGroupErrors[key] = squad.memberUnitGroupErrors[key] + 2
+                end
                 if squad.memberUnitGroupErrors[key] <= 6 then -- 3 consecutive failed checks will result in failure.
                     if soldier_group_distance > SQUAD_UNITGROUP_FAILURE_DISTANCE_ESTIMATE and
                         USE_TELEPORTATION_FIX and
@@ -541,11 +534,11 @@ function validateSquadIntegrity(squad)
                     -- no point in disbanding a single-soldier squad, or one that is already at an assembler
                     if not isSquadNearAssembler(squad, pos) and squad.numMembers > 1 then
                         local msg = string.format(
-                            "!*!*!*!*! ERROR: After many attempts, failed to reintegrate soldier %d at (%d,%d) with squad %d sz %d. " ..
+                            "!*!*!*!*! ERROR: After many attempts, failed to reintegrate soldier %d at (%d,%d) %d m from squad %d sz %d. " ..
                                 "Therefore the soldier is being asked to retreat on its own.",
-                            key, soldier.position.x, soldier.position.y, squad.squadID, squad.numMembers)
+                            key, soldier.position.x, soldier.position.y, soldier_group_distance, squad.squadID, squad.numMembers)
                         LOGGER.log(msg)
-                        removeMemberFromSquad(squad, soldier_key)
+                        removeMemberFromSquad(squad, key)
                         retreatMisbehavingLoneWolf(soldier)
                     else
                         local msg = string.format("WARNING: Can't remove misbehaving soldier at distance %d " ..
@@ -588,32 +581,6 @@ function validateSquadIntegrity(squad)
     end
 
     return squad
-end
-
-
-function orderToAssembler(orderable, assembler, ignore_distractions)
-    local position = getDroidSpawnLocation(assembler)
-    if position ~= -1 then
-        -- RETREAT!
-        local distraction_type = defines.distraction.by_damage
-        if ignore_distractions then
-            LOGGER.log(string.format("Ignoring all distractions on the way to assembler at %d,%d",
-                                     assembler.position.x, assembler.position.y))
-            distraction_type = defines.distraction.none
-        end
-        orderable.set_command({type=defines.command.compound,
-                               structure_type=defines.compound_command.return_last,
-                               commands={
-                                   {type=defines.command.go_to_location,
-                                    destination=position,
-                                    distraction=distraction_type},
-                                   {type=defines.command.wander,
-                                    destination=position,
-                                    distraction=distraction_type},
-        }})
-    else
-        LOGGER.log("ERROR: Failed to find a droid spawn position near the requested assembler!")
-    end
 end
 
 

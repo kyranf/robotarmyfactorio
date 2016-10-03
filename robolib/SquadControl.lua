@@ -30,9 +30,9 @@ function executeBattleAI(squad)
 	if (not attacking) and (squad.command.state_changed_since_last_command or
 							  squadOrderNeedsRefresh(squad))
 	then
+		if not validateSquadIntegrity(squad) then return end
 		LOGGER.log(string.format("Squad %d Needs orders of some kind %d at %d",
 								 squad.squadID, squad.command.type, game.tick))
-		if not validateSquadIntegrity(squad) then return end
 		if shouldHunt(squad) then
 			orderSquadToHunt(squad)
 		else

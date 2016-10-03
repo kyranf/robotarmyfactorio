@@ -575,6 +575,31 @@ function findClosestAssemblerToPosition(assemblers, position)
 end
 
 
+--- This function should always been used when giving any kind of command
+--- other than a direct 'wander' command.
+--- This is because otherwise units/unitGroups sometimes decide
+--- to arrive at their location and then do something really random,
+--- like running towards and nesting inside your factory or mining facilities,
+--- since they have no active command anymore. This avoids that,
+--- since the 'wander' command doesn't ever 'expire'.
+function setGoThenWanderCompoundCommand(commandable, position, distraction_type)
+    local d_type = distraction_type or defines.distraction.by_damage
+    commandable.set_command(
+        {type=defines.command.compound,
+         structure_type=defines.compound_command.return_last,
+         commands={
+             {type=defines.command.go_to_location,
+              destination=position,
+              distraction=d_type},
+             {type=defines.command.wander,
+              destination=position,
+              distraction=d_type},
+         }
+        }
+    )
+end
+
+
 function findNearbyAssemblers(assemblers, position, range)
 	local tempTable = {}
 	for dkey, assembler in pairs(assemblers) do
