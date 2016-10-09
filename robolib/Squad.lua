@@ -14,6 +14,12 @@ commands = {
     hunt = 6,       -- when set, SQUAD_AI will send to nearest enemy
 }
 
+ugFailureResponses = {
+    repeatOrder = 1,
+    retreat = 2,
+    wander = 3,
+}
+
 global.SquadTemplate = {squadID= 0, player=true, unitGroup = true, members = {size = 0}, home = true, force = true, surface = true, radius=DEFAULT_SQUAD_RADIUS, patrolPoint1 = true, patrolPoint2 = true, currentCommand = "none"} -- this is the empty squad table template
 
 global.patrolState = {lastPole = nil,currentPole = nil,nextPole = nil,movingToNext = false}
@@ -76,8 +82,10 @@ function createNewSquad(forceSquadsTable, entity)
     newsquad.members = {}
     newsquad.numMembers = 0
 
-    newsquad.unitGroupFailures = 0
     newsquad.mostRecentUnitGroupRemovalTick = {}
+    newsquad.unitGroupFailures = 0
+    newsquad.unitGroupFailureTick = 0
+    newsquad.nextUnitGroupFailureResponse = ugFailureResponses.repeatOrder
 
     newsquad.command = makeCommandTable(commands.assemble,
                                         newsquad.unitGroup.position,
@@ -509,6 +517,20 @@ function attemptToKickSoldierOut(squad, soldier, key, squad_pos, soldier_group_d
 end
 
 
+function howManySoldiersFar(squad)
+    local sPos = squad.unitGroup.position
+    local farSoldiers = 0
+    for key, soldier in pairs(squad.members) do
+        if soldier.valid then
+            if util.distance(sPos, soldier.position) > SQUAD_UNITGROUP_FAILURE_DISTANCE_ESTIMATE then
+                farSoldiers = farSoldiers + 1
+            end
+        end
+    end
+    return farSoldiers
+end
+
+
 SAFE_SOLDIER_UNITGROUP_REMOVAL_TICKS = 300 -- 5 seconds
 
 -- checks that all entities in the "members" sub table are present in the unitgroup and that the unit group exists
@@ -524,21 +546,26 @@ function validateSquadIntegrity(squad)
     local wander = false
     local retreat = false
     local recreatedUG = false
+    local msg
 
      -- validate the unit group
     if not squad.unitGroup or not squad.unitGroup.valid then
-        squad.unitGroupFailures = squad.unitGroupFailures + 1
         ses_statistics.unitGroupFailures = ses_statistics.unitGroupFailures + 1
-        LOGGER.log(string.format("--- WARNING: squad %d size %d at (%d,%d) has now had %d UnitGroup failures.",
-                                 squad.squadID, squad.numMembers, pos.x, pos.y, squad.unitGroupFailures))
+        msg = string.format(
+            "--- WARNING: squad %d size %d at (%d,%d) has had a UnitGroup failure; " ..
+                "its most recent failure was %d ticks ago.",
+            squad.squadID, squad.numMembers, pos.x, pos.y, game.tick - squad.unitGroupFailureTick)
+        LOGGER.log(msg)
 
         squad.unitGroup = recreateUnitGroupForSquad(squad, pos) -- do this
         if not squad.unitGroup or not squad.unitGroup.valid then
             -- apparently we can't even create a unit group.
             -- all we can really do is try disbanding the squad and see if that helps.
-            local msg = string.format("VERY BAD ERROR: Squad %d of size %d near (%d,%d) has gone rogue and is being disbanded.",
-                                      squad.squadID, squad.numMembers, pos.x, pos.y)
+            msg = string.format(
+                "VERY BAD ERROR: Squad %d of size %d near (%d,%d) has gone rogue and is being disbanded.",
+                squad.squadID, squad.numMembers, pos.x, pos.y)
             LOGGER.log(msg)
+
             Game.print_force(squad.force, msg)
             disbandAndRetreatEntireSquad(squad, pos)
             return nil, false
@@ -546,17 +573,32 @@ function validateSquadIntegrity(squad)
 
         recreatedUG = true
 
-        if squad.unitGroupFailures > MAX_CONSECUTIVE_UNITGROUP_FAILURES_BEFORE_RETREAT then
-            if squad.command.type ~= squad.assemble then
+        local soldiers_far = howManySoldiersFar(squad)
+        if any_soldiers_far then
+            msg = string.format("Squad %d has %d soldiers far from its unit group, " ..
+                                    "which may have caused the unit group to disintegrate.",
+                                squad.squadID, soldiers_far)
+            LOGGER.log(msg)
+        end
+
+        if squad.unitGroupFailureTick + UG_FAILURE_RECENCY_TICKS > game.tick then
+
+            if squad.nextUnitGroupFailureResponse == ugFailureResponses.repeatOrder then
+                squad.nextUnitGroupFailureResponse = ugFailureResponses.retreat
+            elseif squad.nextUnitGroupFailureResponse == ugFailureResponses.retreat then
                 -- try retreating (maybe our attack location is unpathable)
                 retreat = true
+                squad.nextUnitGroupFailureResponse = ugFailureResponses.wander
             else
                 -- we tried retreating, or already were told to retreat.
-                -- retreating didn't work. try wandering in place for a while.
+                -- retreating didn't work. try wandering in place for a while, then re-trying the order
                 wander = true
-                squad.unitGroupFailures = 0 -- reset this to give us another chance to retreat eventually.
+                squad.nextUnitGroupFailureResponse = ugFailureResponses.repeatOrder
             end
+        else
+            squad.nextUnitGroupFailureResponse = ugFailureResponses.repeatOrder
         end
+        squad.unitGroupFailureTick = game.tick
     end
 
     -- check each droid individually to confirm that it is part of the unitGroup
@@ -567,7 +609,9 @@ function validateSquadIntegrity(squad)
             end
             if soldier.surface ~= squad.unitGroup.surface then
                 -- the unit group and the soldier are on different surfaces. Very odd, but let's try to fix it.
-                local msg = string.format("BAD ERROR: Destroying unit group for squad ID %d because a soldier is on the wrong surface.", squad.squadID)
+                msg = string.format(
+                    "BAD ERROR: Destroying unit group for squad ID %d because a soldier is on the wrong surface.",
+                    squad.squadID)
                 LOGGER.log(msg)
                 squad.unitGroup.destroy()
                 squad.unitGroup = recreateUnitGroupForSquad(squad, pos)
@@ -610,15 +654,17 @@ function validateSquadIntegrity(squad)
     -- of an assembler, so the order is it undoubtedly failing is just as likely to
     -- be the same retreat order we're about to give.
     if wander then
-        local msg = string.format("Squad %d of size %d has been unable to complete its orders to go to (%d,%d). It will wander near (%d,%d).",
-                                  squad.squadID, squad.numMembers, squad.command.dest.x, squad.command.dest.y, pos.x, pos.y)
+        msg = string.format(
+            "Squad %d of size %d has been unable to complete its orders to go to (%d,%d). It will wander near (%d,%d).",
+            squad.squadID, squad.numMembers, squad.command.dest.x, squad.command.dest.y, pos.x, pos.y)
         LOGGER.log(msg)
         Game.print_force(squad.force, msg)
         orderSquadToWander(squad, pos)
         return squad, false
     elseif retreat then
-        local msg = string.format("Squad %d of size %d has been unable to complete its orders to go to (%d,%d). It will retreat.",
-                                  squad.squadID, squad.numMembers, squad.command.dest.x, squad.command.dest.y)
+        msg = string.format(
+            "Squad %d of size %d has been unable to complete its orders to go to (%d,%d). It will retreat.",
+            squad.squadID, squad.numMembers, squad.command.dest.x, squad.command.dest.y)
         LOGGER.log(msg)
         Game.print_force(squad.force, msg)
         orderSquadToRetreat(squad)
@@ -752,11 +798,12 @@ end
 
 
 function debugSquadOrder(squad, orderName, position)
-    local msg = string.format("Ordering squad %d sz %d at (%d,%d) to %s at (%d,%d), a distance of %d; last order was %d ticks ago",
-                              squad.squadID, squad.numMembers,
-                              squad.unitGroup.position.x, squad.unitGroup.position.y,
-                              orderName, position.x, position.y, squad.command.distance,
-                              game.tick - squad.command.tick)
+    local msg = string.format(
+        "Ordering squad %d sz %d to %s @ (%d,%d), a distance of %d from (%d,%d); last order was %d ticks ago",
+        squad.squadID, squad.numMembers,
+        orderName, position.x, position.y, squad.command.distance,
+        squad.unitGroup.position.x, squad.unitGroup.position.y,
+        game.tick - squad.command.tick)
     LOGGER.log(msg)
 end
 

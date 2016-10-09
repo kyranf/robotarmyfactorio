@@ -71,6 +71,11 @@ function migrateSquadTo_0_2_4(squad)
         end
     end
 
+    if not squad.nextUnitGroupFailureResponse then
+        squad.nextUnitGroupFailureResponse = ugFailureResponses.repeatOrder
+        squad.unitGroupFailureTick = 0
+    end
+
     -- put squad in tick tables if not there already
     local found = false
     for tkey, tickTable in pairs(global.updateTable[squad.force.name]) do
