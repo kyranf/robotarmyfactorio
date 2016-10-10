@@ -509,7 +509,7 @@ function attemptToKickSoldierOut(squad, soldier, key, squad_pos, soldier_group_d
                                       "because it's already at the nearest assembler or is too small. " ..
                                       "This will probably result in the unit group losing cohesion and being disbanded.",
                                   util.distance(soldier.position, squad_pos),
-                                  squad.squadID, squad.numMembers, pos.x, pos.y)
+                                  squad.squadID, squad.numMembers, squad_pos.x, squad_pos.y)
         LOGGER.log(msg)
         squad.mostRecentUnitGroupRemovalTick[key] = 1
         return false
