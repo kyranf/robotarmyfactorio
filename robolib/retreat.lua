@@ -2,6 +2,7 @@ require("config.config")
 require("util")
 require("robolib.Squad")
 require("robolib.util")
+require("robolib.targeting")
 require("stdlib/log/logger")
 require("stdlib/game")
 
@@ -123,6 +124,10 @@ function checkRetreatAssemblerForMergeableSquads(assembler, squads)
                 end
             end
         end
+    end
+
+    if GLOBAL_TARGETING_TYPE == targetingTypes.hybridKeepRadiusClear then
+        findNearestEnemies(assembler)
     end
     -- LOGGER.log(string.format("Assembler merge examined %d squads, of which %d were near this assembler at (%d,%d)",
     --                       squadCount, squadCloseCount, assembler.position.x, assembler.position.y))

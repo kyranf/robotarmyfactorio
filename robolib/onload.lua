@@ -27,6 +27,7 @@ function global_ensureTablesExist()
     if not global.updateTable then global.updateTable = {} end
     if not global.Squads then global.Squads = {} end
     if not global.AssemblerRetreatTables then global.AssemblerRetreatTables = {} end
+    if not global.AssemblerNearestEnemies then global.AssemblerNearestEnemies = {} end
     if not global.DroidAssemblers then global.DroidAssemblers = {} end
     if not global.droidGuardStations then global.droidGuardStations = {} end
 end
@@ -97,6 +98,7 @@ end
 function migrateDroidAssemblersTo_0_2_4(force)
     -- index these by their globally unique "unit_number" instead.
     local forceAssemblers = global.DroidAssemblers[force.name]
+    local assemblerNearestEnemies = global.AssemblerNearestEnemies[force.name]
     for dkey, assembler in pairs(forceAssemblers) do
         if not assembler or not assembler.valid then
             forceAssemblers[dkey] = nil
@@ -104,6 +106,9 @@ function migrateDroidAssemblersTo_0_2_4(force)
             forceAssemblers[dkey] = nil
             LOGGER.log(string.format("Moving assembler to new index %d from %d", assembler.unit_number, dkey))
             forceAssemblers[assembler.unit_number] = assembler
+        end
+        if not assemblerNearestEnemies[assembler.unit_number] then
+            assemblerNearestEnemies[assembler.unit_number] = {lastChecked = 0, enemy = nil}
         end
     end
 end
@@ -122,6 +127,9 @@ function global_fixupTickTablesForForceName(force_name)
     end
     if not global.AssemblerRetreatTables[force_name] then
         global.AssemblerRetreatTables[force_name] = {}
+    end
+    if not global.AssemblerNearestEnemies[force_name] then
+        global.AssemblerNearestEnemies[force_name] = {}
     end
     if not global.droidGuardStations[force_name] then
         global.droidGuardStations[force_name] = {}

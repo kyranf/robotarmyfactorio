@@ -5,6 +5,7 @@ require("robolib.util")
 require("robolib.retreat")
 require("stdlib/log/logger")
 require("stdlib/game")
+require("robolib.targeting")
 
 function updateSquad(squad)
     if squadStillExists(squad) then -- if not, that means this squad has been deleted
@@ -72,34 +73,11 @@ end
 
 
 function orderSquadToHunt(squad)
-    local surface = getSquadSurface(squad)
-    if not surface then
-        LOGGER.log(string.format("ERROR: Surface for squad ID %d is missing or can't be determined!", squad.squadID))
-        return
-    end
-
-    local huntRadius = getSquadHuntRange(squad.force)
-    local huntOrigin = squad.unitGroup.position
-    if usesAssemblerCentricTargeting(squad.force) then
-        local assembler, distance = findClosestAssemblerToPosition(global.DroidAssemblers[squad.force.name],
-                                                                   squad.unitGroup.position)
-        if assembler then huntOrigin = assembler.position end
-    end
-    local nearestEnemy = surface.find_nearest_enemy({position = huntOrigin,
-                                                     max_distance = huntRadius,
-                                                     force = squad.force })
-    if nearestEnemy then
-        -- check if they are in a charted area
-        local charted = true   -- = player.force.is_chunk_charted(player.surface, nearestEnemy.position)
-        if charted then
-            orderSquadToAttack(squad, nearestEnemy.position)
-        else
-            LOGGER.log("enemy found but in un-charted area...") -- this is debug spam - if we see this, deal with it properly in code and remove this
-        end
+    local target = chooseTarget(squad)
+    if target then
+        orderSquadToAttack(squad, target.position)
     else
-        --Game.print_force(squad.force, "cannot find nearby target!!") -- this is debug spam - if we see this, deal with it properly in code and remove this
-        -- update - I encountered this on a fresh start map and placing down units before any biters (or chunks they live in) had been generated yet.
-        -- we need an "idle" behaviour I think, such as returning to the squad "home" which is set when they are first made at an assembler, or the player's position.
+        orderSquadToWander(squad, squad.unitGroup.position)
     end
 end
 
