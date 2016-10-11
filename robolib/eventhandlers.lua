@@ -65,7 +65,7 @@ function processSpawnedDroid(droid, guard, guardPos, manuallyPlaced)
 
     addMemberToSquad(squad, droid)
     if manuallyPlaced then
-        LOGGER.log(string.format("Manually placed droid causing squad %d to request new orders.",
+        LOGGER.log(string.format(" # # # # Manually placed droid causing squad %d to request new orders.",
                                  squad.squadID))
         squad.command.state_changed_since_last_command = true
     end
@@ -153,7 +153,7 @@ function tickForces(forces, tick)
                 processDroidAssemblers(force)
                 processDroidGuardStations(force)
             end
-            processRetreatChecksForTick(force, tick)
+            processDroidAssemblersForTick(force, tick)
             processSquadUpdatesForTick(force.name, tick % 60 + 1)
             if tick % 1200 == 0 then
                 log_session_statistics(force)
@@ -163,7 +163,9 @@ function tickForces(forces, tick)
 end
 
 
-function processRetreatChecksForTick(force, tick)
+CHECK_FOR_NEAREST_ENEMY_TO_ASSEMBLER_EVERY = 3600 -- in ticks
+
+function processDroidAssemblersForTick(force, tick)
     local forceAssemblerRetreatTable = global.AssemblerRetreatTables[force.name]
     for assemblerIdx, squads in pairs(forceAssemblerRetreatTable) do
         if assemblerIdx % ASSEMBLER_MERGE_TICKRATE == tick % ASSEMBLER_MERGE_TICKRATE then
@@ -172,6 +174,16 @@ function processRetreatChecksForTick(force, tick)
                 -- don't iterate over this assembler again until it is 'recreated'
                 -- by a squad trying to retreat to it
                 forceAssemblerRetreatTable[assemblerIdx] = nil
+            end
+            if GLOBAL_TARGETING_TYPE == targetingTypes.hybridKeepRadiusClear then
+                if assembler.valid then
+                    local ANEtable = global.AssemblerNearestEnemies[force.name][assemblerIdx]
+                    if game.tick > ANEtable.lastChecked + CHECK_FOR_NEAREST_ENEMY_TO_ASSEMBLER_EVERY then
+                        findAssemblerNearestEnemies(assembler, ANEtable)
+                    end
+                else
+                    global.AssemblerNearestEnemies[force.name][assemblerIdx] = nil
+                end
             end
         end
     end

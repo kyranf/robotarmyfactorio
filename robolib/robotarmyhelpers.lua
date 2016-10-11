@@ -120,7 +120,7 @@ function getSquadRetreatSize(force)
 end
 
 
-function getSquadHuntRange(force)
+function getForceHuntRange(force)
     if global.settings and global.settings[force.name] and global.settings[force.name].huntRangeOverride then
         return global.settings[force.name].huntRangeOverride    --overriden value from settings combinator for that force
     else
@@ -562,7 +562,8 @@ function handleDroidAssemblerPlaced(event)
     LOGGER.log(string.format("Adding assembler to force %s", force.name))
     global.DroidAssemblers[force.name][entity.unit_number] = entity
     global.AssemblerNearestEnemies[force.name][entity.unit_number] = {lastChecked = 0,
-                                                                      enemy = nil}
+                                                                      enemy = nil,
+                                                                      distance = 0}
 end
 
 

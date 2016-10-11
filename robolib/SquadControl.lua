@@ -26,28 +26,6 @@ end
 
 
 function executeBattleAI(squad)
-    -- DEBUG COMMAND SUCCESS
-    if squad.command.tick + 60 == game.tick then
-        -- just finished receiving an order
-        local ugstate = nil
-        local pos = getSquadPos(squad)
-        if squad.unitGroup then ugstate = squad.unitGroup.state end
-        LOGGER.log(string.format("Squad %d received cmd type %d recently. Current UG state is %s, dist %d",
-                                 squad.squadID, squad.command.type, tostring(ugstate),
-                                 util.distance(pos, squad.command.pos)))
-        if (ugstate ~= defines.group_state.gathering and
-                ugstate ~= defines.group_state.finished)
-            or (squad.command.type == commands.assemble and squad.unitGroup.valid)
-        then
-            ses_statistics.commandSuccess = ses_statistics.commandSuccess + 1
-            LOGGER.log(string.format("COMMAND SUCCESS for Squad %d", squad.squadID))
-        else
-            ses_statistics.commandFailure = ses_statistics.commandFailure + 1
-            LOGGER.log(string.format("COMMAND FAILURE for Squad %d", squad.squadID))
-        end
-    end
-    -- DEBUG
-
     local attacking = isAttacking(squad)
     if attacking then
         -- squad.command.state_changed_since_last_command = true
@@ -57,11 +35,11 @@ function executeBattleAI(squad)
         end
     end
     if (not attacking) and (squad.command.state_changed_since_last_command or
-                              squadOrderNeedsRefresh(squad))
+                                squadOrderNeedsRefresh(squad))
     then
         squad, issue_command = validateSquadIntegrity(squad)
         if not squad or not issue_command then return end
-        LOGGER.log(string.format("Squad %d Needs orders of some kind %d at %d",
+        LOGGER.log(string.format("Squad %d Needs orders of some kind (last: %d) at tick %d",
                                  squad.squadID, squad.command.type, game.tick))
         if shouldHunt(squad) then
             orderSquadToHunt(squad)

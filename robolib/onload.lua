@@ -108,7 +108,9 @@ function migrateDroidAssemblersTo_0_2_4(force)
             forceAssemblers[assembler.unit_number] = assembler
         end
         if not assemblerNearestEnemies[assembler.unit_number] then
-            assemblerNearestEnemies[assembler.unit_number] = {lastChecked = 0, enemy = nil}
+            assemblerNearestEnemies[assembler.unit_number] = {lastChecked = 0,
+                                                              enemy = nil,
+                                                              distance = 0}
         end
     end
 end

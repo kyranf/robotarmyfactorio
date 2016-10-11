@@ -3,15 +3,13 @@
 squads manually placed within N tiles of the player character could be assigned to 'follow' the player.
 however, if the player gets more than M tiles away from the squad, the squad will retreat to the nearest
 assembler and become a 'normal' hunting squad.
+** per-assembler 'AIs'
+- each assembler could be assigned an AI, and settings related to
+  it. e.g. "Search and destroy", or "Keep Radius Clear; Radius = 500"
+- squads being created/merged at an assembler would take on the
+  'settings' of the assembler, if it has any.
 * IN PROGRESS
-** better, more configurable AI for hunting squads
-- currently we have 2 types: 'naive nearest enemy' and 'nearest enemy to nearest assembler'
-- we can call these "search and destroy" and "defend assembler"
-- I want a hybrid approach, called "keep radius clear", where the
-  priority is enemies within a certain radius of the assembler, but if
-  there are none, then the squad follows standard search-and-destroy
-  tactics.
-*** Squads remember spawning assembler
+** Squads remember spawning assembler
 currently, each squad freely transfers from assembler to assembler.
 It might be better if the squads stayed assigned to their spawning assembler, unless
 that assembler got picked up.
@@ -24,18 +22,13 @@ that assembler got picked up.
 - Should search-and-destroy squads remember their home assembler?
   probably not. If retreating, they should simply retreat to the
   nearest assembler for maximum killing efficiency.
-*** per-assembler 'AIs'
-- each assembler could be assigned an AI, and settings related to
-  it. e.g. "Search and destroy", or "Keep Radius Clear; Radius = 500"
-- squads being created/merged at an assembler would take on the
-  'settings' of the assembler, if it has any.
+* IMPLEMENTED
 ** better unitGroup failure logic
 - take into account how recent the failures were. History is not
   interesting; recency is.
 - also take into account distance of group members. If any group
   members are too far away, then this may not be a command failure
   after all.
-* IMPLEMENTED
 ** soldier departures
 don't give individual units multiple chances - if they get removed,
 are far, and can't be teleported, then kick them out immediately
@@ -71,6 +64,10 @@ end
   it to wander in place, and inform the player that it is resting at
   the given location.
 
+** hybrid targeting AI
+- squads can now target with a more complex system, which splits the
+  difference between a totally assembler-centric posture and the basic
+  'find nearest enemy' AI.
 * WONTFIX
 ** check for squad integrity (i.e., all soldiers in group) every M ticks, more frequently than reissuing orders?
 checking for squad integrity is expensive, so we want to do this an order of magnitude

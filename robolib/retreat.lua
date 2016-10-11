@@ -26,9 +26,9 @@ function orderSquadToRetreat(squad)
 		squad.command.type = commands.assemble -- takes us out of hunt mode until we're big enough
 
         if distance > AT_ASSEMBLER_RANGE then
-            LOGGER.log(string.format("Ordering squad %d of size %d near (%d,%d) to retreat %d m to assembler near (%d,%d)",
+            LOGGER.log(string.format("Ordering squad %d of size %d near (%d,%d) to retreat %d m to assembler %d near (%d,%d)",
                                      squad.squadID, squad.numMembers, currentPos.x, currentPos.y,
-                                     distance, retreatPos.x, retreatPos.y))
+                                     distance, assembler.unit_number, retreatPos.x, retreatPos.y))
             -- issue an actual retreat command
             squad.command.dest = retreatPos
             squad.command.distance = distance
@@ -58,8 +58,8 @@ function addSquadToRetreatTables(squad, targetAssembler)
     local forceRetreatTables = global.AssemblerRetreatTables[squad.force.name]
     for i=1, #retreatAssemblers do -- cool/faster iteration syntax for list-like table
         local assembler = retreatAssemblers[i]
-        LOGGER.log(string.format("Inserting squad %d into retreat table of assembler at (%d,%d)",
-                                 squad.squadID, assembler.position.x, assembler.position.y))
+        LOGGER.log(string.format("Inserting squad %d into retreat table of assembler %d at (%d,%d)",
+                                 squad.squadID, assembler.unit_number, assembler.position.x, assembler.position.y))
         if not forceRetreatTables[assembler.unit_number] then
             forceRetreatTables[assembler.unit_number] = {}
         end
@@ -126,9 +126,6 @@ function checkRetreatAssemblerForMergeableSquads(assembler, squads)
         end
     end
 
-    if GLOBAL_TARGETING_TYPE == targetingTypes.hybridKeepRadiusClear then
-        findNearestEnemies(assembler)
-    end
     -- LOGGER.log(string.format("Assembler merge examined %d squads, of which %d were near this assembler at (%d,%d)",
     --                       squadCount, squadCloseCount, assembler.position.x, assembler.position.y))
     if squadCount == 0 then return false else return true end
