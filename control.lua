@@ -343,3 +343,11 @@ function runTableTickUpdates(tick)
 	end --end for each force in game...
 	
 end
+
+script.on_event(defines.events.on_entity_died, function( event) 
+	if event.force == game.forces["player"] then -- Killed by player
+		if event.entity.type == "unit-spawner" then
+			spawnVictoryTurret(event)
+		end
+	end
+ end)
