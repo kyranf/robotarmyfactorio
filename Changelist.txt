@@ -2,4 +2,4 @@ Changes from 0.2.3 to 0.2.4 release:
 - recipe adjustment for clockwork rifle bot if Bob's electronics is enabled (thanks Nexela!)
 - changed codebase to add new squads to a tick-update list, and each tick in a 60 tick cycle, only update squads assigned to that tick.
 - refactored/added functions to handle squad AI with just the squad as the input to the function
-- 
+- Added Victory Turrets - On destroying a nest, an SMG droid will turn into a gun turret to prevent future nests from being built.

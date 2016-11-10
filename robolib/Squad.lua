@@ -912,4 +912,33 @@ function grabArtifacts(force)
 	end
 end
 
+function spawnVictoryTurret(event)
+	-- A spawner has died.  Find a nearby droid and turn it into a turret.
+	-- SMG droid = gun-turret
+	-- Terminators can't become laser turrets (no power).
+	-- No flamethrower turret?
+	local surface = event.entity.surface
+	if not surface then 
+		LOGGER.log(string.format("ERROR: Surface for dead spawner is missing or can't be determined! spawnVictoryTurret"))
+		return
+	end 
 
+	-- What range should I use?  Let's go with 15 since that's it for turrets.
+	local localArea = {{event.entity.position.x - 15, event.entity.position.y -15}, {event.entity.position.x + 15, event.entity.position.y + 15}}
+	
+	local candidates = surface.find_entities_filtered{area=localArea, name="droid-smg"}
+	
+	-- find_non_colliding_position ?
+	for index, droid in pairs(candidates) do
+		if droid and droid.valid then
+			local turret = surface.create_entity{ name="gun-turret", position = droid.position, force = droid.force }
+			turret.copy_settings(droid) -- Maybe this does most of the work for us, kills, health, etc
+			-- Preserve health value
+			-- turret.health = droid.health / droid.prototype.max_health * turret.prototype.max_health
+			-- Add ammo, let's go with half a stack of standard magazines by default
+			turret.insert({name = "firearm-magazine", count = 50})
+			droid.destroy()
+			return -- Only do this once per spawner kill
+		end
+	end
+end
