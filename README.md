@@ -1,8 +1,8 @@
 # Robot Army mod for Factorio V0.14+
 
 ## Version  
-0.2.4-rc1,
-Known to be compatible with Factorio v0.14.5
+0.2.4,
+Known to be compatible with Factorio v0.14.20
 
 
 ## Description  
@@ -17,6 +17,7 @@ Mod portal link here: [Mod Portal](https://mods.factorio.com/mods/kyranzor/robot
 ## Credits
 YuokiTani for the great models of the Droids
 Klonan for his Combat Units and permission to integrate the mod into mine
+dauphin/Peter Gaultney for his significant contributions to the codebase for squad AI and performance enhancements
 
 ## Donations
 If you are feeling generous or thankful for the work i've done, feel free to donate to me so I can bribe my wife with chocolate to help her put up with my late nights! Click the image below:  

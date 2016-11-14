@@ -34,7 +34,7 @@ data:extend(
     name = "droid-rocket",
     enabled = false,
 	category = "advanced-crafting",
-    energy_required = 5,
+    energy_required = 10,
     ingredients =
     {
       {"steel-plate", 5},
@@ -102,6 +102,7 @@ data:extend(
     name = "droid-smg-deploy",
     enabled = false,
 	category = "droids",
+    energy_required = 6,
     ingredients =
     {
       {"droid-smg", 1}
@@ -114,6 +115,7 @@ data:extend(
     name = "droid-rocket-deploy",
     enabled = false,
 	category = "droids",
+    energy_required = 6,
     ingredients =
     {
       {"droid-rocket", 1}
@@ -126,6 +128,7 @@ data:extend(
     name = "droid-rifle-deploy",
     enabled = false,
 	category = "droids",
+    energy_required = 3,
     ingredients =
     {
       {"droid-rifle", 1}
@@ -186,6 +189,7 @@ data:extend(
     name = "droid-flame",
     enabled = false,
 	category = "advanced-crafting",
+    energy_required = 10,
 	ingredients =
 	{
       {"steel-plate", 5},
@@ -202,6 +206,7 @@ data:extend(
     name = "droid-flame-deploy",
     enabled = false,
 	category = "droids",
+    energy_required = 8,
 	ingredients =
 	{
 	  {"droid-flame",1}
@@ -227,7 +232,7 @@ data:extend(
 		name = "defender-unit",
 		enabled = false,
 		category = "advanced-crafting",
-		energy_required = 8,
+		energy_required = 5,
 		ingredients =
 		{
 		  {"piercing-rounds-magazine", 1},
@@ -241,6 +246,7 @@ data:extend(
 		name = "defender-unit-deploy",
 		enabled = false,
 		category = "droids",
+        energy_required = 3,
 		ingredients =
 		{
 		  {"defender-unit", 1}
@@ -254,7 +260,7 @@ data:extend(
 		name = "distractor-unit",
 		enabled = false,
 		category = "advanced-crafting",
-		energy_required = 8,
+		energy_required = 5,
 		ingredients =
 		{
 		  {"piercing-rounds-magazine", 1},
@@ -266,6 +272,7 @@ data:extend(
 	{
 		type = "recipe",
 		name = "distractor-unit-deploy",
+        energy_required = 3,
 		enabled = false,
 		category = "droids",
 		ingredients =
@@ -293,6 +300,7 @@ data:extend(
 	{
 		type = "recipe",
 		name = "destroyer-unit-deploy",
+        energy_required = 8,
 		enabled = false,
 		category = "droids",
 		ingredients =
