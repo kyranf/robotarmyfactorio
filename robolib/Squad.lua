@@ -643,7 +643,7 @@ function validateSquadIntegrity(squad)
                     if not attemptToTeleport(squad, soldier, key, soldier_group_distance) then
                         -- kick out
                         if not attemptToKickSoldierOut(squad, soldier, key, pos, soldier_group_distance) then
-                            msg = string.format("Squad %d could not kick soldier %d out for some reason.", squad.squadID)
+                            msg = string.format("Squad %d could not kick a soldier out for some reason.", squad.squadID)
                             LOGGER.log(msg)
                             squad.unitGroup.add_member(soldier)
                             wander = true -- the whole squad must now suffer for this soldier
