@@ -107,7 +107,7 @@ function migrateDroidAssemblersTo_0_2_4(force)
             LOGGER.log(string.format("Moving assembler to new index %d from %d", assembler.unit_number, dkey))
             forceAssemblers[assembler.unit_number] = assembler
         end
-        if not assemblerNearestEnemies[assembler.unit_number] then
+        if assembler and assembler.valid and not assemblerNearestEnemies[assembler.unit_number] then
             assemblerNearestEnemies[assembler.unit_number] = {lastChecked = 0,
                                                               enemy = nil,
                                                               distance = 0}
