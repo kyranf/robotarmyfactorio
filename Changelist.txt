@@ -6,3 +6,4 @@ Changes from 0.2.3 to 0.2.4 release:
 - performance improvements (huge thanks to Peter Gaultney)
 - More advanced AI options for targeting behaviour: squad-centered, assembler-centered, radius-clear)  (huge thanks to Peter Gaultney)
 - fixed build time for deploying all droid units, some where 0.5 seconds. Most are now 5-10 seconds deployment time.
+- put in automatic spawn-limiting around droid assemblers, set to 1.5x squad hunt size. stops over-spawning in one spot, especially if there are no targets.

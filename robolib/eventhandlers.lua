@@ -101,17 +101,24 @@ function processDroidAssemblers(force)
                 local spawnableDroidName = containsSpawnableDroid(inv)
                 if (spawnableDroidName ~= nil and type(spawnableDroidName) == "string") then
                     -- uses assmbler pos, direction, and spawns droid at an offset +- random amount. Does a final "find_non_colliding_position" before returning
-                    local droidPos =  getDroidSpawnLocation(assembler)
-                    if droidPos ~= -1 then
-                        local returnedEntity = assembler.surface.create_entity(
-                            {name = spawnableDroidName,
-                             position = droidPos,
-                             direction = defines.direction.east,
-                             force = assembler.force })
-                        if returnedEntity then
-                            processSpawnedDroid(returnedEntity)
+                    
+                    -- check surrounding area to see if we have reached a limit of spawned droids, to prevent a constantly spawning situation
+                    local nearby = countNearbyDroids(assembler.position, assembler.force, 30)
+                    if (nearby <= (getSquadHuntSize(assembler.force)*1.5))  then 
+                        local droidPos =  getDroidSpawnLocation(assembler)
+                        if droidPos ~= -1 then
+                            local returnedEntity = assembler.surface.create_entity(
+                                {name = spawnableDroidName,
+                                 position = droidPos,
+                                 direction = defines.direction.east,
+                                 force = assembler.force })
+                            if returnedEntity then
+                                processSpawnedDroid(returnedEntity)
+                            end
+                            inv.clear() --clear output slot
                         end
-                        inv.clear() --clear output slot
+                    else
+                        --Game.print_force(force, "Cannot spawn here, too many droids are chilling out!")
                     end
                 end
             end
