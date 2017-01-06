@@ -177,7 +177,7 @@ function processDroidAssemblersForTick(force, tick)
     for assemblerIdx, squads in pairs(forceAssemblerRetreatTable) do
         if assemblerIdx % ASSEMBLER_MERGE_TICKRATE == tick % ASSEMBLER_MERGE_TICKRATE then
             local assembler = global.DroidAssemblers[force.name][assemblerIdx]
-            if not assembler.valid or not checkRetreatAssemblerForMergeableSquads(assembler, squads) then
+            if asssembler and (not assembler.valid or not checkRetreatAssemblerForMergeableSquads(assembler, squads)) then
                 -- don't iterate over this assembler again until it is 'recreated'
                 -- by a squad trying to retreat to it
                 forceAssemblerRetreatTable[assemblerIdx] = nil
