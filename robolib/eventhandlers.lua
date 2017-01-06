@@ -174,6 +174,7 @@ CHECK_FOR_NEAREST_ENEMY_TO_ASSEMBLER_EVERY = 3600 -- in ticks
 
 function processDroidAssemblersForTick(force, tick)
     local forceAssemblerRetreatTable = global.AssemblerRetreatTables[force.name]
+    if not forceAssemblerRetreatTable then return end -- Checks if the assembler retreat table for that force actually exists
     for assemblerIdx, squads in pairs(forceAssemblerRetreatTable) do
         if assemblerIdx % ASSEMBLER_MERGE_TICKRATE == tick % ASSEMBLER_MERGE_TICKRATE then
             local assembler = global.DroidAssemblers[force.name][assemblerIdx]
