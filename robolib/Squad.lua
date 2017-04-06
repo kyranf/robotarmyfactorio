@@ -670,7 +670,7 @@ function validateSquadIntegrity(squad)
         else
             local soldier_group_distance = util.distance(pos, soldier.position)
             
-            if soldier_group_distance != nil and (soldier_group_distance > SQUAD_UNITGROUP_FAILURE_DISTANCE_ESTIMATE) then
+            if ( soldier_group_distance and (soldier_group_distance > SQUAD_UNITGROUP_FAILURE_DISTANCE_ESTIMATE)) then
                 attemptToTeleport(squad, soldier, key, soldier_group_distance)
             end
         end
