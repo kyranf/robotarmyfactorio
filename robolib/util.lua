@@ -24,6 +24,9 @@ end
 
 
 function table.countNonNil(table)
+
+	if not table then return 0 end
+
     local count = 0
     for _, element in pairs(table) do
         if element then

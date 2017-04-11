@@ -230,10 +230,8 @@ end
 
 
 function shouldHunt(squad)
-    return squad.numMembers >= getSquadHuntSize(squad.force)
-        or
-        (squad.command.type == commands.hunt and
-             squad.numMembers > getSquadRetreatSize(squad.force))
+    return (squad.command.type ~= commands.follow) and (squad.numMembers >= getSquadHuntSize(squad.force)
+        or (squad.command.type == commands.hunt and squad.numMembers > getSquadRetreatSize(squad.force)))
 end
 
 

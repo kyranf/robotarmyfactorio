@@ -42,4 +42,4 @@ DAMAGE_SCALAR = 1.0 -- scales base damage by this value. default is 1.0. 0.5 mak
 ARTIFACT_GRAB_RADIUS = 30
 GUARD_POLE_CONNECTION_RANGE = 30 -- this is for electrical connection range and therefore spacing of patrol poles, checking range is.
 
-PLAYER_VIEW_RADIUS = 60  -- this is very simplistic, but it's a start.
+PLAYER_VIEW_RADIUS = 60  -- this is very simplistic, but it's a start. helps avoid having teleporting droids while the player is looking.

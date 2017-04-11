@@ -243,5 +243,39 @@ data:extend(
     order = "a[items]-d[patrol-pole]",
     stack_size = 50,
   },
+	{
+	-- This allows loading the selection-tool type item when mods are removed
+	type = "selection-tool",
+	name = "droid-selection-tool",
+	icon = "__base__/graphics/icons/blueprint.png",
+	flags = {"goes-to-quickbar", "hidden"},
+	subgroup = "tool",
+	order = "d[droid-control]-s[selection]",
+	stack_size = 1,
+	stackable = false,
+	selection_color = { r = 0, g = 1, b = 0 },
+	alt_selection_color = { r = 0, g = 1, b = 0 },
+	selection_mode = {"matches-force"},
+	alt_selection_mode = {"matches-force"},
+	selection_cursor_box_type = "not-allowed",
+	alt_selection_cursor_box_type = "not-allowed"
+	},
+  	{
+	-- This allows loading the selection-tool type item when mods are removed
+	type = "selection-tool",
+	name = "droid-pickup-tool",
+	icon = "__base__/graphics/icons/deconstruction-planner.png",
+	flags = {"goes-to-quickbar", "hidden"},
+	subgroup = "tool",
+	order = "d[droid-control]-p[pickup]",
+	stack_size = 1,
+	stackable = false,
+	selection_color = { r = 1, g = 0, b = 0 },
+	alt_selection_color = { r = 1, g = 0, b = 0 },
+	selection_mode = {"blueprint"},
+	alt_selection_mode = {"blueprint"},
+	selection_cursor_box_type = "not-allowed",
+	alt_selection_cursor_box_type = "not-allowed"
+	},
   
 })

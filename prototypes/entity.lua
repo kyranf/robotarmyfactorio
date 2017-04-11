@@ -1288,9 +1288,28 @@ local loot_chest = {
     circuit_connector_sprites = get_circuit_connector_sprites({0.1875, 0.15625}, nil, 18),
     circuit_wire_max_distance = 7.5
  }
+ 
+ local selection_sticker ={
+    type = "sticker",
+    name = "selection-sticker",
+    flags = {"not-on-map"},
+    icon = "__robotarmy__/graphics/icons/unit-selection.png",
+    flags = {},
+    animation =
+    {
+      filename = "__robotarmy__/graphics/icons/unit-selection.png",
+      priority = "extra-high",
+      width = 32,
+      height = 32,
+      frame_count = 1,
+      animation_speed = 1
+    },
+    duration_in_ticks = 3000 * 60,
+    target_movement_modifier = 0.9999
+  }
 
  -- extend the game data with the new entity definitions
-data:extend({droid_smg, droid_rocket, droid_rifle, terminator, droid_counter, loot_chest, droid_flame, droid_settings})
+data:extend({droid_smg, droid_rocket, droid_rifle, terminator, droid_counter, loot_chest, droid_flame, droid_settings, selection_sticker})
 
   
  
