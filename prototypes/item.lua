@@ -247,8 +247,8 @@ data:extend(
 	-- This allows loading the selection-tool type item when mods are removed
 	type = "selection-tool",
 	name = "droid-selection-tool",
-	icon = "__base__/graphics/icons/blueprint.png",
-	flags = {"goes-to-quickbar", "hidden"},
+	icon = "__robotarmy__/graphics/icons/selection_tool.png",
+	flags = {"goes-to-quickbar"},
 	subgroup = "tool",
 	order = "d[droid-control]-s[selection]",
 	stack_size = 1,
@@ -264,8 +264,8 @@ data:extend(
 	-- This allows loading the selection-tool type item when mods are removed
 	type = "selection-tool",
 	name = "droid-pickup-tool",
-	icon = "__base__/graphics/icons/deconstruction-planner.png",
-	flags = {"goes-to-quickbar", "hidden"},
+	icon = "__robotarmy__/graphics/icons/pickup_tool.png",
+	flags = {"goes-to-quickbar"},
 	subgroup = "tool",
 	order = "d[droid-control]-p[pickup]",
 	stack_size = 1,

@@ -172,6 +172,28 @@ data:extend(
     result = "loot-chest",
 	requester_paste_multiplier = 1
   },
+  {
+    type = "recipe",
+    name = "droid-selection-tool",
+    enabled = true,
+	ingredients =
+	{
+	  {"electronic-circuit", 1}
+	},	
+    result = "droid-selection-tool",
+	requester_paste_multiplier = 1
+  },
+  {
+    type = "recipe",
+    name = "droid-pickup-tool",
+    enabled = true,
+	ingredients =
+	{
+	  {"electronic-circuit", 1}
+	},	
+    result = "droid-pickup-tool",
+	requester_paste_multiplier = 1
+  },
   {  
     type = "recipe",
     name = "rally-beacon",
