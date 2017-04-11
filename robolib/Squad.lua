@@ -49,6 +49,9 @@ function createNewSquad(forceSquadsTable, entity)
 
     --get next unique ID number and increment it
     local squadID = global.uniqueSquadId[entity.force.name]
+	
+	Game.print_force(entity.force, string.format("Spawning new squad with ID %d for force %s", global.uniqueSquadId[entity.force.name], entity.force.name ) )
+	
     global.uniqueSquadId[entity.force.name] = global.uniqueSquadId[entity.force.name] + 1
 
     local newsquad = shallowcopy(global.SquadTemplate)
