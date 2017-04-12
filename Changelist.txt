@@ -10,3 +10,4 @@ Changes from 0.2.3 to 0.2.4 release:
 - put in automatic spawn-limiting around droid assemblers, set to 1.5x squad hunt size. stops over-spawning in one spot, especially if there are no targets.
 - updated to Factorio Standard Library v8.0
 - added item and entity descriptions to help understand the different things without needing wiki so much
+- fixed bug with squad.lua where each forces squad ID table held an empty table instead of an integer number, causing a script error.
