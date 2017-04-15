@@ -725,6 +725,8 @@ end
 
 
 function grabArtifactsBySquad(squad)
+    if not squad then return end
+	
     local force = squad.force
     local chest = global.lootChests[force.name]
     if not chest or not chest.valid then return end
