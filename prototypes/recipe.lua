@@ -216,7 +216,7 @@ data:extend(
 	{
       {"steel-plate", 5},
 	  {"electronic-circuit", 25},
-	  {"flame-thrower", 1},
+	  {"flamethrower", 1},
 	  {"light-armor", 2}
     
 	},	
@@ -340,7 +340,7 @@ data:extend(
  -- deal with unlocking the recipes just piggy-backing on military research for now. most droids need more advanced research to build them anyway.
 table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-rifle"})
 table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-rifle-deploy"})
-table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="loot-chest"})
+-- now obsolete table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="loot-chest"})
 table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="patrol-pole"})
 table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="rally-beacon"})
 table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-assembling-machine"})

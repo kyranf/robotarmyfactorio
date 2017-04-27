@@ -345,7 +345,7 @@ local droid_flame =
      attack_parameters =
     {
       type = "stream",
-      ammo_category = "flame-thrower",
+      ammo_category = "flamethrower",
       movement_slow_down_factor = 0.6,
       cooldown = 30,
       projectile_creation_distance = 0.6,
@@ -390,7 +390,7 @@ local droid_flame =
       },
 	   ammo_type =
       {
-        category = "flame-thrower",
+        category = "flamethrower",
         action =
         {
           type = "direct",
