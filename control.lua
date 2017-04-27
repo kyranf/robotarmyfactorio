@@ -63,5 +63,15 @@ script.on_event(defines.events.on_force_created, handleForceCreated)
 script.on_event(defines.events.on_built_entity, handleOnBuiltEntity)
 script.on_event(defines.events.on_robot_built_entity, handleOnRobotBuiltEntity)
 
+function playerSelectedArea(event)
+	reportSelectedUnits(event, false)
+end
+
+function playerAltSelectedArea(event)
+	reportSelectedUnits(event, true)
+end
+script.on_event(defines.events.on_player_selected_area, playerSelectedArea)
+script.on_event(defines.events.on_player_alt_selected_area, playerAltSelectedArea)
+
 -- this on tick handler will get replaced on the first tick after 'live' migrations have run
 script.on_event(defines.events.on_tick, bootstrap_migration_on_first_tick)

@@ -39,16 +39,18 @@ end
 
 
 function createNewSquad(forceSquadsTable, entity)
-    if not global.uniqueSquadId then
-        global.uniqueSquadId = {}
-    end
-
-    if not (global.uniqueSquadId[entity.force.name])  then
-        global.uniqueSquadId[entity.force.name] = 1
-    end
-
+    global.uniqueSquadId  =  global.uniqueSquadId  or  {}
+    global.uniqueSquadId[entity.force.name] = global.uniqueSquadId[entity.force.name] or 1
+	
+	if (type(global.uniqueSquadId[entity.force.name]) == "table") then
+	  global.uniqueSquadId[entity.force.name] = nil
+	  global.uniqueSquadId[entity.force.name] = 1
+	end	
+	
     --get next unique ID number and increment it
     local squadID = global.uniqueSquadId[entity.force.name]
+	
+	
     global.uniqueSquadId[entity.force.name] = global.uniqueSquadId[entity.force.name] + 1
 
     local newsquad = shallowcopy(global.SquadTemplate)
@@ -230,10 +232,8 @@ end
 
 
 function shouldHunt(squad)
-    return squad.numMembers >= getSquadHuntSize(squad.force)
-        or
-        (squad.command.type == commands.hunt and
-             squad.numMembers > getSquadRetreatSize(squad.force))
+    return (squad.command.type ~= commands.follow) and (squad.numMembers >= getSquadHuntSize(squad.force)
+        or (squad.command.type == commands.hunt and squad.numMembers > getSquadRetreatSize(squad.force)))
 end
 
 
@@ -669,7 +669,8 @@ function validateSquadIntegrity(squad)
             end
         else
             local soldier_group_distance = util.distance(pos, soldier.position)
-            if soldier_group_distance > SQUAD_UNITGROUP_FAILURE_DISTANCE_ESTIMATE then
+            
+            if ( soldier_group_distance and (soldier_group_distance > SQUAD_UNITGROUP_FAILURE_DISTANCE_ESTIMATE)) then
                 attemptToTeleport(squad, soldier, key, soldier_group_distance)
             end
         end
@@ -724,6 +725,8 @@ end
 
 
 function grabArtifactsBySquad(squad)
+    if not squad then return end
+	
     local force = squad.force
     local chest = global.lootChests[force.name]
     if not chest or not chest.valid then return end
