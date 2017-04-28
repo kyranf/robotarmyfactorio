@@ -1,4 +1,14 @@
-Changes from 0.2.2 to 0.2.3 release:
-- changed rally beacon behaviour now works as a constant attactor of squads. squads move to nearest beacon. can have multiple beacons active at once
-- added Klonan's "Combat Units" mod units and they are fully integrated and can be used in exactly the same way as droids. needs balancing. open to suggestions
-- 
+Changes from 0.2.3 to 0.3.0 release:
+- Thanks to Earendel, added RTS style squad-level control to select and order squads around
+- removed loot chest because it's now obsolete. It is not unlocked by tech research (military) anymore, and squad AI does not run the gather script anymore. 
+- recipe adjustment for clockwork rifle bot if Bob's electronics is enabled (thanks Nexela!)
+- changed codebase to add new squads to a tick-update list, and each tick in a 60 tick cycle, only update squads assigned to that tick.
+- refactored/added functions to handle squad AI with just the squad as the input to the function
+- huge changes to squad AI to make it more robust to failures and pathing issues (huge thanks to Dauphin)
+- performance improvements (huge thanks to Dauphin)
+- More advanced AI options for targeting behaviour: squad-centered, assembler-centered, radius-clear)  (huge thanks to Dauphin)
+- fixed build time for deploying all droid units, some where 0.5 seconds. Most are now 5-10 seconds deployment time.
+- put in automatic spawn-limiting around droid assemblers, set to 1.5x squad hunt size. stops over-spawning in one spot, especially if there are no targets.
+- updated to Factorio Standard Library v8.0
+- added item and entity descriptions to help understand the different things without needing wiki so much
+- fixed bug with squad.lua where each forces squad ID table held an empty table instead of an integer number, causing a script error.

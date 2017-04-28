@@ -9,7 +9,7 @@ droidSmgTint =  {r=0.8, g=1, b=1, a=1}
 droidFlameTint = {r=1.0, g=0.5, b=0.5, a=1}
 droidRocketTint = {r=0.8, g=0.8, b=1, a=1}
 droidRifleTint = {r=0.8, g=1, b=0.8, a=1}
-
+droidMapColour = {r = .05, g = .70, b = .29}
 function make_laser_sounds(volume)
     return
     {
@@ -107,6 +107,7 @@ local droid_smg =
 	pollution_to_join_attack = 0.0,
 	distraction_cooldown = 0,
     distance_per_frame =  0.05,
+	friendly_map_color = droidMapColour,
 	dying_explosion = "medium-explosion",
 	resistances =
     {
@@ -278,6 +279,7 @@ local droid_flame =
 	pollution_to_join_attack = 0.0,
 	distraction_cooldown = 0,
     distance_per_frame =  0.05,
+	friendly_map_color = droidMapColour,
 	dying_explosion = "medium-explosion",
 	resistances =
     {
@@ -343,7 +345,7 @@ local droid_flame =
      attack_parameters =
     {
       type = "stream",
-      ammo_category = "flame-thrower",
+      ammo_category = "flamethrower",
       movement_slow_down_factor = 0.6,
       cooldown = 30,
       projectile_creation_distance = 0.6,
@@ -388,7 +390,7 @@ local droid_flame =
       },
 	   ammo_type =
       {
-        category = "flame-thrower",
+        category = "flamethrower",
         action =
         {
           type = "direct",
@@ -445,6 +447,7 @@ local droid_rifle =
     sticker_box = {{-0.5, -0.5}, {0.5, 0.5}},
 	vision_distance = 30,
     movement_speed = 0.08,
+	friendly_map_color = droidMapColour,
 	minable = {hardness = 0.1, mining_time = 0.1, result = "droid-rifle"},
 	pollution_to_join_attack = 0.0,
 	distraction_cooldown = 0,
@@ -618,6 +621,7 @@ local droid_rocket =
     selection_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8, 0.8*droidscale}},
     sticker_box = {{-0.5, -0.5}, {0.5, 0.5}},
 	vision_distance = 30,
+	friendly_map_color = droidMapColour,
     movement_speed = 0.11,
 	minable = {hardness = 0.1, mining_time = 0.1, result = "droid-rocket"},
 	pollution_to_join_attack = 0.0,
@@ -772,6 +776,7 @@ local terminator =
     max_health = 300 * HEALTH_SCALAR,
     alert_when_damaged = false,
     healing_per_tick = 0.02,
+	friendly_map_color = droidMapColour,
     collision_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8*droidscale, 0.8*droidscale}},
     selection_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8, 0.8*droidscale}},
     sticker_box = {{-0.5, -0.5}, {0.5, 0.5}},
@@ -1283,9 +1288,28 @@ local loot_chest = {
     circuit_connector_sprites = get_circuit_connector_sprites({0.1875, 0.15625}, nil, 18),
     circuit_wire_max_distance = 7.5
  }
+ 
+ local selection_sticker ={
+    type = "sticker",
+    name = "selection-sticker",
+    flags = {"not-on-map"},
+    icon = "__robotarmy__/graphics/icons/unit-selection.png",
+    flags = {},
+    animation =
+    {
+      filename = "__robotarmy__/graphics/icons/unit-selection.png",
+      priority = "extra-high",
+      width = 32,
+      height = 32,
+      frame_count = 1,
+      animation_speed = 1
+    },
+    duration_in_ticks = 3000 * 60,
+    target_movement_modifier = 0.9999
+  }
 
  -- extend the game data with the new entity definitions
-data:extend({droid_smg, droid_rocket, droid_rifle, terminator, droid_counter, loot_chest, droid_flame, droid_settings})
+data:extend({droid_smg, droid_rocket, droid_rifle, terminator, droid_counter, loot_chest, droid_flame, droid_settings, selection_sticker})
 
   
  
