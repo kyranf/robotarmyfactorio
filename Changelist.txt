@@ -4,9 +4,9 @@ Changes from 0.2.3 to 0.3.0 release:
 - recipe adjustment for clockwork rifle bot if Bob's electronics is enabled (thanks Nexela!)
 - changed codebase to add new squads to a tick-update list, and each tick in a 60 tick cycle, only update squads assigned to that tick.
 - refactored/added functions to handle squad AI with just the squad as the input to the function
-- huge changes to squad AI to make it more robust to failures and pathing issues (huge thanks to Peter Gaultney)
-- performance improvements (huge thanks to Peter Gaultney)
-- More advanced AI options for targeting behaviour: squad-centered, assembler-centered, radius-clear)  (huge thanks to Peter Gaultney)
+- huge changes to squad AI to make it more robust to failures and pathing issues (huge thanks to Dauphin)
+- performance improvements (huge thanks to Dauphin)
+- More advanced AI options for targeting behaviour: squad-centered, assembler-centered, radius-clear)  (huge thanks to Dauphin)
 - fixed build time for deploying all droid units, some where 0.5 seconds. Most are now 5-10 seconds deployment time.
 - put in automatic spawn-limiting around droid assemblers, set to 1.5x squad hunt size. stops over-spawning in one spot, especially if there are no targets.
 - updated to Factorio Standard Library v8.0
