@@ -70,6 +70,7 @@ end
 function playerAltSelectedArea(event)
 	reportSelectedUnits(event, true)
 end
+
 script.on_event(defines.events.on_player_selected_area, playerSelectedArea)
 script.on_event(defines.events.on_player_alt_selected_area, playerAltSelectedArea)
 
