@@ -49,11 +49,15 @@ function init_robotarmy()
     end
 
     --deal with player force as default set-up process
-
-    handleForceCreated(game.forces["player"])
-    handleForceCreated(game.forces["enemy"])
-    handleForceCreated(game.forces["neutral"])
+    event =  {} --event stub, to match function inputs
+    event.force = game.forces["player"]
+    handleForceCreated(event)
+    event.force = game.forces["enemy"]
+    handleForceCreated(event)
+    event.force = game.forces["neutral"]
+    handleForceCreated(event)
     LOGGER.log("Robot Army mod Init script finished...")
+    game.print("Robot Army mod Init completed!")
 end
 
 
