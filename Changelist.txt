@@ -1,3 +1,2 @@
-Changes from 0.3.0 to 0.3.1:
-- fixed new force handler (two bugs in one go) (git issue #101)
-- removed unlocking of rally post, disabled it via migration script. Rally point is causing too many problems and has conflicting logic which will be dealt with later and re-addeed.
+Changes from 0.3.1 to 0.3.2:
+- fixed something that I broke from 0.3.1 where the init script (starting new game, or mod first added) doesn't provide proper input argumnets to force creation handling function.
