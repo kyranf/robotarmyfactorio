@@ -416,32 +416,39 @@ function handleTick(event)
 end -- handleTick
 
 
-function handleForceCreated(force)
+function handleForceCreated(event)
+    force = event.force
     LOGGER.log(string.format("New force detected... %s",force.name) )
     global.DroidAssemblers = global.DroidAssemblers or {}
-    global.DroidAssemblers[force.name] = global.DroidAssemblers[force.name] or {}
+    global.DroidAssemblers[force.name] = {}
 
     global.Squads = global.Squads or {}
-    global.Squads[force.name] = global.Squads[force.name] or {}
+    global.Squads[force.name] = {}
 
     global.uniqueSquadId = global.uniqueSquadId or {}
-    global.uniqueSquadId[force.name] = global.uniqueSquadId[force.name] or 1
+    global.uniqueSquadId[force.name] = 1
 
     global.lootChests = global.lootChests or {}
-    global.lootChests[force.name] = global.lootChests[force.name] or {}
+    global.lootChests[force.name] = {}
 
     global.droidCounters = global.droidCounters or {}
-    global.droidCounters[force.name] = global.droidCounters[force.name] or {}
+    global.droidCounters[force.name] = {}
 
     global.droidGuardStations = global.droidGuardStations or {}
-    global.droidGuardStations[force.name] = global.droidGuardStations[force.name] or {}
+    global.droidGuardStations[force.name] = {}
 
     global.rallyBeacons = global.rallyBeacons or {}
-    global.rallyBeacons[force.name] = global.rallyBeacons[force.name] or {}
+    global.rallyBeacons[force.name] = {}
 
+     --set up the tick tables for this new force
     global.updateTable = global.updateTable or {}
-    global.updateTable[force.name] = global.updateTable[force.name] or {}
+    if not global.updateTable[force.name] then global.updateTable[force.name] = {} end
 
+       --check if the table has the 1st tick in it. if not, then go through and fill the table
+    if not global.updateTable[force.name][1] then
+        fillTableWithTickEntries(global.updateTable[force.name]) -- make sure it has got the 1-60 tick entries initialized
+    end
+    
 
     LOGGER.log("New force handler finished...")
 end
