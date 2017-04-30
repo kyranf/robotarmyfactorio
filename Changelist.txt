@@ -1,3 +1,3 @@
 Changes from 0.3.0 to 0.3.1:
 - fixed new force handler (two bugs in one go) (git issue #101)
-
+- removed unlocking of rally post, disabled it via migration script. Rally point is causing too many problems and has conflicting logic which will be dealt with later and re-addeed.

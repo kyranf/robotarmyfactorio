@@ -9,7 +9,7 @@ require("prototypes.DroidUnitList") -- so we know what is spawnable
 require("stdlib/log/logger")
 require("stdlib/game")
 
-LOGGER = Logger.new("robotarmy", "robot_army_logs", true, {log_ticks = true})
+LOGGER = Logger.new("robotarmy", "robot_army_logs", false, {log_ticks = false})
 
 global.runOnce = false
 
