@@ -31,7 +31,7 @@ SQUAD_UNITGROUP_FAILURE_DISTANCE_ESTIMATE = 40
 UG_FAILURE_RECENCY_TICKS = 300 --unit group command failure timeout
 MAX_CONSECUTIVE_UNITGROUP_FAILURES_BEFORE_RETREAT = 2 --how many times they totally fail before the squad disbands/retreats
 
-GLOBAL_TARGETING_TYPE = 1 -- see targeting.lua for type options
+GLOBAL_TARGETING_TYPE = 3 -- see targeting.lua for type options
 DEFAULT_KEEP_RADIUS_CLEAR = 500 -- in tiles from assembler
 
 --CONFIG SETTINGS FOR THOSE WHO WANT TO SCALE THE DAMAGE AND HEALTH OF DROIDS

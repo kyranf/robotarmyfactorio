@@ -230,7 +230,7 @@ function processDroidAssemblers(force)
                     local nearby = countNearbyDroids(assembler.position, assembler.force, 30)
                     if (nearby <= (getSquadHuntSize(assembler.force)*1.5))  then
                         local droidPos =  getDroidSpawnLocation(assembler)
-                        if droidPos ~= -1 then
+                        if droidPos then
                             local returnedEntity = assembler.surface.create_entity(
                                 {name = spawnableDroidName,
                                  position = droidPos,
@@ -242,7 +242,7 @@ function processDroidAssemblers(force)
                             inv.clear() --clear output slot
                         end
                     else
-                        --Game.print_force(force, "Cannot spawn here, too many droids are chilling out!")
+                        Game.print_force(force, "Cannot spawn droid, too many droids or obstructions around droid assembler!")
                     end
                 end
             end

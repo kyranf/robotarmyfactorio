@@ -1,2 +1,4 @@
-Changes from 0.3.1 to 0.3.2:
-- fixed something that I broke from 0.3.1 where the init script (starting new game, or mod first added) doesn't provide proper input argumnets to force creation handling function.
+Changes from 0.3.2 to 0.3.3:
+- made hybrid targeting system default
+- minor bug fix from dauphin for hybrid targeting
+- bug fix for issue #102
