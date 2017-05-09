@@ -2,3 +2,4 @@ Changes from 0.3.2 to 0.3.3:
 - made hybrid targeting system default
 - minor bug fix from dauphin for hybrid targeting
 - bug fix for issue #102
+- bug fix for when assemblers spawn too fast while squad moves away and stragglers wander instead of joining squad, casuing splintering and multiple failures
