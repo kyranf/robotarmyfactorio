@@ -803,6 +803,11 @@ end
 
 function orderSquadToAttack(squad, position)
     --make sure squad is good, then set command
+    
+    if (not squad) or (not squad.unitGroup) or (not squad.unitGroup.valid) then
+        return --we can't order them, if they don't exist .. catches rare bug issue #114
+    end
+    
     squad.command.type = commands.hunt -- sets the squad's high level role to hunt.
     squad.command.pos = squad.unitGroup.position
     squad.command.dest = position
