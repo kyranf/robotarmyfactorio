@@ -3,3 +3,5 @@ Changes from 0.3.2 to 0.3.3:
 - minor bug fix from dauphin for hybrid targeting
 - bug fix for issue #102
 - bug fix for when assemblers spawn too fast while squad moves away and stragglers wander instead of joining squad, casuing splintering and multiple failures
+- fixed select/deselect visual bug with the green stickers
+- added config param (default off) to re-enable the Artifact collection for those playing with Bobs/Natural Evolution which still have artifacts to collect!

@@ -44,4 +44,4 @@ DAMAGE_SCALAR = 1.0 -- scales base damage by this value. default is 1.0. 0.5 mak
 ARTIFACT_GRAB_RADIUS = 30 --now obsolete, artifact grab script is not used now, as of Factorio 0.15+
 GUARD_POLE_CONNECTION_RANGE = 30 -- this is for electrical connection range and therefore spacing of patrol poles, checking range is.
 
-
+GRAB_ARTIFACTS = 0

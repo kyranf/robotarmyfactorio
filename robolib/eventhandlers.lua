@@ -62,7 +62,27 @@ function reportSelectedUnits(event, alt)
 			local squad = getClosestSquadToPos(global.Squads[player.force.name], clickPosition, SQUAD_CHECK_RANGE) --get nearest squad within SQUAD_CHECK_RANGE amount of tiles radius from click point.
 
 			if squad then
+                
+                -- if there's a currently selected squad, deselect them! 
+                --DESELECT LOGIC
+				if global.selected_squad and global.selected_squad[player.index] and global.selected_squad[player.index] ~= nil then
+					if global.Squads[player.force.name][global.selected_squad[player.index]] then  --if the squad still exists, even though we have the ID still in selection
+						Game.print_all(string.format("De-selected Squad ID %d", global.selected_squad[player.index]) )
+						for _, member in pairs(global.Squads[player.force.name][global.selected_squad[player.index]].unitGroup.members) do
+							local unitBox = member.bounding_box
+							unitBox.left_top.x = unitBox.left_top.x - 0.1
+							unitBox.left_top.y = unitBox.left_top.y - 0.1
+							unitBox.right_bottom.x = unitBox.right_bottom.x + 0.1
+							unitBox.right_bottom.y = unitBox.right_bottom.y + 0.1
 
+							for _,e in pairs(member.surface.find_entities_filtered{type="sticker", area=unitBox}) do
+							  e.destroy()
+							end
+						end
+					end
+				end
+                
+                
 				Game.print_all(string.format("Squad ID %d selected! Droids in squad: %d", squad.squadID, squad.numMembers) )
 				--Game.print_all(string.format("Tool %s Selected area! Player ID %d, box %d,%d and %d,%d, droids in squad %d ",  event.item , event.player_index, area.left_top.x, area.left_top.y, area.right_bottom.x, area.right_bottom.y, squad.numMembers ) )
 
