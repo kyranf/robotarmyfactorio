@@ -400,6 +400,14 @@ local droid_flame =
             stream = "flamethrower-fire-stream",
             duration = 60,
             source_offset = {0.15, -0.5},
+            
+            target_effects =
+            {
+              {
+                type = "damage",
+                damage = { amount = 1 , type = "physical"}
+              }
+            }
           }
         }
       }
