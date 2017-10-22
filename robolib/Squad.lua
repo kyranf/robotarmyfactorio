@@ -138,8 +138,10 @@ function addMemberToSquad(squad, soldier)
 
         table.insert(squad.members, soldier)
         table.insert(squad.mostRecentUnitGroupRemovalTick, 1)
+        soldier.set_command{type=defines.command.go_to_location,destination=squad.unitGroup.position}
+        
         squad.unitGroup.add_member(soldier)
-
+        squad.unitGroup.start_moving()
         local bigEnoughToHunt = shouldHunt(squad)
         squad.numMembers = squad.numMembers + 1
         if not bigEnoughToHunt and shouldHunt(squad) then
@@ -148,8 +150,8 @@ function addMemberToSquad(squad, soldier)
         end
 
         LOGGER.log(string.format( "Adding soldier to squad %d, squad size is now %d", squad.squadID, squad.numMembers))
-    else
-        Game.print_force(Game.forces[1], "Tried to addMember to broken squad!")
+    else    
+        Game.print_force(Game.forces[soldier.force], "Tried to addMember to broken squad!")
     end
     return squad
 end
@@ -801,6 +803,11 @@ end
 
 function orderSquadToAttack(squad, position)
     --make sure squad is good, then set command
+    
+    if (not squad) or (not squad.unitGroup) or (not squad.unitGroup.valid) then
+        return --we can't order them, if they don't exist .. catches rare bug issue #114
+    end
+    
     squad.command.type = commands.hunt -- sets the squad's high level role to hunt.
     squad.command.pos = squad.unitGroup.position
     squad.command.dest = position

@@ -40,7 +40,7 @@ function getDroidSpawnLocation(entity)
     --final check, let the game find us a good spot if we've failed by now.
     local finalPos = entity.surface.find_non_colliding_position(entity.name, entPos, 10, 1)
     if not finalPos then
-        return -1 --we can catch this later
+        return nil --we can catch this later
     else
         return finalPos
     end
