@@ -20,7 +20,9 @@ function updateSquad(squad)
         end
 
         revealChunksBySquad(squad)
-        --grabArtifactsBySquad(squad) --disabled as of 0.15 where alien artifacts are no longer dropped!
+        if(GRAB_ARTIFACTS == 1) then
+            grabArtifactsBySquad(squad) --disabled as of 0.15 where alien artifacts are no longer dropped!
+        end
     end
 end
 

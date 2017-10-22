@@ -31,7 +31,7 @@ SQUAD_UNITGROUP_FAILURE_DISTANCE_ESTIMATE = 40
 UG_FAILURE_RECENCY_TICKS = 300 --unit group command failure timeout
 MAX_CONSECUTIVE_UNITGROUP_FAILURES_BEFORE_RETREAT = 2 --how many times they totally fail before the squad disbands/retreats
 
-GLOBAL_TARGETING_TYPE = 1 -- see targeting.lua for type options
+GLOBAL_TARGETING_TYPE = 3 -- see targeting.lua for type options
 DEFAULT_KEEP_RADIUS_CLEAR = 500 -- in tiles from assembler
 
 --CONFIG SETTINGS FOR THOSE WHO WANT TO SCALE THE DAMAGE AND HEALTH OF DROIDS
@@ -44,4 +44,4 @@ DAMAGE_SCALAR = 1.0 -- scales base damage by this value. default is 1.0. 0.5 mak
 ARTIFACT_GRAB_RADIUS = 30 --now obsolete, artifact grab script is not used now, as of Factorio 0.15+
 GUARD_POLE_CONNECTION_RANGE = 30 -- this is for electrical connection range and therefore spacing of patrol poles, checking range is.
 
-
+GRAB_ARTIFACTS = 0 --set this to 1 and you should have access to the loot chests, enables artifact grabbing AI routine. save CPU and keep this off if you don't need it.

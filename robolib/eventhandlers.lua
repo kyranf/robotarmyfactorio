@@ -45,45 +45,65 @@ function reportSelectedUnits(event, alt)
 	if (event.item == "droid-selection-tool") then
 		local player = game.players[event.player_index]
 		local area = event.area;
-				
+
 		-- ensure the area is non-zero
 		area.left_top.x = area.left_top.x - 0.1
 		area.left_top.y = area.left_top.y - 0.1
 		area.right_bottom.x = area.right_bottom.x + 0.1
 		area.right_bottom.y = area.right_bottom.y + 0.1
-		
+
 		local clickPosition = {x = (area.right_bottom.x + area.left_top.x) / 2 , y = (area.right_bottom.y + area.left_top.y)/ 2}
 		--Game.print_all(string.format("point %d,%d, middle of box %d,%d and %d,%d", clickPosition.x, clickPosition.y, area.left_top.x, area.left_top.y, area.right_bottom.x, area.right_bottom.y))
 		if not alt then -- add units to selection table
-			
+
 			--local select_entities = player.surface.find_entities_filtered{ area = area, type = "unit", force = player.force}
 			--local numberOfSelected = table.countNonNil(select_entities)
-			
+
 			local squad = getClosestSquadToPos(global.Squads[player.force.name], clickPosition, SQUAD_CHECK_RANGE) --get nearest squad within SQUAD_CHECK_RANGE amount of tiles radius from click point.
-			
+
 			if squad then
-			
+                
+                -- if there's a currently selected squad, deselect them! 
+                --DESELECT LOGIC
+				if global.selected_squad and global.selected_squad[player.index] and global.selected_squad[player.index] ~= nil then
+					if global.Squads[player.force.name][global.selected_squad[player.index]] then  --if the squad still exists, even though we have the ID still in selection
+						Game.print_all(string.format("De-selected Squad ID %d", global.selected_squad[player.index]) )
+						for _, member in pairs(global.Squads[player.force.name][global.selected_squad[player.index]].unitGroup.members) do
+							local unitBox = member.bounding_box
+							unitBox.left_top.x = unitBox.left_top.x - 0.1
+							unitBox.left_top.y = unitBox.left_top.y - 0.1
+							unitBox.right_bottom.x = unitBox.right_bottom.x + 0.1
+							unitBox.right_bottom.y = unitBox.right_bottom.y + 0.1
+
+							for _,e in pairs(member.surface.find_entities_filtered{type="sticker", area=unitBox}) do
+							  e.destroy()
+							end
+						end
+					end
+				end
+                
+                
 				Game.print_all(string.format("Squad ID %d selected! Droids in squad: %d", squad.squadID, squad.numMembers) )
 				--Game.print_all(string.format("Tool %s Selected area! Player ID %d, box %d,%d and %d,%d, droids in squad %d ",  event.item , event.player_index, area.left_top.x, area.left_top.y, area.right_bottom.x, area.right_bottom.y, squad.numMembers ) )
-				
-				
+
+
 				--make sure we have the global table..
 				if not global.selected_squad then global.selected_squad = {} end
-				
+
 				global.selected_squad[player.index] = {}
 				global.selected_squad[player.index] = squad.squadID
-				
+
 				for _, member in pairs(global.Squads[player.force.name][squad.squadID].unitGroup.members) do
-				
+
 					 global.Squads[player.force.name][squad.squadID].unitGroup.surface.create_entity{name = "selection-sticker", position = member.position , target = member}
-				
+
 				end
-				
+
 			else
 				--no squad was nearby the click point!
 				--make sure we have the global table..
 				if not global.selected_squad then global.selected_squad = {} end
-				
+
 				--DESELECT LOGIC
 				if global.selected_squad[player.index] ~= nil then
 					if global.Squads[player.force.name][global.selected_squad[player.index]] then  --if the squad still exists, even though we have the ID still in selection
@@ -94,53 +114,53 @@ function reportSelectedUnits(event, alt)
 							unitBox.left_top.y = unitBox.left_top.y - 0.1
 							unitBox.right_bottom.x = unitBox.right_bottom.x + 0.1
 							unitBox.right_bottom.y = unitBox.right_bottom.y + 0.1
-							
-							for _,e in pairs(member.surface.find_entities_filtered{type="sticker", area=unitBox}) do 
-							  e.destroy() 
-							end				
+
+							for _,e in pairs(member.surface.find_entities_filtered{type="sticker", area=unitBox}) do
+							  e.destroy()
+							end
 						end
 					end
-				else 
-				
+				else
+
 					global.selected_squad[player.index] = nil
 				end
-			
+
 			end
-			
-			
-		
+
+
+
 		else --command selected units to move to position clicked.
 			if global.selected_squad and global.selected_squad[event.player_index] then
 			local squad = global.Squads[player.force.name][(global.selected_squad[event.player_index])]
 				if(squad) then
-					--Game.print_all(string.format("Tool %s Selected alt-selected-area! Player ID %d, box %d,%d and %d,%d, droids in squad %d ", event.item, event.player_index, area.left_top.x,area.left_top.y, area.right_bottom.x, area.right_bottom.y, squad.numMembers ) )			
+					--Game.print_all(string.format("Tool %s Selected alt-selected-area! Player ID %d, box %d,%d and %d,%d, droids in squad %d ", event.item, event.player_index, area.left_top.x,area.left_top.y, area.right_bottom.x, area.right_bottom.y, squad.numMembers ) )
 					--Game.print_all(string.format("Commanding Squad ID %d ...", global.selected_squad[event.player_index]))
 					squad.command.type = commands.guard
 					orderSquadToAttack(squad, clickPosition)
 				end
 			end
-		
+
 		end
-		
+
 	else --if it's a pickup tool maybe?
-	
+
 		if (event.item == "droid-pickup-tool") then
-		
+
 			local player = game.players[event.player_index]
 			local area = event.area;
-					
+
 			-- ensure the area is non-zero
 			area.left_top.x = area.left_top.x - 0.01
 			area.left_top.y = area.left_top.y - 0.01
 			area.right_bottom.x = area.right_bottom.x + 0.01
 			area.right_bottom.y = area.right_bottom.y + 0.01
-		
+
 			local unitList = player.surface.find_entities_filtered{	area = area, type = "unit",	force = player.force }
-			
+
 			--Game.print_all(string.format( "number of units in area selected %d", #unitList) )
-			
+
 			for _ , unit in pairs(unitList) do
-			
+
 				--Game.print_all(string.format( "Trying to pick up unit type %s, unit name %s" , unit.type, unit.name ) )
 				local nameOfUnit = convertToMatchable(unit.name)
 				--if it's one of our droids, kill it!  Note, the spawnable table comes from DroidUnitList.lua in prototypes folder.
@@ -150,16 +170,16 @@ function reportSelectedUnits(event, alt)
 					--Game.print_all(string.format( "Trying to compare names: unit name  %s, spawnable droid list name %s" , nameOfUnit, comparableDroidName ) )
 					if not removed and (string.find(nameOfUnit, comparableDroidName)) then
 						removed = true
-						
+
 						player.insert{name= unit.name, count=1}
 						unit.destroy()
 					end
 				end
-			
+
 			end
-		
+
 		end
-	
+
 	end
 end
 
@@ -225,12 +245,12 @@ function processDroidAssemblers(force)
                 local spawnableDroidName = containsSpawnableDroid(inv)
                 if (spawnableDroidName ~= nil and type(spawnableDroidName) == "string") then
                     -- uses assmbler pos, direction, and spawns droid at an offset +- random amount. Does a final "find_non_colliding_position" before returning
-                    
+
                     -- check surrounding area to see if we have reached a limit of spawned droids, to prevent a constantly spawning situation
                     local nearby = countNearbyDroids(assembler.position, assembler.force, 30)
-                    if (nearby <= (getSquadHuntSize(assembler.force)*1.5))  then 
+                    if (nearby <= (getSquadHuntSize(assembler.force)*1.5))  then
                         local droidPos =  getDroidSpawnLocation(assembler)
-                        if droidPos ~= -1 then
+                        if droidPos then
                             local returnedEntity = assembler.surface.create_entity(
                                 {name = spawnableDroidName,
                                  position = droidPos,
@@ -242,7 +262,7 @@ function processDroidAssemblers(force)
                             inv.clear() --clear output slot
                         end
                     else
-                        --Game.print_force(force, "Cannot spawn here, too many droids are chilling out!")
+                        Game.print_force(force, "Cannot spawn droid, too many droids or obstructions around droid assembler!")
                     end
                 end
             end
@@ -279,9 +299,9 @@ end
 function updateSelectionCircles(force)
 	global.selection_circles = global.selection_circles or {}
 	global.selection_circles[force.name] = global.selection_circles[force.name] or {}
-	
+
 	if not global.selected_squad or global.selected_squad[force.name] then return end
-	
+
 	local squad_id = global.selected_squad[force.name]
 	if(squad_id) then
 		local squad = global.Squads[force.name][squad_id]
@@ -293,14 +313,14 @@ function updateSelectionCircles(force)
 				end
 			else
 			 --remove the sticker
-				for _,e in pairs(unit.surface.find_entities_filtered{type="sticker", area=unit.bounding_box}) do 
-					e.destroy() 
+				for _,e in pairs(unit.surface.find_entities_filtered{type="sticker", area=unit.bounding_box}) do
+					e.destroy()
 				end
-			
+
 			end
-		
+
 		end
-			
+
 	end
 
 end
@@ -317,9 +337,9 @@ function tickForces(forces, tick)
             if tick % 1200 == 0 then
                 log_session_statistics(force)
             end
-			
+
 			updateSelectionCircles(force)
-			
+
         end
     end
 end
@@ -333,25 +353,30 @@ function processDroidAssemblersForTick(force, tick)
     for assemblerIdx, squads in pairs(forceAssemblerRetreatTable) do
         if assemblerIdx % ASSEMBLER_MERGE_TICKRATE == tick % ASSEMBLER_MERGE_TICKRATE then
             local assembler = global.DroidAssemblers[force.name][assemblerIdx]
-            if asssembler and (not assembler.valid or not checkRetreatAssemblerForMergeableSquads(assembler, squads)) then
-                -- don't iterate over this assembler again until it is 'recreated'
-                -- by a squad trying to retreat to it
-                forceAssemblerRetreatTable[assemblerIdx] = nil
-            end
-            if GLOBAL_TARGETING_TYPE == targetingTypes.hybridKeepRadiusClear then
-                if assembler.valid then
-                    local ANEtable = global.AssemblerNearestEnemies[force.name][assemblerIdx]
-                    if game.tick > ANEtable.lastChecked + CHECK_FOR_NEAREST_ENEMY_TO_ASSEMBLER_EVERY then
-                        findAssemblerNearestEnemies(assembler, ANEtable)
-                    end
-                else
-                    global.AssemblerNearestEnemies[force.name][assemblerIdx] = nil
+            if assembler then
+                if (not assembler.valid or not checkRetreatAssemblerForMergeableSquads(assembler, squads)) then
+                    -- don't iterate over this assembler again until it is 'recreated'
+                    -- by a squad trying to retreat to it
+                    forceAssemblerRetreatTable[assemblerIdx] = nil
                 end
+                if GLOBAL_TARGETING_TYPE == targetingTypes.hybridKeepRadiusClear then
+                    if assembler.valid then
+                        local ANEtable = global.AssemblerNearestEnemies[force.name][assemblerIdx]
+                        if game.tick > ANEtable.lastChecked + CHECK_FOR_NEAREST_ENEMY_TO_ASSEMBLER_EVERY then
+                            findAssemblerNearestEnemies(assembler, ANEtable)
+                        end
+                    else
+                        global.AssemblerNearestEnemies[force.name][assemblerIdx] = nil
+                    end
+                end
+            else
+                -- clean up assembler that no longer exists
+                global.DroidAssemblers[force.name][assemblerIdx] = nil
+                forceAssemblerRetreatTable[assemblerIdx] = nil
             end
         end
     end
 end
-
 
 -- ACTUAL HANDLERS START HERE   vvvvv
 
@@ -407,8 +432,8 @@ function handleTick(event)
         checkSettingsModules()
     end
 
-	
-	
+
+
     --once every 3 seconds on the 5th tick, run the rally pole command for each force that has them active.
     if (event.tick % 180 == 5) then
         doRallyBeaconUpdate()
@@ -416,31 +441,38 @@ function handleTick(event)
 end -- handleTick
 
 
-function handleForceCreated(force)
+function handleForceCreated(event)
+    force = event.force
     LOGGER.log(string.format("New force detected... %s",force.name) )
     global.DroidAssemblers = global.DroidAssemblers or {}
-    global.DroidAssemblers[force.name] = global.DroidAssemblers[force.name] or {}
+    global.DroidAssemblers[force.name] = {}
 
     global.Squads = global.Squads or {}
-    global.Squads[force.name] = global.Squads[force.name] or {}
+    global.Squads[force.name] = {}
 
     global.uniqueSquadId = global.uniqueSquadId or {}
-    global.uniqueSquadId[force.name] = global.uniqueSquadId[force.name] or 1
+    global.uniqueSquadId[force.name] = 1
 
     global.lootChests = global.lootChests or {}
-    global.lootChests[force.name] = global.lootChests[force.name] or {}
+    global.lootChests[force.name] = {}
 
     global.droidCounters = global.droidCounters or {}
-    global.droidCounters[force.name] = global.droidCounters[force.name] or {}
+    global.droidCounters[force.name] = {}
 
     global.droidGuardStations = global.droidGuardStations or {}
-    global.droidGuardStations[force.name] = global.droidGuardStations[force.name] or {}
+    global.droidGuardStations[force.name] = {}
 
     global.rallyBeacons = global.rallyBeacons or {}
-    global.rallyBeacons[force.name] = global.rallyBeacons[force.name] or {}
+    global.rallyBeacons[force.name] = {}
 
+     --set up the tick tables for this new force
     global.updateTable = global.updateTable or {}
-    global.updateTable[force.name] = global.updateTable[force.name] or {}
+    if not global.updateTable[force.name] then global.updateTable[force.name] = {} end
+
+       --check if the table has the 1st tick in it. if not, then go through and fill the table
+    if not global.updateTable[force.name][1] then
+        fillTableWithTickEntries(global.updateTable[force.name]) -- make sure it has got the 1-60 tick entries initialized
+    end
 
 
     LOGGER.log("New force handler finished...")
