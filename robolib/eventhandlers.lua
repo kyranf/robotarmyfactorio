@@ -447,6 +447,9 @@ function handleForceCreated(event)
     global.DroidAssemblers = global.DroidAssemblers or {}
     global.DroidAssemblers[force.name] = {}
 
+    global.AssemblerNearestEnemies = global.AssemblerNearestEnemies or {}
+    global.AssemblerNearestEnemies[force.name] = {}
+	
     global.Squads = global.Squads or {}
     global.Squads[force.name] = {}
 
