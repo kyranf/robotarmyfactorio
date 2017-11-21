@@ -32,7 +32,7 @@ UG_FAILURE_RECENCY_TICKS = 300 --unit group command failure timeout
 MAX_CONSECUTIVE_UNITGROUP_FAILURES_BEFORE_RETREAT = 2 --how many times they totally fail before the squad disbands/retreats
 
 GLOBAL_TARGETING_TYPE = 3 -- see targeting.lua for type options
-DEFAULT_KEEP_RADIUS_CLEAR = 500 -- in tiles from assembler
+DEFAULT_KEEP_RADIUS_CLEAR = 500 -- in tiles from nearest assembler to squad. squad will keep this area clear as priority, and then check hunt radius.
 
 --CONFIG SETTINGS FOR THOSE WHO WANT TO SCALE THE DAMAGE AND HEALTH OF DROIDS
 HEALTH_SCALAR = 1.0 -- scales health by this value, default 1.0. 0.5 gives 50% health, 2.0 doubles their health etc.

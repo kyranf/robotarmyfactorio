@@ -262,7 +262,7 @@ function processDroidAssemblers(force)
                             inv.clear() --clear output slot
                         end
                     else
-                        Game.print_force(force, "Cannot spawn droid, too many droids or obstructions around droid assembler!")
+                        --Game.print_force(force, "Cannot spawn droid, too many droids or obstructions around droid assembler!")
                     end
                 end
             end
