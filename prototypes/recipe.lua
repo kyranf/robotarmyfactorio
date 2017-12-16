@@ -196,18 +196,7 @@ data:extend(
     result = "droid-pickup-tool",
 	requester_paste_multiplier = 1
   },
-  {  
-    type = "recipe",
-    name = "rally-beacon",
-    enabled = false,
-	ingredients =
-	{
-	  {"wood",5},
-	  {"electronic-circuit", 5},
-	},	
-    result = "rally-beacon",
-	requester_paste_multiplier = 1
-  },
+  
    {  
     type = "recipe",
     name = "droid-flame",
