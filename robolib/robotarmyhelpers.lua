@@ -558,6 +558,14 @@ function handleDroidAssemblerPlaced(event)
     if not global.DroidAssemblers[force.name] then
         global.DroidAssemblers[force.name] = {}
     end
+    
+    if not global.AssemblerNearestEnemies then
+        global.AssemblerNearestEnemies = {}
+    end
+    
+    if not global.AssemblerNearestEnemies[force.name] then
+        global.AssemblerNearestEnemies[force.name] = {}
+    end
 
     LOGGER.log(string.format("Adding assembler to force %s", force.name))
     global.DroidAssemblers[force.name][entity.unit_number] = entity

@@ -3,6 +3,7 @@ require("config.config")
 local droidAssembler = {
 	type = "assembling-machine",
 	name = "droid-assembling-machine",
+    icon_size = 32,
 	icon = "__robotarmy__/graphics/icons/droid-assembling-machine.png",
 	flags = {"placeable-neutral", "placeable-player", "player-creation"},
 	minable = {hardness = 0.2, mining_time = 0.5, result = "droid-assembling-machine"},
@@ -90,6 +91,7 @@ local droidAssembler = {
 local guardStation = {
 	type = "assembling-machine",
 	name = "droid-guard-station",
+    icon_size = 32,
 	icon = "__robotarmy__/graphics/icons/droid-guard-station.png",
 	flags = {"placeable-neutral", "placeable-player", "player-creation"},
 	minable = {hardness = 0.2, mining_time = 0.5, result = "droid-guard-station"},
@@ -155,57 +157,11 @@ local guardStation = {
 }
 
 
-local rally_beacon = {
-    type = "container",
-    name = "rally-beacon",
-    icon = "__robotarmy__/graphics/icons/rally-beacon.png",
-    flags = {"placeable-neutral", "player-creation"},
-    minable = {mining_time = 1, result = "rally-beacon"},
-    max_health = 400,
-    corpse = "small-remnants",
-    open_sound = { filename = "__base__/sound/metallic-chest-open.ogg", volume=0.65 },
-    close_sound = { filename = "__base__/sound/metallic-chest-close.ogg", volume = 0.7 },
-    resistances =
-    {
-      {
-        type = "fire",
-        percent = 90
-      }
-    },
-    collision_box = {{-0.5, -0.5}, {0.5, 0.5}},
-    selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
-    drawing_box = {{-1, -1}, {1, 1}},
-    fast_replaceable_group = "",
-    inventory_size = 8,
-    vehicle_impact_sound =  { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
-	picture =
-    {
-      filename = "__robotarmy__/graphics/entity/rally-pole.png",
-      priority = "extra-high",
-      width = 120,
-      height = 124,
-      shift = {0.9, -1}
-    },
-    circuit_wire_connection_point =
-    {
-      shadow =
-      {
-        red = {0.734375, 0.453125},
-        green = {0.609375, 0.515625},
-      },
-      wire =
-      {
-        red = {0.40625, 0.21875},
-        green = {0.40625, 0.375},
-      }
-    },
-    circuit_connector_sprites = get_circuit_connector_sprites({0.1875, 0.15625}, nil, 18),
-    circuit_wire_max_distance = 7.5
- }
 
 local patrolPole = {
 	type = "electric-pole",
 	name = "patrol-pole",
+    icon_size = 32,
 	icon = "__base__/graphics/icons/medium-electric-pole.png",
 	flags = {"placeable-neutral", "player-creation"},
 	minable = {hardness = 0.2, mining_time = 0.5, result = "patrol-pole"},
@@ -261,4 +217,4 @@ local patrolPole = {
 } 
  
  
- data:extend({droidAssembler,guardStation,rally_beacon, patrolPole})
+ data:extend({droidAssembler,guardStation, patrolPole})

@@ -262,7 +262,7 @@ function processDroidAssemblers(force)
                             inv.clear() --clear output slot
                         end
                     else
-                        Game.print_force(force, "Cannot spawn droid, too many droids or obstructions around droid assembler!")
+                        --Game.print_force(force, "Cannot spawn droid, too many droids or obstructions around droid assembler!")
                     end
                 end
             end
@@ -447,6 +447,9 @@ function handleForceCreated(event)
     global.DroidAssemblers = global.DroidAssemblers or {}
     global.DroidAssemblers[force.name] = {}
 
+    global.AssemblerNearestEnemies = global.AssemblerNearestEnemies or {}
+    global.AssemblerNearestEnemies[force.name] = {}
+	
     global.Squads = global.Squads or {}
     global.Squads[force.name] = {}
 

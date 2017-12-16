@@ -55,13 +55,14 @@ local dual_laser = {
           {
             type = "create-entity",
             entity_name = "explosion"
+            
           },
           {
             type = "nested-result",
             action =
             {
+              radius = 0,
               type = "area",
-              perimeter = 0,
               action_delivery =
               {
                 type = "instant",
@@ -70,6 +71,7 @@ local dual_laser = {
                   {
                     type = "damage",
                     damage = {amount = 275*DAMAGE_SCALAR, type = "explosion"}
+                    
                   },
                   {
                     type = "create-entity",

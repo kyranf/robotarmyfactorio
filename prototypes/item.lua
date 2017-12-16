@@ -9,11 +9,13 @@ data:extend(
     name = "droids",
     order = "dr",
     inventory_order = "dr",
+    icon_size = 32,
     icon = "__base__/graphics/item-group/military.png"
   },
   {
     type = "item",
     name = "droid-smg",
+    icon_size = 32,
     icon = "__robotarmy__/graphics/icons/droid_smg_undep.png",
     flags = {"goes-to-quickbar"},
     order = "z[droid]",
@@ -24,6 +26,7 @@ data:extend(
   {
 	type = "item",
     name = "droid-smg-dummy",
+    icon_size = 32,
     icon = "__robotarmy__/graphics/icons/droid_smg.png",
     flags = {"hidden"},
     order = "z-z",
@@ -34,6 +37,7 @@ data:extend(
   {
     type = "item",
     name = "droid-flame",
+    icon_size = 32,
     icon = "__robotarmy__/graphics/icons/droid_flame_undep.png",
     flags = {"goes-to-quickbar"},
     order = "z[droid]",
@@ -44,6 +48,7 @@ data:extend(
   {
 	type = "item",
     name = "droid-flame-dummy",
+    icon_size = 32,
     icon = "__robotarmy__/graphics/icons/droid_flame.png",
     flags = {"hidden"},
     order = "z-z",
@@ -54,6 +59,7 @@ data:extend(
   {
     type = "item",
     name = "droid-rifle",
+    icon_size = 32,
     icon = "__robotarmy__/graphics/icons/droid_rifle_undep.png",
     flags = {"goes-to-quickbar"},
     order = "z[droid]",
@@ -64,6 +70,7 @@ data:extend(
   {
 	type = "item",
     name = "droid-rifle-dummy",
+    icon_size = 32,
     icon = "__robotarmy__/graphics/icons/droid_rifle.png",
     flags = {"hidden"},
     order = "z-z",
@@ -74,6 +81,7 @@ data:extend(
   {
     type = "item",
     name = "droid-rocket",
+    icon_size = 32,
     icon = "__robotarmy__/graphics/icons/droid_rocket_undep.png",
     flags = {"goes-to-quickbar"},
     order = "z[droid]",
@@ -84,6 +92,7 @@ data:extend(
   {
 	type = "item",
     name = "droid-rocket-dummy",
+    icon_size = 32,
     icon = "__robotarmy__/graphics/icons/droid_rocket.png",
     flags = {"hidden"},
     order = "z-z",
@@ -94,6 +103,7 @@ data:extend(
   {
     type = "item",
     name = "terminator",
+    icon_size = 32,
     icon = "__robotarmy__/graphics/icons/terminator_undep.png",
     flags = {"goes-to-quickbar"},
     order = "z[droid]",
@@ -104,6 +114,7 @@ data:extend(
 	{
 	type = "item",
 	name = "terminator-dummy",
+    icon_size = 32,
 	icon = "__robotarmy__/graphics/icons/terminator.png",
 	flags = {"hidden"},
 	order = "z-z",
@@ -115,6 +126,7 @@ data:extend(
 	{
 		type = "item",
 		name = "defender-unit",
+        icon_size = 32,
 		icon = "__robotarmy__/graphics/icons/defender_unit_undep.png",
 		flags = {"goes-to-quickbar"},
 		order = "x[combatrobot]",
@@ -125,6 +137,7 @@ data:extend(
 	{
 		type = "item",
 		name = "defender-unit-dummy",
+        icon_size = 32,
 		icon = "__robotarmy__/graphics/icons/defender.png",
 		flags = {"hidden"},
 		order = "z-z",
@@ -136,6 +149,7 @@ data:extend(
 	{
 		type = "item",
 		name = "distractor-unit",
+        icon_size = 32,
 		icon = "__robotarmy__/graphics/icons/distractor_unit_undep.png",
 		flags = {"goes-to-quickbar"},
 		order = "y[combatrobot]",
@@ -146,6 +160,7 @@ data:extend(
 	{
 		type = "item",
 		name = "distractor-unit-dummy",
+        icon_size = 32,
 		icon = "__robotarmy__/graphics/icons/distractor.png",
 		flags = {"hidden"},
 		order = "z-z",
@@ -156,6 +171,7 @@ data:extend(
 	{
 		type = "item",
 		name = "destroyer-unit",
+        icon_size = 32,
 		icon = "__robotarmy__/graphics/icons/destroyer_unit_undep.png",
 		flags = {"goes-to-quickbar"},
 		order = "z[combatrobot]",
@@ -166,6 +182,7 @@ data:extend(
 	{
 		type = "item",
 		name = "destroyer-unit-dummy",
+        icon_size = 32,
 		icon = "__robotarmy__/graphics/icons/destroyer.png",
 		flags = {"hidden"},
 		order = "z-z",
@@ -176,6 +193,7 @@ data:extend(
   {
     type = "item",
     name = "droid-assembling-machine",
+    icon_size = 32,
     icon = "__robotarmy__/graphics/icons/droid-assembling-machine.png",
     flags = {"goes-to-quickbar"},
     subgroup = "production-machine",
@@ -186,6 +204,7 @@ data:extend(
 	{
 	type = "item",
 	name = "droid-guard-station",
+    icon_size = 32,
     icon = "__robotarmy__/graphics/icons/droid-guard-station.png",
     flags = {"goes-to-quickbar"},
     subgroup = "production-machine",
@@ -196,6 +215,7 @@ data:extend(
   {
     type = "item",
     name = "droid-counter",
+    icon_size = 32,
     icon = "__robotarmy__/graphics/icons/droid-counter.png",
     flags = {"goes-to-quickbar"},
     subgroup = "circuit-network",
@@ -206,6 +226,7 @@ data:extend(
   {
     type = "item",
     name = "droid-settings",
+    icon_size = 32,
     icon = "__robotarmy__/graphics/icons/droid-settings.png",
     flags = {"goes-to-quickbar"},
     subgroup = "circuit-network",
@@ -216,6 +237,7 @@ data:extend(
   {
 	type = "item",
 	name = "loot-chest",
+    icon_size = 32,
 	icon = "__robotarmy__/graphics/icons/loot-chest.png",
 	flags = {"goes-to-quickbar"},
 	subgroup = "storage",
@@ -225,17 +247,8 @@ data:extend(
   },
   {
     type = "item",
-    name = "rally-beacon",
-    icon = "__robotarmy__/graphics/icons/rally-beacon.png",
-    flags = {"goes-to-quickbar"},
-    subgroup = "capsule",
-    place_result="rally-beacon",
-    order = "a[items]-c[rally-beacon]",
-    stack_size = 5,
-  },
-  {
-    type = "item",
     name = "patrol-pole",
+    icon_size = 32,
     icon = "__robotarmy__/graphics/icons/patrol-pole.png",
     flags = {"goes-to-quickbar"},
     subgroup = "capsule",
@@ -247,6 +260,7 @@ data:extend(
 	-- This allows loading the selection-tool type item when mods are removed
 	type = "selection-tool",
 	name = "droid-selection-tool",
+    icon_size = 32,
 	icon = "__robotarmy__/graphics/icons/selection_tool.png",
 	flags = {"goes-to-quickbar"},
 	subgroup = "tool",
@@ -264,6 +278,7 @@ data:extend(
 	-- This allows loading the selection-tool type item when mods are removed
 	type = "selection-tool",
 	name = "droid-pickup-tool",
+    icon_size = 32,
 	icon = "__robotarmy__/graphics/icons/pickup_tool.png",
 	flags = {"goes-to-quickbar"},
 	subgroup = "tool",

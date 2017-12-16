@@ -3,9 +3,11 @@ data:extend({
 {
     type = "unit",
     name = "distractor-unit",
+    icon_size = 32,
     icon = "__base__/graphics/icons/distractor.png",
 	flags = {"placeable-player", "player-creation", "placeable-off-grid"},
     subgroup="creatures",
+    has_belt_immunity = true,
     max_health = 85 * HEALTH_SCALAR,
 	minable = {hardness = 0.1, mining_time = 0.1, result = "distractor-unit"},
 	alert_when_damaged = false,
