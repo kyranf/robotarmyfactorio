@@ -70,7 +70,10 @@ function findHybridKeepRadiusClearTarget(squad)
         squad.unitGroup.position)
     if assembler then
         local ANEtable = global.AssemblerNearestEnemies[squad.force.name][assembler.unit_number]
-        if ANEtable.enemy and not ANEtable.enemy.valid then
+        
+        if not ANEtable.enemy then
+            findAssemblerNearestEnemies(assembler, ANEtable) -- we have never found an enemy.. so lets find the first one. 
+        elseif ANEtable.enemy and not ANEtable.enemy.valid then
             findAssemblerNearestEnemies(assembler, ANEtable)
         end
         local nearestEnemyToAssembler = ANEtable.enemy
@@ -123,7 +126,7 @@ function findAssemblerNearestEnemies(assembler, ANEtable)
     LOGGER.log(msg)
     ANEtable.enemy = assembler.surface.find_nearest_enemy(
         {position=assembler.position,
-         max_distance=getForceHuntRange(assembler.force),
+         max_distance=getAssemblerKeepRadiusClear(assembler),
          force=assembler.force})
     ses_statistics.enemySearches = ses_statistics.enemySearches + 1
     ANEtable.lastChecked = game.tick
