@@ -1,6 +1,7 @@
-Changes from 0.3.3 to 0.3.4:
-- updated to 0.16.x
-- fixed hybrid targeting system to work as intended
-- fixed init of assemblernearestenemy table missing in some cases
-- mostly deleted/removed traces of the old rally flag in code
-- added 'has_belt_immunity' to all units, they will not be affected by belts now while moving around! yay!
+Changes from 0.3.4 to 0.3.5:
+- removed all migration scripts prior to 0.3.4, because they shouldn't be needed anymore. with 0.16 and a large gap in robot army updates
+ it's reasonable to assume everyone's games are in new-ish states, and don't need any of the old code migrations. 
+
+- changed selection tool and pick up tool to be unlocked by the Military tech, with these added to the tech unlock effects
+
+- new 0.3.5 migration script made for general purpose tech unlock fixing and doesn't include the rally point anymore. 

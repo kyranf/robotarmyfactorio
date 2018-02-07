@@ -177,7 +177,7 @@ data:extend(
   {
     type = "recipe",
     name = "droid-selection-tool",
-    enabled = true,
+    enabled = false,
 	ingredients =
 	{
 	  {"electronic-circuit", 1}
@@ -188,7 +188,7 @@ data:extend(
   {
     type = "recipe",
     name = "droid-pickup-tool",
-    enabled = true,
+    enabled = false,
 	ingredients =
 	{
 	  {"electronic-circuit", 1}
@@ -338,7 +338,8 @@ table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",re
 -- DISABLED DUE TO BUGGY BEHAVIOUR table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="rally-beacon"})
 table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-assembling-machine"})
 table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-guard-station"})
-
+table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-selection-tool"})
+table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-pickup-tool"})
 
 table.insert(data.raw["technology"]["military-2"].effects,{type="unlock-recipe",recipe="droid-smg-deploy"})
 table.insert(data.raw["technology"]["military-2"].effects,{type="unlock-recipe",recipe="droid-smg"})
