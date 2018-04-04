@@ -25,33 +25,100 @@ local droidAssembler = {
 	{
 	  {
 		production_type = "input",
-		pipe_picture = assembler2pipepictures(),
+		pipe_picture =   {
+            north =
+            {
+              filename = "__base__/graphics/entity/assembling-machine-2/assembling-machine-2-pipe-N.png",
+              priority = "extra-high",
+              width = 35,
+              height = 18,
+              shift = util.by_pixel(2.5, 14),
+              hr_version = {
+                filename = "__base__/graphics/entity/assembling-machine-2/hr-assembling-machine-2-pipe-N.png",
+                priority = "extra-high",
+                width = 71,
+                height = 38,
+                shift = util.by_pixel(2.25, 13.5),
+                scale = 0.5,
+              }
+            },
+            east =
+            {
+              filename = "__base__/graphics/entity/assembling-machine-2/assembling-machine-2-pipe-E.png",
+              priority = "extra-high",
+              width = 20,
+              height = 38,
+              shift = util.by_pixel(-25, 1),
+              hr_version = {
+                filename = "__base__/graphics/entity/assembling-machine-2/hr-assembling-machine-2-pipe-E.png",
+                priority = "extra-high",
+                width = 42,
+                height = 76,
+                shift = util.by_pixel(-24.5, 1),
+                scale = 0.5,
+              }
+            },
+            south =
+            {
+              filename = "__base__/graphics/entity/assembling-machine-2/assembling-machine-2-pipe-S.png",
+              priority = "extra-high",
+              width = 44,
+              height = 31,
+              shift = util.by_pixel(0, -31.5),
+              hr_version = {
+                filename = "__base__/graphics/entity/assembling-machine-2/hr-assembling-machine-2-pipe-S.png",
+                priority = "extra-high",
+                width = 88,
+                height = 61,
+                shift = util.by_pixel(0, -31.25),
+                scale = 0.5,
+              }
+            },
+            west =
+            {
+              filename = "__base__/graphics/entity/assembling-machine-2/assembling-machine-2-pipe-W.png",
+              priority = "extra-high",
+              width = 19,
+              height = 37,
+              shift = util.by_pixel(25.5, 1.5),
+              hr_version = {
+                filename = "__base__/graphics/entity/assembling-machine-2/hr-assembling-machine-2-pipe-W.png",
+                priority = "extra-high",
+                width = 39,
+                height = 73,
+                shift = util.by_pixel(25.75, 1.25),
+                scale = 0.5,
+              }
+            }
+          },
 		pipe_covers = pipecoverspictures(),
 		base_area = 10,
 		base_level = -1,
-		pipe_connections = {{ type="input", position = {0, -2} }}
+		pipe_connections = {{ type="input", position = {0, -3} }}
 	  },
 	  {
 		production_type = "output",
 		pipe_picture = assembler2pipepictures(),
-		pipe_covers = pipecoverspictures(),
+		pipe_covers = {},
 		base_area = 10,
 		base_level = 1,
-		pipe_connections = {{ type="output", position = {0, 2} }}
+		pipe_connections = {{ type="output", position = {0, 3} }}
 	  },
 	  off_when_no_fluid_recipe = false
 	},
-	collision_box = {{-1.2, -1.2}, {1.2, 1.2}},
-	selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
+	collision_box = {{-3, -3}, {3, 3}},
+	selection_box = {{-3, -3}, {3, 3}},
 	animation =
 	{
-	  filename = "__robotarmy__/graphics/entity/droid-assembler.png",
+	  filename = "__robotarmy__/graphics/entity/droid-assembler-sheet.png",
 	  priority = "high",
-	  width = 111,
-	  height = 99,
-	  frame_count = 1,
-	  line_length = 1,
-	  shift = {0.4, -0.06}
+      scale = 1.0,
+	  width = 266,
+	  height = 266,
+	  frame_count = 16,
+	  line_length = 4,
+	  shift = {0.5, -0.5},
+      animation_speed = 0.12,
 	},
 	open_sound = { filename = "__base__/sound/machine-open.ogg", volume = 0.85 },
 	close_sound = { filename = "__base__/sound/machine-close.ogg", volume = 0.75 },
@@ -119,7 +186,8 @@ local guardStation = {
 	  height = 190,
 	  frame_count = 1,
 	  line_length = 1,
-	  shift = {0.5, -0.5}
+	  shift = {0.5, -0.5},
+      animation_speed = 0.2,
 	},
 	open_sound = { filename = "__base__/sound/machine-open.ogg", volume = 0.85 },
 	close_sound = { filename = "__base__/sound/machine-close.ogg", volume = 0.75 },
