@@ -1,2 +1,4 @@
-Changes from 0.3.5 to 0.3.6:
-- fixed rocket bots not doing any damage.
+Changes from 0.3.6 to 0.3.7:
+- trying to fix Git issue #138 for the force retreat table being nil.
+- Fixing the error related to Squad.lua:658 performing arithmetic on a nil field.
+
