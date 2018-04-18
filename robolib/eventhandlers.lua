@@ -477,6 +477,7 @@ function handleForceCreated(event)
         fillTableWithTickEntries(global.updateTable[force.name]) -- make sure it has got the 1-60 tick entries initialized
     end
 
+    global_fixupTickTablesForForceName(force.name) -- run this at the end just to make sure all other tables I missed are added properly.. mostly for tick and retreat handling
 
     LOGGER.log("New force handler finished...")
 end
