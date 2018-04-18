@@ -631,9 +631,8 @@ function validateSquadIntegrity(squad)
             end
             if soldier.surface ~= squad.unitGroup.surface then
                 -- the unit group and the soldier are on different surfaces. Very odd, but let's try to fix it.
-                msg = string.format(
-                    "BAD ERROR: Destroying unit group for squad ID %d because a soldier is on the wrong surface.",
-                    squad.squadID)
+                msg = string.format("BAD ERROR: Destroying unit group for squad ID %d because a soldier is on the wrong surface.",
+                                    squad.squadID)
                 LOGGER.log(msg)
                 squad.unitGroup.destroy()
                 squad.unitGroup = recreateUnitGroupForSquad(squad, pos)
@@ -655,6 +654,10 @@ function validateSquadIntegrity(squad)
                 else
                     -- not far
                     if not recreatedUG then
+                        if not squad.mostRecentUnitGroupRemovalTick[key] then --if the member of the squad doesn't have a removal tick value for whatever reason, just whack one in here with default start value.
+                            squad.mostRecentUnitGroupRemovalTick[key] = 1
+                        end 
+                        
                         if game.tick < squad.mostRecentUnitGroupRemovalTick[key] + SAFE_SOLDIER_UNITGROUP_REMOVAL_TICKS then
                             -- not far, but there was another recent issue
                             attemptToKickSoldierOut(squad, soldier, key, pos, soldier_group_distance)
