@@ -1,4 +1,4 @@
-Changes from 0.3.6 to 0.3.7:
-- trying to fix Git issue #138 for the force retreat table being nil.
-- Fixing the error related to Squad.lua:658 performing arithmetic on a nil field.
+Changes from 0.3.7 to 0.3.8:
+- fixed bug where force tables were being checked, without first checking/making global tables,
+caused a crash on new game startup. 
 
