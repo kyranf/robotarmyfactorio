@@ -14,7 +14,9 @@ function updateSquad(squad)
         if squad.command.type == commands.guard then
             executeGuardAI(squad)
         elseif not squad.rally then
-            executeBattleAI(squad)
+            if not global.unit_control_override then
+                executeBattleAI(squad)
+            end
         else
             squad = validateSquadIntegrity(squad)
         end

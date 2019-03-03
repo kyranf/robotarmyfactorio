@@ -1,12 +1,14 @@
-# Robot Army mod for Factorio V0.16.36+
+# Robot Army mod for Factorio V0.17.04+
 
 ## Version  
-0.3.8,
-Known to be compatible with Factorio v0.16.36
+0.4.0,
+Known to be compatible with Factorio v0.17.04
 
 
 ## Description  
 A mod to add robot troop units and associated support buildings and items to produce and control them. Will allow the users to automate warfare against the Biters or other players if you are using a PvP scenario.  
+
+Note the Unit Control mod works very well for controlling the Robot Army units and when active will disable normal automated squad control (to make it work smoother)
 
 Please see specific info about this mod's content [on the GitHub Wiki page](https://github.com/kyranf/robotarmyfactorio/wiki)
 

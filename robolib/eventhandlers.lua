@@ -334,6 +334,7 @@ function tickForces(forces, tick)
             end
             processDroidAssemblersForTick(force, tick)
             processSquadUpdatesForTick(force.name, tick % 60 + 1)
+                        
             if tick % 1200 == 0 then
                 log_session_statistics(force)
             end
@@ -397,7 +398,9 @@ function handleOnBuiltEntity(event)
     elseif entity.name == "rally-beacon" then
         handleBuiltRallyBeacon(event)
     elseif entity.type == "unit" and table.contains(squadCapable, entity.name) then --squadCapable is defined in DroidUnitList.
-        processSpawnedDroid(entity, false, nil, true) --this deals with droids spawning
+        if not global.unit_control_override then
+            processSpawnedDroid(entity, false, nil, true) --this deals with droids spawning
+        end
     end
 end -- handleOnBuiltEntity
 
@@ -432,12 +435,6 @@ function handleTick(event)
         checkSettingsModules()
     end
 
-
-
-    --once every 3 seconds on the 5th tick, run the rally pole command for each force that has them active.
-    if (event.tick % 180 == 5) then
-        doRallyBeaconUpdate()
-    end
 end -- handleTick
 
 

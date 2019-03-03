@@ -5,7 +5,17 @@ require("stdlib/game")
 
 function bootstrap_migration_on_first_tick(event)
     LOGGER.log("Running first tick migrations...")
+    local unit_control_active = game.active_mods["Unit_Control"]
     local forces = game.forces
+
+    if(unit_control_active) then
+        game.print("Unit Control is active!")
+        global.unit_control_override = 1
+    else
+        game.print("Unit Control mod is NOT active!")
+        global.unit_control_override = 0
+    end
+
 
     runOnceCheck(forces)
     global_ensureTablesExist()

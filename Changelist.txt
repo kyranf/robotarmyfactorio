@@ -1,4 +1,2 @@
-Changes from 0.3.7 to 0.3.8:
-- fixed bug where force tables were being checked, without first checking/making global tables,
-caused a crash on new game startup. 
-
+changes from 0.3.8 to 0.4.0:
+support for 0.17. changed settings module and counter module tech unlock to military 1 instead of electronics.
