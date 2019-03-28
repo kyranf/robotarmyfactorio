@@ -1,2 +1,4 @@
-changes from 0.3.8 to 0.4.0:
-support for 0.17. changed settings module and counter module tech unlock to military 1 instead of electronics.
+changes from 0.4.0 to 0.4.1:
+-Adding Unit Control as an optional dependency for the mod - if detected as active, 
+it disables the automatic squad control so the player has full freedom to command the units with the Unit Control GUI instead.
+
