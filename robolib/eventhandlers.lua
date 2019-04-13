@@ -105,10 +105,11 @@ function reportSelectedUnits(event, alt)
 				if not global.selected_squad then global.selected_squad = {} end
 
 				--DESELECT LOGIC
-				if global.selected_squad[player.index] ~= nil then
-					if global.Squads[player.force.name][global.selected_squad[player.index]] then  --if the squad still exists, even though we have the ID still in selection
-						Game.print_all(string.format("De-selected Squad ID %d", global.selected_squad[player.index]) )
-						for _, member in pairs(global.Squads[player.force.name][global.selected_squad[player.index]].unitGroup.members) do
+                if global.selected_squad[player.index] ~= nil then
+                    local squadRef = global.Squads[player.force.name][global.selected_squad[player.index]]
+					if squadRef and squadRef.unitGroup.valid then  --if the squad still exists, even though we have the ID still in selection
+						player.print(string.format("De-selected Squad ID %d", global.selected_squad[player.index]) )
+						for _, member in pairs(squadRef.unitGroup.members) do
 							local unitBox = member.bounding_box
 							unitBox.left_top.x = unitBox.left_top.x - 0.1
 							unitBox.left_top.y = unitBox.left_top.y - 0.1
@@ -119,7 +120,8 @@ function reportSelectedUnits(event, alt)
 							  e.destroy()
 							end
 						end
-					end
+                    end
+                    global.selected_squad[player.index] = nil
 				else
 
 					global.selected_squad[player.index] = nil
@@ -398,9 +400,9 @@ function handleOnBuiltEntity(event)
     elseif entity.name == "rally-beacon" then
         handleBuiltRallyBeacon(event)
     elseif entity.type == "unit" and table.contains(squadCapable, entity.name) then --squadCapable is defined in DroidUnitList.
-        if not global.unit_control_override then
+        --if not global.unit_control_override then
             processSpawnedDroid(entity, false, nil, true) --this deals with droids spawning
-        end
+        --end
     end
 end -- handleOnBuiltEntity
 
