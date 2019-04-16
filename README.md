@@ -2,7 +2,7 @@
 
 ## Version  
 0.4.1,
-Known to be compatible with Factorio v0.17.20
+Known to be compatible with Factorio v0.17.31
 
 
 ## Description  

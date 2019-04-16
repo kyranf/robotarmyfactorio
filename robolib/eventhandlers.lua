@@ -262,7 +262,9 @@ function processDroidAssemblers(force)
                                  direction = defines.direction.east,
                                  force = assembler.force })
                             if returnedEntity then
-                                processSpawnedDroid(returnedEntity)
+                                if global.unit_control_override == 0 then
+                                    processSpawnedDroid(returnedEntity)
+                                end
                             end
                             inv.clear() --clear output slot
                         end
@@ -403,9 +405,10 @@ function handleOnBuiltEntity(event)
     elseif entity.name == "rally-beacon" then
         handleBuiltRallyBeacon(event)
     elseif entity.type == "unit" and table.contains(squadCapable, entity.name) then --squadCapable is defined in DroidUnitList.
-        --if not global.unit_control_override then
+        if global.unit_control_override == 0 then
+            
             processSpawnedDroid(entity, false, nil, true) --this deals with droids spawning
-        --end
+        end
     end
 end -- handleOnBuiltEntity
 
