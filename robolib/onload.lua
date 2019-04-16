@@ -5,7 +5,17 @@ require("stdlib/game")
 
 function bootstrap_migration_on_first_tick(event)
     LOGGER.log("Running first tick migrations...")
+    local unit_control_active = game.active_mods["Unit_Control"]
     local forces = game.forces
+
+    if(unit_control_active) then
+        game.print("Unit Control Mod is active! Please use Unit Control selection and command method. Automated behaviours disabled.")
+        global.unit_control_override = 1
+    else
+        game.print("Unit Control Mod is NOT active! Use Squad Selection tool like normal. Automated behaviours enabled.")
+        global.unit_control_override = 0
+    end
+
 
     runOnceCheck(forces)
     global_ensureTablesExist()
