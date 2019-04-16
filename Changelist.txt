@@ -1,4 +1,9 @@
-Changes from 0.3.7 to 0.3.8:
-- fixed bug where force tables were being checked, without first checking/making global tables,
-caused a crash on new game startup. 
+changes from 0.4.0 to 0.4.1:
+-Adding Unit Control as an optional dependency for the mod - if detected as active, 
+it disables the automatic squad control so the player has full freedom to command the units with the Unit Control mod GUI and tool instead.
 
+- disabled the acid fire per-tick damage from worms and spitters, to help restore balance. it was too OP. 
+- fixed script error (needs confirmation) when deselecting a squad after some time has passed
+- fixed script error trying to spawn/change units to an enemy force (needs confirmation) - they will be killed if they try to join a lua unitgroup whose force isn't the same as theirs. This is a temporary fix. 
+need better way of handling squads anyway, need to think about this case while doing that code re-work. 
+- bug fix for when trying to pick up droids with the pickup tool, if your inventory is full they were disappearing (no items returned, but droids removed).

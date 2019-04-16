@@ -105,10 +105,11 @@ function reportSelectedUnits(event, alt)
 				if not global.selected_squad then global.selected_squad = {} end
 
 				--DESELECT LOGIC
-				if global.selected_squad[player.index] ~= nil then
-					if global.Squads[player.force.name][global.selected_squad[player.index]] then  --if the squad still exists, even though we have the ID still in selection
-						Game.print_all(string.format("De-selected Squad ID %d", global.selected_squad[player.index]) )
-						for _, member in pairs(global.Squads[player.force.name][global.selected_squad[player.index]].unitGroup.members) do
+                if global.selected_squad[player.index] ~= nil then
+                    local squadRef = global.Squads[player.force.name][global.selected_squad[player.index]]
+					if squadRef and squadRef.unitGroup.valid then  --if the squad still exists, even though we have the ID still in selection
+						player.print(string.format("De-selected Squad ID %d", global.selected_squad[player.index]) )
+						for _, member in pairs(squadRef.unitGroup.members) do
 							local unitBox = member.bounding_box
 							unitBox.left_top.x = unitBox.left_top.x - 0.1
 							unitBox.left_top.y = unitBox.left_top.y - 0.1
@@ -119,7 +120,8 @@ function reportSelectedUnits(event, alt)
 							  e.destroy()
 							end
 						end
-					end
+                    end
+                    global.selected_squad[player.index] = nil
 				else
 
 					global.selected_squad[player.index] = nil
@@ -171,8 +173,11 @@ function reportSelectedUnits(event, alt)
 					if not removed and (string.find(nameOfUnit, comparableDroidName)) then
 						removed = true
 
-						player.insert{name= unit.name, count=1}
-						unit.destroy()
+						if player.insert{name= unit.name, count=1} == 0 then
+                            player.print("Not enough inventory space to pick up droid!")
+                        else
+                            unit.destroy()
+                        end
 					end
 				end
 
@@ -257,7 +262,9 @@ function processDroidAssemblers(force)
                                  direction = defines.direction.east,
                                  force = assembler.force })
                             if returnedEntity then
-                                processSpawnedDroid(returnedEntity)
+                                if global.unit_control_override == 0 then
+                                    processSpawnedDroid(returnedEntity)
+                                end
                             end
                             inv.clear() --clear output slot
                         end
@@ -334,6 +341,7 @@ function tickForces(forces, tick)
             end
             processDroidAssemblersForTick(force, tick)
             processSquadUpdatesForTick(force.name, tick % 60 + 1)
+                        
             if tick % 1200 == 0 then
                 log_session_statistics(force)
             end
@@ -397,7 +405,10 @@ function handleOnBuiltEntity(event)
     elseif entity.name == "rally-beacon" then
         handleBuiltRallyBeacon(event)
     elseif entity.type == "unit" and table.contains(squadCapable, entity.name) then --squadCapable is defined in DroidUnitList.
-        processSpawnedDroid(entity, false, nil, true) --this deals with droids spawning
+        if global.unit_control_override == 0 then
+            
+            processSpawnedDroid(entity, false, nil, true) --this deals with droids spawning
+        end
     end
 end -- handleOnBuiltEntity
 
@@ -432,12 +443,6 @@ function handleTick(event)
         checkSettingsModules()
     end
 
-
-
-    --once every 3 seconds on the 5th tick, run the rally pole command for each force that has them active.
-    if (event.tick % 180 == 5) then
-        doRallyBeaconUpdate()
-    end
 end -- handleTick
 
 
