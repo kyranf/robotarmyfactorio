@@ -173,8 +173,11 @@ function reportSelectedUnits(event, alt)
 					if not removed and (string.find(nameOfUnit, comparableDroidName)) then
 						removed = true
 
-						player.insert{name= unit.name, count=1}
-						unit.destroy()
+						if player.insert{name= unit.name, count=1} == 0 then
+                            player.print("Not enough inventory space to pick up droid!")
+                        else
+                            unit.destroy()
+                        end
 					end
 				end
 
