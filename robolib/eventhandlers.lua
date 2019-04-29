@@ -238,6 +238,14 @@ function processSpawnedDroid(droid, guard, guardPos, manuallyPlaced)
     end
 end
 
+function onPlayerJoined(event)
+    local playerIndex = event.player_index 
+    if game.active_mods["Unit_Control"] then
+        game.players[playerIndex].print("Robot Army: Unit Control Mod is active! Please use Unit Control selection and command method. Automated behaviours disabled.")
+    else
+        game.players[playerIndex].print("Robot Army: Unit Control Mod is NOT active! Use Squad Selection tool like normal. Automated behaviours enabled.")
+    end
+end
 
 function processDroidAssemblers(force)
     if global.DroidAssemblers and global.DroidAssemblers[force.name] then
@@ -262,8 +270,10 @@ function processDroidAssemblers(force)
                                  direction = defines.direction.east,
                                  force = assembler.force })
                             if returnedEntity then
-                                if global.unit_control_override == 0 then
+                                if not game.active_mods["Unit_Control"] then
                                     processSpawnedDroid(returnedEntity)
+                                else
+                                    script.raise_event(defines.events.on_entity_spawned, {entity = returnedEntity, spawner = assembler})
                                 end
                             end
                             inv.clear() --clear output slot
@@ -405,7 +415,7 @@ function handleOnBuiltEntity(event)
     elseif entity.name == "rally-beacon" then
         handleBuiltRallyBeacon(event)
     elseif entity.type == "unit" and table.contains(squadCapable, entity.name) then --squadCapable is defined in DroidUnitList.
-        if global.unit_control_override == 0 then
+        if not game.active_mods["Unit_Control"] then
             
             processSpawnedDroid(entity, false, nil, true) --this deals with droids spawning
         end
@@ -485,4 +495,42 @@ function handleForceCreated(event)
     global_fixupTickTablesForForceName(force.name) -- run this at the end just to make sure all other tables I missed are added properly.. mostly for tick and retreat handling
 
     LOGGER.log("New force handler finished...")
+end
+
+--registered to script.on_configuration_changed
+function handleModChanges()
+
+    LOGGER.log("Running first tick migrations... config changed!")
+
+    local forces = game.forces
+
+
+
+    runOnceCheck(forces)
+    global_ensureTablesExist()
+    ses_statistics.sessionStartTick = game.tick
+
+    for fkey, force in pairs(forces) do
+        if force.name ~= "enemy" and force.name ~= "neutral" then
+            migrateForce(fkey, force)
+        end
+    end
+    
+    --check if we have grab artifacts enabled - if we do, but it was added after the game started, and the force has military 1 researched
+    --then lets force the recipe to be enabled (because they have missed the usual trigger)
+    if(GRAB_ARTIFACTS == 1) then
+        for fkey, force in pairs(forces) do
+            if(force.technologies["military"].researched == true) then
+                force.recipes["loot-chest"].enabled = true
+            end
+        end
+    else  -- else force-disable it if it's been disabled part-way through a game.
+        for fkey, force in pairs(forces) do
+            force.recipes["loot-chest"].enabled = false  
+        end
+
+    end
+    
+
+
 end

@@ -80,3 +80,5 @@ script.on_event(defines.events.on_player_alt_selected_area, playerAltSelectedAre
 
 -- this on tick handler will get replaced on the first tick after 'live' migrations have run
 script.on_event(defines.events.on_tick, bootstrap_migration_on_first_tick)
+script.on_event(defines.events.on_player_joined_game, onPlayerJoined)
+script.on_configuration_changed(handleModChanges)

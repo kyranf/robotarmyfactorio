@@ -14,14 +14,14 @@ function updateSquad(squad)
         if squad.command.type == commands.guard then
             executeGuardAI(squad)
         elseif not squad.rally then
-            if global.unit_control_override == 0 then
+            if not game.active_mods["Unit_Control"] then
                 executeBattleAI(squad)
             end
         else
             squad = validateSquadIntegrity(squad)
         end
 
-        revealChunksBySquad(squad)
+        --revealChunksBySquad(squad)   -- NOW HANDLED BY UNIT PROTOTYPES WITH radar_range = 1.
         if(GRAB_ARTIFACTS == 1) then
             grabArtifactsBySquad(squad) --disabled as of 0.15 where alien artifacts are no longer dropped!
         end

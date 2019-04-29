@@ -113,6 +113,8 @@ data:extend({
     
     
     vision_distance = 45,
+    radar_range = 1,
+    can_open_gates = true,
     movement_speed = 0.2,
     distance_per_frame = 0.15,
     -- in pu
