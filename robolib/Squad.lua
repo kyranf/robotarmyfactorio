@@ -626,7 +626,7 @@ function validateSquadIntegrity(squad)
     -- check each droid individually to confirm that it is part of the unitGroup
     for key, soldier in pairs(squad.members) do
         if soldier and soldier.valid and (soldier.force ~= squad.unitGroup.force) then
-            soldier.destroy()
+            soldier.destroy({raise_destroy = true})
         else 
             if not table.contains(squad.unitGroup.members, soldier) then
                 if not recreatedUG then

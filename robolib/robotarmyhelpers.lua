@@ -9,36 +9,39 @@ require("robolib.Squad")
 --gets an offset spawning location for an entity (droid assembler)
 -- uses surface.find_non_colliding_position() API call here, to check for a small square around entPos and return the result of that function instead.
 -- this will help avoid getting units stuck in stuff. If that function returns nil, then we have problems so try to mention that to whoever call by ret -1
-function getDroidSpawnLocation(entity)
+function getDroidSpawnLocation(entity, useEntityCenter)
     local entPos = entity.position
     local direction = entity.direction
+    if useEntityCenter == false then
+        -- based on direction of building, set offset for spawn location
+        if(direction == defines.direction.east) then
+            entPos = ({x = entPos.x - 5,y = entPos.y }) end
+        if(direction == defines.direction.north) then
+            entPos = ({x = entPos.x,y = entPos.y + 5 }) end
+        if(direction == defines.direction.south) then
+            entPos = ({x = entPos.x,y = entPos.y - 5 }) end
+        if(direction == defines.direction.west) then
+            entPos = ({x = entPos.x + 5,y = entPos.y }) end
 
-    -- based on direction of building, set offset for spawn location
-    if(direction == defines.direction.east) then
-        entPos = ({x = entPos.x - 5,y = entPos.y }) end
-    if(direction == defines.direction.north) then
-        entPos = ({x = entPos.x,y = entPos.y + 5 }) end
-    if(direction == defines.direction.south) then
-        entPos = ({x = entPos.x,y = entPos.y - 5 }) end
-    if(direction == defines.direction.west) then
-        entPos = ({x = entPos.x + 5,y = entPos.y }) end
+        if(direction == defines.direction.east) then
+            randX = math.random() - math.random(0, 4)
+        else
+            randX = math.random() + math.random(0, 4)
+        end
 
-    if(direction == defines.direction.east) then
-        randX = math.random() - math.random(0, 4)
+        if(direction == defines.direction.north) then
+            randY = math.random() + math.random(0, 4)
+        else
+            randY = math.random() - math.random(0, 4)
+        end
+
+        entPos.x = entPos.x + randX
+        entPos.y = entPos.y + randY
     else
-        randX = math.random() + math.random(0, 4)
+        entPos = entity.position
     end
-
-    if(direction == defines.direction.north) then
-        randY = math.random() + math.random(0, 4)
-    else
-        randY = math.random() - math.random(0, 4)
-    end
-
-    entPos.x = entPos.x + randX
-    entPos.y = entPos.y + randY
     --final check, let the game find us a good spot if we've failed by now.
-    local finalPos = entity.surface.find_non_colliding_position(entity.name, entPos, 10, 1)
+    local finalPos = entity.surface.find_non_colliding_position(entity.name, entPos, 12, 0.5)
     if not finalPos then
         return nil --we can catch this later
     else
@@ -265,7 +268,7 @@ function doCounterUpdate()
                     if lengthOld ~= lengthNew then
                         local pos = counter.position
                         local surface = counter.surface
-                        counter.destroy()
+                        counter.destroy({raise_destroy = true})
                         counter = surface.create_entity({name = "droid-counter" , position = pos, direction = defines.direction.east, force = gameForce })
                         Game.print_force(counter.force, string.format("Counter replaced at X %d,Y %d to update signal output table. Will need new wires if you had any!", pos.x, pos.y))
                         table.insert(global.droidCounters[gameForce.name], counter) -- insert the new counter so it can get updated again
@@ -465,7 +468,7 @@ function handleBuiltLootChest(event)
     else
         Game.print_force(force,"Error: Can only place one loot chest!")
         chest.surface.spill_item_stack(chest.position, {name="loot-chest", count = 1})
-        chest.destroy()
+        chest.destroy({raise_destroy = true})
         --LOGGER.log("WARNING: Can only place one loot chest!")
     end
 end
@@ -488,7 +491,7 @@ function handleBuiltDroidSettings(event)
 
         Game.print_force(force,"Error: Can only place one settings module!")
         entity.surface.spill_item_stack(entity.position, {name="droid-settings", count = 1})
-        entity.destroy()
+        entity.destroy({raise_destroy = true})
         --LOGGER.log("WARNING: Can only place one settings module!")
 
     end
@@ -629,7 +632,7 @@ function isEntityNearAssembler(entity, entity_position)
     local nearestAssembler, distance = findClosestAssemblerToPosition(
         global.DroidAssemblers[entity.force.name], entity_position)
     if nearestAssembler then
-        local spawnPos = getDroidSpawnLocation(nearestAssembler)
+        local spawnPos = getDroidSpawnLocation(nearestAssembler, true)
         if spawnPos then
             distance = util.distance(spawnPos, entity_position)
         end
@@ -663,6 +666,7 @@ function containsSpawnableDroid(inv)
         for item, count in pairs(itemList) do
             --LOGGER.log(string.format("item inv list %s , %s", item, count))
             local itemName = convertToMatchable(item)
+            local origItemName = item.name
             --LOGGER.log(item)
 
             for i, j in pairs(spawnable) do
@@ -672,7 +676,7 @@ function containsSpawnableDroid(inv)
                 if(string.find(itemName, spawnable)) then --example, in "droid-smg-dummy" find "droid-smg", but the names have been adjusted to replace '-' with '0' to allow string.find to work. turns out hyphens are an escape charater, THANKS LUA!!
                     --convert to spawnable entity name
                     local realName = convertToEntityNames(spawnable)
-                    return realName -- should return the name of the item as a string which is then spawnable. eg "droid-smg"
+                    return realName, origItemName -- should return the name of the item as a string which is then spawnable. eg "droid-smg"
                 end
                 -- if the entry 'j' is found in the item name for example droid-smg is found in droid-smg-dummy
             end

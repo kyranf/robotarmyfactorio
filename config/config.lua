@@ -13,6 +13,11 @@ MERGE_RANGE = 20
 
 ASSEMBLER_UPDATE_TICKRATE = 120 -- how often does the droid assembler building check for spawnable droid items in the output inv.
 								-- how fast to spawn a droid once it's been actually assembled.
+CONSTRUCTOR_UPDATE_TICKRATE = 60
+CONSTRUCTION_CHECK_RADIUS = 32  --how far away for checking for buildable ghosts.
+CONSTRUCTION_RANGE = 5   --how far away before a construction unit can build the ghost building	
+AUTO_REPAIR_RANGE = 16  --half a chunk range
+
 
 BOT_COUNTERS_UPDATE_TICKRATE = 60 -- how often does the robot army combinator count droids and update combinator signals?
 LONE_WOLF_CLEANUP_SCRIPT_PERIOD = 18000 -- how often to find and deal with droids that are "wanderers" and not in a squad. NOT USED YET

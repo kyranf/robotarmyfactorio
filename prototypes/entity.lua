@@ -106,7 +106,7 @@ local droid_smg =
     type = "unit",
     name = "droid-smg",
     icon_size = 32,
-    icon = "__base__/graphics/icons/player.png",
+    icon = "__robotarmy__/graphics/icons/droid_smg_undep.png",
     flags = {"placeable-player", "player-creation", "placeable-off-grid"},
     subgroup="creatures",
     order="e-a-b-d",
@@ -282,7 +282,7 @@ local droid_flame =
     type = "unit",
     name = "droid-flame",
     icon_size = 32,
-    icon = "__base__/graphics/icons/player.png",
+    icon = "__robotarmy__/graphics/icons/droid_flame_undep.png",
     flags = {"placeable-player", "player-creation", "placeable-off-grid"},
     subgroup="creatures",
     order="e-a-b-d",
@@ -466,7 +466,7 @@ local droid_rifle =
     type = "unit",
     name = "droid-rifle",
     icon_size = 32,
-    icon = "__base__/graphics/icons/player.png",
+    icon = "__robotarmy__/graphics/icons/droid_rifle_undep.png",
     flags = {"placeable-player", "player-creation", "placeable-off-grid"},
     subgroup="creatures",
     order="e-a-b-d",
@@ -645,7 +645,7 @@ local droid_rocket =
     type = "unit",
     name = "droid-rocket",
     icon_size = 32,
-    icon = "__base__/graphics/icons/player.png",
+    icon = "__robotarmy__/graphics/icons/droid_rocket_undep.png",
     flags = {"placeable-player", "player-creation", "placeable-off-grid"},
     subgroup="creatures",
     order="e-a-b-d",
@@ -808,7 +808,7 @@ local terminator =
 	type = "unit",
   name = "terminator",
   icon_size = 32,
-  icon = "__robotarmy__/graphics/icons/terminator.png",
+  icon = "__robotarmy__/graphics/icons/terminator_undep.png",
   flags = {"placeable-player", "player-creation", "placeable-off-grid"},
   subgroup="creatures",
   order="e-a-b-d",
@@ -1429,8 +1429,161 @@ local loot_chest = {
   target_movement_modifier = 0.9999
 }
 
+
+local basic_constructor = {
+  type = "unit",
+  name = "basic-constructor",
+  icon = "__robotarmy__/graphics/icons/droid_repair_icon32.png",
+  icon_size = 32,
+  flags = { "placeable-player", "player-creation", "placeable-off-grid" },
+  subgroup = "creatures",
+  has_belt_immunity = true,
+  order = "e-a-b-d",
+  max_health = 120,
+  alert_when_damaged = false,
+  healing_per_tick = 0.01,
+  collision_box = { { -0.8*droidscale, -0.8*droidscale }, { 0.8*droidscale, 0.8*droidscale } },
+  selection_box = { { -0.8*droidscale, -0.8*droidscale }, { 0.8*droidscale, 0.8*droidscale } },
+  sticker_box = { { -0.5, -0.5 }, { 0.5, 0.5 } },
+  vision_distance = 30,
+  movement_speed = 0.11,
+  minable = { hardness = 0.1, mining_time = 0.1, result = "basic-constructor" },
+  pollution_to_join_attack = 0,
+  distraction_cooldown = 0,
+  distance_per_frame = 0.05,
+  friendly_map_color = unitMapColour,
+  dying_explosion = "medium-explosion",
+  resistances = {
+    {
+      type = "physical",
+      decrease = 1,
+      percent = 40
+    },
+    {
+      type = "explosion",
+      decrease = 5,
+      percent = 70
+    },
+    {
+      type = "acid",
+      decrease = 1,
+      percent = 30
+    },
+    {
+      type = "fire",
+      decrease = 5,
+      percent = 95
+    }
+  },
+  destroy_action = {
+    type = "direct",
+    action_delivery = {
+      type = "instant",
+      source_effects = {
+        {
+          type = "nested-result",
+          affects_target = true,
+          action = {
+            type = "area",
+            perimeter = 6,
+            collision_mask = { "player-layer" },
+            action_delivery = {
+              type = "instant",
+              target_effects = {
+                type = "damage",
+                damage = { amount = 40, type = "explosion" }
+              }
+            }
+          },
+        },
+        {
+          type = "create-entity",
+          entity_name = "explosion"
+        },
+        {
+          type = "damage",
+          damage = { amount = 100, type = "explosion" }
+        }
+      }
+    }
+  },
+  attack_parameters = {
+    type = "projectile",
+    ammo_category = "bullet",
+    shell_particle = {
+      name = "shell-particle",
+      direction_deviation = 0.1,
+      speed = 0.1,
+      speed_deviation = 0.03,
+      center = { 0, 0.1 },
+      creation_distance = -0.5,
+      starting_frame_speed = 0.4,
+      starting_frame_speed_deviation = 0.1
+    },
+    cooldown = 2,
+    projectile_center = { 0, 0.5 },
+    projectile_creation_distance = 0.6,
+    range = 8,
+    sound = make_heavy_shot_sounds(1.0),
+    animation = {
+      filename = "__robotarmy__/graphics/entity/droid_repair_idle_sheet.png",
+      priority = "high",
+      width = 80,
+      height = 80,
+      tint = droidSmgTint,
+      direction_count = 8,
+      frame_count = 1,
+      animation_speed = 0.3,
+      shift = { 0, 0 }
+    },
+    ammo_type = {
+      category = "bullet",
+      action = {
+        type = "direct",
+        action_delivery = {
+          type = "instant",
+          source_effects = {
+            type = "create-explosion",
+            entity_name = "explosion-gunshot-small"
+          },
+          target_effects = {
+            {
+              type = "create-entity",
+              entity_name = "explosion-hit"
+            },
+            {
+              type = "damage",
+              damage = { amount = 1, type = "physical" }
+            }
+          }
+        }
+      }
+    }
+  },
+  idle = {
+    filename = "__robotarmy__/graphics/entity/droid_repair_idle_sheet.png",
+    priority = "high",
+    width = 80,
+    height = 80,
+    direction_count = 8,
+    frame_count = 1,
+    animation_speed = 0.3,
+    shift = { 0, 0 }
+  },
+  run_animation = {
+    filename = "__robotarmy__/graphics/entity/droid_repair_run_sheet.png",
+    priority = "high",
+    width = 80,
+    height = 80,
+    direction_count = 22,
+    frame_count = 1,
+    animation_speed = 0.3,
+    shift = { 0, 0 }
+  },
+}
+
  -- extend the game data with the new entity definitions
-data:extend({droid_smg, droid_rocket, droid_rifle, terminator, droid_counter, loot_chest, droid_flame, droid_settings, selection_sticker})
+data:extend({droid_smg, droid_rocket, droid_rifle, terminator, droid_counter, loot_chest, droid_flame, droid_settings, selection_sticker,basic_constructor})
 
   
  

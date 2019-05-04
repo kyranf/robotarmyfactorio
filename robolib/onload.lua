@@ -2,16 +2,6 @@ require("robolib.Squad")
 require("stdlib/log/logger")
 require("stdlib/game")
 
-
-function bootstrap_migration_on_first_tick(event)
-    
-    
-    -- substitute the 'normal' tick handler, and run it manually this time
-    script.on_event(defines.events.on_tick, handleTick)
-    handleTick(event)
-end
-
-
 function global_ensureTablesExist()
     if not global.updateTable then global.updateTable = {} end
     if not global.Squads then global.Squads = {} end

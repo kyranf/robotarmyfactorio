@@ -1,7 +1,7 @@
 
 game.reload_script()
 
-game.print("RUNNING ROBOT ARMY MIGRATION SCRIPT FOR 0.3.5")
+--game.print("RUNNING ROBOT ARMY MIGRATION SCRIPT FOR 0.3.5")
 
 --ensure all global tables are present
 global.Squads = global.Squads or {}

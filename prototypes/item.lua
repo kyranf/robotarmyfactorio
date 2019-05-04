@@ -126,7 +126,7 @@ data:extend(
 	{
 		type = "item",
 		name = "defender-unit",
-        icon_size = 32,
+    icon_size = 32,
 		icon = "__robotarmy__/graphics/icons/defender_unit_undep.png",
 		flags =  {},
 		order = "x[combatrobot]",
@@ -292,5 +292,28 @@ data:extend(
 	selection_cursor_box_type = "not-allowed",
 	alt_selection_cursor_box_type = "not-allowed"
 	},
-  
+  {
+    type = "item",
+    name = "construction-warehouse",
+    icon_size = 32,
+    icon = "__robotarmy__/graphics/icons/construction_warehouse.png",
+    flags = { },
+    subgroup = "production-machine",
+    place_result="construction-warehouse",
+    order = "a[items]-h[construction-warehouse]",
+    stack_size = 50,
+  },
+  {
+    type = "item",
+    name = "basic-constructor",
+    icon = "__robotarmy__/graphics/icons/droid_repair_icon64.png",
+    icon_size = 64,
+    flags = { },
+    order = "z[constructor]",
+    subgroup = "capsule",
+    place_result = "basic-constructor",
+    stack_size = 25
+},
+
+
 })

@@ -4,6 +4,7 @@ require("robolib.util") -- some utility functions not necessarily related to rob
 require("robolib.robotarmyhelpers") -- random helper functions related to the robot army mod
 require("robolib.SquadControl") -- allows us to control squads, add entities to squads, etc.
 require("prototypes.DroidUnitList") -- so we know what is spawnable
+require("framework/constructor_functions")
 require("stdlib/log/logger")
 require("stdlib/game")
 
@@ -117,7 +118,7 @@ function reportSelectedUnits(event, alt)
 							unitBox.right_bottom.y = unitBox.right_bottom.y + 0.1
 
 							for _,e in pairs(member.surface.find_entities_filtered{type="sticker", area=unitBox}) do
-							  e.destroy()
+							  e.destroy({raise_destroy = true})
 							end
 						end
                     end
@@ -176,7 +177,7 @@ function reportSelectedUnits(event, alt)
 						if player.insert{name= unit.name, count=1} == 0 then
                             player.print("Not enough inventory space to pick up droid!")
                         else
-                            unit.destroy()
+                            unit.destroy({raise_destroy = true})
                         end
 					end
 				end
@@ -253,16 +254,16 @@ function processDroidAssemblers(force)
         for index, assembler in pairs(global.DroidAssemblers[force.name]) do
             if assembler and assembler.valid and assembler.force == force then
                 local player = assembler.last_user
-                local inv = assembler.get_output_inventory() --gets us a LuaInventory
+                local inv = assembler.get_inventory(defines.inventory.chest) --gets us a LuaInventory
                 -- checks list of spawnable droid names, returns nil if none found. otherwise we get a spawnable entity name
-                local spawnableDroidName = containsSpawnableDroid(inv)
+                local spawnableDroidName, itemNameUsed = containsSpawnableDroid(inv)
                 if (spawnableDroidName ~= nil and type(spawnableDroidName) == "string") then
                     -- uses assmbler pos, direction, and spawns droid at an offset +- random amount. Does a final "find_non_colliding_position" before returning
 
                     -- check surrounding area to see if we have reached a limit of spawned droids, to prevent a constantly spawning situation
                     local nearby = countNearbyDroids(assembler.position, assembler.force, 30)
                     if (nearby <= (getSquadHuntSize(assembler.force)*1.5))  then
-                        local droidPos =  getDroidSpawnLocation(assembler)
+                        local droidPos =  getDroidSpawnLocation(assembler, true)
                         if droidPos then
                             local returnedEntity = assembler.surface.create_entity(
                                 {name = spawnableDroidName,
@@ -270,13 +271,14 @@ function processDroidAssemblers(force)
                                  direction = defines.direction.east,
                                  force = assembler.force })
                             if returnedEntity then
+                                inv.remove({name=returnedEntity.name, count=1}) --clear output slot
                                 if not game.active_mods["Unit_Control"] then
                                     processSpawnedDroid(returnedEntity)
                                 else
                                     script.raise_event(defines.events.on_entity_spawned, {entity = returnedEntity, spawner = assembler})
                                 end
                             end
-                            inv.clear() --clear output slot
+                            
                         end
                     else
                         --Game.print_force(force, "Cannot spawn droid, too many droids or obstructions around droid assembler!")
@@ -295,7 +297,7 @@ function processDroidGuardStations(force)
             if station and station.valid and station.force == force then
                 local inv = station.get_output_inventory() --gets us a luainventory
                 local player = station.last_user
-                local spawnableDroidName = containsSpawnableDroid(inv)
+                local spawnableDroidName, itemNameUsed = containsSpawnableDroid(inv)
                 local nearby = countNearbyDroids(station.position, station.force, 30) --inputs are position, force, and radius
                 --if we have a spawnable droid ready, and there is not too many droids nearby, lets spawn one!
                 if (spawnableDroidName ~= nil and type(spawnableDroidName) == "string") and nearby < getSquadGuardSize(station.force) then
@@ -305,7 +307,7 @@ function processDroidGuardStations(force)
                         if returnedEntity then
                             processSpawnedDroid(returnedEntity, true, station.position)
                         end
-                        inv.clear() --clear output slot
+                        inv.remove({name=itemNameUsed.name, count=1}) --clear output slot
                     end
                 end
             end
@@ -414,10 +416,19 @@ function handleOnBuiltEntity(event)
         handleBuiltLootChest(event)
     elseif entity.name == "rally-beacon" then
         handleBuiltRallyBeacon(event)
-    elseif entity.type == "unit" and table.contains(squadCapable, entity.name) then --squadCapable is defined in DroidUnitList.
-        if not game.active_mods["Unit_Control"] then
-            
-            processSpawnedDroid(entity, false, nil, true) --this deals with droids spawning
+    elseif entity.name == "construction-warehouse" then
+        if not global.ConstructionWarehouses then global.ConstructionWarehouses = {} end
+        if not global.ConstructionWarehouses[entity.force.name] then global.ConstructionWarehouses[entity.force.name] = {} end 
+        table.insert(global.ConstructionWarehouses[entity.force.name], entity)
+    elseif entity.type == "unit" then --squadCapable is defined in DroidUnitList.
+        
+        local entity = event.created_entity
+		local player = game.players[event.player_index]
+        handleUnitBuilt(event, entity, player)
+        if table.contains(squadCapable, entity.name) then
+            if not game.active_mods["Unit_Control"] then
+                processSpawnedDroid(entity, false, nil, true) --this deals with droids spawning
+            end
         end
     end
 end -- handleOnBuiltEntity
@@ -530,7 +541,52 @@ function handleModChanges()
         end
 
     end
+
+end
+
     
+--each force has this function called on it. process force's list of construction units. 
+function processConstructionUnits(force)
+     
+    if global.Constructors and global.Constructors[force.name] then
+        --for each constructor in the force's list.. process
+        for index, constructor in pairs(global.Constructors[force.name]) do
+            if constructor and constructor.valid and constructor.force == force then
+               
+                --go through the list of constructors and process each one's unique logic function. 
+                if constructor.name == "basic-constructor" then
+                    basicConstructorCheck(constructor)
+                end 
+              
+                --any new constructor units with unique construction logic, run them here. 
 
+                
+            end --end if valid, process each constructor for their unique functions.
+        end --end for each constructor in force's constructor  list.
+    end  --end if global tables exist
+end -- end of process construction units 
 
+function handleUnitBuilt(event, entity, player)
+    if not event or not entity or not player then 
+        game.print("error in RA:handleunitbuilt!")
+        return
+    end
+    --add any list management here for newly spawned units
+    -- check if it's an event. if event is nil, then it was a script spawned unit.
+    if entity.name == "basic-constructor" then 
+        if not global.Constructors then global.Constructors = {} end
+        if not global.Constructors[entity.force.name] then global.Constructors[entity.force.name] = {} end
+
+        table.insert(global.Constructors[entity.force.name], entity)
+    end
+end
+
+function constructorTickUpdates()  --registered for nth tick in control.lua
+    local forces = game.forces
+    for _, force in pairs(forces) do
+
+        processConstructionUnits(force)
+        --add other construction unit processing functions as required here.
+        
+    end
 end

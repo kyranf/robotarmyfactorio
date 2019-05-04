@@ -323,7 +323,31 @@ data:extend(
 		},
 		result = "destroyer-unit-dummy"
 	},
-  
+  {
+    type = "recipe",
+    name = "construction-warehouse",
+    enabled = true,
+    ingredients =
+    {
+      {"steel-plate",20},
+      {"electronic-circuit", 25},
+    },	
+      result = "construction-warehouse",
+      requester_paste_multiplier = 1
+  },
+  {
+    type = "recipe",
+    name = "basic-constructor",
+    enabled = true,
+    energy_required = 10,
+    ingredients =
+    {
+    {"copper-plate", 5},
+	  {"electronic-circuit", 5},
+	  {"light-armor", 1}
+    },
+    result = "basic-constructor"
+  }
 })
 
 

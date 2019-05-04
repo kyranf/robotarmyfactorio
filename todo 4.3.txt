@@ -1,0 +1,2 @@
+1. deal with https://github.com/kyranf/robotarmyfactorio/issues/158
+2. fixed destroy calls to ensure they raise destroy events for the units.

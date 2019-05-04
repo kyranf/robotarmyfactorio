@@ -15,7 +15,7 @@ function orderSquadToRetreat(squad)
     local currentPos = squad.unitGroup.position
 
 	if assembler then
-        local retreatPos = getDroidSpawnLocation(assembler)
+        local retreatPos = getDroidSpawnLocation(assembler, true)
         if not retreatPos then
             LOGGER.log("ERROR: Failed to find a droid spawn position near the found assembler!")
             orderSquadToWander(squad, currentPos)
