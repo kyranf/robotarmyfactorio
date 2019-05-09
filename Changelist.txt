@@ -1,2 +1,5 @@
-changes from 0.4.2 to 0.4.3:
--
+changes from 0.4.3 to 0.5.0:
+- changed droid spawner to just a script-controlled chest. spawning now happens centrally around it. doesn't need recipe setting. just insert spawnable droid.
+- added engineer droid
+- added construction warehouse for engineer droid to build from items within them
+- fixed issue where biter factions mod would cause crash with new forces (robot army try to run those forces' squad tick logic table functions)
