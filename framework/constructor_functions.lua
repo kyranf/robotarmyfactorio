@@ -8,18 +8,16 @@ require("config.config")
 require("stdlib/game")
 
 function basicConstructorCheck(constructor)
-    if not global.ConstructionWarehouses then return end
-    if not global.ConstructionWarehouses[constructor.force.name] then return end
+
 
     --  BUILD LOGIC --
 
     --look around the nearby area for ghosts. 
     --if there's one there, and it's buildable, try to 'revive' it. this is where we'd check if we have the item in the global storage as well, until we get another method.
-    --see Nanobots mod for the logic on this bit.
-    local areaCheck = {  left_top = {constructor.position.x - CONSTRUCTION_CHECK_RADIUS, constructor.position.y - CONSTRUCTION_CHECK_RADIUS}, 
-                         right_bottom = {constructor.position.x + CONSTRUCTION_CHECK_RADIUS, constructor.position.y + CONSTRUCTION_CHECK_RADIUS}
-                      }
-    for _, ghost in pairs( constructor.surface.find_entities_filtered{name = "entity-ghost", area = areaCheck, force = constructor.force} ) do
+    
+    if not global.ConstructionWarehouses then goto heal_logic end
+    if not global.ConstructionWarehouses[constructor.force.name] then goto heal_logic end
+    for _, ghost in pairs( constructor.surface.find_entities_filtered{name = "entity-ghost", position = constructor.position, radius = CONSTRUCTION_CHECK_RADIUS, force = constructor.force} ) do
 
         --sort by distance..
         --starting from nearest... for each ghost, do the following. 
@@ -72,9 +70,11 @@ function basicConstructorCheck(constructor)
         end
     end
 
-    local HEAL_AMOUNT = (5.0/60.0)  * CONSTRUCTOR_UPDATE_TICKRATE  --10 hp/second, at 60 tick/sec, by the tick rate of constructor updates.
+    ::heal_logic::
+
+    local HEAL_AMOUNT = (10.0/60.0)  * CONSTRUCTOR_UPDATE_TICKRATE  --10 hp/second, at 60 tick/sec, by the tick rate of constructor updates.
     -- REPAIR LOGIC --
-    for _, entity in pairs( constructor.surface.find_entities_filtered{name = nil, area = areaCheck, force = constructor.force} ) do
+    for _, entity in pairs( constructor.surface.find_entities_filtered{name = nil, position = constructor.position, radius = AUTO_REPAIR_RANGE, force = constructor.force} ) do
 
         if( entity.health and entity.health > 0 and entity.health < entity.prototype.max_health) and not (entity.has_flag("breaths-air") or (entity.type == "car" or entity.type == "train")) then
 

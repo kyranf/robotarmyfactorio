@@ -24,17 +24,6 @@ data:extend(
     stack_size = 25
   },
   {
-	type = "item",
-    name = "droid-smg-dummy",
-    icon_size = 32,
-    icon = "__robotarmy__/graphics/icons/droid_smg.png",
-    flags = {"hidden"},
-    order = "z-z",
-	subgroup = "capsule",
-    place_result = "",
-    stack_size = 1  
-  },
-  {
     type = "item",
     name = "droid-flame",
     icon_size = 32,
@@ -44,17 +33,6 @@ data:extend(
 	subgroup = "capsule",
     place_result = "droid-flame",
     stack_size = 25
-  },
-  {
-	type = "item",
-    name = "droid-flame-dummy",
-    icon_size = 32,
-    icon = "__robotarmy__/graphics/icons/droid_flame.png",
-    flags = {"hidden"},
-    order = "z-z",
-	subgroup = "capsule",
-    place_result = "",
-    stack_size = 1  
   },
   {
     type = "item",
@@ -68,17 +46,6 @@ data:extend(
     stack_size = 25
   },
   {
-	type = "item",
-    name = "droid-rifle-dummy",
-    icon_size = 32,
-    icon = "__robotarmy__/graphics/icons/droid_rifle.png",
-    flags = {"hidden"},
-    order = "z-z",
-	subgroup = "capsule",
-    place_result = "",
-    stack_size = 1  
-  },
-  {
     type = "item",
     name = "droid-rocket",
     icon_size = 32,
@@ -88,17 +55,6 @@ data:extend(
 	subgroup = "capsule",
     place_result = "droid-rocket",
     stack_size = 25
-  },
-  {
-	type = "item",
-    name = "droid-rocket-dummy",
-    icon_size = 32,
-    icon = "__robotarmy__/graphics/icons/droid_rocket.png",
-    flags = {"hidden"},
-    order = "z-z",
-	subgroup = "capsule",
-    place_result = "",
-    stack_size = 1  
   },
   {
     type = "item",
@@ -112,18 +68,6 @@ data:extend(
     stack_size = 25
   },
 	{
-	type = "item",
-	name = "terminator-dummy",
-    icon_size = 32,
-	icon = "__robotarmy__/graphics/icons/terminator.png",
-	flags = {"hidden"},
-	order = "z-z",
-	subgroup = "capsule",
-	place_result = "",
-	stack_size = 1  
-	},
-	
-	{
 		type = "item",
 		name = "defender-unit",
     icon_size = 32,
@@ -134,18 +78,6 @@ data:extend(
 		place_result = "defender-unit",
 		stack_size = 25
 	},
-	{
-		type = "item",
-		name = "defender-unit-dummy",
-        icon_size = 32,
-		icon = "__robotarmy__/graphics/icons/defender.png",
-		flags = {"hidden"},
-		order = "z-z",
-		subgroup = "capsule",
-		place_result = "",
-		stack_size = 1  
-	},
-	
 	{
 		type = "item",
 		name = "distractor-unit",
@@ -159,17 +91,6 @@ data:extend(
 	},
 	{
 		type = "item",
-		name = "distractor-unit-dummy",
-        icon_size = 32,
-		icon = "__robotarmy__/graphics/icons/distractor.png",
-		flags = {"hidden"},
-		order = "z-z",
-		subgroup = "capsule",
-		place_result = "",
-		stack_size = 1  
-	},
-	{
-		type = "item",
 		name = "destroyer-unit",
         icon_size = 32,
 		icon = "__robotarmy__/graphics/icons/destroyer_unit_undep.png",
@@ -178,17 +99,6 @@ data:extend(
 		subgroup = "capsule",
 		place_result = "destroyer-unit",
 		stack_size = 25
-	},
-	{
-		type = "item",
-		name = "destroyer-unit-dummy",
-        icon_size = 32,
-		icon = "__robotarmy__/graphics/icons/destroyer.png",
-		flags = {"hidden"},
-		order = "z-z",
-		subgroup = "capsule",
-		place_result = "",
-		stack_size = 1  
 	},
   {
     type = "item",

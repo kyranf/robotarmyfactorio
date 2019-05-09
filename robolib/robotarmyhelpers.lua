@@ -240,6 +240,7 @@ function doCounterUpdate()
         local rocketDroids = gameForce.get_entity_count("droid-rocket")
         local fireBots = gameForce.get_entity_count("droid-flame")
         local terminators = gameForce.get_entity_count("terminator")
+        local engineers = gameForce.get_entity_count("basic-constructor")
         if global.droidCounters and global.droidCounters[gameForce.name] then
             --sum all droids named in the spawnable list
             for _, droidName in pairs(spawnable) do
@@ -253,7 +254,8 @@ function doCounterUpdate()
                     {index=3, count = battleDroids, signal={type="virtual",name="signal-droid-smg-count"}},
                     {index=4, count = rocketDroids, signal={type="virtual",name="signal-droid-rocket-count"}},
                     {index=5, count = fireBots, signal={type="virtual",name="signal-droid-flame-count"}},
-                    {index=6, count = terminators, signal={type="virtual",name="signal-droid-terminator-count"}}
+                    {index=6, count = terminators, signal={type="virtual",name="signal-droid-terminator-count"}},
+                    {index=7, count = engineers, signal={type="virtual",name="signal-droid-engineer-count"}}
                 } --end parameters table
             }-- end circuitParams
 
@@ -673,12 +675,12 @@ function containsSpawnableDroid(inv)
                 --LOGGER.log(string.format("spawnable list %s , %s", i, j))
                 local spawnable = convertToMatchable(j)
                 --LOGGER.log(spawnable)
-                if(string.find(itemName, spawnable)) then --example, in "droid-smg-dummy" find "droid-smg", but the names have been adjusted to replace '-' with '0' to allow string.find to work. turns out hyphens are an escape charater, THANKS LUA!!
+                if(string.find(itemName, spawnable)) then --example, in "droid-smg" find "droid-smg", but the names have been adjusted to replace '-' with '0' to allow string.find to work. turns out hyphens are an escape charater, THANKS LUA!!
                     --convert to spawnable entity name
                     local realName = convertToEntityNames(spawnable)
                     return realName, origItemName -- should return the name of the item as a string which is then spawnable. eg "droid-smg"
                 end
-                -- if the entry 'j' is found in the item name for example droid-smg is found in droid-smg-dummy
+                -- if the entry 'j' is found in the item name for example droid-smg is found in droid-smg
             end
         end
     else

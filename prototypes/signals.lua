@@ -50,7 +50,14 @@ data:extend(
     subgroup = "virtual-signal-number",
     order = "r[droid]-[06]"
   },
-  
+  {
+    type = "virtual-signal",
+    name = "signal-droid-engineer-count",
+    icon_size = 32,
+    icon = "__robotarmy__/graphics/icons/droid_repair_icon32.png",
+    subgroup = "virtual-signal-number",
+    order = "r[droid]-[07]"
+  },
   --settings signals
   {
     type = "virtual-signal",
@@ -58,7 +65,7 @@ data:extend(
     icon_size = 32,
     icon = "__robotarmy__/graphics/icons/signal_hunt_radius.png",
     subgroup = "virtual-signal-number",
-    order = "r[droid]-[07]"
+    order = "r[droid]-[08]"
   },
   {
     type = "virtual-signal",
@@ -66,7 +73,7 @@ data:extend(
     icon_size = 32,
     icon = "__robotarmy__/graphics/icons/signal_guard_size.png",
     subgroup = "virtual-signal-number",
-    order = "r[droid]-[08]"
+    order = "r[droid]-[09]"
   },
   {
     type = "virtual-signal",
@@ -74,7 +81,7 @@ data:extend(
     icon_size = 32,
     icon = "__robotarmy__/graphics/icons/signal_retreat_size.png",
     subgroup = "virtual-signal-number",
-    order = "r[droid]-[09]"
+    order = "r[droid]-[10]"
   },
   {
     type = "virtual-signal",
@@ -82,7 +89,7 @@ data:extend(
     icon_size = 32,
     icon = "__robotarmy__/graphics/icons/signal_squad_size.png",
     subgroup = "virtual-signal-number",
-    order = "r[droid]-[10]"
+    order = "r[droid]-[11]"
   },  
   
 })

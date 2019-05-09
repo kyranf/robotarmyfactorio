@@ -25,8 +25,14 @@ end
 function processSquadUpdatesForTick(force_name, tickProcessIndex)
     --for the current tick, look at the global table for that tick (mod 60) and any squad references in there.
     --LOGGER.log(string.format("Processing AI for AI tick %d of 60", tickProcessIndex))
+    
+    if not global.updateTable[force_name] then return end
+    if not global.Squads[force_name] then return end
+
     local forceTickTable = global.updateTable[force_name]
     local squadTable = global.Squads[force_name]
+
+
     for i, squadref in pairs(forceTickTable[tickProcessIndex]) do
         if squadref and squadTable[squadref] then
             -- local squad = global.Squads[force_name][squadref]
