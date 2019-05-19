@@ -75,15 +75,16 @@ function basicConstructorCheck(constructor)
     local HEAL_AMOUNT = (10.0/60.0)  * CONSTRUCTOR_UPDATE_TICKRATE  --10 hp/second, at 60 tick/sec, by the tick rate of constructor updates.
     -- REPAIR LOGIC --
     for _, entity in pairs( constructor.surface.find_entities_filtered{name = nil, position = constructor.position, radius = AUTO_REPAIR_RANGE, force = constructor.force} ) do
+        if entity.unit_number ~= constructor.unit_number then  -- can't heal yourself!! cheater! wtfbbqsauce!
+            if ( entity.health and entity.health > 0 and entity.health < entity.prototype.max_health) and not (entity.has_flag("breaths-air") or (entity.type == "car" or entity.type == "train")) then
 
-        if( entity.health and entity.health > 0 and entity.health < entity.prototype.max_health) and not (entity.has_flag("breaths-air") or (entity.type == "car" or entity.type == "train")) then
+                    if entity.health + HEAL_AMOUNT > entity.prototype.max_health then
+                        entity.health = entity.prototype.max_health 
+                    else
+                        entity.health  = entity.health + HEAL_AMOUNT
+                    end
 
-                if entity.health + HEAL_AMOUNT > entity.prototype.max_health then
-                    entity.health = entity.prototype.max_health 
-                else
-                    entity.health  = entity.health + HEAL_AMOUNT
-                end
-
+            end
         end
     
     end

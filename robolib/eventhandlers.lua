@@ -259,16 +259,31 @@ function processDroidAssemblers(force)
         --for each building in their list using name as key
         for index, assembler in pairs(global.DroidAssemblers[force.name]) do
             if assembler and assembler.valid and assembler.force == force then
-                local player = assembler.last_user
+              
                 local inv = assembler.get_inventory(defines.inventory.chest) --gets us a LuaInventory
                 -- checks list of spawnable droid names, returns nil if none found. otherwise we get a spawnable entity name
                 local spawnableDroidName, itemNameUsed = containsSpawnableDroid(inv)
                 if (spawnableDroidName ~= nil and type(spawnableDroidName) == "string") then
                     -- uses assmbler pos, direction, and spawns droid at an offset +- random amount. Does a final "find_non_colliding_position" before returning
+                    
+                    --maintain the assembler squad list with only living units.
+                    if not global.assemblerSquad then global.assemblerSquad = {} end
+                    if not global.assemblerSquad[assembler.unit_number] then global.assemblerSquad[assembler.unit_number] = {} end
+                    
+                    if not global.assemblerSquad[assembler.unit_number].members then global.assemblerSquad[assembler.unit_number].members = {} end
+
+                    for index , unit in pairs(global.assemblerSquad[assembler.unit_number].members) do
+                        if not unit.valid then global.assemblerSquad[assembler.unit_number].members[index] = nil end
+                    end
+
+                    global.assemblerSquad[assembler.unit_number].numMembers = #global.assemblerSquad[assembler.unit_number].members
+                    local squadTable = global.assemblerSquad[assembler.unit_number]
+                    --maintain the unit -> assembler association tables. 
+                    if not global.assemblerAssignment then global.assemblerAssignment = {} end
+                    
 
                     -- check surrounding area to see if we have reached a limit of spawned droids, to prevent a constantly spawning situation
-                    local nearby = countNearbyDroids(assembler.position, assembler.force, 30)
-                    if (nearby <= (getSquadHuntSize(assembler.force)*1.5))  then
+                    if (squadTable.numMembers < getSquadHuntSize(assembler.force) )  then
                         local droidPos =  getDroidSpawnLocation(assembler, true)
                         if droidPos then
                             local returnedEntity = assembler.surface.create_entity(
@@ -276,8 +291,17 @@ function processDroidAssemblers(force)
                                  position = droidPos,
                                  direction = defines.direction.east,
                                  force = assembler.force })
+
                             if returnedEntity then
+                                
                                 inv.remove({name=returnedEntity.name, count=1}) --clear output slot
+                                table.insert(squadTable.members, returnedEntity)
+                                squadTable.numMembers = squadTable.numMembers + 1
+                                --game.forces[assembler.force.name].print("assembler unit list size: " .. #global.assemblerSquad[assembler.unit_number].members)
+
+                                 --put the assembler's reference in table key'd by the unit's unique number. allows us to work backwards and find the assembler the unit belongs to, and get the the whole squad.
+                                global.assemblerAssignment[returnedEntity.unit_number] = assembler 
+
                                 if not game.active_mods["Unit_Control"] then
                                     processSpawnedDroid(returnedEntity)
                                 else
@@ -301,25 +325,50 @@ function processDroidGuardStations(force)
     if global.droidGuardStations and global.droidGuardStations[force.name] then
         for _, station in pairs(global.droidGuardStations[force.name]) do
             if station and station.valid and station.force == force then
-                local inv = station.get_output_inventory() --gets us a luainventory
-                local player = station.last_user
+                  
+                local inv = station.get_inventory(defines.inventory.chest) --gets us a LuaInventory
+                -- checks list of spawnable droid names, returns nil if none found. otherwise we get a spawnable entity name
                 local spawnableDroidName, itemNameUsed = containsSpawnableDroid(inv)
-                local nearby = countNearbyDroids(station.position, station.force, 30) --inputs are position, force, and radius
-                --if we have a spawnable droid ready, and there is not too many droids nearby, lets spawn one!
-                if (spawnableDroidName ~= nil and type(spawnableDroidName) == "string") and nearby < getSquadGuardSize(station.force) then
-                    local droidPos =  getGuardSpawnLocation(station) -- uses station pos
-                    if droidPos ~= -1 then
-                        local returnedEntity = station.surface.create_entity({name = spawnableDroidName , position = droidPos, direction = defines.direction.east, force = station.force })
+                
+                --maintain the guard squad list with only living units.
+                if not global.guardSquadMembers then global.guardSquadMembers = {} end
+                if not global.guardSquadMembers[station.unit_number] then global.guardSquadMembers[station.unit_number] = {} end
+                for index , unit in pairs(global.guardSquadMembers[station.unit_number] ) do
+                    if not unit.valid then global.guardSquadMembers[station.unit_number][index] = nil end
+                end
+                local squadsize = #global.guardSquadMembers[station.unit_number] 
+                
+                --game.forces[station.force.name].print("guard station unit list size: " .. squadsize)
+                
+                --local nearby = countNearbyDroids(station.position, station.force, 30) --inputs are position, force, and radius
+                if (spawnableDroidName ~= nil and type(spawnableDroidName) == "string")  and squadsize < getSquadGuardSize(station.force)  then
+                    -- uses assmbler pos, direction, and spawns droid at an offset +- random amount. Does a final "find_non_colliding_position" before returning
+
+                    local droidPos =  getDroidSpawnLocation(station, true)
+                    if droidPos and droidPos ~= -1 then
+                        local returnedEntity = station.surface.create_entity(
+                            {name = spawnableDroidName,
+                                position = droidPos,
+                                direction = defines.direction.east,
+                                force = station.force })
                         if returnedEntity then
-                            processSpawnedDroid(returnedEntity, true, station.position)
-                        end
-                        inv.remove({name=itemNameUsed.name, count=1}) --clear output slot
+                            inv.remove({name=returnedEntity.name, count=1}) --clear output slot
+
+                            table.insert(global.guardSquadMembers[station.unit_number], returnedEntity)
+                            
+                            
+                            if not game.active_mods["Unit_Control"] then
+                                processSpawnedDroid(returnedEntity, true, station.position)    
+                            else
+                                script.raise_event(defines.events.on_entity_spawned, {entity = returnedEntity, spawner = station})
+                            end
+                        end 
                     end
                 end
             end
-        end
-    end
-end
+        end --end for each station in the guard station table for the force..
+    end --end if checking global guard stations table exists
+end -- end processDroidGuardStations()
 
 function updateSelectionCircles(force)
 	global.selection_circles = global.selection_circles or {}

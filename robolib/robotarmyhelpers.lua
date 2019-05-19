@@ -74,7 +74,7 @@ function getGuardSpawnLocation(entity)
     local direction = entity.direction
 
     --final check, let the game find us a good spot if we've failed by now.
-    local finalPos = game.surfaces[1].find_non_colliding_position(entity.name, entPos, 20, 1)
+    local finalPos = entity.surface.find_non_colliding_position(entity.name, entPos, 20, 1)
     if not finalPos then
         --LOGGER.log("ERROR: getGuardSpawnLocation failed to find a suitable spawn location!")
         return -1 --an error we can catch later

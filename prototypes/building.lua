@@ -34,36 +34,16 @@ local droidAssembler = {
 		percent = 70
 	  }
 	},
-	fluid_boxes =
-	{
-	  {
-		production_type = "input",
-		pipe_picture = assembler2pipepictures(),
-		pipe_covers = pipecoverspictures(),
-		base_area = 10,
-		base_level = -1,
-		pipe_connections = {{ type="input", position = {0, -2} }}
-	  },
-	  {
-		production_type = "output",
-		pipe_picture = assembler2pipepictures(),
-		pipe_covers = pipecoverspictures(),
-		base_area = 10,
-		base_level = 1,
-		pipe_connections = {{ type="output", position = {0, 2} }}
-	  },
-	  off_when_no_fluid_recipe = false
-	},
-	collision_box = {{-1.2, -1.2}, {1.2, 1.2}},
-	selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
+	collision_box = {{-2.8, -2.8}, {2.8, 2.8}},
+	selection_box = {{-3, -3}, {3, 3}},
 	fast_replaceable_group = "",
-	inventory_size = 12,
+	inventory_size = 4,
 	picture =
   {
-		filename = "__robotarmy__/graphics/entity/droid-assembler.png",
+		filename = "__robotarmy__/graphics/entity/droid_assembler_hr.png",
 	  priority = "high",
-	  width = 111,
-		height = 99,
+	  width = 246,
+		height = 221,
 		shift = {0.4, -0.06}
 	},
 	
@@ -89,9 +69,9 @@ local droidAssembler = {
 }
 
 local guardStation = {
-	type = "assembling-machine",
+	type = "container",
 	name = "droid-guard-station",
-    icon_size = 32,
+	icon_size = 32,
 	icon = "__robotarmy__/graphics/icons/droid-guard-station.png",
 	flags = {"placeable-neutral", "placeable-player", "player-creation"},
 	minable = {hardness = 0.2, mining_time = 0.5, result = "droid-guard-station"},
@@ -109,51 +89,37 @@ local guardStation = {
 		percent = 70
 	  }
 	},
-	collision_box = {{-1.7, -1.7}, {1.7, 1.7}},
-	  selection_box = {{-2, -2}, {2, 2}},
-	animation =
-	{
-	  filename = "__robotarmy__/graphics/entity/guard-station.png",
+	collision_box = {{-2.8, -2.0}, {2.8, 2.8}},
+	selection_box = {{-3, -3}, {3, 3}},
+	picture =
+  {
+		filename = "__robotarmy__/graphics/entity/guard_station_hr.png",
 	  priority = "high",
-	  width = 143,
-	  height = 190,
-	  frame_count = 1,
-	  line_length = 1,
-	  shift = {0.5, -0.5}
+	  width = 246,
+	  height = 215,
+	  shift = {0.25, 0.0}
 	},
+	fast_replaceable_group = "",
+	inventory_size = 4,
 	open_sound = { filename = "__base__/sound/machine-open.ogg", volume = 0.85 },
 	close_sound = { filename = "__base__/sound/machine-close.ogg", volume = 0.75 },
 	vehicle_impact_sound =  { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
-	working_sound =
+	circuit_wire_connection_point =
 	{
-	  sound = {
+		shadow =
 		{
-		  filename = "__base__/sound/assembling-machine-t2-1.ogg",
-		  volume = 0.8
+			red = {0.734375, 0.453125},
+			green = {0.609375, 0.515625},
 		},
+		wire =
 		{
-		  filename = "__base__/sound/assembling-machine-t2-2.ogg",
-		  volume = 0.8
-		},
-	  },
-	  idle_sound = { filename = "__base__/sound/idle1.ogg", volume = 0.6 },
-	  apparent_volume = 1.5,
+			red = {0.40625, 0.21875},
+			green = {0.40625, 0.375},
+		}
 	},
-	crafting_categories = {"droids"},
-	crafting_speed = 1.0,
-	energy_source =
-	{
-	  type = "electric",
-	  usage_priority = "secondary-input",
-	  emissions = 0.04 / 2.5
-	},
-	energy_usage = "300kW",
-	ingredient_count = 1,
-	module_specification =
-	{
-	  module_slots = 0
-	},
-	allowed_effects = {"consumption", "speed", "pollution"}
+	circuit_wire_connection_point = circuit_connector_definitions["droid_assem"].points,
+	circuit_connector_sprites = circuit_connector_definitions["droid_assem"].sprites,
+	circuit_wire_max_distance = 7.5
 }
 
 

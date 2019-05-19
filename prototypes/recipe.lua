@@ -240,7 +240,8 @@ data:extend(
     ingredients =
     {
     {"copper-plate", 5},
-	  {"electronic-circuit", 5},
+    {"electronic-circuit", 5},
+    {"repair-pack", 5},
 	  {"light-armor", 1}
     },
     result = "basic-constructor"

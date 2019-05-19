@@ -984,7 +984,7 @@ local droid_counter =  {
     collision_box = {{-0.35, -0.35}, {0.35, 0.35}},
     selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
 
-    item_slot_count = 6,
+    item_slot_count = 7,
 
     sprites =
     {
@@ -1438,6 +1438,8 @@ local basic_constructor = {
   flags = { "placeable-player", "player-creation", "placeable-off-grid" },
   subgroup = "creatures",
   has_belt_immunity = true,
+  can_open_gates = true,
+  move_while_shooting = true,
   order = "e-a-b-d",
   max_health = 120,
   alert_when_damaged = false,
