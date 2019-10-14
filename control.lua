@@ -77,8 +77,8 @@ end
 script.on_event(defines.events.on_player_alt_selected_area, playerAltSelectedArea)
 
 script.on_nth_tick(CONSTRUCTOR_UPDATE_TICKRATE, constructorTickUpdates) -- all logic for constructor units
-
+script.on_nth_tick(BOT_COUNTERS_UPDATE_TICKRATE, botCounterUpdates)
 script.on_event(defines.events.on_tick, handleTick)
-
+script.on_event(defines.events.on_ai_command_completed, handleTaskCompleted)
 script.on_event(defines.events.on_player_joined_game, onPlayerJoined)
 script.on_configuration_changed(handleModChanges)

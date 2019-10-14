@@ -113,7 +113,8 @@ local droid_smg =
     max_health = 120 * HEALTH_SCALAR,
     has_belt_immunity = true,
     alert_when_damaged = false,
-    healing_per_tick = 0.01,
+    move_while_shooting = true,
+    healing_per_tick = 0.001,
     collision_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8*droidscale, 0.8*droidscale}},
     selection_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8, 0.8*droidscale}},
     sticker_box = {{-0.5, -0.5}, {0.5, 0.5}},
@@ -121,10 +122,15 @@ local droid_smg =
     radar_range = 1,
     can_open_gates = true,
     movement_speed = 0.11,
+    ai_settings =
+    {
+      do_separation = true,
+      allow_destroy_when_commands_fail = false
+    },
 	minable = {hardness = 0.1, mining_time = 0.1, result = "droid-smg"},
 	pollution_to_join_attack = 0.0,
 	distraction_cooldown = 0,
-    distance_per_frame =  0.05,
+  distance_per_frame =  0.05,
 	friendly_map_color = droidMapColour,
 	dying_explosion = "medium-explosion",
 	resistances =
@@ -289,7 +295,7 @@ local droid_flame =
     has_belt_immunity = true,
     max_health = 200 * HEALTH_SCALAR,
     alert_when_damaged = false,
-    healing_per_tick = 0.01,
+    healing_per_tick = 0.001,
     collision_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8*droidscale, 0.8*droidscale}},
     selection_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8, 0.8*droidscale}},
     sticker_box = {{-0.5, -0.5}, {0.5, 0.5}},
@@ -297,13 +303,18 @@ local droid_flame =
     radar_range = 1,
     can_open_gates = true,
     movement_speed = 0.09,
-	minable = {hardness = 0.1, mining_time = 0.1, result = "droid-flame"},
-	pollution_to_join_attack = 0.0,
-	distraction_cooldown = 0,
+    ai_settings =
+    {
+      do_separation = true,
+      allow_destroy_when_commands_fail = false
+    },
+    minable = {hardness = 0.1, mining_time = 0.1, result = "droid-flame"},
+    pollution_to_join_attack = 0.0,
+    distraction_cooldown = 0,
     distance_per_frame =  0.05,
-	friendly_map_color = droidMapColour,
-	dying_explosion = "medium-explosion",
-	resistances =
+    friendly_map_color = droidMapColour,
+    dying_explosion = "medium-explosion",
+    resistances =
     {
       {
         type = "physical",
@@ -471,7 +482,7 @@ local droid_rifle =
     subgroup="creatures",
     order="e-a-b-d",
     has_belt_immunity = true,
-    max_health = 40 * HEALTH_SCALAR,
+    max_health = 50 * HEALTH_SCALAR,
     alert_when_damaged = false,
     healing_per_tick = 0.00,
     collision_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8*droidscale, 0.8*droidscale}},
@@ -481,6 +492,11 @@ local droid_rifle =
     radar_range = 1,
     can_open_gates = true,
     movement_speed = 0.08,
+    ai_settings =
+    {
+      do_separation = true,
+      allow_destroy_when_commands_fail = false
+    },
 	friendly_map_color = droidMapColour,
 	minable = {hardness = 0.1, mining_time = 0.1, result = "droid-rifle"},
 	pollution_to_join_attack = 0.0,
@@ -658,6 +674,11 @@ local droid_rocket =
     sticker_box = {{-0.5, -0.5}, {0.5, 0.5}},
     vision_distance = 30,
     radar_range = 1,
+    ai_settings =
+    {
+      do_separation = true,
+      allow_destroy_when_commands_fail = false
+    },
     can_open_gates = true,
 	  friendly_map_color = droidMapColour,
     movement_speed = 0.11,
@@ -815,13 +836,18 @@ local terminator =
   has_belt_immunity = true,
   max_health = 300 * HEALTH_SCALAR,
   alert_when_damaged = false,
-  healing_per_tick = 0.02,
+  healing_per_tick = 0.005,
   friendly_map_color = droidMapColour,
   collision_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8*droidscale, 0.8*droidscale}},
   selection_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8, 0.8*droidscale}},
   sticker_box = {{-0.5, -0.5}, {0.5, 0.5}},
   vision_distance = 30,
   radar_range = 1,
+  ai_settings =
+  {
+    do_separation = true,
+    allow_destroy_when_commands_fail = false
+  },
   can_open_gates = true,
   movement_speed = 0.18,
 	minable = {hardness = 0.1, mining_time = 0.1, result = "terminator"},
@@ -1443,12 +1469,17 @@ local basic_constructor = {
   order = "e-a-b-d",
   max_health = 120,
   alert_when_damaged = false,
-  healing_per_tick = 0.01,
+  healing_per_tick = 0.001,
   collision_box = { { -0.8*droidscale, -0.8*droidscale }, { 0.8*droidscale, 0.8*droidscale } },
   selection_box = { { -0.8*droidscale, -0.8*droidscale }, { 0.8*droidscale, 0.8*droidscale } },
   sticker_box = { { -0.5, -0.5 }, { 0.5, 0.5 } },
   vision_distance = 30,
   movement_speed = 0.11,
+  ai_settings =
+  {
+    do_separation = true,
+    allow_destroy_when_commands_fail = false
+  },
   minable = { hardness = 0.1, mining_time = 0.1, result = "basic-constructor" },
   pollution_to_join_attack = 0,
   distraction_cooldown = 0,
@@ -1526,6 +1557,7 @@ local basic_constructor = {
     projectile_center = { 0, 0.5 },
     projectile_creation_distance = 0.6,
     range = 8,
+    min_range = 0,
     sound = make_heavy_shot_sounds(1.0),
     animation = {
       filename = "__robotarmy__/graphics/entity/droid_repair_idle_sheet.png",

@@ -673,11 +673,11 @@ function containsSpawnableDroid(inv)
 
             for i, j in pairs(spawnable) do
                 --LOGGER.log(string.format("spawnable list %s , %s", i, j))
-                local spawnable = convertToMatchable(j)
+                local spawnableItem = convertToMatchable(j)
                 --LOGGER.log(spawnable)
-                if(string.find(itemName, spawnable)) then --example, in "droid-smg" find "droid-smg", but the names have been adjusted to replace '-' with '0' to allow string.find to work. turns out hyphens are an escape charater, THANKS LUA!!
+                if(string.find(itemName, spawnableItem)) then --example, in "droid-smg" find "droid-smg", but the names have been adjusted to replace '-' with '0' to allow string.find to work. turns out hyphens are an escape charater, THANKS LUA!!
                     --convert to spawnable entity name
-                    local realName = convertToEntityNames(spawnable)
+                    local realName = convertToEntityNames(spawnableItem)
                     return realName, origItemName -- should return the name of the item as a string which is then spawnable. eg "droid-smg"
                 end
                 -- if the entry 'j' is found in the item name for example droid-smg is found in droid-smg

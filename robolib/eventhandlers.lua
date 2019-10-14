@@ -220,11 +220,6 @@ function processSpawnedDroid(droid, guard, guardPos, manuallyPlaced)
     end
 
     addMemberToSquad(squad, droid)
-    if manuallyPlaced then
-        LOGGER.log(string.format(" # # # # Manually placed droid causing squad %d to request new orders.",
-                                 squad.squadID))
-        squad.command.state_changed_since_last_command = true
-    end
 
     -- code to handle adding new member to a squad that is guarding/patrolling
     if guard == true or squad.command.type == commands.guard then
@@ -260,65 +255,124 @@ function processDroidAssemblers(force)
         for index, assembler in pairs(global.DroidAssemblers[force.name]) do
             if assembler and assembler.valid and assembler.force == force then
               
-                local inv = assembler.get_inventory(defines.inventory.chest) --gets us a LuaInventory
-                -- checks list of spawnable droid names, returns nil if none found. otherwise we get a spawnable entity name
-                local spawnableDroidName, itemNameUsed = containsSpawnableDroid(inv)
-                if (spawnableDroidName ~= nil and type(spawnableDroidName) == "string") then
-                    -- uses assmbler pos, direction, and spawns droid at an offset +- random amount. Does a final "find_non_colliding_position" before returning
-                    
-                    --maintain the assembler squad list with only living units.
-                    if not global.assemblerSquad then global.assemblerSquad = {} end
-                    if not global.assemblerSquad[assembler.unit_number] then global.assemblerSquad[assembler.unit_number] = {} end
-                    
-                    if not global.assemblerSquad[assembler.unit_number].members then global.assemblerSquad[assembler.unit_number].members = {} end
+                checkSpawn(assembler)
+                --prototyping stuff - find nearest enemy within hunt radius, iterate through member list and set to attack-move.
+                local enemy = assembler.surface.find_nearest_enemy({position= assembler.position, max_distance = SQUAD_HUNT_RADIUS, force=assembler.force})
+                if global.assemblerSquad and enemy and enemy.valid and global.assemblerSquad[assembler.unit_number] and global.assemblerSquad[assembler.unit_number].members then
+                    local memberTable = global.assemblerSquad[assembler.unit_number].members
+                    local commandTable = global.assemblerSquad[assembler.unit_number].commands
+                    for index, unit in pairs(memberTable) do
+                        if unit.valid then
+                            local command =  commandTable[unit.unit_number]
+                            if command then
+                                if command ~= defines.command.attack_area then
+                                    commandTable[unit.unit_number] = defines.command.attack_area
 
-                    for index , unit in pairs(global.assemblerSquad[assembler.unit_number].members) do
-                        if not unit.valid then global.assemblerSquad[assembler.unit_number].members[index] = nil end
-                    end
+                                    unit.set_command({type=defines.command.attack_area,
+                                                            destination=enemy.position,
+                                                            radius=32, 
+                                                            distraction=defines.distraction.by_anything}) 
+                                    end
+                            else
 
-                    global.assemblerSquad[assembler.unit_number].numMembers = #global.assemblerSquad[assembler.unit_number].members
-                    local squadTable = global.assemblerSquad[assembler.unit_number]
-                    --maintain the unit -> assembler association tables. 
-                    if not global.assemblerAssignment then global.assemblerAssignment = {} end
-                    
+                                commandTable[unit.unit_number] = defines.command.attack_area
 
-                    -- check surrounding area to see if we have reached a limit of spawned droids, to prevent a constantly spawning situation
-                    if (squadTable.numMembers < getSquadHuntSize(assembler.force) )  then
-                        local droidPos =  getDroidSpawnLocation(assembler, true)
-                        if droidPos then
-                            local returnedEntity = assembler.surface.create_entity(
-                                {name = spawnableDroidName,
-                                 position = droidPos,
-                                 direction = defines.direction.east,
-                                 force = assembler.force })
-
-                            if returnedEntity then
+                                unit.set_command({type=defines.command.attack_area,
+                                                        destination=enemy.position,
+                                                        radius=32, 
+                                                        distraction=defines.distraction.by_anything}) 
                                 
-                                inv.remove({name=returnedEntity.name, count=1}) --clear output slot
-                                table.insert(squadTable.members, returnedEntity)
-                                squadTable.numMembers = squadTable.numMembers + 1
-                                --game.forces[assembler.force.name].print("assembler unit list size: " .. #global.assemblerSquad[assembler.unit_number].members)
 
-                                 --put the assembler's reference in table key'd by the unit's unique number. allows us to work backwards and find the assembler the unit belongs to, and get the the whole squad.
-                                global.assemblerAssignment[returnedEntity.unit_number] = assembler 
-
-                                if not game.active_mods["Unit_Control"] then
-                                    processSpawnedDroid(returnedEntity)
-                                else
-                                    script.raise_event(defines.events.on_entity_spawned, {entity = returnedEntity, spawner = assembler})
-                                end
-                            end
+                            end 
                             
                         end
-                    else
-                        --Game.print_force(force, "Cannot spawn droid, too many droids or obstructions around droid assembler!")
                     end
-                end
-            end
-        end
+                end 
+            end -- end if assembler is valid and same force as the force being processed. 
+        end -- end for eac assembler in force's droid assembler table..
+    end -- end if droid assemblers table and force's table is there
+end --end processDroidAssemblers function
+
+--handler for the on_ai_command_completed event.
+function handleTaskCompleted(event)
+    if not global.assemblerAssignment or not global.assemblerAssignment[event.unit_number] then return end
+--use the unit number to find which unit/squad the unit belonged to, and set its appropriate command state for new commands from the master (assembler)
+    local assembler = global.assemblerAssignment[event.unit_number] 
+    if not assembler then return end
+    if not assembler.valid then return end 
+    
+    
+    local squadTable = global.assemblerSquad[assembler.unit_number]
+    if not squadTable then return end
+
+    squadTable.commands[event.unit_number] = defines.command.wander
+    local unit = squadTable.members[event.unit_number]
+    if unit and unit.valid then
+        unit.set_command({type=defines.command.wander, position=unit.position, radius=5, ticks_to_wait=150})
     end
 end
 
+function checkSpawn(assembler)
+    local inv = assembler.get_inventory(defines.inventory.chest) --gets us a LuaInventory
+    -- checks list of spawnable droid names, returns nil if none found. otherwise we get a spawnable entity name
+    local spawnableDroidName, itemNameUsed = containsSpawnableDroid(inv)
+    if (spawnableDroidName ~= nil and type(spawnableDroidName) == "string") then
+        -- uses assmbler pos, direction, and spawns droid at an offset +- random amount. Does a final "find_non_colliding_position" before returning
+        
+        --maintain the assembler squad list with only living units.
+        if not global.assemblerSquad then global.assemblerSquad = {} end
+        if not global.assemblerSquad[assembler.unit_number] then global.assemblerSquad[assembler.unit_number] = {} end
+        
+        if not global.assemblerSquad[assembler.unit_number].members then global.assemblerSquad[assembler.unit_number].members = {} end
+        if not global.assemblerSquad[assembler.unit_number].commands then global.assemblerSquad[assembler.unit_number].commands = {} end
+
+        for index , unit in pairs(global.assemblerSquad[assembler.unit_number].members) do
+            if not unit.valid then global.assemblerSquad[assembler.unit_number].members[index] = nil end
+        end
+
+        global.assemblerSquad[assembler.unit_number].numMembers = #global.assemblerSquad[assembler.unit_number].members
+        local squadTable = global.assemblerSquad[assembler.unit_number]
+        --maintain the unit -> assembler association tables. 
+        if not global.assemblerAssignment then global.assemblerAssignment = {} end
+        
+
+        -- check surrounding area to see if we have reached a limit of spawned droids, to prevent a constantly spawning situation
+        if (squadTable.numMembers < getSquadHuntSize(assembler.force) )  then
+            local droidPos =  getDroidSpawnLocation(assembler, true)
+            if droidPos then
+                local returnedEntity = assembler.surface.create_entity(
+                    {name = spawnableDroidName,
+                     position = droidPos,
+                     direction = defines.direction.east,
+                     force = assembler.force })
+
+                if returnedEntity then
+
+                    --check if it's a constructor.
+                    checkIfConstructor(returnedEntity)
+
+                    inv.remove({name=returnedEntity.name, count=1}) --clear output slot
+                    table.insert(squadTable.members, returnedEntity)
+                    squadTable.numMembers = squadTable.numMembers + 1
+                    --game.forces[assembler.force.name].print("assembler unit list size: " .. #global.assemblerSquad[assembler.unit_number].members)
+
+                     --put the assembler's reference in table key'd by the unit's unique number. allows us to work backwards and find the assembler the unit belongs to, and get the the whole squad.
+                    global.assemblerAssignment[returnedEntity.unit_number] = assembler 
+
+                    if not game.active_mods["Unit_Control"] then
+                        --processSpawnedDroid(returnedEntity)
+                    else
+                        script.raise_event(defines.events.on_entity_spawned, {entity = returnedEntity, spawner = assembler})
+                    end
+                end
+                
+            end
+        else
+            --Game.print_force(force, "Cannot spawn droid, too many droids or obstructions around droid assembler!")
+        end
+    end
+
+end
 
 function processDroidGuardStations(force)
     --handle guard station spawning here
@@ -399,7 +453,8 @@ function updateSelectionCircles(force)
 
 end
 
-function tickForces(forces, tick)
+function tickForces(tick)
+    local forces = game.forces
     for _, force in pairs(forces) do
         if force.name ~= "enemy" and force.name ~= "neutral" then
             if tick % ASSEMBLER_UPDATE_TICKRATE == 0 then
@@ -412,15 +467,17 @@ function tickForces(forces, tick)
             if tick % 1200 == 0 then
                 log_session_statistics(force)
             end
-
-			updateSelectionCircles(force)
+            
+            if( tick % 5 == 0) then
+                updateSelectionCircles(force)
+            end
 
         end
     end
 end
 
 
-CHECK_FOR_NEAREST_ENEMY_TO_ASSEMBLER_EVERY = 3600 -- in ticks
+CHECK_FOR_NEAREST_ENEMY_TO_ASSEMBLER_EVERY = 600 -- in ticks
 
 function processDroidAssemblersForTick(force, tick)
     local forceAssemblerRetreatTable = global.AssemblerRetreatTables[force.name]
@@ -480,11 +537,7 @@ function handleOnBuiltEntity(event)
         local entity = event.created_entity
 		local player = game.players[event.player_index]
         handleUnitBuilt(event, entity, player)
-        if table.contains(squadCapable, entity.name) then
-            if not game.active_mods["Unit_Control"] then
-                processSpawnedDroid(entity, false, nil, true) --this deals with droids spawning
-            end
-        end
+       
     end
 end -- handleOnBuiltEntity
 
@@ -510,17 +563,13 @@ end -- handleOnRobotBuiltEntity
 -- MAIN ENTRY POINT IN-GAME
 -- during the on-tick event, lets check if we need to update squad AI, spawn droids from assemblers, or update bot counters, etc
 function handleTick(event)
-    local forces = game.forces
-
-    tickForces(forces, event.tick)
-
-    if (event.tick % BOT_COUNTERS_UPDATE_TICKRATE == 0) then
-        doCounterUpdate()
-        checkSettingsModules()
-    end
-
+    tickForces(event.tick)
 end -- handleTick
 
+function botCounterUpdates(event)
+        doCounterUpdate()
+        checkSettingsModules()
+end
 
 function handleForceCreated(event)
     force = event.force
@@ -621,6 +670,8 @@ function processConstructionUnits(force)
     end  --end if global tables exist
 end -- end of process construction units 
 
+
+--put any useful logic in here, for checking player spawned units.
 function handleUnitBuilt(event, entity, player)
     if not event or not entity or not player then 
         game.print("error in RA:handleunitbuilt!")
@@ -628,13 +679,21 @@ function handleUnitBuilt(event, entity, player)
     end
     --add any list management here for newly spawned units
     -- check if it's an event. if event is nil, then it was a script spawned unit.
+    checkIfConstructor(entity)
+
+end
+
+function checkIfConstructor(entity)
+    if not entity or entity.valid == false then return end
     if entity.name == "basic-constructor" then 
         if not global.Constructors then global.Constructors = {} end
         if not global.Constructors[entity.force.name] then global.Constructors[entity.force.name] = {} end
 
         table.insert(global.Constructors[entity.force.name], entity)
     end
+
 end
+
 
 function constructorTickUpdates()  --registered for nth tick in control.lua
     local forces = game.forces

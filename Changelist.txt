@@ -3,3 +3,6 @@ changes from 0.4.3 to 0.5.0:
 - added engineer droid
 - added construction warehouse for engineer droid to build from items within them
 - fixed issue where biter factions mod would cause crash with new forces (robot army try to run those forces' squad tick logic table functions)
+- increase rifle bot HP from 40 to 50. 
+- decreased self-healing per tick by factor of 10. get engineer droids if you want field repairs! Terminator decreased by only factor of 4, still heals fast.
+- added "allow_destroy_when_commands_fail" setting to all droids and flying units.

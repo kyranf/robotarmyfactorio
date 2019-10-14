@@ -25,7 +25,11 @@ data:extend({
     selection_box = {{-0.3, -0.3}, {0.3, 0.3}},
     sticker_box = {{-0.1, -0.1}, {0.1, 0.1}},
     distraction_cooldown = 300,
-    
+    ai_settings =
+    {
+      do_separation = true,
+      allow_destroy_when_commands_fail = false
+    },
     
     attack_parameters =
     {
