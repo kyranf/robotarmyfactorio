@@ -131,7 +131,8 @@ local droid_smg =
 	pollution_to_join_attack = 0.0,
 	distraction_cooldown = 0,
   distance_per_frame =  0.05,
-	friendly_map_color = droidMapColour,
+  friendly_map_color = droidMapColour,
+  enemy_map_color = {r = .100, g = .0, b = .0},
 	dying_explosion = "medium-explosion",
 	resistances =
     {
@@ -313,6 +314,7 @@ local droid_flame =
     distraction_cooldown = 0,
     distance_per_frame =  0.05,
     friendly_map_color = droidMapColour,
+  enemy_map_color = {r = .100, g = .0, b = .0},
     dying_explosion = "medium-explosion",
     resistances =
     {
@@ -498,6 +500,7 @@ local droid_rifle =
       allow_destroy_when_commands_fail = false
     },
 	friendly_map_color = droidMapColour,
+  enemy_map_color = {r = .100, g = .0, b = .0},
 	minable = {hardness = 0.1, mining_time = 0.1, result = "droid-rifle"},
 	pollution_to_join_attack = 0.0,
 	distraction_cooldown = 0,
@@ -681,6 +684,7 @@ local droid_rocket =
     },
     can_open_gates = true,
 	  friendly_map_color = droidMapColour,
+  enemy_map_color = {r = .100, g = .0, b = .0},
     movement_speed = 0.11,
 	minable = {hardness = 0.1, mining_time = 0.1, result = "droid-rocket"},
 	pollution_to_join_attack = 0.0,
@@ -838,6 +842,7 @@ local terminator =
   alert_when_damaged = false,
   healing_per_tick = 0.005,
   friendly_map_color = droidMapColour,
+  enemy_map_color = {r = .100, g = .0, b = .0},
   collision_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8*droidscale, 0.8*droidscale}},
   selection_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8, 0.8*droidscale}},
   sticker_box = {{-0.5, -0.5}, {0.5, 0.5}},

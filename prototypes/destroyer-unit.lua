@@ -9,9 +9,9 @@ data:extend({
     subgroup="creatures",
     has_belt_immunity = true,
     max_health = 120 * HEALTH_SCALAR,
-	alert_when_damaged = false,
-    order="b-b-c",
-	minable = {hardness = 0.1, mining_time = 0.1, result = "destroyer-unit"},
+  minable = {hardness = 0.1, mining_time = 0.1, result = "destroyer-unit"},
+  alert_when_damaged = false,
+  order="b-b-c",
     resistances =
     {
       {
@@ -20,7 +20,8 @@ data:extend({
       }
     },
     healing_per_tick = 0,
-    collision_box = {{0, 0}, {0, 0}},
+    collision_box = nil,
+    collision_mask = { "ghost-layer"},
     selection_box = {{-0.3, -0.3}, {0.3, 0.3}},
     sticker_box = {{-0.1, -0.1}, {0.1, 0.1}},
     distraction_cooldown = 300,
@@ -101,7 +102,8 @@ data:extend({
      }
     },
     
-    
+    friendly_map_color = {r = .05, g = .70, b = .29},
+    enemy_map_color = {r = .100, g = .0, b = .0},
     vision_distance = 45,
     radar_range = 1,
     can_open_gates = true,

@@ -187,7 +187,7 @@ function checkSettingsModules()
 end
 
 
-function checkValidSignalSetting(force, signal, count)
+function checkValidSignalSetting(force, signal, count, huntSize)
     if signal == "signal-squad-size" then
         if count > 0 then  --all we care about is positive numbers here
             return true
@@ -204,8 +204,8 @@ function checkValidSignalSetting(force, signal, count)
         end
     elseif signal == "signal-retreat-size" then
         -- we care about retreat size being smaller than the current huntSizeOverride if there is one, otherwise just less than the default hunt squad size.
-        if global.settings[force.name].huntSizeOverride then
-            if count > 0 and count < global.settings[force.name].huntSizeOverride then
+        if huntSize then
+            if count > 0 and count < huntSize then
                 return true
             end
         elseif count > 0 and count < SQUAD_SIZE_MIN_BEFORE_HUNT then
@@ -486,17 +486,17 @@ function handleBuiltDroidSettings(event)
     local entity = event.created_entity
     local force = entity.force
 
-    if not global.settingsModule[force.name] or not global.settingsModule[force.name].valid  then
+    --if not global.settingsModule[force.name] or not global.settingsModule[force.name].valid  then
         --LOGGER.log( string.format("Adding settings module to force %s", force.name) )
         global.settingsModule[force.name] = entity   --this is now the force's settings module.
-    else
+    --else
 
-        Game.print_force(force,"Error: Can only place one settings module!")
-        entity.surface.spill_item_stack(entity.position, {name="droid-settings", count = 1})
-        entity.destroy({raise_destroy = true})
+        --Game.print_force(force,"Error: Can only place one settings module!")
+        --entity.surface.spill_item_stack(entity.position, {name="droid-settings", count = 1})
+        --entity.destroy({raise_destroy = true})
         --LOGGER.log("WARNING: Can only place one settings module!")
 
-    end
+    --end
 end
 
 
@@ -687,3 +687,154 @@ function containsSpawnableDroid(inv)
         return nil -- we failed to get the contents
     end
 end
+
+--this function returns the connected droid counter, if any, of the input 'source' droid assembler entity. if none is found, returns nil. 
+function getConnectedCounterModule(source)
+    if not source.valid then return nil end
+
+    --check green connected entities first. 
+    local connected = source.circuit_connected_entities.green
+    
+    for _,  entity in pairs(connected) do
+        if entity.valid and entity.name == "droid-counter" then
+            return entity --return with the first connected droid counter entity.
+        end
+    end
+
+    --check red connected entities second, if we are still in this function..
+    local connected = source.circuit_connected_entities.red
+    for _,  entity in pairs(connected) do
+        if entity.valid and entity.name == "droid-counter" then
+            return entity --return with the first connected droid counter entity.
+        end
+    end
+    
+    return nil -- if there's nothing returned by now, return nil to represent a failure/no connected counters.
+end 
+
+--this function returns the connected droid settings module, if any, of the input assembler entity. if entity is nil or invalid, function returns nil. 
+--if no attached droid settings module is found, returns nil
+function checkAttachedSettingsModule(assembler)
+    if not assembler.valid then return nil end
+
+    --check green connected entities first. 
+    local connected = assembler.circuit_connected_entities.green
+    
+    for _,  entity in pairs(connected) do
+        if entity.valid and entity.name == "droid-settings" then
+            return entity --return with the first connected droid settings module entity.
+        end
+    end
+
+    --check red connected entities second, if we are still in this function..
+    local connected = assembler.circuit_connected_entities.red
+    for _,  entity in pairs(connected) do
+        if entity.valid and entity.name == "droid-settings" then
+            return entity --return with the first connected droid settings module entity.
+        end
+    end
+    
+    return nil -- if there's nothing returned by now, return nil to represent a failure/no connected settings module.
+end
+
+
+--this function returns the number of times the given string name was found in the table entityTable of Factorio LuaEntities 
+function getCountOfEntityNameInTable(name, entityTable)
+
+    local count = 0
+    for key, entity in pairs(entityTable) do 
+
+        if(entity.valid) then 
+            if entity.name == name then
+                count = count + 1
+            end 
+        else 
+            entityTable[key] = nil --maintain the table if it's an invalid entity.
+        end
+
+    end 
+
+    return count
+end 
+
+--this function takes in a droid assembler and connected counter, and updates signal values in the counter. 
+--this function doesn't return anything, just exits silently if either input is nil or game-invalid, or the globals/assembler squad tables needed are nil. 
+function updateCountsFromDroidAssembler(assembler, counter)
+
+    if not assembler or not assembler.valid then return end
+    if not counter or not counter.valid then return end
+    
+    --grab the assembler's unit list also known as members table.
+    -- first sanity/valid check everything..
+    if not global.assemblerSquad then return end
+    if not global.assemblerSquad[assembler.unit_number] then return end
+    if not global.assemblerSquad[assembler.unit_number].members then return end 
+    if not global.assemblerSquad[assembler.unit_number].numMembers then return end
+
+    local unitsList = global.assemblerSquad[assembler.unit_number].members 
+    local squadSize =  global.assemblerSquad[assembler.unit_number].numMembers
+   
+    if table_size(unitsList) > 0 then 
+        
+        local rifleCount = getCountOfEntityNameInTable("droid-rifle", unitsList)
+        local smgCount = getCountOfEntityNameInTable("droid-smg", unitsList)
+        local rocketCount = getCountOfEntityNameInTable("droid-rocket", unitsList)
+        local flameCount = getCountOfEntityNameInTable("droid-flame", unitsList)
+        local terminatorCount = getCountOfEntityNameInTable("terminator", unitsList)
+        local engineerCount = getCountOfEntityNameInTable("basic-constructor", unitsList)
+        
+        local circuitParams = {
+            parameters={
+                {index=1, count = squadSize, signal={type="virtual",name="signal-droid-alive-count"}}, --end global droid count
+                {index=2, count = rifleCount, signal={type="virtual",name="signal-droid-rifle-count"}},
+                {index=3, count = smgCount, signal={type="virtual",name="signal-droid-smg-count"}},
+                {index=4, count = rocketCount, signal={type="virtual",name="signal-droid-rocket-count"}},
+                {index=5, count = flameCount, signal={type="virtual",name="signal-droid-flame-count"}},
+                {index=6, count = terminatorCount, signal={type="virtual",name="signal-droid-terminator-count"}},
+                {index=7, count = engineerCount, signal={type="virtual",name="signal-droid-engineer-count"}}
+            } --end parameters table
+        }-- end circuitParams
+
+        counter.get_or_create_control_behavior().parameters = circuitParams
+        
+        
+    end -- end if table has something in it
+
+end
+
+--this function goes through the settings module entity input, and returns the 4 settings override values as a multi-return list, note the values start valid (or should be), 
+-- and only if we find the signal does this function modify them! i.e if huntSize is given as 10 at the beginning, and we can't find the signal in the list, 
+--it stays untouched as 10 and returned by the function as a return value.  
+function getSettingsOverrides(settingsModule, huntSize, huntRadius, retreatSize, garrisonSize)
+
+    --get the parameters, go through and check each one, while also checking the values are logically okay.
+    local behaviour = settingsModule.get_or_create_control_behavior() -- a LuaConstantCombinatorControlBehavior
+    local parameters = behaviour.parameters.parameters -- ridiculous, we have to do parameters.parameters. WHY WUBE WHY
+
+    for index, parameter in pairs(parameters) do
+        
+        if parameter.count and parameter.signal.name ~= nil then
+           -- game.print("index: "..index.." param name: "..parameter.signal.name.." count: "..parameter.count)
+            local sigName = parameter.signal.name
+            if sigName == "signal-squad-size" then --huntSizeOverride
+
+                if checkValidSignalSetting(settingsModule.force, sigName, parameter.count) == true then
+                    huntSize = parameter.count
+                end
+            elseif sigName == "signal-guard-size" then --guardSizeOverride
+                if checkValidSignalSetting(settingsModule.force, sigName, parameter.count) == true then
+                    garrisonSize = parameter.count
+                end
+            elseif sigName == "signal-retreat-size" then --retreatSizeOverride
+                if checkValidSignalSetting(settingsModule.force, sigName, parameter.count, huntSize) == true then
+                    retreatSize = parameter.count
+                end
+            elseif sigName == "signal-hunt-radius" then --huntRangeOverride
+                if checkValidSignalSetting(settingsModule.force, sigName, parameter.count) == true then
+                    huntRadius = parameter.count
+                end
+            end
+        end
+    end
+    return huntSize, huntRadius, retreatSize, garrisonSize
+end 

@@ -254,39 +254,90 @@ function processDroidAssemblers(force)
         --for each building in their list using name as key
         for index, assembler in pairs(global.DroidAssemblers[force.name]) do
             if assembler and assembler.valid and assembler.force == force then
-              
-                checkSpawn(assembler)
+                
+                --see if there is a wire-attached settings module. if there is, that will dictate some of the logic used.
+                local settingsModule = checkAttachedSettingsModule(assembler)
+                
+                --set the various spawn and attack settings to default values
+                local huntSize = SQUAD_SIZE_MIN_BEFORE_HUNT
+                local huntRadius = SQUAD_HUNT_RADIUS  
+                local retreatSize = SQUAD_SIZE_MIN_BEFORE_RETREAT
+                local garrisonSize = GUARD_STATION_GARRISON_SIZE
+
+                --if we found the settings module, overwrite the above values.
+                if settingsModule and settingsModule.valid then 
+                    
+                    huntSize, huntRadius, retreatSize, garrisonSize = getSettingsOverrides(settingsModule, huntSize, huntRadius, retreatSize, garrisonSize)
+                    
+                end 
+
+                checkSpawn(assembler, garrisonSize)
+               
                 --prototyping stuff - find nearest enemy within hunt radius, iterate through member list and set to attack-move.
-                local enemy = assembler.surface.find_nearest_enemy({position= assembler.position, max_distance = SQUAD_HUNT_RADIUS, force=assembler.force})
-                if global.assemblerSquad and enemy and enemy.valid and global.assemblerSquad[assembler.unit_number] and global.assemblerSquad[assembler.unit_number].members then
+                if global.assemblerSquad and global.assemblerSquad[assembler.unit_number] and global.assemblerSquad[assembler.unit_number].members then
                     local memberTable = global.assemblerSquad[assembler.unit_number].members
                     local commandTable = global.assemblerSquad[assembler.unit_number].commands
-                    for index, unit in pairs(memberTable) do
-                        if unit.valid then
-                            local command =  commandTable[unit.unit_number]
-                            if command then
-                                if command ~= defines.command.attack_area then
-                                    commandTable[unit.unit_number] = defines.command.attack_area
+                    
+                    if(global.assemblerSquad[assembler.unit_number].numMembers >= huntSize) then 
+                        
+                        local enemy = assembler.surface.find_nearest_enemy({position= assembler.position, max_distance = huntRadius, force=assembler.force})
 
-                                    unit.set_command({type=defines.command.attack_area,
-                                                            destination=enemy.position,
-                                                            radius=32, 
-                                                            distraction=defines.distraction.by_anything}) 
-                                    end
-                            else
+                        if (enemy and enemy.valid ) then 
 
-                                commandTable[unit.unit_number] = defines.command.attack_area
+                            for index, unit in pairs(memberTable) do
 
-                                unit.set_command({type=defines.command.attack_area,
-                                                        destination=enemy.position,
-                                                        radius=32, 
-                                                        distraction=defines.distraction.by_anything}) 
-                                
+                                if unit.valid then
+                                    local command =  commandTable[unit.unit_number]
+                                    if command then
+                                        if command ~= defines.command.attack_area then
+                                            commandTable[unit.unit_number] = defines.command.attack_area
 
-                            end 
+                                            unit.set_command({type=defines.command.attack_area,
+                                                                    destination=enemy.position,
+                                                                    radius=32, 
+                                                                    distraction=defines.distraction.by_anything}) 
+                                            end
+                                    else
+
+                                        commandTable[unit.unit_number] = defines.command.attack_area
+
+                                        unit.set_command({type=defines.command.attack_area,
+                                                                destination=enemy.position,
+                                                                radius=32, 
+                                                                distraction=defines.distraction.by_anything}) 
+                                        
+
+                                    end 
+                                end
+
+                            end --end for each unit in the member table 
+
+                        end --end if the enemy target is found, and is valid.
+                    else
+                        if(global.assemblerSquad[assembler.unit_number].numMembers <= retreatSize ) then 
                             
-                        end
-                    end
+                            for index, unit in pairs(memberTable) do 
+                                if(unit.valid) then 
+                                    if util.distance(assembler.position, unit.position) > 100 then 
+                                        --game.print("Setting retreat command, retreat size is "..retreatSize.." squad size is: "..global.assemblerSquad[assembler.unit_number].numMembers)
+                                        unit.set_command({type=defines.command.attack_area,
+                                                                        destination=assembler.position,
+                                                                        radius=32, 
+                                                                        distraction=defines.distraction.by_damage}) 
+                                    end
+                                else 
+                                    memberTable[index] = nil
+                                end 
+                            end
+
+                        end 
+                    end --end we have enough members in the squad to start hunting. 
+                end -- end if assembler squad and related tables are non-nil 
+                
+                --update attached counter module, if there is one. 
+                local counterAttached = getConnectedCounterModule(assembler) 
+                if counterAttached and counterAttached.valid then 
+                    updateCountsFromDroidAssembler(assembler, counterAttached)
                 end 
             end -- end if assembler is valid and same force as the force being processed. 
         end -- end for eac assembler in force's droid assembler table..
@@ -312,7 +363,7 @@ function handleTaskCompleted(event)
     end
 end
 
-function checkSpawn(assembler)
+function checkSpawn(assembler, squadHuntSize)
     local inv = assembler.get_inventory(defines.inventory.chest) --gets us a LuaInventory
     -- checks list of spawnable droid names, returns nil if none found. otherwise we get a spawnable entity name
     local spawnableDroidName, itemNameUsed = containsSpawnableDroid(inv)
@@ -330,14 +381,15 @@ function checkSpawn(assembler)
             if not unit.valid then global.assemblerSquad[assembler.unit_number].members[index] = nil end
         end
 
-        global.assemblerSquad[assembler.unit_number].numMembers = #global.assemblerSquad[assembler.unit_number].members
+        global.assemblerSquad[assembler.unit_number].numMembers = table_size(global.assemblerSquad[assembler.unit_number].members)
         local squadTable = global.assemblerSquad[assembler.unit_number]
         --maintain the unit -> assembler association tables. 
         if not global.assemblerAssignment then global.assemblerAssignment = {} end
         
 
         -- check surrounding area to see if we have reached a limit of spawned droids, to prevent a constantly spawning situation
-        if (squadTable.numMembers < getSquadHuntSize(assembler.force) )  then
+        --if (squadTable.numMembers < getSquadHuntSize(assembler.force) )  then
+        if (squadTable.numMembers < squadHuntSize) then
             local droidPos =  getDroidSpawnLocation(assembler, true)
             if droidPos then
                 local returnedEntity = assembler.surface.create_entity(
@@ -567,8 +619,8 @@ function handleTick(event)
 end -- handleTick
 
 function botCounterUpdates(event)
-        doCounterUpdate()
-        checkSettingsModules()
+       -- doCounterUpdate()
+       -- checkSettingsModules()
 end
 
 function handleForceCreated(event)

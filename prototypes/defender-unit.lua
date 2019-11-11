@@ -115,7 +115,8 @@ data:extend({
      }
     },
     
-    
+    friendly_map_color = {r = .05, g = .70, b = .29},
+    enemy_map_color = {r = .100, g = .0, b = .0},
     vision_distance = 45,
     radar_range = 1,
     can_open_gates = true,
