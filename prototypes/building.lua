@@ -76,6 +76,7 @@ local guardStation = {
 	flags = {"placeable-neutral", "placeable-player", "player-creation"},
 	minable = {hardness = 0.2, mining_time = 0.5, result = "droid-guard-station"},
 	max_health = 400,
+	is_deployer = true,
 	corpse = "big-remnants",
 	dying_explosion = "medium-explosion",
 	resistances =

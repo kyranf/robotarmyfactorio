@@ -1,3 +1,9 @@
 1. deal with https://github.com/kyranf/robotarmyfactorio/issues/158
 2. fixed destroy calls to ensure they raise destroy events for the units.
 3. deal with https://github.com/kyranf/robotarmyfactorio/issues/151
+
+Make squad selection tool interface with unit control tool system to select all the units owned by the assembler which the unit belongs to. 
+note: above change needs Klonan's unit control mod remote interface access
+
+change the names and icons of the droid counter stuff, and settings modules, 
+update localisations and descriptions to reflect the new mechanics. 

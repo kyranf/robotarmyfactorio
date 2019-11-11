@@ -295,7 +295,7 @@ function processDroidAssemblers(force)
                                             unit.set_command({type=defines.command.attack_area,
                                                                     destination=enemy.position,
                                                                     radius=32, 
-                                                                    distraction=defines.distraction.by_anything}) 
+                                                                    distraction=defines.distraction.by_enemy}) 
                                             end
                                     else
 
@@ -304,7 +304,7 @@ function processDroidAssemblers(force)
                                         unit.set_command({type=defines.command.attack_area,
                                                                 destination=enemy.position,
                                                                 radius=32, 
-                                                                distraction=defines.distraction.by_anything}) 
+                                                                distraction=defines.distraction.by_enemy}) 
                                         
 
                                     end 
@@ -314,6 +314,7 @@ function processDroidAssemblers(force)
 
                         end --end if the enemy target is found, and is valid.
                     else
+                        --we might be needing to retreat
                         if(global.assemblerSquad[assembler.unit_number].numMembers <= retreatSize ) then 
                             
                             for index, unit in pairs(memberTable) do 
@@ -356,10 +357,10 @@ function handleTaskCompleted(event)
     local squadTable = global.assemblerSquad[assembler.unit_number]
     if not squadTable then return end
 
-    squadTable.commands[event.unit_number] = defines.command.wander
+    squadTable.commands[event.unit_number] = defines.command.stop
     local unit = squadTable.members[event.unit_number]
     if unit and unit.valid then
-        unit.set_command({type=defines.command.wander, position=unit.position, radius=5, ticks_to_wait=150})
+        unit.set_command({type=defines.command.stop})
     end
 end
 
@@ -442,12 +443,28 @@ function processDroidGuardStations(force)
                 for index , unit in pairs(global.guardSquadMembers[station.unit_number] ) do
                     if not unit.valid then global.guardSquadMembers[station.unit_number][index] = nil end
                 end
-                local squadsize = #global.guardSquadMembers[station.unit_number] 
+                local squadsize = table_size(global.guardSquadMembers[station.unit_number] )
+                local memberTable = global.guardSquadMembers[station.unit_number]
                 
-                --game.forces[station.force.name].print("guard station unit list size: " .. squadsize)
+
+                 --see if there is a wire-attached settings module. if there is, that will dictate some of the logic used.
+                 local settingsModule = checkAttachedSettingsModule(station)
                 
-                --local nearby = countNearbyDroids(station.position, station.force, 30) --inputs are position, force, and radius
-                if (spawnableDroidName ~= nil and type(spawnableDroidName) == "string")  and squadsize < getSquadGuardSize(station.force)  then
+                 --set the various spawn and attack settings to default values
+                 local huntSize = SQUAD_SIZE_MIN_BEFORE_HUNT
+                 local huntRadius = DEFAULT_KEEP_RADIUS_CLEAR   -- NOTE THIS IS DIFFERENT - SPECIFICALLY THE KEEP-CLEAR RADIUS NOT THE SQUAD HUNT RADIUS
+                 local retreatSize = SQUAD_SIZE_MIN_BEFORE_RETREAT
+                 local garrisonSize = GUARD_STATION_GARRISON_SIZE
+ 
+                 --if we found the settings module, overwrite the above values.
+                 if settingsModule and settingsModule.valid then 
+                     
+                     huntSize, huntRadius, retreatSize, garrisonSize = getSettingsOverrides(settingsModule, huntSize, huntRadius, retreatSize, garrisonSize)
+                     
+                 end 
+
+                --check inventory for spawnable droids, spawn if we are below-capacity of garrison size. 
+                if (spawnableDroidName ~= nil and type(spawnableDroidName) == "string")  and squadsize < garrisonSize  then
                     -- uses assmbler pos, direction, and spawns droid at an offset +- random amount. Does a final "find_non_colliding_position" before returning
 
                     local droidPos =  getDroidSpawnLocation(station, true)
@@ -471,6 +488,54 @@ function processDroidGuardStations(force)
                         end 
                     end
                 end
+
+                --look for enemies to actively respond to within keep-clear range. note uses keep-clear radius, or modified hunt radius from connected settings module. 
+                local enemy = station.surface.find_nearest_enemy({position= station.position, max_distance = huntRadius, force=station.force})
+
+                if (enemy and enemy.valid ) then 
+
+                    for index, unit in pairs(memberTable) do
+
+                        if unit.valid then
+                            local command =  unit.has_command()
+                            if not command or command == false then
+                                    game.print("setting attack")
+
+                                    local attackCommand = {type=defines.command.attack_area, destination=enemy.position, radius=32, distraction=defines.distraction.by_damage}
+                                    local stopCommand = {type=defines.command.stop}
+                                    local commandList = {attackCommand, stopCommand}
+                                    
+                                    unit.set_command({type= defines.command.compound, structure_type = defines.compound_command.logical_and, commands = commandList })
+                                    
+                            end
+                        end
+
+                    end --end for each unit in the member table 
+
+                end --end if the enemy target is found, and is valid.
+
+                -- if we have no enemy in sight, then try to recall wandering/straying units. 
+                if not enemy or not enemy.valid then 
+                    for index, unit in pairs(memberTable) do
+
+                        if unit.valid then
+                            local command =  unit.has_command()
+                            if not command or command == false then
+                                    game.print("setting retreat")
+                                    unit.set_command({type=defines.command.attack_area,
+                                                            destination=station.position,
+                                                            radius=32, 
+                                                            distraction=defines.distraction.by_damage}) 
+                                    
+                            end
+                        end
+
+                    end --end for each unit in the member table 
+
+
+                end
+
+
             end
         end --end for each station in the guard station table for the force..
     end --end if checking global guard stations table exists
