@@ -499,7 +499,7 @@ function processDroidGuardStations(force)
                         if unit.valid then
                             local command =  unit.has_command()
                             if not command or command == false then
-                                    game.print("setting attack")
+                                    
 
                                     local attackCommand = {type=defines.command.attack_area, destination=enemy.position, radius=32, distraction=defines.distraction.by_damage}
                                     local stopCommand = {type=defines.command.stop}
@@ -521,7 +521,7 @@ function processDroidGuardStations(force)
                         if unit.valid then
                             local command =  unit.has_command()
                             if not command or command == false then
-                                    game.print("setting retreat")
+                                    
                                     unit.set_command({type=defines.command.attack_area,
                                                             destination=station.position,
                                                             radius=32, 
@@ -768,7 +768,7 @@ end
     
 --each force has this function called on it. process force's list of construction units. 
 function processConstructionUnits(force)
-     
+    
     if global.Constructors and global.Constructors[force.name] then
         --for each constructor in the force's list.. process
         for index, constructor in pairs(global.Constructors[force.name]) do
@@ -805,7 +805,7 @@ function checkIfConstructor(entity)
     if entity.name == "basic-constructor" then 
         if not global.Constructors then global.Constructors = {} end
         if not global.Constructors[entity.force.name] then global.Constructors[entity.force.name] = {} end
-
+        
         table.insert(global.Constructors[entity.force.name], entity)
     end
 

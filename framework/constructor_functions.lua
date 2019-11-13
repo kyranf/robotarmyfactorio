@@ -9,7 +9,6 @@ require("stdlib/game")
 
 function basicConstructorCheck(constructor)
 
-
     --  BUILD LOGIC --
 
     --look around the nearby area for ghosts. 
