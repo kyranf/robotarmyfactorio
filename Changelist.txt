@@ -6,3 +6,4 @@ changes from 0.4.3 to 0.5.0:
 - increase rifle bot HP from 40 to 50. 
 - decreased self-healing per tick by factor of 10. get engineer droids if you want field repairs! Terminator decreased by only factor of 4, still heals fast.
 - added "allow_destroy_when_commands_fail" setting to all droids and flying units.
+- fixed icon association https://github.com/kyranf/robotarmyfactorio/issues/158

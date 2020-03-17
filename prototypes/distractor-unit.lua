@@ -31,7 +31,7 @@ data:extend({
       allow_destroy_when_commands_fail = false
     },
     
-    attack_parameters =
+    --[[attack_parameters =
     {
       type = "projectile",
       ammo_category = "combat-robot-laser",
@@ -56,52 +56,76 @@ data:extend({
           }
         }
       },
-      --[[sound =
+ 
+
+      ]]--
+      attack_parameters =
       {
+        type = "beam",
+        ammo_category = "combat-robot-laser",
+        cooldown = 20,
+        cooldown_deviation = 0.15,
+        damage_modifier = 1,
+        range = 14,
+        sound = make_laser_sounds(),
+        ammo_type =
         {
-          filename = "__base__/sound/fight/rocket-launcher.ogg",
-          volume = 0.7
-        }
-      },]]--
-      animation =
-    {   
-      layers =
-      {
-        {
-          filename = "__base__/graphics/entity/distractor-robot/distractor-robot.png",
-          priority = "high",
-          line_length = 16,
-          width = 38,
-          height = 33,
-          frame_count = 1,
-          direction_count = 16,
-          shift = {0, -0.078125}
+          category = "combat-robot-laser",
+          action =
+          {
+            type = "direct",
+            action_delivery =
+            {
+              type = "beam",
+              beam = "laser-beam",
+              max_length = 15,
+              duration = 10,
+              --starting_speed = 0.3
+            }
+          }
         },
-        {
-          filename = "__base__/graphics/entity/distractor-robot/distractor-robot-mask.png",
-          priority = "high",
-          line_length = 16,
-          width = 24,
-          height = 21,
-          frame_count = 1,
-          direction_count = 16,
-          shift = {0, -0.203125},
-          apply_runtime_tint = true
-        },
-        {
-      filename = "__base__/graphics/entity/distractor-robot/distractor-robot-shadow.png",
-      priority = "high",
-      line_length = 16,
-      width = 40,
-      height = 25,
-      frame_count = 1,
-      direction_count = 16,
-      shift = {0.9375, 0.609375}
+        animation =
+        {   
+          layers =
+          {
+            {
+              filename = "__base__/graphics/entity/distractor-robot/distractor-robot.png",
+              priority = "high",
+              line_length = 16,
+              width = 38,
+              height = 33,
+              frame_count = 1,
+              direction_count = 16,
+              shift = {0, -0.078125}
+            },
+            {
+              filename = "__base__/graphics/entity/distractor-robot/distractor-robot-mask.png",
+              priority = "high",
+              line_length = 16,
+              width = 24,
+              height = 21,
+              frame_count = 1,
+              direction_count = 16,
+              shift = {0, -0.203125},
+              apply_runtime_tint = true
+            },
+            {
+              filename = "__base__/graphics/entity/distractor-robot/distractor-robot-shadow.png",
+              priority = "high",
+              line_length = 16,
+              width = 40,
+              height = 25,
+              frame_count = 1,
+              direction_count = 16,
+              shift = {0.9375, 0.609375}
+            },
+          }
+         }
     },
-      }
-     }
-    },
-    
+     
+      --[[
+     
+    ]]--
     friendly_map_color = {r = .05, g = .70, b = .29},
     enemy_map_color = {r = .100, g = .0, b = .0},
     vision_distance = 45,
@@ -129,11 +153,11 @@ data:extend({
     dying_sound =
     {
       {
-        filename = "__base__/sound/fight/small-explosion-1.ogg",
+        filename = "__base__/sound/fight/robot-explosion-1.ogg",
         volume = 0.5
       },
       {
-        filename = "__base__/sound/fight/small-explosion-2.ogg",
+        filename = "__base__/sound/fight/robot-explosion-2.ogg",
         volume = 0.5
       }
     },

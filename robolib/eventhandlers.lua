@@ -32,16 +32,18 @@ function processSquadUpdatesForTick(force_name, tickProcessIndex)
     local forceTickTable = global.updateTable[force_name]
     local squadTable = global.Squads[force_name]
 
+    if(forceTickTable and squadTable) then 
 
-    for i, squadref in pairs(forceTickTable[tickProcessIndex]) do
-        if squadref and squadTable[squadref] then
-            -- local squad = global.Squads[force_name][squadref]
-            -- if not squad.force then squad.force = force
-            updateSquad(squadTable[squadref])
-        else
-            -- the squad has been deleted at some point, so let's stop looping over it here.
-            LOGGER.log(string.format("Removing nil squad %d from tick table", squadref))
-            global.updateTable[force_name][tickProcessIndex][i] = nil
+        for i, squadref in pairs(forceTickTable[tickProcessIndex]) do
+            if squadref and squadTable[squadref] then
+                -- local squad = global.Squads[force_name][squadref]
+                -- if not squad.force then squad.force = force
+                updateSquad(squadTable[squadref])
+            else
+                -- the squad has been deleted at some point, so let's stop looping over it here.
+                LOGGER.log(string.format("Removing nil squad %d from tick table", squadref))
+                global.updateTable[force_name][tickProcessIndex][i] = nil
+            end
         end
     end
 end

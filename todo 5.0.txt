@@ -1,6 +1,11 @@
-1. deal with https://github.com/kyranf/robotarmyfactorio/issues/158
-2. fixed destroy calls to ensure they raise destroy events for the units.
-3. deal with https://github.com/kyranf/robotarmyfactorio/issues/151
+
+increase damage of distractor drones - balance damage ratio vs cost with vanilla drones? 
+
+fix destroy calls (on droid pickup) to ensure they raise destroy events for the units.
+
+deal with https://github.com/kyranf/robotarmyfactorio/issues/165 
+deal with https://github.com/kyranf/robotarmyfactorio/issues/166
+deal with https://github.com/kyranf/robotarmyfactorio/issues/151
 
 Make squad selection tool interface with unit control tool system to select all the units owned by the assembler which the unit belongs to. 
 note: above change needs Klonan's unit control mod remote interface access
@@ -11,3 +16,4 @@ update localisations and descriptions to reflect the new mechanics.
 add flying robot unit counts and icons and signals. 
 
 add constructor unit build logic additional checks - if there are buildings nearby marked for deconstruction, kill them and add them to the first global warehouse with space in it. 
+

@@ -142,11 +142,11 @@ data:extend({
     dying_sound =
     {
       {
-        filename = "__base__/sound/fight/small-explosion-1.ogg",
+        filename = "__base__/sound/fight/robot-explosion-1.ogg",
         volume = 0.5
       },
       {
-        filename = "__base__/sound/fight/small-explosion-2.ogg",
+        filename = "__base__/sound/fight/robot-explosion-2.ogg",
         volume = 0.5
       }
     },
