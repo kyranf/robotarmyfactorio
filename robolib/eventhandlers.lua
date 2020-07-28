@@ -399,7 +399,8 @@ function checkSpawn(assembler, squadHuntSize)
                     {name = spawnableDroidName,
                      position = droidPos,
                      direction = defines.direction.east,
-                     force = assembler.force })
+                     force = assembler.force,
+                     raise_built=true })
 
                 if returnedEntity then
 
@@ -417,7 +418,7 @@ function checkSpawn(assembler, squadHuntSize)
                     if not game.active_mods["Unit_Control"] then
                         --processSpawnedDroid(returnedEntity)
                     else
-                        script.raise_event(defines.events.on_entity_spawned, {entity = returnedEntity, spawner = assembler})
+                        --script.raise_event(defines.events.on_entity_spawned, {entity = returnedEntity, spawner = assembler})
                     end
                 end
                 

@@ -7,3 +7,5 @@ changes from 0.4.3 to 0.5.0:
 - decreased self-healing per tick by factor of 10. get engineer droids if you want field repairs! Terminator decreased by only factor of 4, still heals fast.
 - added "allow_destroy_when_commands_fail" setting to all droids and flying units.
 - fixed icon association https://github.com/kyranf/robotarmyfactorio/issues/158
+- fixed repair-tech used for unlocking constructors and warehouses. phased out by game devs.
+- fixed custominput consuming tag from 'script-only' to 'none', phased out by game devs..
