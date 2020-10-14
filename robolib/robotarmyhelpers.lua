@@ -133,7 +133,11 @@ end
 
 
 function getAssemblerKeepRadiusClear(assembler)
-    return DEFAULT_KEEP_RADIUS_CLEAR
+	if global.settings and global.settings[assembler.force.name] and global.settings[assembler.force.name].keepClearRadiusOverride then
+        return global.settings[force.name].keepClearRadiusOverride    --overriden value from settings combinator for that force
+    else
+        return DEFAULT_KEEP_RADIUS_CLEAR --default one set in config.lua
+    end
 end
 
 
