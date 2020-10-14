@@ -51,7 +51,7 @@ end
 function findNearestTarget(squad)
     local huntRadius = getForceHuntRange(squad.force)
     local nearestEnemy = squad.unitGroup.surface.find_nearest_enemy(
-        {position=squad.unitGroup.position,
+        {position= getForceMapTarget(squad.force) or squad.unitGroup.position,
          max_distance=huntRadius,
          force=squad.force})
     ses_statistics.enemySearches = ses_statistics.enemySearches + 1
@@ -138,4 +138,48 @@ function findAssemblerNearestEnemies(assembler, ANEtable)
                             ANEtable.distance)
         LOGGER.log(msg)
     end
+end
+
+
+
+-- Global targeting ----------------------------------------------------------------------------------------
+
+function addForceMapTarget(tag)
+	if not global.mapTargets then
+		global.mapTargets = {}
+	end
+	global.mapTargets[tag.force.name] = tag.position
+end
+
+function removeForceMapTarget(tag)
+	if not global.mapTargets then
+		global.mapTargets = {}
+	end
+	global.mapTargets[tag.force.name] = nil
+end
+
+function getForceMapTarget(force)
+	return global.mapTargets[force.name]
+end
+
+function onChantTagAdded(event)
+	if event.tag.icon.name == "droid-selection-tool" then 
+		addForceMapTarget(event.tag)
+	end
+end
+
+
+function onChantTagModified(event)
+	if event.old_icon.name == "droid-selection-tool" then 
+		removeForceMapTarget(event.tag)
+	end
+	if event.tag.icon.name == "droid-selection-tool" then 
+		addForceMapTarget(event.tag)
+	end
+end
+
+function onChantTagRemoved(event)
+	if event.tag.icon.name == "droid-selection-tool" then 
+		removeForceMapTarget(event.tag)
+	end
 end

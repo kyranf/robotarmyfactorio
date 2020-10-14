@@ -82,3 +82,8 @@ script.on_event(defines.events.on_tick, handleTick)
 script.on_event(defines.events.on_ai_command_completed, handleTaskCompleted)
 script.on_event(defines.events.on_player_joined_game, onPlayerJoined)
 script.on_configuration_changed(handleModChanges)
+
+-- Chant Tags for global targeting
+script.on_event(defines.events.on_chart_tag_added, onChantTagAdded)
+script.on_event(defines.events.on_chart_tag_modified, onChantTagModified)
+script.on_event(defines.events.on_chart_tag_removed, onChantTagRemoved)
