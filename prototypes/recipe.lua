@@ -1,3 +1,5 @@
+require("config.config")
+
 data:extend(
 {
   {
@@ -34,7 +36,7 @@ data:extend(
     name = "droid-rocket",
     enabled = false,
 	category = "advanced-crafting",
-    energy_required = 5,
+    energy_required = 10,
     ingredients =
     {
       {"steel-plate", 5},
@@ -102,6 +104,7 @@ data:extend(
     name = "droid-smg-deploy",
     enabled = false,
 	category = "droids",
+    energy_required = 6,
     ingredients =
     {
       {"droid-smg", 1}
@@ -114,6 +117,7 @@ data:extend(
     name = "droid-rocket-deploy",
     enabled = false,
 	category = "droids",
+    energy_required = 6,
     ingredients =
     {
       {"droid-rocket", 1}
@@ -126,6 +130,7 @@ data:extend(
     name = "droid-rifle-deploy",
     enabled = false,
 	category = "droids",
+    energy_required = 3,
     ingredients =
     {
       {"droid-rifle", 1}
@@ -169,28 +174,40 @@ data:extend(
     result = "loot-chest",
 	requester_paste_multiplier = 1
   },
-  {  
+  {
     type = "recipe",
-    name = "rally-beacon",
+    name = "droid-selection-tool",
     enabled = false,
 	ingredients =
 	{
-	  {"wood",5},
-	  {"electronic-circuit", 5},
+	  {"electronic-circuit", 1}
 	},	
-    result = "rally-beacon",
+    result = "droid-selection-tool",
 	requester_paste_multiplier = 1
   },
+  {
+    type = "recipe",
+    name = "droid-pickup-tool",
+    enabled = false,
+	ingredients =
+	{
+	  {"electronic-circuit", 1}
+	},	
+    result = "droid-pickup-tool",
+	requester_paste_multiplier = 1
+  },
+  
    {  
     type = "recipe",
     name = "droid-flame",
     enabled = false,
 	category = "advanced-crafting",
+    energy_required = 10,
 	ingredients =
 	{
       {"steel-plate", 5},
 	  {"electronic-circuit", 25},
-	  {"flame-thrower", 1},
+	  {"flamethrower", 1},
 	  {"light-armor", 2}
     
 	},	
@@ -202,6 +219,7 @@ data:extend(
     name = "droid-flame-deploy",
     enabled = false,
 	category = "droids",
+    energy_required = 8,
 	ingredients =
 	{
 	  {"droid-flame",1}
@@ -227,7 +245,7 @@ data:extend(
 		name = "defender-unit",
 		enabled = false,
 		category = "advanced-crafting",
-		energy_required = 8,
+		energy_required = 5,
 		ingredients =
 		{
 		  {"piercing-rounds-magazine", 1},
@@ -241,6 +259,7 @@ data:extend(
 		name = "defender-unit-deploy",
 		enabled = false,
 		category = "droids",
+        energy_required = 3,
 		ingredients =
 		{
 		  {"defender-unit", 1}
@@ -254,7 +273,7 @@ data:extend(
 		name = "distractor-unit",
 		enabled = false,
 		category = "advanced-crafting",
-		energy_required = 8,
+		energy_required = 5,
 		ingredients =
 		{
 		  {"piercing-rounds-magazine", 1},
@@ -266,6 +285,7 @@ data:extend(
 	{
 		type = "recipe",
 		name = "distractor-unit-deploy",
+        energy_required = 3,
 		enabled = false,
 		category = "droids",
 		ingredients =
@@ -293,6 +313,7 @@ data:extend(
 	{
 		type = "recipe",
 		name = "destroyer-unit-deploy",
+        energy_required = 8,
 		enabled = false,
 		category = "droids",
 		ingredients =
@@ -310,12 +331,15 @@ data:extend(
  -- deal with unlocking the recipes just piggy-backing on military research for now. most droids need more advanced research to build them anyway.
 table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-rifle"})
 table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-rifle-deploy"})
-table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="loot-chest"})
+if(GRAB_ARTIFACTS == 1) then
+    table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="loot-chest"})
+end
 table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="patrol-pole"})
-table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="rally-beacon"})
+-- DISABLED DUE TO BUGGY BEHAVIOUR table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="rally-beacon"})
 table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-assembling-machine"})
 table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-guard-station"})
-
+table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-selection-tool"})
+table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-pickup-tool"})
 
 table.insert(data.raw["technology"]["military-2"].effects,{type="unlock-recipe",recipe="droid-smg-deploy"})
 table.insert(data.raw["technology"]["military-2"].effects,{type="unlock-recipe",recipe="droid-smg"})
@@ -327,8 +351,8 @@ table.insert(data.raw["technology"]["military-2"].effects,{type="unlock-recipe",
 table.insert(data.raw["technology"]["military-3"].effects,{type="unlock-recipe",recipe="terminator-deploy"})
 table.insert(data.raw["technology"]["military-3"].effects,{type="unlock-recipe",recipe="terminator"})  
 
-table.insert(data.raw["technology"]["electronics"].effects,{type="unlock-recipe",recipe="droid-counter"})
-table.insert(data.raw["technology"]["electronics"].effects,{type="unlock-recipe",recipe="droid-settings"})
+table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-counter"})
+table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-settings"})
 
 table.insert(data.raw["technology"]["combat-robotics"].effects,{type="unlock-recipe", recipe="defender-unit"})
 table.insert(data.raw["technology"]["combat-robotics"].effects,{type="unlock-recipe", recipe="defender-unit-deploy"})
