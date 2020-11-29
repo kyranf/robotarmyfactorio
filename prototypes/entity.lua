@@ -905,7 +905,7 @@ local terminator =
     {
       
 	  type = "projectile",
-      ammo_category = "combat-robot-laser",
+      ammo_category = "laser",
       cooldown = 10,
       projectile_center = {0, 0.4},
       projectile_creation_distance = 1.5,
@@ -925,7 +925,7 @@ local terminator =
       ammo_type =
       {
         type = "projectile",
-        category = "combat-robot-laser",
+        category = "laser",
         energy_consumption = "0W",
         projectile = "laser-dual",
         speed = 2,

@@ -29,13 +29,13 @@ data:extend({
     attack_parameters =
     {
       type = "beam",
-      ammo_category = "combat-robot-beam",
+      ammo_category = "beam",
       cooldown = 20,
       range = 15,
       min_attack_distance = 9,
       ammo_type =
       {
-        category = "combat-robot-beam",
+        category = "beam",
         action =
         {
           type = "direct",

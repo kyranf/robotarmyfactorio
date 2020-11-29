@@ -1,3 +1,7 @@
 changes from 0.4.4 to 0.4.5:
 - made compatible with 0.18.27+ , by using the new raise_built flag instead of calling script raise entity event.
 - biter factions should no longer cause a tick error for squads/forces
+
+changes from 0.4.5 to 0.4.6:
+ - compatibility with 1.1.1, deployable flying robots unlocked at same tech level as their capsule friends. defender, distractor, and destroyer at the same tech levels,
+ rather than all of them ready as soon as you get Defender tech. 
