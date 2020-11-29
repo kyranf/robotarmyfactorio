@@ -34,7 +34,7 @@ data:extend({
     --[[attack_parameters =
     {
       type = "projectile",
-      ammo_category = "combat-robot-laser",
+      ammo_category = "laser",
       cooldown = 20,
       damage_modifier = 0.7,
       projectile_center = {0, 0.6},
@@ -44,7 +44,7 @@ data:extend({
       sound = make_laser_sounds(),
       ammo_type =
       {
-        category = "combat-robot-laser",
+        category = "laser",
         action =
         {
           type = "direct",
@@ -62,7 +62,7 @@ data:extend({
       attack_parameters =
       {
         type = "beam",
-        ammo_category = "combat-robot-laser",
+        ammo_category = "laser",
         cooldown = 20,
         cooldown_deviation = 0.15,
         damage_modifier = 1,
@@ -70,7 +70,7 @@ data:extend({
         sound = make_laser_sounds(),
         ammo_type =
         {
-          category = "combat-robot-laser",
+          category = "laser",
           action =
           {
             type = "direct",

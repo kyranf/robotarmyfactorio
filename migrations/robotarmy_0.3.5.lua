@@ -51,7 +51,7 @@ for i, force in pairs(game.forces) do
         force.recipes["terminator-deploy"].enabled=true
     end
 
-    if force.technologies["combat-robotics"].researched then
+    if force.technologies["defender"].researched then
         force.recipes["defender-unit"].enabled=true
         force.recipes["defender-unit-deploy"].enabled=true
         force.recipes["distractor-unit"].enabled=true

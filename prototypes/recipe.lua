@@ -272,6 +272,6 @@ table.insert(data.raw["technology"]["military-3"].effects,{type="unlock-recipe",
 table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-counter"})
 table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-settings"})
 
-table.insert(data.raw["technology"]["combat-robotics"].effects,{type="unlock-recipe", recipe="defender-unit"})
-table.insert(data.raw["technology"]["combat-robotics"].effects,{type="unlock-recipe", recipe="distractor-unit"})
-table.insert(data.raw["technology"]["combat-robotics"].effects,{type="unlock-recipe", recipe="destroyer-unit"})
+table.insert(data.raw["technology"]["defender"].effects,{type="unlock-recipe", recipe="defender-unit"})
+table.insert(data.raw["technology"]["distractor"].effects,{type="unlock-recipe", recipe="distractor-unit"})
+table.insert(data.raw["technology"]["destroyer"].effects,{type="unlock-recipe", recipe="destroyer-unit"})
