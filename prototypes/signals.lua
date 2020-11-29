@@ -69,6 +69,14 @@ data:extend(
   },
   {
     type = "virtual-signal",
+    name = "signal-keep-clear-radius",
+    icon_size = 32,
+    icon = "__robotarmy__/graphics/icons/signal_keep_clear_radius.png",
+    subgroup = "virtual-signal-number",
+    order = "r[droid]-[082]"
+  },
+  {
+    type = "virtual-signal",
     name = "signal-guard-size",
     icon_size = 32,
     icon = "__robotarmy__/graphics/icons/signal_guard_size.png",
