@@ -24,6 +24,7 @@ end
 function processSquadUpdatesForTick(force_name, tickProcessIndex)
     --for the current tick, look at the global table for that tick (mod 60) and any squad references in there.
     --LOGGER.log(string.format("Processing AI for AI tick %d of 60", tickProcessIndex))
+<<<<<<< HEAD
     if not global.updateTable[force_name] then return end
     if not global.Squads[force_name] then return end
 
@@ -42,6 +43,19 @@ function processSquadUpdatesForTick(force_name, tickProcessIndex)
                 LOGGER.log(string.format("Removing nil squad %d from tick table", squadref))
                 global.updateTable[force_name][tickProcessIndex][i] = nil
             end
+=======
+    local forceTickTable = global.updateTable[force_name]
+    local squadTable = global.Squads[force_name]
+    for i, squadref in pairs(forceTickTable[tickProcessIndex]) do
+        if squadref and squadTable[squadref] then
+            -- local squad = global.Squads[force_name][squadref]
+            -- if not squad.force then squad.force = force
+            updateSquad(squadTable[squadref])
+        else
+            -- the squad has been deleted at some point, so let's stop looping over it here.
+            LOGGER.log(string.format("Removing nil squad %d from tick table", squadref))
+            global.updateTable[force_name][tickProcessIndex][i] = nil
+>>>>>>> 44981070a1ad5cb5c5a9b1ebfd8026992854240f
         end
     end
 end
@@ -245,6 +259,7 @@ function processSpawnedDroid(droid, guard, guardPos, manuallyPlaced)
     end
 end
 
+<<<<<<< HEAD
 function onPlayerJoined(event)
     local playerIndex = event.player_index 
     if game.active_mods["Unit_Control"] then
@@ -253,6 +268,8 @@ function onPlayerJoined(event)
         game.players[playerIndex].print("Robot Army: Unit Control Mod is NOT active! Use Squad Selection tool like normal. Automated behaviours enabled.")
     end
 end
+=======
+>>>>>>> 44981070a1ad5cb5c5a9b1ebfd8026992854240f
 
 function processDroidAssemblers(force)
     if global.DroidAssemblers and global.DroidAssemblers[force.name] then
@@ -275,6 +292,7 @@ function processDroidAssemblers(force)
                                 {name = spawnableDroidName,
                                  position = droidPos,
                                  direction = defines.direction.east,
+<<<<<<< HEAD
                                  force = assembler.force,
                                  raise_built=true })
             
@@ -282,6 +300,13 @@ function processDroidAssemblers(force)
                                
                                     processSpawnedDroid(returnedEntity)
                             
+=======
+                                 force = assembler.force })
+                            if returnedEntity then
+                                if global.unit_control_override == 0 then
+                                    processSpawnedDroid(returnedEntity)
+                                end
+>>>>>>> 44981070a1ad5cb5c5a9b1ebfd8026992854240f
                             end
                             inv.clear() --clear output slot
                         end
@@ -308,9 +333,13 @@ function processDroidGuardStations(force)
                 if (spawnableDroidName ~= nil and type(spawnableDroidName) == "string") and nearby < getSquadGuardSize(station.force) then
                     local droidPos =  getGuardSpawnLocation(station) -- uses station pos
                     if droidPos ~= -1 then
+<<<<<<< HEAD
                         local returnedEntity = station.surface.create_entity({name = spawnableDroidName , 
                                                                             position = droidPos, direction = defines.direction.east, 
                                                                             force = station.force, raise_built=true })
+=======
+                        local returnedEntity = station.surface.create_entity({name = spawnableDroidName , position = droidPos, direction = defines.direction.east, force = station.force })
+>>>>>>> 44981070a1ad5cb5c5a9b1ebfd8026992854240f
                         if returnedEntity then
                             processSpawnedDroid(returnedEntity, true, station.position)
                         end
@@ -424,7 +453,11 @@ function handleOnBuiltEntity(event)
     elseif entity.name == "rally-beacon" then
         handleBuiltRallyBeacon(event)
     elseif entity.type == "unit" and table.contains(squadCapable, entity.name) then --squadCapable is defined in DroidUnitList.
+<<<<<<< HEAD
         if not game.active_mods["Unit_Control"] then
+=======
+        if global.unit_control_override == 0 then
+>>>>>>> 44981070a1ad5cb5c5a9b1ebfd8026992854240f
             
             processSpawnedDroid(entity, false, nil, true) --this deals with droids spawning
         end
@@ -505,6 +538,7 @@ function handleForceCreated(event)
 
     LOGGER.log("New force handler finished...")
 end
+<<<<<<< HEAD
 
 --registered to script.on_configuration_changed
 function handleModChanges()
@@ -543,3 +577,5 @@ function handleModChanges()
 
 
 end
+=======
+>>>>>>> 44981070a1ad5cb5c5a9b1ebfd8026992854240f
