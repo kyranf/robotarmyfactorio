@@ -4,10 +4,7 @@ local droidAssembler = {
 	type = "assembling-machine",
 	name = "droid-assembling-machine",
     icon_size = 32,
-<<<<<<< HEAD
     is_deployer = true,
-=======
->>>>>>> 44981070a1ad5cb5c5a9b1ebfd8026992854240f
 	icon = "__robotarmy__/graphics/icons/droid-assembling-machine.png",
 	flags = {"placeable-neutral", "placeable-player", "player-creation"},
 	minable = {hardness = 0.2, mining_time = 0.5, result = "droid-assembling-machine"},

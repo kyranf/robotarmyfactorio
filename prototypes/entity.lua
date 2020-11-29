@@ -106,11 +106,7 @@ local droid_smg =
     type = "unit",
     name = "droid-smg",
     icon_size = 32,
-<<<<<<< HEAD
     icon = "__robotarmy__/graphics/icons/droid_smg_undep.png",
-=======
-    icon = "__base__/graphics/icons/player.png",
->>>>>>> 44981070a1ad5cb5c5a9b1ebfd8026992854240f
     flags = {"placeable-player", "player-creation", "placeable-off-grid"},
     subgroup="creatures",
     order="e-a-b-d",
@@ -286,11 +282,7 @@ local droid_flame =
     type = "unit",
     name = "droid-flame",
     icon_size = 32,
-<<<<<<< HEAD
     icon = "__robotarmy__/graphics/icons/droid_flame_undep.png",
-=======
-    icon = "__base__/graphics/icons/player.png",
->>>>>>> 44981070a1ad5cb5c5a9b1ebfd8026992854240f
     flags = {"placeable-player", "player-creation", "placeable-off-grid"},
     subgroup="creatures",
     order="e-a-b-d",
@@ -474,11 +466,7 @@ local droid_rifle =
     type = "unit",
     name = "droid-rifle",
     icon_size = 32,
-<<<<<<< HEAD
     icon = "__robotarmy__/graphics/icons/droid_rifle_undep.png",
-=======
-    icon = "__base__/graphics/icons/player.png",
->>>>>>> 44981070a1ad5cb5c5a9b1ebfd8026992854240f
     flags = {"placeable-player", "player-creation", "placeable-off-grid"},
     subgroup="creatures",
     order="e-a-b-d",
@@ -657,11 +645,7 @@ local droid_rocket =
     type = "unit",
     name = "droid-rocket",
     icon_size = 32,
-<<<<<<< HEAD
     icon = "__robotarmy__/graphics/icons/droid_rocket_undep.png",
-=======
-    icon = "__base__/graphics/icons/player.png",
->>>>>>> 44981070a1ad5cb5c5a9b1ebfd8026992854240f
     flags = {"placeable-player", "player-creation", "placeable-off-grid"},
     subgroup="creatures",
     order="e-a-b-d",
@@ -672,15 +656,10 @@ local droid_rocket =
     collision_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8*droidscale, 0.8*droidscale}},
     selection_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8, 0.8*droidscale}},
     sticker_box = {{-0.5, -0.5}, {0.5, 0.5}},
-<<<<<<< HEAD
     vision_distance = 30,
     radar_range = 1,
     can_open_gates = true,
 	  friendly_map_color = droidMapColour,
-=======
-	vision_distance = 30,
-	friendly_map_color = droidMapColour,
->>>>>>> 44981070a1ad5cb5c5a9b1ebfd8026992854240f
     movement_speed = 0.11,
 	minable = {hardness = 0.1, mining_time = 0.1, result = "droid-rocket"},
 	pollution_to_join_attack = 0.0,
@@ -827,7 +806,6 @@ local droid_rocket =
 local terminator = 
 {
 	type = "unit",
-<<<<<<< HEAD
   name = "terminator",
   icon_size = 32,
   icon = "__robotarmy__/graphics/icons/terminator.png",
@@ -846,24 +824,6 @@ local terminator =
   radar_range = 1,
   can_open_gates = true,
   movement_speed = 0.18,
-=======
-    name = "terminator",
-    icon_size = 32,
-    icon = "__robotarmy__/graphics/icons/terminator.png",
-    flags = {"placeable-player", "player-creation", "placeable-off-grid"},
-    subgroup="creatures",
-    order="e-a-b-d",
-    has_belt_immunity = true,
-    max_health = 300 * HEALTH_SCALAR,
-    alert_when_damaged = false,
-    healing_per_tick = 0.02,
-	friendly_map_color = droidMapColour,
-    collision_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8*droidscale, 0.8*droidscale}},
-    selection_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8, 0.8*droidscale}},
-    sticker_box = {{-0.5, -0.5}, {0.5, 0.5}},
-	vision_distance = 30,
-    movement_speed = 0.18,
->>>>>>> 44981070a1ad5cb5c5a9b1ebfd8026992854240f
 	minable = {hardness = 0.1, mining_time = 0.1, result = "terminator"},
 	pollution_to_join_attack = 0.0,
 	distraction_cooldown = 0,

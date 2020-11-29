@@ -4,46 +4,6 @@ require("stdlib/game")
 
 
 function bootstrap_migration_on_first_tick(event)
-<<<<<<< HEAD
-=======
-    LOGGER.log("Running first tick migrations...")
-    local unit_control_active = game.active_mods["Unit_Control"]
-    local forces = game.forces
-
-    if(unit_control_active) then
-        game.print("Unit Control Mod is active! Please use Unit Control selection and command method. Automated behaviours disabled.")
-        global.unit_control_override = 1
-    else
-        game.print("Unit Control Mod is NOT active! Use Squad Selection tool like normal. Automated behaviours enabled.")
-        global.unit_control_override = 0
-    end
-
-
-    runOnceCheck(forces)
-    global_ensureTablesExist()
-    ses_statistics.sessionStartTick = game.tick
-
-    for fkey, force in pairs(forces) do
-        if force.name ~= "enemy" and force.name ~= "neutral" then
-            migrateForce(fkey, force)
-        end
-    end
-    
-    --check if we have grab artifacts enabled - if we do, but it was added after the game started, and the force has military 1 researched
-    --then lets force the recipe to be enabled (because they have missed the usual trigger)
-    if(GRAB_ARTIFACTS == 1) then
-        for fkey, force in pairs(forces) do
-            if(force.technologies["military"].researched == true) then
-                force.recipes["loot-chest"].enabled = true
-            end
-        end
-    else  -- else force-disable it if it's been disabled part-way through a game.
-        for fkey, force in pairs(forces) do
-            force.recipes["loot-chest"].enabled = false  
-        end
-
-    end
->>>>>>> 44981070a1ad5cb5c5a9b1ebfd8026992854240f
     
     
     -- substitute the 'normal' tick handler, and run it manually this time
