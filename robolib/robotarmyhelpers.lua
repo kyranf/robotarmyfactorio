@@ -148,7 +148,7 @@ function checkSettingsModules()
 
             --get the parameters, go through and check each one, while also checking the values are logically okay.
             local behaviour = settingsModule.get_or_create_control_behavior() -- a LuaConstantCombinatorControlBehavior
-            local parameters = behaviour.parameters.parameters -- ridiculous, we have to do parameters.parameters. WHY WUBE WHY
+            local parameters = behaviour.parameters 
 
             --Game.print_force(gameForce, string.format("Parameters table of force's settings module is length %d", #parameters))
             for index, parameter in pairs(parameters) do
@@ -258,19 +258,21 @@ function doCounterUpdate()
 
             for _, counter in pairs(global.droidCounters[gameForce.name]) do
                 if(counter.valid) then
-                    local currentParams = counter.get_or_create_control_behavior().parameters
-                    local lengthOld = #currentParams.parameters
-                    local lengthNew = #circuitParams.parameters
-                    --Game.print_force(counter.force, string.format("counter number of signals %d, number of new signals %d",lengthOld, lengthNew))
-                    if lengthOld ~= lengthNew then
-                        local pos = counter.position
-                        local surface = counter.surface
-                        counter.destroy()
-                        counter = surface.create_entity({name = "droid-counter" , position = pos, direction = defines.direction.east, force = gameForce })
-                        Game.print_force(counter.force, string.format("Counter replaced at X %d,Y %d to update signal output table. Will need new wires if you had any!", pos.x, pos.y))
-                        table.insert(global.droidCounters[gameForce.name], counter) -- insert the new counter so it can get updated again
+                    local currentParams = counter.get_or_create_control_behavior()
+                    if (currentParams) then 
+                        local lengthOld = #currentParams.parameters
+                        local lengthNew = #circuitParams.parameters
+                        --Game.print_force(counter.force, string.format("counter number of signals %d, number of new signals %d",lengthOld, lengthNew))
+                        if lengthOld ~= lengthNew then
+                            local pos = counter.position
+                            local surface = counter.surface
+                            counter.destroy()
+                            counter = surface.create_entity({name = "droid-counter" , position = pos, direction = defines.direction.east, force = gameForce })
+                            Game.print_force(counter.force, string.format("Counter replaced at X %d,Y %d to update signal output table. Will need new wires if you had any!", pos.x, pos.y))
+                            table.insert(global.droidCounters[gameForce.name], counter) -- insert the new counter so it can get updated again
+                        end
                     end
-                    counter.get_or_create_control_behavior().parameters = circuitParams
+                    counter.get_or_create_control_behavior().parameters = circuitParams.parameters
                 end
             end
         end

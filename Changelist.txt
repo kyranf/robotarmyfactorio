@@ -5,3 +5,11 @@ changes from 0.4.4 to 0.4.5:
 changes from 0.4.5 to 0.4.6:
  - compatibility with 1.1.1, deployable flying robots unlocked at same tech level as their capsule friends. defender, distractor, and destroyer at the same tech levels,
  rather than all of them ready as soon as you get Defender tech. 
+
+changes from 0.4.6 to 0.4.7:
+ - removed migration file for v.0.3.5, super old and not needed, was causing issues with referring to old/out-dated tech names too. 
+
+changes from 0.4.7 to 0.4.8: 
+ - fixes to the Droid Counter module and the Settings Module code, which had issues with referencing parameters tables which have changed in recent history. 
+   instead of  control_behaviours.parameters.parameters,  there's only one layer of parameters table now. Yay! Means I can get rid of the comment I had in the code, "-- ridiculous, we have to do parameters WHY WUBE WHY"
+
