@@ -799,7 +799,7 @@ function updateCountsFromDroidAssembler(assembler, counter)
             } --end parameters table
         }-- end circuitParams
 
-        counter.get_or_create_control_behavior().parameters = circuitParams
+        counter.get_or_create_control_behavior().parameters = circuitParams.parameters
         
         
     end -- end if table has something in it
