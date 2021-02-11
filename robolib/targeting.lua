@@ -163,23 +163,29 @@ function getForceMapTarget(force)
 end
 
 function onChantTagAdded(event)
-	if event.tag.icon.name == "droid-selection-tool" then 
-		addForceMapTarget(event.tag)
-	end
+	if event.tag.icon then 
+		if event.tag.icon.name == "droid-selection-tool" then 
+			addForceMapTarget(event.tag)
+		end
+	end 
 end
 
 
 function onChantTagModified(event)
-	if event.old_icon.name == "droid-selection-tool" then 
-		removeForceMapTarget(event.tag)
-	end
-	if event.tag.icon.name == "droid-selection-tool" then 
-		addForceMapTarget(event.tag)
+	if event.tag.icon then 
+		if event.old_icon.name == "droid-selection-tool" then 
+			removeForceMapTarget(event.tag)
+		end
+		if event.tag.icon.name == "droid-selection-tool" then 
+			addForceMapTarget(event.tag)
+		end
 	end
 end
 
 function onChantTagRemoved(event)
-	if event.tag.icon.name == "droid-selection-tool" then 
-		removeForceMapTarget(event.tag)
+	if event.tag.icon then 
+		if event.tag.icon.name == "droid-selection-tool" then 
+			removeForceMapTarget(event.tag)
+		end
 	end
 end
