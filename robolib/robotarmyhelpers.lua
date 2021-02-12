@@ -787,19 +787,18 @@ function updateCountsFromDroidAssembler(assembler, counter)
         local terminatorCount = getCountOfEntityNameInTable("terminator", unitsList)
         local engineerCount = getCountOfEntityNameInTable("basic-constructor", unitsList)
         
-        local circuitParams = {
-            parameters={
-                {index=1, count = squadSize, signal={type="virtual",name="signal-droid-alive-count"}}, --end global droid count
-                {index=2, count = rifleCount, signal={type="virtual",name="signal-droid-rifle-count"}},
-                {index=3, count = smgCount, signal={type="virtual",name="signal-droid-smg-count"}},
-                {index=4, count = rocketCount, signal={type="virtual",name="signal-droid-rocket-count"}},
-                {index=5, count = flameCount, signal={type="virtual",name="signal-droid-flame-count"}},
-                {index=6, count = terminatorCount, signal={type="virtual",name="signal-droid-terminator-count"}},
-                {index=7, count = engineerCount, signal={type="virtual",name="signal-droid-engineer-count"}}
-            } --end parameters table
-        }-- end circuitParams
+        local parameters={
+            {index=1, count = squadSize, signal={type="virtual",name="signal-droid-alive-count"}}, --end global droid count
+            {index=2, count = rifleCount, signal={type="virtual",name="signal-droid-rifle-count"}},
+            {index=3, count = smgCount, signal={type="virtual",name="signal-droid-smg-count"}},
+            {index=4, count = rocketCount, signal={type="virtual",name="signal-droid-rocket-count"}},
+            {index=5, count = flameCount, signal={type="virtual",name="signal-droid-flame-count"}},
+            {index=6, count = terminatorCount, signal={type="virtual",name="signal-droid-terminator-count"}},
+            {index=7, count = engineerCount, signal={type="virtual",name="signal-droid-engineer-count"}}
+        } --end parameters table
+     
 
-        counter.get_or_create_control_behavior().parameters = circuitParams.parameters
+        counter.get_or_create_control_behavior().parameters = parameters
         
         
     end -- end if table has something in it
@@ -813,7 +812,7 @@ function getSettingsOverrides(settingsModule, huntSize, huntRadius, retreatSize,
 
     --get the parameters, go through and check each one, while also checking the values are logically okay.
     local behaviour = settingsModule.get_or_create_control_behavior() -- a LuaConstantCombinatorControlBehavior
-    local parameters = behaviour.parameters.parameters -- ridiculous, we have to do parameters.parameters. WHY WUBE WHY
+    local parameters = behaviour.parameters
 
     for index, parameter in pairs(parameters) do
         
