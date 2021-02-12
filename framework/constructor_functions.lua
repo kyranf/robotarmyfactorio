@@ -16,7 +16,7 @@ function basicConstructorCheck(constructor)
     
     if not global.ConstructionWarehouses then goto heal_logic end
     if not global.ConstructionWarehouses[constructor.force.name] then goto heal_logic end
-    for _, ghost in pairs( constructor.surface.find_entities_filtered{name = "entity-ghost", position = constructor.position, radius = CONSTRUCTION_CHECK_RADIUS, force = constructor.force} ) do
+    for _, ghost in pairs( constructor.surface.find_entities_filtered{name = "entity-ghost", position = constructor.position, radius = settings.global["Engineer Droid Construction Check Radius"].value, force = constructor.force} ) do
 
         --sort by distance..
         --starting from nearest... for each ghost, do the following. 
@@ -46,7 +46,7 @@ function basicConstructorCheck(constructor)
             end
 
             if hasInStorage then
-                if util.distance(ghost.position, constructor.position) <= CONSTRUCTION_RANGE then 
+                if util.distance(ghost.position, constructor.position) <= settings.global["Engineer Droid Build Range"].value then 
                     constructor.set_command({type=defines.command.go_to_location, destination=constructor.position, radius=1, distraction=defines.distraction.by_nothing}) --stop where they are, to build.
                     local revived, entity, requests = ghost.revive({return_item_request_proxy = true, raise_revive = true})
                     if revived then
@@ -61,7 +61,7 @@ function basicConstructorCheck(constructor)
                         return
                     end
                 else
-                    --get unit vector between constructor and ghost, find position of (CONSTRUCTION_RANGE-1) away from ghost position, and move to that. 
+                    --get unit vector between constructor and ghost, find position of (settings.global["Engineer Droid Build Range"].value-1) away from ghost position, and move to that. 
 
                     constructor.set_command({type=defines.command.go_to_location, destination=ghost.position, radius=1, distraction=defines.distraction.by_nothing})
                 end
@@ -73,7 +73,7 @@ function basicConstructorCheck(constructor)
 
     local HEAL_AMOUNT = (10.0/60.0)  * CONSTRUCTOR_UPDATE_TICKRATE  --10 hp/second, at 60 tick/sec, by the tick rate of constructor updates.
     -- REPAIR LOGIC --
-    for _, entity in pairs( constructor.surface.find_entities_filtered{name = nil, position = constructor.position, radius = AUTO_REPAIR_RANGE, force = constructor.force} ) do
+    for _, entity in pairs( constructor.surface.find_entities_filtered{name = nil, position = constructor.position, radius = settings.global["Engineer Droid Repair Range"].value, force = constructor.force} ) do
         if entity.unit_number ~= constructor.unit_number then  -- can't heal yourself!! cheater! wtfbbqsauce!
             if ( entity.health and entity.health > 0 and entity.health < entity.prototype.max_health) and not (entity.has_flag("breaths-air") or (entity.type == "car" or entity.type == "train")) then
 

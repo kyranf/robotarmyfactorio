@@ -87,7 +87,7 @@ end
 
 
 function deleteSquad(squad, suppress_msg)
-    local print_msg = not suppress_msg and PRINT_SQUAD_DEATH_MESSAGES
+    local print_msg = not suppress_msg and settings.global["Print Squad Death Messages"].value
 
     -- remove all members!
     if squad.members then

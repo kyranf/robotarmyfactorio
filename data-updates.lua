@@ -11,3 +11,4 @@ for k, fire in pairs (data.raw.fire) do
     fire.on_damage_tick_effect = nil
   end
 end
+

@@ -261,10 +261,10 @@ function processDroidAssemblers(force)
                 local settingsModule = checkAttachedSettingsModule(assembler)
                 
                 --set the various spawn and attack settings to default values
-                local huntSize = SQUAD_SIZE_MIN_BEFORE_HUNT
-                local huntRadius = SQUAD_HUNT_RADIUS  
-                local retreatSize = SQUAD_SIZE_MIN_BEFORE_RETREAT
-                local garrisonSize = GUARD_STATION_GARRISON_SIZE
+                local huntSize = settings.global["Squad Hunt Size"].value
+                local huntRadius = settings.global["Squad Hunt Radius"].value 
+                local retreatSize = settings.global["Squad Retreat Size"].value 
+                local garrisonSize =  settings.global["Guard Station Garrison Size"].value 
 
                 --if we found the settings module, overwrite the above values.
                 if settingsModule and settingsModule.valid then 
@@ -454,11 +454,10 @@ function processDroidGuardStations(force)
                  local settingsModule = checkAttachedSettingsModule(station)
                 
                  --set the various spawn and attack settings to default values
-                 local huntSize = SQUAD_SIZE_MIN_BEFORE_HUNT
-                 local huntRadius = DEFAULT_KEEP_RADIUS_CLEAR   -- NOTE THIS IS DIFFERENT - SPECIFICALLY THE KEEP-CLEAR RADIUS NOT THE SQUAD HUNT RADIUS
-                 local retreatSize = SQUAD_SIZE_MIN_BEFORE_RETREAT
-                 local garrisonSize = GUARD_STATION_GARRISON_SIZE
- 
+                 local huntSize = settings.global["Squad Hunt Size"].value
+                 local huntRadius = settings.global["Squad Keep Clear Radius"].value    -- NOTE THIS IS DIFFERENT, IT IS KEEP CLEAR NOT HUNT RADIUS
+                 local retreatSize = settings.global["Squad Retreat Size"].value 
+                 local garrisonSize =  settings.global["Guard Station Garrison Size"].value 
                  --if we found the settings module, overwrite the above values.
                  if settingsModule and settingsModule.valid then 
                      
@@ -611,7 +610,7 @@ function processDroidAssemblersForTick(force, tick)
                     -- by a squad trying to retreat to it
                     forceAssemblerRetreatTable[assemblerIdx] = nil
                 end
-                if GLOBAL_TARGETING_TYPE == targetingTypes.hybridKeepRadiusClear then
+                if settings.global["Attack Targeting Type"].value == targetingTypes.hybridKeepRadiusClear then
                     if assembler.valid then
                         local ANEtable = global.AssemblerNearestEnemies[force.name][assemblerIdx]
                         if game.tick > ANEtable.lastChecked + CHECK_FOR_NEAREST_ENEMY_TO_ASSEMBLER_EVERY then

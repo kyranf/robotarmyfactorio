@@ -100,7 +100,7 @@ function getSquadHuntSize(force)
     if global.settings and global.settings[force.name] and global.settings[force.name].huntSizeOverride then
         return global.settings[force.name].huntSizeOverride --overriden value from settings combinator for that force
     else
-        return SQUAD_SIZE_MIN_BEFORE_HUNT --default one set in config.lua
+        return settings.global["Squad Hunt Size"].value --default one set in config.lua
     end
 end
 
@@ -109,7 +109,7 @@ function getSquadGuardSize(force)
     if global.settings and global.settings[force.name] and global.settings[force.name].guardSizeOverride then
         return global.settings[force.name].guardSizeOverride    --overriden value from settings combinator for that force
     else
-        return GUARD_STATION_GARRISON_SIZE --default one set in config.lua
+        return settings.global["Guard Station Garrison Size"].value --default one set mod settings
     end
 end
 
@@ -118,7 +118,7 @@ function getSquadRetreatSize(force)
     if global.settings and global.settings[force.name] and global.settings[force.name].retreatSizeOverride then
         return global.settings[force.name].retreatSizeOverride  --overriden value from settings combinator for that force
     else
-        return SQUAD_SIZE_MIN_BEFORE_RETREAT --default one set in config.lua
+        return settings.global["Squad Retreat Size"].value --default one set mod settings
     end
 end
 
@@ -127,7 +127,7 @@ function getForceHuntRange(force)
     if global.settings and global.settings[force.name] and global.settings[force.name].huntRangeOverride then
         return global.settings[force.name].huntRangeOverride    --overriden value from settings combinator for that force
     else
-        return SQUAD_HUNT_RADIUS --default one set in config.lua
+        return settings.global["Squad Hunt Radius"].value --default one set mod settingsa
     end
 end
 
@@ -136,7 +136,7 @@ function getAssemblerKeepRadiusClear(assembler)
 	if global.settings and global.settings[assembler.force.name] and global.settings[assembler.force.name].keepClearRadiusOverride then
         return global.settings[assembler.force.name].keepClearRadiusOverride    --overriden value from settings combinator for that force
     else
-        return DEFAULT_KEEP_RADIUS_CLEAR --default one set in config.lua
+        return settings.global["Squad Keep Clear Radisu"].value --default one set mod settings
     end
 end
 
@@ -212,7 +212,7 @@ function checkValidSignalSetting(force, signal, count, huntSize)
             if count > 0 and count < huntSize then
                 return true
             end
-        elseif count > 0 and count < SQUAD_SIZE_MIN_BEFORE_HUNT then
+        elseif count > 0 and count < settings.global["Squad Hunt Size"].value then
             return true
         else
             Game.print_force(force, string.format("WARNING: The droid settings signal %s must be positive and less than current squad hunt size setting!", signal))

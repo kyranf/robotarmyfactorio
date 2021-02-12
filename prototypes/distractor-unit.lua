@@ -8,7 +8,7 @@ data:extend({
 	flags = {"placeable-player", "player-creation", "placeable-off-grid"},
     subgroup="creatures",
     has_belt_immunity = true,
-    max_health = 85 * HEALTH_SCALAR,
+    max_health = 85 * settings.startup["Droid Health Modifier"].value,
 	minable = {hardness = 0.1, mining_time = 0.1, result = "distractor-unit"},
 	alert_when_damaged = false,
     order="b-b-b",

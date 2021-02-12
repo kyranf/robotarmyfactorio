@@ -110,7 +110,7 @@ local droid_smg =
     flags = {"placeable-player", "player-creation", "placeable-off-grid"},
     subgroup="creatures",
     order="e-a-b-d",
-    max_health = 120 * HEALTH_SCALAR,
+    max_health = 120 * settings.startup["Droid Health Modifier"].value,
     has_belt_immunity = true,
     alert_when_damaged = false,
     move_while_shooting = false,
@@ -250,7 +250,7 @@ local droid_smg =
               },
               {
                 type = "damage",
-                damage = { amount = 8*DAMAGE_SCALAR , type = "physical"}
+                damage = { amount = 8*settings.startup["Droid Damage Modifier"].value , type = "physical"}
               }
             }
           }
@@ -294,7 +294,7 @@ local droid_flame =
     subgroup="creatures",
     order="e-a-b-d",
     has_belt_immunity = true,
-    max_health = 200 * HEALTH_SCALAR,
+    max_health = 200 * settings.startup["Droid Health Modifier"].value,
     alert_when_damaged = false,
     healing_per_tick = 0.001,
     collision_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8*droidscale, 0.8*droidscale}},
@@ -440,7 +440,7 @@ local droid_flame =
             {
               {
                 type = "damage",
-                damage = { amount = 1 , type = "physical"}
+                damage = { amount = 1*settings.startup["Droid Damage Modifier"].value , type = "physical"}
               }
             }
           }
@@ -484,7 +484,7 @@ local droid_rifle =
     subgroup="creatures",
     order="e-a-b-d",
     has_belt_immunity = true,
-    max_health = 50 * HEALTH_SCALAR,
+    max_health = 50 * settings.startup["Droid Health Modifier"].value,
     alert_when_damaged = false,
     healing_per_tick = 0.00,
     collision_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8*droidscale, 0.8*droidscale}},
@@ -623,7 +623,7 @@ local droid_rifle =
               },
               {
                 type = "damage",
-                damage = { amount = 10*DAMAGE_SCALAR , type = "physical"}
+                damage = { amount = 10*settings.startup["Droid Damage Modifier"].value , type = "physical"}
               }
             }
           }
@@ -669,7 +669,7 @@ local droid_rocket =
     subgroup="creatures",
     order="e-a-b-d",
     has_belt_immunity = true,
-    max_health = 85 * HEALTH_SCALAR,
+    max_health = 85 * settings.startup["Droid Health Modifier"].value,
     alert_when_damaged = false,
     healing_per_tick = 0.01,
     collision_box = {{-0.8*droidscale, -0.8*droidscale}, {0.8*droidscale, 0.8*droidscale}},
@@ -838,7 +838,7 @@ local terminator =
   subgroup="creatures",
   order="e-a-b-d",
   has_belt_immunity = true,
-  max_health = 300 * HEALTH_SCALAR,
+  max_health = 300 * settings.startup["Droid Health Modifier"].value,
   alert_when_damaged = false,
   healing_per_tick = 0.005,
   friendly_map_color = droidMapColour,
@@ -1592,7 +1592,7 @@ local basic_constructor = {
             },
             {
               type = "damage",
-              damage = { amount = 1, type = "physical" }
+              damage = { amount = 1*settings.startup["Droid Damage Modifier"].value, type = "physical" }
             }
           }
         }

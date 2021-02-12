@@ -25,7 +25,7 @@ end
 
 function getTargetingType(squad)
     -- for now, it's a global
-    return GLOBAL_TARGETING_TYPE
+    return settings.global["Attack Targeting Type"].value
     -- later, it might be per-squad
 end
 
