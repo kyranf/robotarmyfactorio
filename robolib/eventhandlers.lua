@@ -279,8 +279,13 @@ function processDroidAssemblers(force)
                                  raise_built=true })
             
                             if returnedEntity then
-                               
+                                if not game.active_mods["Unit_Control"] then  
                                     processSpawnedDroid(returnedEntity)
+                                else
+                                    local control_events = remote.call("unit_control", "get_events")
+                                    unit_spawned_event = control_events.on_unit_spawned
+                                    script.raise_event(unit_spawned_event, {entity = returnedEntity, spawner = assembler})
+                                end
                             
                             end
                             inv.clear() --clear output slot
@@ -297,6 +302,7 @@ end
 
 function processDroidGuardStations(force)
     --handle guard station spawning here
+    
     if global.droidGuardStations and global.droidGuardStations[force.name] then
         for _, station in pairs(global.droidGuardStations[force.name]) do
             if station and station.valid and station.force == force then
@@ -312,7 +318,13 @@ function processDroidGuardStations(force)
                                                                             position = droidPos, direction = defines.direction.east, 
                                                                             force = station.force, raise_built=true })
                         if returnedEntity then
-                            processSpawnedDroid(returnedEntity, true, station.position)
+                            if not game.active_mods["Unit_Control"] then  
+                                processSpawnedDroid(returnedEntity, true, station.position)
+                            else
+                                local control_events = remote.call("unit_control", "get_events")
+                                unit_spawned_event = control_events.on_unit_spawned
+                                script.raise_event(unit_spawned_event, {entity = returnedEntity, spawner = station})
+                            end
                         end
                         inv.clear() --clear output slot
                     end
@@ -425,8 +437,7 @@ function handleOnBuiltEntity(event)
         handleBuiltRallyBeacon(event)
     elseif entity.type == "unit" and table.contains(squadCapable, entity.name) then --squadCapable is defined in DroidUnitList.
         if not game.active_mods["Unit_Control"] then
-            
-            processSpawnedDroid(entity, false, nil, true) --this deals with droids spawning
+            processSpawnedDroid(entity, false, nil, true) --this deals with droids spawning manually by the player
         end
     end
 end -- handleOnBuiltEntity
