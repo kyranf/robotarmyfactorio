@@ -120,6 +120,11 @@ local droid_smg =
 	  vision_distance = 30,
     radar_range = 1,
     can_open_gates = true,
+    ai_settings =
+    {
+      allow_destroy_when_commands_fail = false,
+      do_separation = true
+    },
     movement_speed = 0.11,
 	minable = {hardness = 0.1, mining_time = 0.1, result = "droid-smg"},
 	pollution_to_join_attack = 0.0,
@@ -144,9 +149,9 @@ local droid_smg =
         decrease = 1,
         percent = 30
       },
-	  {
+	    {
         type = "fire",
-		decrease = 5,
+		    decrease = 5,
         percent = 95
       }
     },
@@ -296,6 +301,11 @@ local droid_flame =
     vision_distance = 30,
     radar_range = 1,
     can_open_gates = true,
+    ai_settings =
+    {
+      allow_destroy_when_commands_fail = false,
+      do_separation = true
+    },
     movement_speed = 0.09,
 	minable = {hardness = 0.1, mining_time = 0.1, result = "droid-flame"},
 	pollution_to_join_attack = 0.0,
@@ -480,6 +490,11 @@ local droid_rifle =
     vision_distance = 30,
     radar_range = 1,
     can_open_gates = true,
+    ai_settings =
+    {
+      allow_destroy_when_commands_fail = false,
+      do_separation = true
+    },
     movement_speed = 0.08,
 	friendly_map_color = droidMapColour,
 	minable = {hardness = 0.1, mining_time = 0.1, result = "droid-rifle"},
@@ -659,6 +674,11 @@ local droid_rocket =
     vision_distance = 30,
     radar_range = 1,
     can_open_gates = true,
+    ai_settings =
+    {
+      allow_destroy_when_commands_fail = false,
+      do_separation = true
+    },
 	  friendly_map_color = droidMapColour,
     movement_speed = 0.11,
 	minable = {hardness = 0.1, mining_time = 0.1, result = "droid-rocket"},
@@ -823,6 +843,11 @@ local terminator =
   vision_distance = 30,
   radar_range = 1,
   can_open_gates = true,
+  ai_settings =
+  {
+    allow_destroy_when_commands_fail = false,
+    do_separation = true
+  },
   movement_speed = 0.18,
 	minable = {hardness = 0.1, mining_time = 0.1, result = "terminator"},
 	pollution_to_join_attack = 0.0,

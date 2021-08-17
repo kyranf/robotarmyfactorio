@@ -16,8 +16,13 @@ data:extend({
     {
       {
         type = "physical",
-        decrease = 4,
-      }
+        decrease = 8,
+      },
+      {
+        type = "acid",
+        decrease = 5,
+        percent = 70
+      },
     },
     healing_per_tick = 0,
     collision_box = {{0, 0}, {0, 0}},
@@ -25,7 +30,12 @@ data:extend({
     sticker_box = {{-0.1, -0.1}, {0.1, 0.1}},
     distraction_cooldown = 300,
     
-    
+    ai_settings =
+    {
+      allow_destroy_when_commands_fail = false,
+      do_separation = true
+    },
+
     attack_parameters =
     {
       type = "beam",

@@ -1,14 +1,14 @@
 require("config.config")
 data:extend({
 {
-    type = "unit",
-    name = "defender-unit",
-    icon_size = 32,
-    icon = "__base__/graphics/icons/defender.png",
-	flags = {"placeable-player", "player-creation", "placeable-off-grid"},
-    subgroup="creatures",
-    has_belt_immunity = true,
-    max_health = 65 * HEALTH_SCALAR,
+  type = "unit",
+  name = "defender-unit",
+  icon_size = 32,
+  icon = "__base__/graphics/icons/defender.png",
+  flags = {"placeable-player", "player-creation", "placeable-off-grid"},
+  subgroup="creatures",
+  has_belt_immunity = true,
+  max_health = 65 * HEALTH_SCALAR,
 	minable = {hardness = 0.1, mining_time = 0.1, result = "defender-unit"},
 	alert_when_damaged = false,
     order="b-b-a",
@@ -17,7 +17,12 @@ data:extend({
       {
         type = "physical",
         decrease = 4,
-      }
+      },
+      {
+        type = "acid",
+        decrease = 1,
+        percent = 30
+      },
     },
     healing_per_tick = 0,
     collision_box = nil,
@@ -26,6 +31,11 @@ data:extend({
     sticker_box = {{-0.1, -0.1}, {0.1, 0.1}},
     distraction_cooldown = 300,
     
+    ai_settings =
+    {
+      allow_destroy_when_commands_fail = false,
+      do_separation = true
+    },
     
     attack_parameters =
     {

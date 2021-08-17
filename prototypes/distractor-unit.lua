@@ -17,14 +17,24 @@ data:extend({
       {
         type = "physical",
         decrease = 4,
-      }
+      },
+      {
+        type = "acid",
+        decrease = 1,
+        percent = 30
+      },
     },
     healing_per_tick = 0,
     collision_box = {{0, 0}, {0, 0}},
     selection_box = {{-0.3, -0.3}, {0.3, 0.3}},
     sticker_box = {{-0.1, -0.1}, {0.1, 0.1}},
     distraction_cooldown = 300,
-    
+
+    ai_settings =
+    {
+      allow_destroy_when_commands_fail = false,
+      do_separation = true
+    },
     
     attack_parameters =
     {

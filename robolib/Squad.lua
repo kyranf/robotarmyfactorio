@@ -823,7 +823,7 @@ function orderSquadToAttack(squad, position)
     debugSquadOrder(squad, "*ATTACK*", position)
     squad.unitGroup.set_command({type=defines.command.attack_area,
                                  destination=position,
-                                 radius=50, distraction=defines.distraction.by_anything})
+                                 radius=2, distraction=defines.distraction.by_anything})
     squad.command.state_changed_since_last_command = false
     squad.command.tick = game.tick
     squad.unitGroup.start_moving()
