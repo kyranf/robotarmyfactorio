@@ -48,6 +48,10 @@ function init_robotarmy()
         global.updateTable = {}
     end
 
+    if not global.units then 
+        global.units = {}
+    end 
+
     --deal with player force as default set-up process
     event =  {} --event stub, to match function inputs
     for _, v in pairs(game.forces) do
@@ -65,6 +69,7 @@ script.on_event(defines.events.on_force_created, handleForceCreated)
 script.on_event(defines.events.on_built_entity, handleOnBuiltEntity)
 script.on_event(defines.events.on_robot_built_entity, handleOnRobotBuiltEntity)
 script.on_event(defines.events.script_raised_built, handleOnScriptRaisedBuilt)
+script.on_event(defines.events.on_ai_command_completed, AiCommandCompleteHandler)
 
 function playerSelectedArea(event)
 	reportSelectedUnits(event, false)

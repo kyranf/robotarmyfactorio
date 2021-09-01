@@ -28,3 +28,10 @@ changes from 0.4.8 to 0.4.9:
   - added a for-each-force loop instead of specific forces, during init routine to set up each force
   - added a handleOnScriptRaisedBuilt function for script-spawned entity event handling.
   - adding migration file to help players who add mod after starting game to auto detect existing techs and unlock recipes properly for them.
+
+ changes from 0.4.11 to 0.4.12:
+  - added Brazilian Portuguese language translations thanks to Felipe Bueno Aliski Alves
+  - added Russian language translations thanks to Varoga on Github
+  - added migration script to detect and add all droid units to script-tracked array
+  - added AI distraction custom commands for selecting nearest target instead of random target (overriding default ai behaviour of biters) thanks to Klonan
+  

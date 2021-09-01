@@ -8,6 +8,56 @@ require("stdlib/log/logger")
 require("stdlib/game")
 
 
+function  AiCommandCompleteHandler(event)
+    if event.was_distracted then
+        processDistractionCompleted(event)
+        return
+      end
+end
+
+--used by the distraction event handler to select nearest unit to fire at next. this is much better targeting AI than was default.
+function selectDistractionTarget(unit)
+
+  local command = unit.command
+  local distraction = (command and command.distraction) or defines.distraction.by_enemy or defines.distraction.by_anything
+
+  --if it's a distraction by NOTHING then just return.
+  if distraction == defines.distraction.none then
+    return
+  end
+
+  local params =
+  {
+    position = unit.position,
+    max_distance = unit.prototype.vision_distance,
+    force = unit.force
+  }
+
+  local surface = unit.surface
+  return surface.find_nearest_enemy(params) or (distraction == defines.distraction.by_anything and surface.find_nearest_enemy_entity_with_owner(params))
+
+
+end
+
+--run by the AI finished event, if it was distraction, it can select another target.
+function processDistractionCompleted(event)
+
+  local unit = global.units[event.unit_number]
+  if not unit then return end
+  if not unit.valid then return end
+
+  local enemy = selectDistractionTarget(unit)
+
+  if not enemy then return end
+
+  unit.set_distraction_command
+  {
+    type = defines.command.attack,
+    target = enemy
+  }
+
+end 
+
 function runOnceCheck(game_forces)
     if not global.runOnce then
         LOGGER.log("Running the runOnce function to reset recipes and tech to ensure all are correct...")
@@ -206,6 +256,14 @@ function processSpawnedDroid(droid, guard, guardPos, manuallyPlaced)
         global.Squads[force.name] = {}
     end
 
+    --add to the global units list. make it if it's not actually there yet.
+    if not global.units then global.units = {} end 
+
+    if not global.units[droid.unit_number] then      
+        global.units[droid.unit_number] = droid  -- reference to the LuaEntity with a lookup via the unit number.
+    end
+
+    --deal with squad allocations
     local squad = getClosestSquadToPos(global.Squads[force.name], droid.position, SQUAD_CHECK_RANGE)
     if squad and getSquadSurface(squad) ~= droid.surface then
         squad = nil  --we cannot allow a squad to be joined if it's on the wrong surface
@@ -279,6 +337,12 @@ function processDroidAssemblers(force)
                                  raise_built=true })
             
                             if returnedEntity then
+                                 --add to the global units list. make it if it's not actually there yet.
+                                if not global.units then global.units = {} end 
+
+                                if not global.units[returnedEntity.unit_number] then      
+                                    global.units[returnedEntity.unit_number] = returnedEntity  -- reference to the LuaEntity with a lookup via the unit number.
+                                end
                                 if not game.active_mods["Unit_Control"] then  
                                     processSpawnedDroid(returnedEntity)
                                 else
@@ -318,6 +382,12 @@ function processDroidGuardStations(force)
                                                                             position = droidPos, direction = defines.direction.east, 
                                                                             force = station.force, raise_built=true })
                         if returnedEntity then
+                            --add to the global units list. make it if it's not actually there yet.
+                            if not global.units then global.units = {} end 
+
+                            if not global.units[returnedEntity.unit_number] then      
+                                global.units[returnedEntity.unit_number] = returnedEntity  -- reference to the LuaEntity with a lookup via the unit number.
+                            end
                             if not game.active_mods["Unit_Control"] then  
                                 processSpawnedDroid(returnedEntity, true, station.position)
                             else
@@ -439,6 +509,12 @@ function handleOnBuiltEntity(event)
     elseif entity.name == "rally-beacon" then
         handleBuiltRallyBeacon(event)
     elseif entity.type == "unit" and table.contains(squadCapable, entity.name) then --squadCapable is defined in DroidUnitList.
+        --add to the global units list. make it if it's not actually there yet.
+        if not global.units then global.units = {} end 
+
+        if not global.units[entity.unit_number] then      
+            global.units[entity.unit_number] = entity  -- reference to the LuaEntity with a lookup via the unit number.
+        end
         if not game.active_mods["Unit_Control"] then
             processSpawnedDroid(entity, false, nil, true) --this deals with droids spawning manually by the player
         end
