@@ -15,6 +15,10 @@ end
 
 
 local numUnitsAdded = 0;
+
+
+Game.print_all(string.format("Robot army processing %d forces, in %d surfaces", #game.forces, #game.surfaces))
+
 --ensure all force-specific tables and researches are handled/created
 for i, force_ in pairs(game.forces) do
     -- for each force
@@ -22,7 +26,7 @@ for i, force_ in pairs(game.forces) do
 
         -- get the list of units
         -- for each unit in the list, check the type and name is what we want, add to the list.
-        local units = surface_.find_units({area = {{-15000, -15000},{15000, 15000}}, force = force_.name, condition = "same"})
+        local units = surface_.find_units({area = {{-1000, -1000},{1000, 1000}}, force = force_.name, condition = "same"})
         for _, unitFound in pairs(units) do 
             if names[unitFound.name] then 
                 if unitFound.valid then
@@ -37,4 +41,4 @@ for i, force_ in pairs(game.forces) do
     end
 end
 
-Game.print_all(string.format("units added in migration script: %d", numUnitsAdded))
+Game.print_all(string.format("units added in robot army migration script: %d", numUnitsAdded))

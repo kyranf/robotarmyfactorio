@@ -234,6 +234,8 @@ end
 
 
 function shouldHunt(squad)
+    if not squad then return false end 
+    
     return (squad.command.type ~= commands.follow) and (squad.numMembers >= getSquadHuntSize(squad.force)
         or (squad.command.type == commands.hunt and squad.numMembers > getSquadRetreatSize(squad.force)))
 end
@@ -623,10 +625,20 @@ function validateSquadIntegrity(squad)
         squad.unitGroupFailureTick = game.tick
     end
 
+
+    --do another check for the unit group being valid before doing the next steps 
+    if not squad.unitGroup or not squad.unitGroup.valid then 
+        squad.unitGroup = recreateUnitGroupForSquad(squad, pos)
+    end 
+
+    if not squad.unitGroup or not squad.unitGroup.valid then 
+        return nil, false --give up
+    end 
+
     -- check each droid individually to confirm that it is part of the unitGroup
     for key, soldier in pairs(squad.members) do
         if soldier and soldier.valid and (soldier.force ~= squad.unitGroup.force) then
-            soldier.destroy()
+            soldier.destroy() --destroy the unit if they are in the squad but of the wrong force... maybe this needs more finesse, if a mod has some kind of AOE2 monk team-changing ability? 
         else 
             if not table.contains(squad.unitGroup.members, soldier) then
                 if not recreatedUG then

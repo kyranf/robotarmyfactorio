@@ -34,4 +34,8 @@ changes from 0.4.8 to 0.4.9:
   - added Russian language translations thanks to Varoga on Github
   - added migration script to detect and add all droid units to script-tracked array
   - added AI distraction custom commands for selecting nearest target instead of random target (overriding default ai behaviour of biters) thanks to Klonan
-  
+
+changes from 0.4.12 to 0.4.13:
+ - attempting to fix github issue #164
+ - attempting to fix github issue #172
+ - fixing migration script issue with the 0.4.12 migration where it would chew up peoples RAM and break their computers. made it do +-1000 tiles instead of +-15000 tiles for each surface, and each force. 
