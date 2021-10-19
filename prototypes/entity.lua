@@ -26,27 +26,52 @@ circuit_connector_definitions["loot_box"] = circuit_connector_definitions.create
 )
 
 local function robotAnimation(sheet, tint, scale)
-  return
-  {
-    filename = "__robotarmy__/graphics/entity/bots/" .. sheet .. ".png",
-    width = 80,
-    height = 80,
-    tint = tint,
-    direction_count = 22,
-    frame_count = 1,
-    animation_speed = 0.01,
-    shift = {0, 0},
-    scale = scale,
-    hr_version = {
-      filename = "__robotarmy__/graphics/entity/bots/hr-" .. sheet .. ".png",
-      width = 160,
-      height = 160,
-      tint = tint,
-      direction_count = 22,
-      frame_count = 1,
-      animation_speed = 0.01,
-      shift = {0, 0},
-      scale = (scale / 2),
+  return {
+    layers = {
+      {
+        filename = "__robotarmy__/graphics/entity/bots/" .. sheet .. ".png",
+        width = 80,
+        height = 80,
+        tint = tint,
+        direction_count = 22,
+        frame_count = 1,
+        animation_speed = 0.01,
+        shift = {0, -0.5},
+        scale = scale,
+        hr_version = {
+          filename = "__robotarmy__/graphics/entity/bots/hr-" .. sheet .. ".png",
+          width = 160,
+          height = 160,
+          tint = tint,
+          direction_count = 22,
+          frame_count = 1,
+          animation_speed = 0.01,
+          shift = {0, -0.5},
+          scale = (scale / 2),
+        }
+      },
+      {
+        filename = "__robotarmy__/graphics/entity/bots/" .. sheet .. "-shadow.png",
+        width = 160,
+        height = 80,
+        direction_count = 22,
+        frame_count = 1,
+        animation_speed = 0.01,
+        shift = {0, -0.5},
+        scale = scale,
+        draw_as_shadow = true,
+        hr_version = {
+          filename = "__robotarmy__/graphics/entity/bots/hr-" .. sheet .. "-shadow.png",
+          width = 320,
+          height = 160,
+          direction_count = 22,
+          frame_count = 1,
+          animation_speed = 0.01,
+          shift = {0, -0.5},
+          scale = (scale / 2),
+          draw_as_shadow = true,
+        }
+      }
     }
   }
 end
