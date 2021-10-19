@@ -37,6 +37,17 @@ local function robotAnimation(sheet, tint, scale)
     animation_speed = 0.01,
     shift = {0, 0},
     scale = scale,
+    hr_version = {
+      filename = "__robotarmy__/graphics/entity/bots/hr-" .. sheet .. ".png",
+      width = 160,
+      height = 160,
+      tint = tint,
+      direction_count = 22,
+      frame_count = 1,
+      animation_speed = 0.01,
+      shift = {0, 0},
+      scale = (scale / 2),
+    }
   }
 end
 
@@ -404,7 +415,6 @@ local droid_flame =
           stream = "flamethrower-fire-stream",
           duration = 60,
           source_offset = {0.15, -0.5},
-
           target_effects =
           {
             {
