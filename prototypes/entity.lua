@@ -25,6 +25,21 @@ circuit_connector_definitions["loot_box"] = circuit_connector_definitions.create
   }
 )
 
+local function robotAnimation(sheet, tint, scale)
+  return
+  {
+    filename = "__robotarmy__/graphics/entity/bots/" .. sheet .. ".png",
+    width = 80,
+    height = 80,
+    tint = tint,
+    direction_count = 22,
+    frame_count = 1,
+    animation_speed = 0.01,
+    shift = {0, 0},
+    scale = scale,
+  }
+end
+
 
 function make_laser_sounds(volume)
   return
@@ -215,18 +230,7 @@ local droid_smg =
     projectile_creation_distance = 0.6,
     range = 13,
     sound = make_heavy_shot_sounds(1.0),
-    animation =
-    {
-      filename = "__robotarmy__/graphics/entity/smg_idle.png",
-      priority = "high",
-      width = 80,
-      height = 80,
-      tint = droidSmgTint,
-      direction_count = 8,
-      frame_count = 1,
-      animation_speed = 0.3,
-      shift = {0, 0}
-    },
+    animation = robotAnimation("smg_run", droidSmgTint, 1),
     ammo_type =
     {
       category = "bullet",
@@ -256,30 +260,8 @@ local droid_smg =
       }
     }
   },
-  idle =
-  {
-    filename = "__robotarmy__/graphics/entity/smg_run.png",
-    priority = "high",
-    width = 80,
-    height = 80,
-    tint = droidSmgTint,
-    direction_count = 22,
-    frame_count = 1,
-    animation_speed = 0.3,
-    shift = {0, 0}
-  },
-  run_animation =
-  {
-    filename = "__robotarmy__/graphics/entity/smg_run.png",
-    priority = "high",
-    width = 80,
-    height = 80,
-    tint = droidSmgTint,
-    direction_count = 22,
-    frame_count = 1,
-    animation_speed = 0.3,
-    shift = {0, 0}
-  }
+  idle = robotAnimation("smg_run", droidSmgTint, 1),
+  run_animation = robotAnimation("smg_run", droidSmgTint, 1),
 }
 
 
@@ -385,18 +367,7 @@ local droid_flame =
     range = 10,
     min_range = 0,
     projectile_center = {-0.17, 0.2},
-    animation =
-    {
-      filename = "__robotarmy__/graphics/entity/flame_run.png",
-      priority = "high",
-      width = 80,
-      height = 80,
-      tint = droidFlameTint,
-      direction_count = 22,
-      frame_count = 1,
-      animation_speed = 0.3,
-      shift = {0, 0}
-    },
+    animation = robotAnimation("flame_run", droidFlameTint, 1),
     cyclic_sound =
     {
       begin_sound =
@@ -445,30 +416,8 @@ local droid_flame =
       }
     }
   },
-  idle =
-  {
-    filename = "__robotarmy__/graphics/entity/flame_run.png",
-    priority = "high",
-    width = 80,
-    height = 80,
-    tint = droidFlameTint,
-    direction_count = 22,
-    frame_count = 1,
-    animation_speed = 0.3,
-    shift = {0, 0}
-  },
-  run_animation =
-  {
-    filename = "__robotarmy__/graphics/entity/flame_run.png",
-    priority = "high",
-    width = 80,
-    height = 80,
-    tint = droidFlameTint,
-    direction_count = 22,
-    frame_count = 1,
-    animation_speed = 0.3,
-    shift = {0, 0}
-  }
+  idle = robotAnimation("flame_run", droidFlameTint, 1),
+  run_animation = robotAnimation("flame_run", droidFlameTint, 1),
 }
 
 local droid_rifle =
@@ -583,19 +532,7 @@ local droid_rifle =
     projectile_creation_distance = 0.8,
     range = 15,
     sound = make_rifle_gunshot_sounds(1),
-    animation =
-    {
-      filename = "__robotarmy__/graphics/entity/rifle_idle.png",
-      priority = "high",
-      scale = droidscale,
-      width = 80,
-      height = 80,
-      tint = droidRifleTint,
-      direction_count = 8,
-      frame_count = 1,
-      animation_speed = 0.3,
-      shift = {0, 0}
-    },
+    animation = robotAnimation("rifle_run", droidRifleTint, droidscale),
     ammo_type =
     {
       category = "bullet",
@@ -625,32 +562,8 @@ local droid_rifle =
       }
     }
   },
-  idle =
-  {
-    filename = "__robotarmy__/graphics/entity/rifle_run.png",
-    priority = "high",
-    width = 80,
-    height = 80,
-    scale = droidscale,
-    tint = droidRifleTint,
-    direction_count = 22,
-    frame_count = 1,
-    animation_speed = 0.3,
-    shift = {0, 0}
-  },
-  run_animation =
-  {
-    filename = "__robotarmy__/graphics/entity/rifle_run.png",
-    priority = "high",
-    width = 80,
-    height = 80,
-    tint = droidRifleTint,
-    direction_count = 22,
-    scale = droidscale,
-    frame_count = 1,
-    animation_speed = 0.3,
-    shift = {0, 0}
-  }
+  idle = robotAnimation("rifle_run", droidRifleTint, droidscale),
+  run_animation = robotAnimation("rifle_run", droidRifleTint, droidscale),
 }
 
 
@@ -755,18 +668,7 @@ local droid_rocket =
     projectile_creation_distance = 1,
     range = 22,
     projectile_center = {0.6, 1},
-    animation =
-    {
-      filename = "__robotarmy__/graphics/entity/rocket_idle.png",
-      priority = "high",
-      width = 80,
-      height = 80,
-      tint = droidRocketTint,
-      direction_count = 8,
-      frame_count = 1,
-      animation_speed = 0.15,
-      shift = {0, 0}
-    },
+    animation = robotAnimation("rocket_run", droidRocketTint, 1),
     sound =
     {
       {
@@ -794,30 +696,8 @@ local droid_rocket =
       }
     }
   },
-  idle =
-  {
-    filename = "__robotarmy__/graphics/entity/rocket_idle.png",
-    priority = "high",
-    width = 80,
-    height = 80,
-    tint = droidRocketTint,
-    direction_count = 8,
-    frame_count = 1,
-    animation_speed = 0.3,
-    shift = {0, 0}
-  },
-  run_animation =
-  {
-    filename = "__robotarmy__/graphics/entity/rocket_run.png",
-    priority = "high",
-    width = 80,
-    height = 80,
-    tint = droidRocketTint,
-    direction_count = 22,
-    frame_count = 1,
-    animation_speed = 0.3,
-    shift = {0, 0}
-  }
+  idle = robotAnimation("rocket_run", droidRocketTint, 1),
+  run_animation = robotAnimation("rocket_run", droidRocketTint, 1),
 }
 
 local terminator =
@@ -932,17 +812,7 @@ local terminator =
     projectile_creation_distance = 1.5,
     range = 15,
     sound = make_laser_sounds(1),
-    animation =
-    {
-      filename = "__robotarmy__/graphics/entity/terminator_idle.png",
-      priority = "high",
-      width = 80,
-      height = 80,
-      direction_count = 8,
-      frame_count = 1,
-      animation_speed = 0.15,
-      shift = {0, 0}
-    },
+    animation = robotAnimation("terminator_run", {r=1, g=1, b=1, a=1}, 1),
     ammo_type =
     {
       type = "projectile",
@@ -966,28 +836,8 @@ local terminator =
       }
     }
   },
-  idle =
-  {
-    filename = "__robotarmy__/graphics/entity/terminator_run.png",
-    priority = "very-low",
-    width = 80,
-    height = 80,
-    direction_count = 22,
-    frame_count = 1,
-    animation_speed = 0.5,
-    shift = {0, 0}
-  },
-  run_animation =
-  {
-    filename = "__robotarmy__/graphics/entity/terminator_run.png",
-    priority = "high",
-    width = 80,
-    height = 80,
-    direction_count = 22,
-    frame_count = 1,
-    animation_speed = 0.5,
-    shift = {0, 0}
-  }
+  idle = robotAnimation("terminator_run", {r=1, g=1, b=1, a=1}, 1),
+  run_animation = robotAnimation("terminator_run", {r=1, g=1, b=1, a=1}, 1),
 }
 
 ------------------------------------------------------------------------
