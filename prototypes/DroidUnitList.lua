@@ -9,9 +9,9 @@ squadCapable = {"droid-smg", "droid-rocket","droid-rifle", "terminator", "droid-
 
 -- lets pre-adjust the strings now, for fast matching in run-time, and only when we get a match do we convert back to the spawnable entity names.
 for _, name in pairs(spawnable) do
-	name = convertToMatchable(name)
+  name = convertToMatchable(name)
 end
 for _, name in pairs(squadCapable) do
-	name = convertToMatchable(name)
+  name = convertToMatchable(name)
 end
 -- remember to call convertToEntityNames before referencing these entries in spawning or other related uses
