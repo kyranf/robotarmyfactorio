@@ -1,5 +1,5 @@
 -- use the base game's power armour animations/sprites for the droids and terminators
-require("prototypes.droid-animations")
+--require("prototypes.droid-animations")
 require("config.config")
 
 -- DONT FORGET TO ADD ANY NEW LOCAL TABLE DEFINITIONS TO THE DATA:EXTEND THING AT THE BOTTOM!
@@ -101,7 +101,7 @@ function make_rifle_gunshot_sounds(volume)
     }
 end
 
-local droid_smg = 
+local droid_smg =
 {
     type = "unit",
     name = "droid-smg",
@@ -192,7 +192,7 @@ local droid_smg =
           }
         }
       }
- 
+
     },
     attack_parameters =
     {
@@ -265,7 +265,7 @@ local droid_smg =
 	  direction_count = 22,
 	  frame_count = 1,
 	  animation_speed = 0.3,
-	  shift = {0, 0}	
+	  shift = {0, 0}
 	},
 	run_animation =
 	{
@@ -277,12 +277,12 @@ local droid_smg =
 	  direction_count = 22,
 	  frame_count = 1,
 	  animation_speed = 0.3,
-	  shift = {0, 0}	
+	  shift = {0, 0}
 	}
 }
 
 
-local droid_flame = 
+local droid_flame =
 {
     type = "unit",
     name = "droid-flame",
@@ -372,7 +372,7 @@ local droid_flame =
           }
         }
       }
- 
+
     },
      attack_parameters =
     {
@@ -394,7 +394,7 @@ local droid_flame =
 			direction_count = 22,
 			frame_count = 1,
 			animation_speed = 0.3,
-			shift = {0, 0}	
+			shift = {0, 0}
 	  },
 	  cyclic_sound =
       {
@@ -432,7 +432,7 @@ local droid_flame =
             stream = "flamethrower-fire-stream",
             duration = 60,
             source_offset = {0.15, -0.5},
-            
+
             target_effects =
             {
               {
@@ -443,7 +443,7 @@ local droid_flame =
           }
         }
       }
-	  
+
     },
 	idle =
 	{
@@ -455,7 +455,7 @@ local droid_flame =
 	  direction_count = 22,
 	  frame_count = 1,
 	  animation_speed = 0.3,
-	  shift = {0, 0}	
+	  shift = {0, 0}
 	},
 	run_animation =
 	{
@@ -467,11 +467,11 @@ local droid_flame =
 	  direction_count = 22,
 	  frame_count = 1,
 	  animation_speed = 0.3,
-	  shift = {0, 0}	
+	  shift = {0, 0}
 	}
 }
 
-local droid_rifle = 
+local droid_rifle =
 {
     type = "unit",
     name = "droid-rifle",
@@ -562,7 +562,7 @@ local droid_rifle =
           }
         }
       }
- 
+
     },
     attack_parameters =
     {
@@ -637,7 +637,7 @@ local droid_rifle =
 	  direction_count = 22,
 	  frame_count = 1,
 	  animation_speed = 0.3,
-	  shift = {0, 0}	
+	  shift = {0, 0}
 	},
 	run_animation =
 	{
@@ -650,12 +650,12 @@ local droid_rifle =
 	  scale = droidscale,
 	  frame_count = 1,
 	  animation_speed = 0.3,
-	  shift = {0, 0}	
+	  shift = {0, 0}
 	}
 }
 
 
-local droid_rocket = 
+local droid_rocket =
 {
     type = "unit",
     name = "droid-rocket",
@@ -746,7 +746,7 @@ local droid_rocket =
           }
         }
       }
- 
+
     },
      attack_parameters =
     {
@@ -795,7 +795,7 @@ local droid_rocket =
 			}
 		  }
       }
-	  
+
     },
 	idle =
 	{
@@ -807,7 +807,7 @@ local droid_rocket =
 	  direction_count = 8,
 	  frame_count = 1,
 	  animation_speed = 0.3,
-	  shift = {0, 0}	
+	  shift = {0, 0}
 	},
 	run_animation =
 	{
@@ -819,11 +819,11 @@ local droid_rocket =
 	  direction_count = 22,
 	  frame_count = 1,
 	  animation_speed = 0.3,
-	  shift = {0, 0}	
+	  shift = {0, 0}
 	}
 }
 
-local terminator = 
+local terminator =
 {
 	type = "unit",
   name = "terminator",
@@ -924,11 +924,11 @@ local terminator =
 		  },
       }
 	  }
- 
+
     },
 	attack_parameters =
     {
-      
+
 	  type = "projectile",
       ammo_category = "laser",
       cooldown = 10,
@@ -969,8 +969,8 @@ local terminator =
           }
         }
        }
-	  
-	 
+
+
     },
 	idle =
 	{
@@ -1120,7 +1120,7 @@ local droid_counter =  {
       },
     },
    },
-    
+
    activity_led_light =
     {
       intensity = 0.8,
@@ -1188,7 +1188,7 @@ local droid_counter =  {
       }
 	},
     circuit_wire_max_distance = 10
-  
+
 }
 
 local droid_settings =  {
@@ -1381,7 +1381,7 @@ local droid_settings =  {
       }
 	},
     circuit_wire_max_distance = 10
-  
+
 }
 
 
@@ -1433,7 +1433,7 @@ local loot_chest = {
     circuit_connector_sprites = circuit_connector_definitions["loot_box"].sprites,
     circuit_wire_max_distance = 7.5
  }
- 
+
  local selection_sticker ={
   type = "sticker",
   name = "selection-sticker",
@@ -1457,5 +1457,5 @@ local loot_chest = {
  -- extend the game data with the new entity definitions
 data:extend({droid_smg, droid_rocket, droid_rifle, terminator, droid_counter, loot_chest, droid_flame, droid_settings, selection_sticker})
 
-  
- 
+
+

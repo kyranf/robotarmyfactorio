@@ -50,7 +50,7 @@ data:extend(
     subgroup = "virtual-signal-number",
     order = "r[droid]-[06]"
   },
-  
+
   --settings signals
   {
     type = "virtual-signal",
@@ -83,6 +83,6 @@ data:extend(
     icon = "__robotarmy__/graphics/icons/signal_squad_size.png",
     subgroup = "virtual-signal-number",
     order = "r[droid]-[10]"
-  },  
-  
+  },
+
 })

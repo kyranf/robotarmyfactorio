@@ -3,7 +3,7 @@ local baseMt, _instances, _classes, _class = {}, setmetatable({},{__mode='k'}), 
 local function assert_class(class, method) assert(_classes[class], ('Wrong method call. Expected class:%s.'):format(method)) end
 local function deep_copy(t, dest, aType) t = t or {}; local r = dest or {}
   for k,v in pairs(t) do
-		if aType~=nil and type(v)==aType then r[k] = type(v) == 'table' and deep_copy(v) or v 
+		if aType~=nil and type(v)==aType then r[k] = type(v) == 'table' and deep_copy(v) or v
 		elseif aType==nil then r[k] = type(v) == 'table' and k~= '__index' and deep_copy(v) or v
     end
   end; return r
@@ -20,7 +20,7 @@ baseMt = { __call = function (self,...) return self:new(...) end, __tostring = f
   if _instances[self] then return ("instance of '%s' (%s)"):format(rawget(self.class,'name') or '?', _instances[self]) end
   return _classes[self] and ("class '%s' (%s)"):format(rawget(self,'name') or '?',_classes[self]) or self
 end}; _classes[baseMt] = tostring(baseMt); setmetatable(baseMt, {__tostring = baseMt.__tostring})
-local class = {isClass = function(class, ofsuper) local isclass = not not _classes[class]; if ofsuper then return isclass and (class.super == ofsuper) end; return isclass end, isInstance = function(instance, ofclass) 
+local class = {isClass = function(class, ofsuper) local isclass = not not _classes[class]; if ofsuper then return isclass and (class.super == ofsuper) end; return isclass end, isInstance = function(instance, ofclass)
 	local isinstance = not not _instances[instance]; if ofclass then return isinstance and (instance.class == ofclass) end; return isinstance end}; _class = function(name, attr)
   local c = deep_copy(attr); c.mixins=setmetatable({},{__mode='k'}); _classes[c] = tostring(c); c.name, c.__tostring, c.__call = name or c.name, baseMt.__tostring, baseMt.__call
   c.include = function(self,mixin) assert_class(self, 'include(mixin)'); self.mixins[mixin] = true; return deep_copy(mixin, self, 'function') end

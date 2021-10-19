@@ -216,7 +216,7 @@ local patrolPole = {
 	  height = 12,
 	  priority = "extra-high-no-scale"
 	},
-} 
- 
- 
+}
+
+
  data:extend({droidAssembler,guardStation, patrolPole})

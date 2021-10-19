@@ -32,7 +32,7 @@ data:extend(
     order = "z-z",
 	subgroup = "capsule",
     place_result = "",
-    stack_size = 1  
+    stack_size = 1
   },
   {
     type = "item",
@@ -54,7 +54,7 @@ data:extend(
     order = "z-z",
 	subgroup = "capsule",
     place_result = "",
-    stack_size = 1  
+    stack_size = 1
   },
   {
     type = "item",
@@ -76,7 +76,7 @@ data:extend(
     order = "z-z",
 	subgroup = "capsule",
     place_result = "",
-    stack_size = 1  
+    stack_size = 1
   },
   {
     type = "item",
@@ -98,7 +98,7 @@ data:extend(
     order = "z-z",
 	subgroup = "capsule",
     place_result = "",
-    stack_size = 1  
+    stack_size = 1
   },
   {
     type = "item",
@@ -120,9 +120,9 @@ data:extend(
 	order = "z-z",
 	subgroup = "capsule",
 	place_result = "",
-	stack_size = 1  
+	stack_size = 1
 	},
-	
+
 	{
 		type = "item",
 		name = "defender-unit",
@@ -143,9 +143,9 @@ data:extend(
 		order = "z-z",
 		subgroup = "capsule",
 		place_result = "",
-		stack_size = 1  
+		stack_size = 1
 	},
-	
+
 	{
 		type = "item",
 		name = "distractor-unit",
@@ -166,7 +166,7 @@ data:extend(
 		order = "z-z",
 		subgroup = "capsule",
 		place_result = "",
-		stack_size = 1  
+		stack_size = 1
 	},
 	{
 		type = "item",
@@ -188,7 +188,7 @@ data:extend(
 		order = "z-z",
 		subgroup = "capsule",
 		place_result = "",
-		stack_size = 1  
+		stack_size = 1
 	},
   {
     type = "item",
@@ -292,5 +292,5 @@ data:extend(
 	selection_cursor_box_type = "not-allowed",
 	alt_selection_cursor_box_type = "not-allowed"
 	},
-  
+
 })

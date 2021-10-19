@@ -56,7 +56,7 @@ function processDistractionCompleted(event)
     target = enemy
   }
 
-end 
+end
 
 function runOnceCheck(game_forces)
     if not global.runOnce then
@@ -80,8 +80,8 @@ function processSquadUpdatesForTick(force_name, tickProcessIndex)
 
     local forceTickTable = global.updateTable[force_name]
     local squadTable = global.Squads[force_name]
-    if(forceTickTable and squadTable) then 
-        
+    if(forceTickTable and squadTable) then
+
         for i, squadref in pairs(forceTickTable[tickProcessIndex]) do
             if squadref and squadTable[squadref] then
                 -- local squad = global.Squads[force_name][squadref]
@@ -119,8 +119,8 @@ function reportSelectedUnits(event, alt)
 			local squad = getClosestSquadToPos(global.Squads[player.force.name], clickPosition, SQUAD_CHECK_RANGE) --get nearest squad within SQUAD_CHECK_RANGE amount of tiles radius from click point.
 
 			if squad then
-                
-                -- if there's a currently selected squad, deselect them! 
+
+                -- if there's a currently selected squad, deselect them!
                 --DESELECT LOGIC
 				if global.selected_squad and global.selected_squad[player.index] and global.selected_squad[player.index] ~= nil then
 					if global.Squads[player.force.name][global.selected_squad[player.index]] then  --if the squad still exists, even though we have the ID still in selection
@@ -138,8 +138,8 @@ function reportSelectedUnits(event, alt)
 						end
 					end
 				end
-                
-                
+
+
 				Game.print_all(string.format("Squad ID %d selected! Droids in squad: %d", squad.squadID, squad.numMembers) )
 				--Game.print_all(string.format("Tool %s Selected area! Player ID %d, box %d,%d and %d,%d, droids in squad %d ",  event.item , event.player_index, area.left_top.x, area.left_top.y, area.right_bottom.x, area.right_bottom.y, squad.numMembers ) )
 
@@ -257,9 +257,9 @@ function processSpawnedDroid(droid, guard, guardPos, manuallyPlaced)
     end
 
     --add to the global units list. make it if it's not actually there yet.
-    if not global.units then global.units = {} end 
+    if not global.units then global.units = {} end
 
-    if not global.units[droid.unit_number] then      
+    if not global.units[droid.unit_number] then
         global.units[droid.unit_number] = droid  -- reference to the LuaEntity with a lookup via the unit number.
     end
 
@@ -304,7 +304,7 @@ function processSpawnedDroid(droid, guard, guardPos, manuallyPlaced)
 end
 
 function onPlayerJoined(event)
-    local playerIndex = event.player_index 
+    local playerIndex = event.player_index
     if game.active_mods["Unit_Control"] then
         game.players[playerIndex].print("Robot Army: Unit Control Mod is active! Please use Unit Control selection and command method. Automated behaviours disabled.")
     else
@@ -335,22 +335,22 @@ function processDroidAssemblers(force)
                                  direction = defines.direction.east,
                                  force = assembler.force,
                                  raise_built=true })
-            
+
                             if returnedEntity then
                                  --add to the global units list. make it if it's not actually there yet.
-                                if not global.units then global.units = {} end 
+                                if not global.units then global.units = {} end
 
-                                if not global.units[returnedEntity.unit_number] then      
+                                if not global.units[returnedEntity.unit_number] then
                                     global.units[returnedEntity.unit_number] = returnedEntity  -- reference to the LuaEntity with a lookup via the unit number.
                                 end
-                                if not game.active_mods["Unit_Control"] then  
+                                if not game.active_mods["Unit_Control"] then
                                     processSpawnedDroid(returnedEntity)
                                 else
                                     local control_events = remote.call("unit_control", "get_events")
                                     unit_spawned_event = control_events.on_unit_spawned
                                     script.raise_event(unit_spawned_event, {entity = returnedEntity, spawner = assembler})
                                 end
-                            
+
                             end
                             inv.clear() --clear output slot
                         end
@@ -366,7 +366,7 @@ end
 
 function processDroidGuardStations(force)
     --handle guard station spawning here
-    
+
     if global.droidGuardStations and global.droidGuardStations[force.name] then
         for _, station in pairs(global.droidGuardStations[force.name]) do
             if station and station.valid and station.force == force then
@@ -378,17 +378,17 @@ function processDroidGuardStations(force)
                 if (spawnableDroidName ~= nil and type(spawnableDroidName) == "string") and nearby < getSquadGuardSize(station.force) then
                     local droidPos =  getGuardSpawnLocation(station) -- uses station pos
                     if droidPos ~= -1 then
-                        local returnedEntity = station.surface.create_entity({name = spawnableDroidName , 
-                                                                            position = droidPos, direction = defines.direction.east, 
+                        local returnedEntity = station.surface.create_entity({name = spawnableDroidName ,
+                                                                            position = droidPos, direction = defines.direction.east,
                                                                             force = station.force, raise_built=true })
                         if returnedEntity then
                             --add to the global units list. make it if it's not actually there yet.
-                            if not global.units then global.units = {} end 
+                            if not global.units then global.units = {} end
 
-                            if not global.units[returnedEntity.unit_number] then      
+                            if not global.units[returnedEntity.unit_number] then
                                 global.units[returnedEntity.unit_number] = returnedEntity  -- reference to the LuaEntity with a lookup via the unit number.
                             end
-                            if not game.active_mods["Unit_Control"] then  
+                            if not game.active_mods["Unit_Control"] then
                                 processSpawnedDroid(returnedEntity, true, station.position)
                             else
                                 local control_events = remote.call("unit_control", "get_events")
@@ -441,7 +441,7 @@ function tickForces(forces, tick)
                 processDroidGuardStations(force)
             end
 
-            if not game.active_mods["Unit_Control"] then 
+            if not game.active_mods["Unit_Control"] then
                 processDroidAssemblersForTick(force, tick)
                 processSquadUpdatesForTick(force.name, tick % 60 + 1)
                 updateSelectionCircles(force)
@@ -450,7 +450,7 @@ function tickForces(forces, tick)
                 log_session_statistics(force)
             end
 
-			
+
 
         end
     end
@@ -510,9 +510,9 @@ function handleOnBuiltEntity(event)
         handleBuiltRallyBeacon(event)
     elseif entity.type == "unit" and table.contains(squadCapable, entity.name) then --squadCapable is defined in DroidUnitList.
         --add to the global units list. make it if it's not actually there yet.
-        if not global.units then global.units = {} end 
+        if not global.units then global.units = {} end
 
-        if not global.units[entity.unit_number] then      
+        if not global.units[entity.unit_number] then
             global.units[entity.unit_number] = entity  -- reference to the LuaEntity with a lookup via the unit number.
         end
         if not game.active_mods["Unit_Control"] then
@@ -580,7 +580,7 @@ function handleForceCreated(event)
 
     global.AssemblerNearestEnemies = global.AssemblerNearestEnemies or {}
     global.AssemblerNearestEnemies[force.name] = {}
-	
+
     global.Squads = global.Squads or {}
     global.Squads[force.name] = {}
 
@@ -631,7 +631,7 @@ function handleModChanges()
             migrateForce(fkey, force)
         end
     end
-    
+
     --check if we have grab artifacts enabled - if we do, but it was added after the game started, and the force has military 1 researched
     --then lets force the recipe to be enabled (because they have missed the usual trigger)
     if(GRAB_ARTIFACTS == 1) then
@@ -642,11 +642,11 @@ function handleModChanges()
         end
     else  -- else force-disable it if it's been disabled part-way through a game.
         for fkey, force in pairs(forces) do
-            force.recipes["loot-chest"].enabled = false  
+            force.recipes["loot-chest"].enabled = false
         end
 
     end
-    
+
 
 
 end

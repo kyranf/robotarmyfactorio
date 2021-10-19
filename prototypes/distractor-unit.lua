@@ -35,7 +35,7 @@ data:extend({
       allow_destroy_when_commands_fail = false,
       do_separation = true
     },
-    
+
     attack_parameters =
     {
       type = "projectile",
@@ -69,7 +69,7 @@ data:extend({
         }
       },]]--
       animation =
-    {   
+    {
       layers =
       {
         {
@@ -106,8 +106,8 @@ data:extend({
       }
      }
     },
-    
-    
+
+
     vision_distance = 45,
     radar_range = 1,
     can_open_gates = true,
@@ -178,5 +178,5 @@ data:extend({
       }
     },
       },
-      
+
 })

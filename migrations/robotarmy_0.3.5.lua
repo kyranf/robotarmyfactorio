@@ -29,7 +29,7 @@ for i, force in pairs(game.forces) do
         force.recipes["droid-assembling-machine"].enabled=true
         force.recipes["droid-pickup-tool"].enabled=true
         force.recipes["droid-selection-tool"].enabled=true
-        
+
     end
 
     if force.technologies["electronics"].researched then

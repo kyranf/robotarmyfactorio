@@ -148,7 +148,7 @@ function checkSettingsModules()
 
             --get the parameters, go through and check each one, while also checking the values are logically okay.
             local behaviour = settingsModule.get_or_create_control_behavior() -- a LuaConstantCombinatorControlBehavior
-            local parameters = behaviour.parameters 
+            local parameters = behaviour.parameters
 
             --Game.print_force(gameForce, string.format("Parameters table of force's settings module is length %d", #parameters))
             for index, parameter in pairs(parameters) do
@@ -259,7 +259,7 @@ function doCounterUpdate()
             for _, counter in pairs(global.droidCounters[gameForce.name]) do
                 if(counter.valid) then
                     local currentParams = counter.get_or_create_control_behavior()
-                    if (currentParams) then 
+                    if (currentParams) then
                         local lengthOld = #currentParams.parameters
                         local lengthNew = #circuitParams.parameters
                         --Game.print_force(counter.force, string.format("counter number of signals %d, number of new signals %d",lengthOld, lengthNew))
@@ -560,11 +560,11 @@ function handleDroidAssemblerPlaced(event)
     if not global.DroidAssemblers[force.name] then
         global.DroidAssemblers[force.name] = {}
     end
-    
+
     if not global.AssemblerNearestEnemies then
         global.AssemblerNearestEnemies = {}
     end
-    
+
     if not global.AssemblerNearestEnemies[force.name] then
         global.AssemblerNearestEnemies[force.name] = {}
     end

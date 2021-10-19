@@ -108,7 +108,7 @@ data:extend(
     ingredients =
     {
       {"droid-smg", 1}
-      
+
     },
     result = "droid-smg-dummy"
   },
@@ -121,10 +121,10 @@ data:extend(
     ingredients =
     {
       {"droid-rocket", 1}
-      
+
     },
     result = "droid-rocket-dummy"
-  }, 
+  },
   {
     type = "recipe",
     name = "droid-rifle-deploy",
@@ -134,10 +134,10 @@ data:extend(
     ingredients =
     {
       {"droid-rifle", 1}
-      
+
     },
     result = "droid-rifle-dummy"
-  },   
+  },
  {
     type = "recipe",
     name = "droid-counter",
@@ -170,7 +170,7 @@ data:extend(
 	{
 	  {"steel-plate",20},
 	  {"electronic-circuit", 25},
-	},	
+	},
     result = "loot-chest",
 	requester_paste_multiplier = 1
   },
@@ -181,7 +181,7 @@ data:extend(
 	ingredients =
 	{
 	  {"electronic-circuit", 1}
-	},	
+	},
     result = "droid-selection-tool",
 	requester_paste_multiplier = 1
   },
@@ -192,12 +192,12 @@ data:extend(
 	ingredients =
 	{
 	  {"electronic-circuit", 1}
-	},	
+	},
     result = "droid-pickup-tool",
 	requester_paste_multiplier = 1
   },
-  
-   {  
+
+   {
     type = "recipe",
     name = "droid-flame",
     enabled = false,
@@ -209,12 +209,12 @@ data:extend(
 	  {"electronic-circuit", 25},
 	  {"flamethrower", 1},
 	  {"light-armor", 2}
-    
-	},	
+
+	},
     result = "droid-flame",
 
   },
-  {  
+  {
     type = "recipe",
     name = "droid-flame-deploy",
     enabled = false,
@@ -223,11 +223,11 @@ data:extend(
 	ingredients =
 	{
 	  {"droid-flame",1}
-	},	
+	},
     result = "droid-flame-dummy",
 
   },
-  {  
+  {
     type = "recipe",
     name = "patrol-pole",
     enabled = false,
@@ -235,11 +235,11 @@ data:extend(
 	{
 	  {"steel-plate",5},
 	  {"electronic-circuit", 5},
-	},	
+	},
     result = "patrol-pole",
 	requester_paste_multiplier = 1
   },
-  -- adding in support for Klonan's Combat Units 
+  -- adding in support for Klonan's Combat Units
   	{
 		type = "recipe",
 		name = "defender-unit",
@@ -263,11 +263,11 @@ data:extend(
 		ingredients =
 		{
 		  {"defender-unit", 1}
-		  
+
 		},
 		result = "defender-unit-dummy"
-	}, 
-	
+	},
+
   	{
 		type = "recipe",
 		name = "distractor-unit",
@@ -291,11 +291,11 @@ data:extend(
 		ingredients =
 		{
 		  {"distractor-unit", 1}
-		  
+
 		},
 		result = "distractor-unit-dummy"
 	},
-	
+
 	{
 		type = "recipe",
 		name = "destroyer-unit",
@@ -319,15 +319,15 @@ data:extend(
 		ingredients =
 		{
 		  {"destroyer-unit", 1}
-		  
+
 		},
 		result = "destroyer-unit-dummy"
 	},
-  
+
 })
 
 
-  
+
  -- deal with unlocking the recipes just piggy-backing on military research for now. most droids need more advanced research to build them anyway.
 table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-rifle"})
 table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-rifle-deploy"})
@@ -351,7 +351,7 @@ table.insert(data.raw["technology"]["military-2"].effects,{type="unlock-recipe",
 table.insert(data.raw["technology"]["military-2"].effects,{type="unlock-recipe",recipe="droid-flame"})
 
 table.insert(data.raw["technology"]["military-3"].effects,{type="unlock-recipe",recipe="terminator-deploy"})
-table.insert(data.raw["technology"]["military-3"].effects,{type="unlock-recipe",recipe="terminator"})  
+table.insert(data.raw["technology"]["military-3"].effects,{type="unlock-recipe",recipe="terminator"})
 
 
 

@@ -4,8 +4,8 @@ require("stdlib/game")
 
 
 function bootstrap_migration_on_first_tick(event)
-    
-    
+
+
     -- substitute the 'normal' tick handler, and run it manually this time
     script.on_event(defines.events.on_tick, handleTick)
     handleTick(event)

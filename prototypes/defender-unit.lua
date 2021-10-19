@@ -30,13 +30,13 @@ data:extend({
     selection_box = {{-0.3, -0.3}, {0.3, 0.3}},
     sticker_box = {{-0.1, -0.1}, {0.1, 0.1}},
     distraction_cooldown = 300,
-    
+
     ai_settings =
     {
       allow_destroy_when_commands_fail = false,
       do_separation = true
     },
-    
+
     attack_parameters =
     {
       type = "projectile",
@@ -83,7 +83,7 @@ data:extend({
         }
       },]]--
       animation =
-    {   
+    {
       layers =
       {
         {
@@ -120,8 +120,8 @@ data:extend({
       }
      }
     },
-    
-    
+
+
     vision_distance = 45,
     radar_range = 1,
     can_open_gates = true,
@@ -192,6 +192,6 @@ data:extend({
       }
     },
       },
-        
+
 })
 
