@@ -132,7 +132,7 @@ function reportSelectedUnits(event, alt)
 							unitBox.right_bottom.x = unitBox.right_bottom.x + 0.1
 							unitBox.right_bottom.y = unitBox.right_bottom.y + 0.1
 
-							for _,e in pairs(member.surface.find_entities_filtered{type="sticker", area=unitBox}) do
+							for _,e in pairs(member.surface.find_entities_filtered{type = "sticker", area = unitBox}) do
 							  e.destroy()
 							end
 						end
@@ -173,7 +173,7 @@ function reportSelectedUnits(event, alt)
 							unitBox.right_bottom.x = unitBox.right_bottom.x + 0.1
 							unitBox.right_bottom.y = unitBox.right_bottom.y + 0.1
 
-							for _,e in pairs(member.surface.find_entities_filtered{type="sticker", area=unitBox}) do
+							for _,e in pairs(member.surface.find_entities_filtered{type = "sticker", area = unitBox}) do
 							  e.destroy()
 							end
 						end
@@ -421,7 +421,7 @@ function updateSelectionCircles(force)
 				end
 			else
 			 --remove the sticker
-				for _,e in pairs(unit.surface.find_entities_filtered{type="sticker", area=unit.bounding_box}) do
+				for _,e in pairs(unit.surface.find_entities_filtered{type = "sticker", area = unit.bounding_box}) do
 					e.destroy()
 				end
 

@@ -7,7 +7,7 @@ if not global.units then global.units = {} end
 
 --prep list of names to check against for unit checking
 
-local names = { }
+local names = {}
 for _, name in pairs(spawnable) do
  local entityName = convertToEntityNames(name)
  names[entityName] = 1 --put something in the names table at this key.
@@ -26,7 +26,7 @@ for i, force_ in pairs(game.forces) do
 
         -- get the list of units
         -- for each unit in the list, check the type and name is what we want, add to the list.
-        local units = surface_.find_units({area = {{-1000, -1000},{1000, 1000}}, force = force_.name, condition = "same"})
+        local units = surface_.find_units({area = {{-1000, -1000}, {1000, 1000}}, force = force_.name, condition = "same"})
         for _, unitFound in pairs(units) do
             if names[unitFound.name] then
                 if unitFound.valid then

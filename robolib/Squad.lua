@@ -762,7 +762,7 @@ function grabArtifactsBySquad(squad)
 
             local position = squad.unitGroup.position
             local areaToCheck = {left_top = {position.x-ARTIFACT_GRAB_RADIUS, position.y-ARTIFACT_GRAB_RADIUS}, right_bottom = {position.x+ARTIFACT_GRAB_RADIUS, position.y+ARTIFACT_GRAB_RADIUS}}
-            local itemList = surface.find_entities_filtered{area=areaToCheck, type="item-entity"}
+            local itemList = surface.find_entities_filtered{area = areaToCheck, type = "item-entity"}
             local artifactList = {}
             for _, item in pairs(itemList) do
                 if item.valid and item.stack.valid then

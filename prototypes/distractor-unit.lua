@@ -85,7 +85,7 @@ data:extend({
 {
   type = "unit",
   name = "distractor-unit",
-  icon_size = 32,
+  icon_size = 64,
   icon = "__base__/graphics/icons/distractor.png",
   flags = {"placeable-player", "player-creation", "placeable-off-grid"},
   subgroup = "creatures",

@@ -1,5 +1,6 @@
 local ICONPATH = "__robotarmy__/graphics/icons/"
 local BOTPATH = "__robotarmy__/graphics/entity/bots/"
+local BUILPATH = "__robotarmy__/graphics/entity/buildings/"
 
 -- use the base game's power armour animations/sprites for the droids and terminators
 --require("prototypes.droid-animations")
@@ -80,79 +81,35 @@ local function robotAnimation(sheet, tint, scale)
 end
 
 function make_laser_sounds(volume)
-  return
-  {
-    {
-      filename = "__base__/sound/fight/laser-1.ogg",
-      volume = 0.7
-    },
-    {
-      filename = "__base__/sound/fight/laser-2.ogg",
-      volume = 0.7
-    },
-    {
-      filename = "__base__/sound/fight/laser-3.ogg",
-      volume = 0.7
-    }
+  return {
+    {filename = "__base__/sound/fight/laser-1.ogg", volume = 0.7},
+    {filename = "__base__/sound/fight/laser-2.ogg", volume = 0.7},
+    {filename = "__base__/sound/fight/laser-3.ogg", volume = 0.7}
   }
 end
 
 function make_heavy_shot_sounds(volume)
-  return
-  {
-    {
-      filename = "__base__/sound/fight/heavy-gunshot-1.ogg",
-      volume = 0.45
-    },
-    {
-      filename = "__base__/sound/fight/heavy-gunshot-2.ogg",
-      volume = 0.45
-    },
-    {
-      filename = "__base__/sound/fight/heavy-gunshot-3.ogg",
-      volume = 0.45
-    },
-    {
-      filename = "__base__/sound/fight/heavy-gunshot-4.ogg",
-      volume = 0.45
-    }
+  return {
+    {filename = "__base__/sound/fight/heavy-gunshot-1.ogg", volume = 0.45},
+    {filename = "__base__/sound/fight/heavy-gunshot-2.ogg", volume = 0.45},
+    {filename = "__base__/sound/fight/heavy-gunshot-3.ogg", volume = 0.45},
+    {filename = "__base__/sound/fight/heavy-gunshot-4.ogg", volume = 0.45}
   }
 end
 
-
 function make_light_gunshot_sounds(volume)
-  return
-  {
-    {
-      filename = "__base__/sound/fight/light-gunshot-1.ogg",
-      volume = 0.7
-    },
-    {
-      filename = "__base__/sound/fight/light-gunshot-2.ogg",
-      volume = 0.7
-    },
-    {
-      filename = "__base__/sound/fight/light-gunshot-3.ogg",
-      volume = 0.7
-    }
+  return {
+    {filename = "__base__/sound/fight/light-gunshot-1.ogg", volume = 0.7},
+    {filename = "__base__/sound/fight/light-gunshot-2.ogg", volume = 0.7},
+    {filename = "__base__/sound/fight/light-gunshot-3.ogg", volume = 0.7}
   }
 end
 
 function make_rifle_gunshot_sounds(volume)
-  return
-  {
-    {
-      filename = "__base__/sound/fight/light-gunshot-1.ogg",
-      volume = 1
-    },
-    {
-      filename = "__base__/sound/fight/light-gunshot-2.ogg",
-      volume = 1
-    },
-    {
-      filename = "__base__/sound/fight/light-gunshot-3.ogg",
-      volume = 1
-    }
+  return {
+    {filename = "__base__/sound/fight/light-gunshot-1.ogg", volume = 1},
+    {filename = "__base__/sound/fight/light-gunshot-2.ogg", volume = 1},
+    {filename = "__base__/sound/fight/light-gunshot-3.ogg", volume = 1}
   }
 end
 
@@ -895,41 +852,35 @@ local droid_counter = {
   item_slot_count = 6,
   sprites =
   {
-    north =
+    layers =
     {
-      filename = "__robotarmy__/graphics/entity/droid-counter.png",
-      --x = 106,
-      width = 53,
-      height = 44,
-      frame_count = 1,
-      shift = {0.0, 0},
+      {
+        filename = BUILPATH .. "droid-counter.png",
+        width = 64,
+        height = 64,
+        hr_version =
+        {
+          filename = BUILPATH .. "hr-droid-counter.png",
+          width = 128,
+          height = 128,
+          scale = 0.5,
+        }
+      },
+      {
+        filename = BUILPATH .. "droid-counter-shadow.png",
+        width = 64,
+        height = 64,
+        draw_as_shadow = true,
+        hr_version =
+        {
+          filename = BUILPATH .. "hr-droid-counter-shadow.png",
+          width = 128,
+          height = 128,
+          draw_as_shadow = true,
+          scale = 0.5,
+        }
+      },
     },
-    east =
-    {
-      filename = "__robotarmy__/graphics/entity/droid-counter.png",
-  --x = 159,
-      width = 53,
-      height = 44,
-      frame_count = 1,
-      shift = {0.0, 0},
-    },
-    south =
-    {
-      filename = "__robotarmy__/graphics/entity/droid-counter.png",
-      width = 53,
-      height = 44,
-      frame_count = 1,
-      shift = {0.0, 0},
-    },
-    west =
-    {
-      filename = "__robotarmy__/graphics/entity/droid-counter.png",
-      --x = 106,
-      width = 53,
-      height = 44,
-      frame_count = 1,
-      shift = {0.0, 0},
-    }
   },
   activity_led_sprites =
   {
@@ -1081,41 +1032,37 @@ local droid_settings =  {
   collision_box = {{-0.35, -0.35}, {0.35, 0.35}},
   selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
   item_slot_count = 6,
-  --Lol, i just forced them all to be the same sprite, no matter the rotation. Cheeky I know!
   sprites =
   {
-    north =
+    layers =
     {
-      filename = "__robotarmy__/graphics/entity/droid-settings.png",
-      width = 53,
-      height = 44,
-      frame_count = 1,
-      shift = {0.0, 0},
+      {
+        filename = BUILPATH .. "droid-settings.png",
+        width = 64,
+        height = 64,
+        hr_version =
+        {
+          filename = BUILPATH .. "hr-droid-settings.png",
+          width = 128,
+          height = 128,
+          scale = 0.5,
+        }
+      },
+      {
+        filename = BUILPATH .. "droid-settings-shadow.png",
+        width = 64,
+        height = 64,
+        draw_as_shadow = true,
+        hr_version =
+        {
+          filename = BUILPATH .. "hr-droid-settings-shadow.png",
+          width = 128,
+          height = 128,
+          draw_as_shadow = true,
+          scale = 0.5,
+        }
+      },
     },
-    east =
-    {
-      filename = "__robotarmy__/graphics/entity/droid-settings.png",
-      width = 53,
-      height = 44,
-      frame_count = 1,
-      shift = {0.0, 0},
-    },
-    south =
-    {
-      filename = "__robotarmy__/graphics/entity/droid-settings.png",
-      width = 53,
-      height = 44,
-      frame_count = 1,
-      shift = {0.0, 0},
-    },
-    west =
-    {
-      filename = "__robotarmy__/graphics/entity/droid-settings.png",
-      width = 53,
-      height = 44,
-      frame_count = 1,
-      shift = {0.0, 0},
-    }
   },
   activity_led_sprites =
   {
@@ -1257,13 +1204,13 @@ local droid_settings =  {
 local loot_chest = {
   type = "container",
   name = "loot-chest",
-  icon_size = 34,
+  icon_size = 64,
   icon = ICONPATH .. "loot-chest.png",
   flags = {"placeable-neutral", "player-creation"},
   minable = {mining_time = 1, result = "loot-chest"},
   max_health = 400,
   corpse = "small-remnants",
-  open_sound = { filename = "__base__/sound/metallic-chest-open.ogg", volume=0.65 },
+  open_sound = { filename = "__base__/sound/metallic-chest-open.ogg", volume = 0.65 },
   close_sound = { filename = "__base__/sound/metallic-chest-close.ogg", volume = 0.7 },
   resistances =
   {
@@ -1276,14 +1223,38 @@ local loot_chest = {
   selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
   fast_replaceable_group = "",
   inventory_size = 48,
-  vehicle_impact_sound =  { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
+  vehicle_impact_sound = {filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65},
   picture =
   {
-    filename = "__robotarmy__/graphics/entity/loot-chest.png",
-    priority = "extra-high",
-    width = 48,
-    height = 34,
-    shift = {0.1875, 0}
+    layers =
+    {
+      {
+        filename = BUILPATH .. "loot-chest.png",
+        width = 64,
+        height = 64,
+        hr_version =
+        {
+          filename = BUILPATH .. "hr-loot-chest.png",
+          width = 128,
+          height = 128,
+          scale = 0.5,
+        }
+      },
+      {
+        filename = BUILPATH .. "loot-chest-shadow.png",
+        width = 64,
+        height = 64,
+        draw_as_shadow = true,
+        hr_version =
+        {
+          filename = BUILPATH .. "hr-loot-chest-shadow.png",
+          width = 128,
+          height = 128,
+          draw_as_shadow = true,
+          scale = 0.5,
+        }
+      },
+    },
   },
   circuit_wire_connection_point =
   {
@@ -1303,7 +1274,7 @@ local loot_chest = {
   circuit_wire_max_distance = 7.5
 }
 
-local selection_sticker ={
+local selection_sticker = {
   type = "sticker",
   name = "selection-sticker",
   flags = {"not-on-map"},

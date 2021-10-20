@@ -1,4 +1,6 @@
 local ICONPATH = "__robotarmy__/graphics/icons/"
+local BUILPATH = "__robotarmy__/graphics/entity/buildings/"
+
 require("config.config")
 
 local droidAssembler = {
@@ -31,7 +33,10 @@ local droidAssembler = {
       pipe_covers = pipecoverspictures(),
       base_area = 10,
       base_level = -1,
-      pipe_connections = {{ type="input", position = {0, -2} }}
+      pipe_connections = {{
+        type = "input",
+        position = {0, -2}
+      }}
     },
     {
       production_type = "output",
@@ -39,7 +44,10 @@ local droidAssembler = {
       pipe_covers = pipecoverspictures(),
       base_area = 10,
       base_level = 1,
-      pipe_connections = {{ type="output", position = {0, 2} }}
+      pipe_connections = {{
+        type = "output",
+        position = {0, 2}
+      }}
     },
     off_when_no_fluid_recipe = false
   },
@@ -47,13 +55,41 @@ local droidAssembler = {
   selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
   animation =
   {
-    filename = "__robotarmy__/graphics/entity/droid-assembler.png",
-    priority = "high",
-    width = 111,
-    height = 99,
-    frame_count = 1,
-    line_length = 1,
-    shift = {0.4, -0.06}
+    layers =
+    {
+      {
+        filename = BUILPATH .. "droid-assembler.png",
+        width = 156,
+        height = 139,
+        frame_count = 1,
+        line_length = 1,
+        hr_version = {
+          filename = BUILPATH .. "hr-droid-assembler.png",
+          width = 312,
+          height = 278,
+          frame_count = 1,
+          line_length = 1,
+          scale = 0.5,
+        }
+      },
+      {
+        filename = BUILPATH .. "droid-assembler-shadow.png",
+        width = 156,
+        height = 139,
+        frame_count = 1,
+        line_length = 1,
+        draw_as_shadow = true,
+        hr_version = {
+          filename = BUILPATH .. "hr-droid-assembler-shadow.png",
+          width = 312,
+          height = 278,
+          frame_count = 1,
+          line_length = 1,
+          draw_as_shadow = true,
+          scale = 0.5,
+        }
+      }
+    }
   },
   open_sound = { filename = "__base__/sound/machine-open.ogg", volume = 0.85 },
   close_sound = { filename = "__base__/sound/machine-close.ogg", volume = 0.75 },
@@ -117,13 +153,41 @@ local guardStation = {
   selection_box = {{-2, -2}, {2, 2}},
   animation =
   {
-    filename = "__robotarmy__/graphics/entity/guard-station.png",
-    priority = "high",
-    width = 143,
-    height = 190,
-    frame_count = 1,
-    line_length = 1,
-    shift = {0.5, -0.5}
+    layers =
+    {
+      {
+        filename = BUILPATH .. "guard-station.png",
+        width = 208,
+        height = 228,
+        frame_count = 1,
+        line_length = 1,
+        hr_version = {
+          filename = BUILPATH .. "hr-guard-station.png",
+          width = 416,
+          height = 456,
+          frame_count = 1,
+          line_length = 1,
+          scale = 0.5,
+        }
+      },
+      {
+        filename = BUILPATH .. "guard-station-shadow.png",
+        width = 208,
+        height = 228,
+        frame_count = 1,
+        line_length = 1,
+        draw_as_shadow = true,
+        hr_version = {
+          filename = BUILPATH .. "hr-guard-station-shadow.png",
+          width = 416,
+          height = 456,
+          frame_count = 1,
+          line_length = 1,
+          draw_as_shadow = true,
+          scale = 0.5,
+        }
+      }
+    }
   },
   open_sound = { filename = "__base__/sound/machine-open.ogg", volume = 0.85 },
   close_sound = { filename = "__base__/sound/machine-close.ogg", volume = 0.75 },

@@ -91,7 +91,7 @@ data:extend({
 {
   type = "unit",
   name = "defender-unit",
-  icon_size = 32,
+  icon_size = 64,
   icon = "__base__/graphics/icons/defender.png",
   flags = {"placeable-player", "player-creation", "placeable-off-grid"},
   subgroup = "creatures",

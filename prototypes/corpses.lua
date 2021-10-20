@@ -2,7 +2,7 @@ data:extend({
 {
   type = "corpse",
   name = "robot-corpse",
-  icon_size = 32,
+  icon_size = 64,
   icon = "__base__/graphics/icons/medium-biter-corpse.png",
   selectable_in_game = false,
   selection_box = {{-1, -1}, {1, 1}},
