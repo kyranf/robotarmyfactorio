@@ -3,7 +3,7 @@ require("config.config")
 local droidAssembler = {
   type = "assembling-machine",
   name = "droid-assembling-machine",
-  icon_size = 32,
+  icon_size = 64,
   is_deployer = true,
   icon = "__robotarmy__/graphics/icons/droid-assembling-machine.png",
   flags = {"placeable-neutral", "placeable-player", "player-creation"},
@@ -93,7 +93,7 @@ local droidAssembler = {
 local guardStation = {
   type = "assembling-machine",
   name = "droid-guard-station",
-  icon_size = 32,
+  icon_size = 64,
   is_deployer = true,
   icon = "__robotarmy__/graphics/icons/droid-guard-station.png",
   flags = {"placeable-neutral", "placeable-player", "player-creation"},
@@ -165,7 +165,7 @@ local guardStation = {
 local patrolPole = {
   type = "electric-pole",
   name = "patrol-pole",
-  icon_size = 32,
+  icon_size = 64,
   icon = "__base__/graphics/icons/medium-electric-pole.png",
   flags = {"placeable-neutral", "player-creation"},
   minable = {hardness = 0.2, mining_time = 0.5, result = "patrol-pole"},
