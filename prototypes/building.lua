@@ -1,3 +1,4 @@
+local ICONPATH = "__robotarmy__/graphics/icons/"
 require("config.config")
 
 local droidAssembler = {
@@ -5,7 +6,7 @@ local droidAssembler = {
   name = "droid-assembling-machine",
   icon_size = 64,
   is_deployer = true,
-  icon = "__robotarmy__/graphics/icons/droid-assembling-machine.png",
+  icon = ICONPATH .. "droid-assembling-machine.png",
   flags = {"placeable-neutral", "placeable-player", "player-creation"},
   minable = {hardness = 0.2, mining_time = 0.5, result = "droid-assembling-machine"},
   max_health = 400,
@@ -95,7 +96,7 @@ local guardStation = {
   name = "droid-guard-station",
   icon_size = 64,
   is_deployer = true,
-  icon = "__robotarmy__/graphics/icons/droid-guard-station.png",
+  icon = ICONPATH .. "droid-guard-station.png",
   flags = {"placeable-neutral", "placeable-player", "player-creation"},
   minable = {hardness = 0.2, mining_time = 0.5, result = "droid-guard-station"},
   max_health = 400,

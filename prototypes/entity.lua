@@ -1,3 +1,6 @@
+local ICONPATH = "__robotarmy__/graphics/icons/"
+local BOTPATH = "__robotarmy__/graphics/entity/bots/"
+
 -- use the base game's power armour animations/sprites for the droids and terminators
 --require("prototypes.droid-animations")
 require("config.config")
@@ -29,7 +32,7 @@ local function robotAnimation(sheet, tint, scale)
   return {
     layers = {
       {
-        filename = "__robotarmy__/graphics/entity/bots/" .. sheet .. ".png",
+        filename = BOTPATH .. sheet .. ".png",
         width = 80,
         height = 80,
         tint = tint,
@@ -39,7 +42,7 @@ local function robotAnimation(sheet, tint, scale)
         shift = {0, -0.5},
         scale = scale,
         hr_version = {
-          filename = "__robotarmy__/graphics/entity/bots/hr-" .. sheet .. ".png",
+          filename = BOTPATH .. "hr-" .. sheet .. ".png",
           width = 160,
           height = 160,
           tint = tint,
@@ -51,7 +54,7 @@ local function robotAnimation(sheet, tint, scale)
         }
       },
       {
-        filename = "__robotarmy__/graphics/entity/bots/" .. sheet .. "-shadow.png",
+        filename = BOTPATH .. sheet .. "-shadow.png",
         width = 160,
         height = 80,
         direction_count = 22,
@@ -61,7 +64,7 @@ local function robotAnimation(sheet, tint, scale)
         scale = scale,
         draw_as_shadow = true,
         hr_version = {
-          filename = "__robotarmy__/graphics/entity/bots/hr-" .. sheet .. "-shadow.png",
+          filename = BOTPATH .. "hr-" .. sheet .. "-shadow.png",
           width = 320,
           height = 160,
           direction_count = 22,
@@ -159,7 +162,7 @@ local droid_smg =
   type = "unit",
   name = "droid-smg",
   icon_size = 64,
-  icon = "__robotarmy__/graphics/icons/droid_smg_undep.png",
+  icon = ICONPATH .. "droid_smg_undep.png",
   flags = {"placeable-player", "player-creation", "placeable-off-grid"},
   subgroup="creatures",
   order="e-a-b-d",
@@ -306,7 +309,7 @@ local droid_flame =
   type = "unit",
   name = "droid-flame",
   icon_size = 64,
-  icon = "__robotarmy__/graphics/icons/droid_flame_undep.png",
+  icon = ICONPATH .. "droid_flame_undep.png",
   flags = {"placeable-player", "player-creation", "placeable-off-grid"},
   subgroup="creatures",
   order="e-a-b-d",
@@ -460,7 +463,7 @@ local droid_rifle =
   type = "unit",
   name = "droid-rifle",
   icon_size = 64,
-  icon = "__robotarmy__/graphics/icons/droid_rifle_undep.png",
+  icon = ICONPATH .. "droid_rifle_undep.png",
   flags = {"placeable-player", "player-creation", "placeable-off-grid"},
   subgroup="creatures",
   order="e-a-b-d",
@@ -607,7 +610,7 @@ local droid_rocket =
   type = "unit",
   name = "droid-rocket",
   icon_size = 64,
-  icon = "__robotarmy__/graphics/icons/droid_rocket_undep.png",
+  icon = ICONPATH .. "droid_rocket_undep.png",
   flags = {"placeable-player", "player-creation", "placeable-off-grid"},
   subgroup="creatures",
   order="e-a-b-d",
@@ -740,7 +743,7 @@ local terminator =
   type = "unit",
   name = "terminator",
   icon_size = 64,
-  icon = "__robotarmy__/graphics/icons/terminator.png",
+  icon = ICONPATH .. "terminator.png",
   flags = {"placeable-player", "player-creation", "placeable-off-grid"},
   subgroup="creatures",
   order="e-a-b-d",
@@ -883,7 +886,7 @@ local droid_counter = {
   type = "constant-combinator",
   name = "droid-counter",
   icon_size = 64,
-  icon = "__robotarmy__/graphics/icons/droid-counter.png",
+  icon = ICONPATH .. "droid-counter.png",
   flags = {"placeable-neutral", "player-creation"},
   minable = {hardness = 0.2, mining_time = 0.5, result = "droid-counter"},
   max_health = 50,
@@ -1071,7 +1074,7 @@ local droid_settings =  {
   type = "constant-combinator",
   name = "droid-settings",
   icon_size = 64,
-  icon = "__robotarmy__/graphics/icons/droid-settings.png",
+  icon = ICONPATH .. "droid-settings.png",
   flags = {"placeable-neutral", "player-creation"},
   minable = {hardness = 0.2, mining_time = 0.5, result = "droid-settings"},
   max_health = 50,
@@ -1256,7 +1259,7 @@ local loot_chest = {
   type = "container",
   name = "loot-chest",
   icon_size = 34,
-  icon = "__robotarmy__/graphics/icons/loot-chest.png",
+  icon = ICONPATH .. "loot-chest.png",
   flags = {"placeable-neutral", "player-creation"},
   minable = {mining_time = 1, result = "loot-chest"},
   max_health = 400,
@@ -1306,11 +1309,11 @@ local selection_sticker ={
   name = "selection-sticker",
   flags = {"not-on-map"},
   icon_size = 64,
-  icon = "__robotarmy__/graphics/icons/unit-selection.png",
+  icon = ICONPATH .. "unit-selection.png",
   flags = {},
   animation =
   {
-    filename = "__robotarmy__/graphics/icons/unit-selection.png",
+    filename = ICONPATH .. "unit-selection.png",
     priority = "extra-high",
     width = 32,
     height = 32,
