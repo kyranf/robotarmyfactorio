@@ -7,7 +7,7 @@ require("config.config")
 
 -- DONT FORGET TO ADD ANY NEW LOCAL TABLE DEFINITIONS TO THE DATA:EXTEND THING AT THE BOTTOM!
 
-droidscale = 0.8
+droidscale = 0.8 -- droid_rifle +
 droidSmgTint =  {r=0.8, g=1, b=1, a=1}
 droidFlameTint = {r=1.0, g=0.5, b=0.5, a=1}
 droidRocketTint = {r=0.8, g=0.8, b=1, a=1}
@@ -78,7 +78,6 @@ local function robotAnimation(sheet, tint, scale)
     }
   }
 end
-
 
 function make_laser_sounds(volume)
   return

@@ -1,5 +1,86 @@
 require("config.config")
 
+local distractorUnitAnim =
+{
+  layers =
+  {
+    {
+      filename = "__base__/graphics/entity/distractor-robot/distractor-robot.png",
+      priority = "high",
+      line_length = 16,
+      width = 38,
+      height = 33,
+      frame_count = 1,
+      direction_count = 16,
+      shift = util.by_pixel(0, -2.5),
+      y = 33,
+      hr_version =
+      {
+        filename = "__base__/graphics/entity/distractor-robot/hr-distractor-robot.png",
+        priority = "high",
+        line_length = 16,
+        width = 72,
+        height = 62,
+        frame_count = 1,
+        direction_count = 16,
+        shift = util.by_pixel(0, -2.5),
+        y = 62,
+        scale = 0.5
+      }
+    },
+    {
+      filename = "__base__/graphics/entity/distractor-robot/distractor-robot-mask.png",
+      priority = "high",
+      line_length = 16,
+      width = 24,
+      height = 21,
+      frame_count = 1,
+      direction_count = 16,
+      shift = util.by_pixel(0, -6.25),
+      apply_runtime_tint = true,
+      y = 21,
+      hr_version =
+      {
+        filename = "__base__/graphics/entity/distractor-robot/hr-distractor-robot-mask.png",
+        priority = "high",
+        line_length = 16,
+        width = 42,
+        height = 37,
+        frame_count = 1,
+        direction_count = 16,
+        shift = util.by_pixel(0, -6.25),
+        apply_runtime_tint = true,
+        y = 37,
+        scale = 0.5
+      }
+    },
+    {
+      filename = "__base__/graphics/entity/distractor-robot/distractor-robot-shadow.png",
+      priority = "high",
+      line_length = 16,
+      width = 49,
+      height = 30,
+      frame_count = 1,
+      direction_count = 16,
+      shift = util.by_pixel(32.5, 19),
+      draw_as_shadow = true,
+      hr_version =
+      {
+        filename = "__base__/graphics/entity/distractor-robot/hr-distractor-robot-shadow.png",
+        priority = "high",
+        line_length = 16,
+        width = 96,
+        height = 59,
+        frame_count = 1,
+        direction_count = 16,
+        shift = util.by_pixel(32.5, 19.25),
+        scale = 0.5,
+        draw_as_shadow = true
+      }
+    }
+  }
+}
+
 data:extend({
 {
   type = "unit",
@@ -60,43 +141,7 @@ data:extend({
         }
       }
     },
-    animation =
-    {
-      layers =
-      {
-        {
-          filename = "__base__/graphics/entity/distractor-robot/distractor-robot.png",
-          priority = "high",
-          line_length = 16,
-          width = 38,
-          height = 33,
-          frame_count = 1,
-          direction_count = 16,
-          shift = {0, -0.078125}
-        },
-        {
-          filename = "__base__/graphics/entity/distractor-robot/distractor-robot-mask.png",
-          priority = "high",
-          line_length = 16,
-          width = 24,
-          height = 21,
-          frame_count = 1,
-          direction_count = 16,
-          shift = {0, -0.203125},
-          apply_runtime_tint = true
-        },
-        {
-          filename = "__base__/graphics/entity/distractor-robot/distractor-robot-shadow.png",
-          priority = "high",
-          line_length = 16,
-          width = 40,
-          height = 25,
-          frame_count = 1,
-          direction_count = 16,
-          shift = {0.9375, 0.609375}
-        },
-      }
-    }
+    animation = distractorUnitAnim
   },
   vision_distance = 45,
   radar_range = 1,
@@ -132,42 +177,6 @@ data:extend({
       volume = 0.5
     }
   },
-  run_animation =
-  {
-    layers =
-    {
-      {
-        filename = "__base__/graphics/entity/distractor-robot/distractor-robot.png",
-        priority = "high",
-        line_length = 16,
-        width = 38,
-        height = 33,
-        frame_count = 1,
-        direction_count = 16,
-        shift = {0, -0.078125}
-      },
-      {
-        filename = "__base__/graphics/entity/distractor-robot/distractor-robot-mask.png",
-        priority = "high",
-        line_length = 16,
-        width = 24,
-        height = 21,
-        frame_count = 1,
-        direction_count = 16,
-        shift = {0, -0.203125},
-        apply_runtime_tint = true
-      },
-      {
-        filename = "__base__/graphics/entity/distractor-robot/distractor-robot-shadow.png",
-        priority = "high",
-        line_length = 16,
-        width = 40,
-        height = 25,
-        frame_count = 1,
-        direction_count = 16,
-        shift = {0.9375, 0.609375}
-      },
-    }
-  },
+  run_animation = distractorUnitAnim,
 },
 })

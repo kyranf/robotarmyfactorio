@@ -1,5 +1,92 @@
 require("config.config")
 
+local defenderUnitAnim =
+{
+  layers =
+  {
+    {
+      filename = "__base__/graphics/entity/defender-robot/defender-robot.png",
+      priority = "high",
+      line_length = 16,
+      width = 32,
+      height = 33,
+      frame_count = 1,
+      animation_speed = 1,
+      direction_count = 16,
+      shift = util.by_pixel(0, 0.25),
+      y = 33,
+      hr_version =
+      {
+        filename = "__base__/graphics/entity/defender-robot/hr-defender-robot.png",
+        priority = "high",
+        line_length = 16,
+        width = 56,
+        height = 59,
+        frame_count = 1,
+        animation_speed = 1,
+        direction_count = 16,
+        shift = util.by_pixel(0, 0.25),
+        y = 59,
+        scale = 0.5
+      }
+    },
+    {
+      filename = "__base__/graphics/entity/defender-robot/defender-robot-mask.png",
+      priority = "high",
+      line_length = 16,
+      width = 18,
+      height = 16,
+      frame_count = 1,
+      animation_speed = 1,
+      direction_count = 16,
+      shift = util.by_pixel(0, -4.75),
+      apply_runtime_tint = true,
+      y = 16,
+      hr_version =
+      {
+        filename = "__base__/graphics/entity/defender-robot/hr-defender-robot-mask.png",
+        priority = "high",
+        line_length = 16,
+        width = 28,
+        height = 21,
+        frame_count = 1,
+        animation_speed = 1,
+        direction_count = 16,
+        shift = util.by_pixel(0, -4.75),
+        apply_runtime_tint = true,
+        y = 21,
+        scale = 0.5
+      }
+    },
+    {
+      filename = "__base__/graphics/entity/defender-robot/defender-robot-shadow.png",
+      priority = "high",
+      line_length = 16,
+      width = 45,
+      height = 26,
+      frame_count = 1,
+      animation_speed = 1,
+      direction_count = 16,
+      shift = util.by_pixel(25.5, 19),
+      draw_as_shadow = true,
+      hr_version =
+      {
+        filename = "__base__/graphics/entity/defender-robot/hr-defender-robot-shadow.png",
+        priority = "high",
+        line_length = 16,
+        width = 88,
+        height = 50,
+        frame_count = 1,
+        animation_speed = 1,
+        direction_count = 16,
+        shift = util.by_pixel(25.5, 19),
+        scale = 0.5,
+        draw_as_shadow = true
+      }
+    }
+  }
+}
+
 data:extend({
 {
   type = "unit",
@@ -74,43 +161,7 @@ data:extend({
         }
       }
     },
-    animation =
-    {
-      layers =
-      {
-        {
-          filename = "__base__/graphics/entity/defender-robot/defender-robot.png",
-          priority = "high",
-          line_length = 16,
-          width = 32,
-          height = 33,
-          frame_count = 1,
-          direction_count = 16,
-          shift = {0, 0.015625}
-        },
-        {
-          filename = "__base__/graphics/entity/defender-robot/defender-robot-mask.png",
-          priority = "high",
-          line_length = 16,
-          width = 18,
-          height = 16,
-          frame_count = 1,
-          direction_count = 16,
-          shift = {0, -0.125},
-          apply_runtime_tint = true
-        },
-        {
-          filename = "__base__/graphics/entity/defender-robot/defender-robot-shadow.png",
-          priority = "high",
-          line_length = 16,
-          width = 43,
-          height = 23,
-          frame_count = 1,
-          direction_count = 16,
-          shift = {0.859375, 0.609375}
-        },
-      }
-    }
+    animation = defenderUnitAnim,
   },
   vision_distance = 45,
   radar_range = 1,
@@ -146,43 +197,7 @@ data:extend({
       volume = 0.5
     }
   },
-  run_animation =
-  {
-    layers =
-    {
-      {
-        filename = "__base__/graphics/entity/defender-robot/defender-robot.png",
-        priority = "high",
-        line_length = 16,
-        width = 32,
-        height = 33,
-        frame_count = 1,
-        direction_count = 16,
-        shift = {0, 0.015625}
-      },
-      {
-        filename = "__base__/graphics/entity/defender-robot/defender-robot-mask.png",
-        priority = "high",
-        line_length = 16,
-        width = 18,
-        height = 16,
-        frame_count = 1,
-        direction_count = 16,
-        shift = {0, -0.125},
-        apply_runtime_tint = true
-      },
-      {
-        filename = "__base__/graphics/entity/defender-robot/defender-robot-shadow.png",
-        priority = "high",
-        line_length = 16,
-        width = 43,
-        height = 23,
-        frame_count = 1,
-        direction_count = 16,
-        shift = {0.859375, 0.609375}
-      },
-    }
-  },
+  run_animation = defenderUnitAnim,
 },
 
 })

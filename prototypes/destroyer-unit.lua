@@ -1,5 +1,82 @@
 require("config.config")
 
+local destroyerUnitAnim =
+{
+  layers =
+  {
+    {
+      filename = "__base__/graphics/entity/destroyer-robot/destroyer-robot.png",
+      priority = "high",
+      line_length = 32,
+      width = 45,
+      height = 39,
+      frame_count = 1,
+      direction_count = 32,
+      shift = util.by_pixel(2.5, -1.25),
+      hr_version =
+      {
+        filename = "__base__/graphics/entity/destroyer-robot/hr-destroyer-robot.png",
+        priority = "high",
+        line_length = 32,
+        width = 88,
+        height = 77,
+        frame_count = 1,
+        direction_count = 32,
+        shift = util.by_pixel(2.5, -1.25),
+        scale = 0.5
+      }
+    },
+    {
+      filename = "__base__/graphics/entity/destroyer-robot/destroyer-robot-mask.png",
+      priority = "high",
+      line_length = 32,
+      width = 27,
+      height = 21,
+      frame_count = 1,
+      direction_count = 32,
+      shift = util.by_pixel(2.5, -7),
+      apply_runtime_tint = true,
+      hr_version =
+      {
+        filename = "__base__/graphics/entity/destroyer-robot/hr-destroyer-robot-mask.png",
+        priority = "high",
+        line_length = 32,
+        width = 52,
+        height = 42,
+        frame_count = 1,
+        direction_count = 32,
+        shift = util.by_pixel(2.5, -7),
+        apply_runtime_tint = true,
+        scale = 0.5
+      }
+    },
+    {
+      filename = "__base__/graphics/entity/destroyer-robot/destroyer-robot-shadow.png",
+      priority = "high",
+      line_length = 32,
+      width = 55,
+      height = 34,
+      frame_count = 1,
+      direction_count = 32,
+      shift = util.by_pixel(23.5, 19),
+      draw_as_shadow = true,
+      hr_version =
+      {
+        filename = "__base__/graphics/entity/destroyer-robot/hr-destroyer-robot-shadow.png",
+        priority = "high",
+        line_length = 32,
+        width = 108,
+        height = 66,
+        frame_count = 1,
+        direction_count = 32,
+        shift = util.by_pixel(23.5, 19),
+        scale = 0.5,
+        draw_as_shadow = true
+      }
+    }
+  }
+}
+
 data:extend({
 {
   type = "unit",
@@ -58,45 +135,7 @@ data:extend({
         }
       }
     },
-    animation =
-    {
-      layers =
-      {
-        {
-          filename = "__base__/graphics/entity/destroyer-robot/destroyer-robot.png",
-          priority = "high",
-          line_length = 32,
-          width = 45,
-          height = 39,
-          y = 39,
-          frame_count = 1,
-          direction_count = 32,
-          shift = {0.078125, -0.046875},
-        },
-        {
-          filename = "__base__/graphics/entity/destroyer-robot/destroyer-robot-mask.png",
-          priority = "high",
-          line_length = 32,
-          width = 27,
-          height = 21,
-          y = 21,
-          frame_count = 1,
-          direction_count = 32,
-          shift = {0.078125, -0.234375},
-          apply_runtime_tint = true
-        },
-        {
-          filename = "__base__/graphics/entity/destroyer-robot/destroyer-robot-shadow.png",
-          priority = "high",
-          line_length = 32,
-          width = 48,
-          height = 32,
-          frame_count = 1,
-          direction_count = 32,
-          shift = {0.78125, 0.5}
-        },
-      }
-    }
+    animation = destroyerUnitAnim,
   },
   vision_distance = 45,
   radar_range = 1,
@@ -132,45 +171,7 @@ data:extend({
       volume = 0.5
     }
   },
-  run_animation =
-  {
-    layers =
-    {
-      {
-        filename = "__base__/graphics/entity/destroyer-robot/destroyer-robot.png",
-        priority = "high",
-        line_length = 32,
-        width = 45,
-        height = 39,
-        y = 39,
-        frame_count = 1,
-        direction_count = 32,
-        shift = {0.078125, -0.046875},
-      },
-      {
-        filename = "__base__/graphics/entity/destroyer-robot/destroyer-robot-mask.png",
-        priority = "high",
-        line_length = 32,
-        width = 27,
-        height = 21,
-        y = 21,
-        frame_count = 1,
-        direction_count = 32,
-        shift = {0.078125, -0.234375},
-        apply_runtime_tint = true
-      },
-      {
-        filename = "__base__/graphics/entity/destroyer-robot/destroyer-robot-shadow.png",
-        priority = "high",
-        line_length = 32,
-        width = 48,
-        height = 32,
-        frame_count = 1,
-        direction_count = 32,
-        shift = {0.78125, 0.5}
-      },
-    }
-  },
+  run_animation = destroyerUnitAnim,
 },
 
 {
