@@ -1,0 +1,49 @@
+---------------------------------------------------------------------------------------------------
+Version: 0.4.13
+  Changes:
+    - attempting to fix github issue #164
+    - attempting to fix github issue #172
+    - fixing migration script issue with the 0.4.12 migration where it would chew up peoples RAM and break their computers. made it do +-1000 tiles instead of +-15000 tiles for each surface, and each force.
+---------------------------------------------------------------------------------------------------
+Version: 0.4.12
+  Changes:
+    - added Brazilian Portuguese language translations thanks to Felipe Bueno Aliski Alves
+    - added Russian language translations thanks to Varoga on Github
+    - added migration script to detect and add all droid units to script-tracked array
+    - added AI distraction custom commands for selecting nearest target instead of random target (overriding default ai behaviour of biters) thanks to Klonan
+---------------------------------------------------------------------------------------------------
+Version: 0.4.11
+  Changes:
+    - added a for-each-force loop instead of specific forces, during init routine to set up each force
+    - added a handleOnScriptRaisedBuilt function for script-spawned entity event handling.
+    - adding migration file to help players who add mod after starting game to auto detect existing techs and unlock recipes properly for them.
+---------------------------------------------------------------------------------------------------
+Version: 0.4.10
+  Changes:
+    - if unit control is active, don't run the runtime logic for assemblers squad management/merging/retreat and assembler-centric targetting, and don't run the squad logic at all. This should help in-progress games which add unit control halfway through.
+    - added ai_settings to all droid units and flying units to try to prevent units from being deleted if they fail a command, and for them to attempt to spread out from eachother and not stack up.
+---------------------------------------------------------------------------------------------------
+Version: 0.4.9
+  Changes:
+    - upgrading the version requirement of Unit Control (optional mod) to 3.10 for supporting the new API
+    - fixes to how the mod uses the new Unit Control API for raising unit events from known deployers.
+    - adding Guard Station to deployer supported for Unit Control
+    - reducing how/when the guard and assembler stations try to run logic when spawning units while Unit Control is active. Basically all droid processing is halted.
+---------------------------------------------------------------------------------------------------
+Version: 0.4.8
+  Changes:
+    - fixes to the Droid Counter module and the Settings Module code, which had issues with referencing parameters tables which have changed in recent history. instead of  control_behaviours.parameters.parameters, there's only one layer of parameters table now. Yay! Means I can get rid of the comment I had in the code, "-- ridiculous, we have to do parameters WHY WUBE WHY"
+---------------------------------------------------------------------------------------------------
+Version: 0.4.7
+  Changes:
+    - removed migration file for v.0.3.5, super old and not needed, was causing issues with referring to old/out-dated tech names too.
+---------------------------------------------------------------------------------------------------
+Version: 0.4.6
+  Changes:
+    - compatibility with 1.1.1, deployable flying robots unlocked at same tech level as their capsule friends. defender, distractor, and destroyer at the same tech levels, rather than all of them ready as soon as you get Defender tech.
+---------------------------------------------------------------------------------------------------
+Version: 0.4.5
+  Changes:
+    - made compatible with 0.18.27+ , by using the new raise_built flag instead of calling script raise entity event.
+    - biter factions should no longer cause a tick error for squads/forces
+---------------------------------------------------------------------------------------------------
