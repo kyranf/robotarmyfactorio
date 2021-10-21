@@ -10,9 +10,9 @@ require("config.config")
 
 droidscale = 0.8 -- droid_rifle +
 droidSmgTint =  {r=0.8, g=1, b=1, a=1}
-droidFlameTint = {r=1.0, g=0.5, b=0.5, a=1}
+droidFlameTint = {r=1, g=1, b=1, a=1}
 droidRocketTint = {r=0.8, g=0.8, b=1, a=1}
-droidRifleTint = {r=0.8, g=1, b=0.8, a=1}
+droidRifleTint = {r=1, g=1, b=1, a=1}
 droidMapColour = {r = .05, g = .70, b = .29}
 
 
