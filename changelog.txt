@@ -1,4 +1,22 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.4.14
+Date: 2021.10.22
+  Changes:
+    - snouz joining force to work on the mod.
+    - Added HR versions for all robots (Upscaled using ESRGAN).
+    - Removed the artificial tint to apply some custom ones in the images.
+    - Attacking bots now use 22 directions animation instead of 8.
+    - Standardized and redrew shadows.
+    - Fixed flying bots shadows, used HR version from vanilla.
+    - Removed unused images and optimized PNGs.
+    - New 64px icons for bots and signals.
+    - Deployment icons now don't display in player crafting.
+    - Standardized/renamed changelog (so it displays in the mod portal).
+    - New mod thumbnail.
+    - HR version of buildings (temporary upscale).
+    - Visually shifted robots up, so it looks more natural.
+    - Some code and file structure improvements.
+---------------------------------------------------------------------------------------------------
 Version: 0.4.13
   Changes:
     - attempting to fix github issue #164
