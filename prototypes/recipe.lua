@@ -63,6 +63,7 @@ data:extend({
   {
     type = "recipe",
     name = "terminator-deploy",
+    hide_from_player_crafting = true,
     enabled = false,
     category = "droids",
     energy_required = 10,
@@ -101,6 +102,7 @@ data:extend({
   {
     type = "recipe",
     name = "droid-smg-deploy",
+    hide_from_player_crafting = true,
     enabled = false,
     category = "droids",
     energy_required = 6,
@@ -113,6 +115,7 @@ data:extend({
   {
     type = "recipe",
     name = "droid-rocket-deploy",
+    hide_from_player_crafting = true,
     enabled = false,
     category = "droids",
     energy_required = 6,
@@ -125,6 +128,7 @@ data:extend({
   {
     type = "recipe",
     name = "droid-rifle-deploy",
+    hide_from_player_crafting = true,
     enabled = false,
     category = "droids",
     energy_required = 3,
@@ -210,6 +214,7 @@ data:extend({
   {
     type = "recipe",
     name = "droid-flame-deploy",
+    hide_from_player_crafting = true,
     enabled = false,
     category = "droids",
     energy_required = 8,
@@ -249,6 +254,7 @@ data:extend({
   {
     type = "recipe",
     name = "defender-unit-deploy",
+    hide_from_player_crafting = true,
     enabled = false,
     category = "droids",
     energy_required = 3,
@@ -275,6 +281,7 @@ data:extend({
   {
     type = "recipe",
     name = "distractor-unit-deploy",
+    hide_from_player_crafting = true,
     energy_required = 3,
     enabled = false,
     category = "droids",
@@ -301,6 +308,7 @@ data:extend({
   {
     type = "recipe",
     name = "destroyer-unit-deploy",
+    hide_from_player_crafting = true,
     energy_required = 8,
     enabled = false,
     category = "droids",
