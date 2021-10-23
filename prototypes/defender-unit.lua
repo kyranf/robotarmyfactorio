@@ -30,7 +30,7 @@ data:extend({
       do_separation = true,
       allow_destroy_when_commands_fail = false
     },
-    
+
     attack_parameters =
     {
       type = "projectile",
@@ -77,7 +77,7 @@ data:extend({
         }
       },]]--
       animation =
-    {   
+    {
       layers =
       {
         {
@@ -114,7 +114,7 @@ data:extend({
       }
      }
     },
-    
+
     friendly_map_color = {r = .05, g = .70, b = .29},
     enemy_map_color = {r = .100, g = .0, b = .0},
     vision_distance = 45,
@@ -187,6 +187,6 @@ data:extend({
       }
     },
       },
-        
+
 })
 

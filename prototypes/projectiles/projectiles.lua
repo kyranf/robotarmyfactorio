@@ -103,6 +103,6 @@ local dual_laser = {
       }
     }
   }
-  
-  
+
+
   data:extend({dual_laser, droid_rocket})

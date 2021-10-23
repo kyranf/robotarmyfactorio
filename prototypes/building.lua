@@ -46,7 +46,7 @@ local droidAssembler = {
 		height = 221,
 		shift = {0.4, -0.06}
 	},
-	
+
 	open_sound = { filename = "__base__/sound/machine-open.ogg", volume = 0.85 },
 	close_sound = { filename = "__base__/sound/machine-close.ogg", volume = 0.75 },
 	vehicle_impact_sound =  { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
@@ -181,7 +181,7 @@ local patrolPole = {
 	  height = 12,
 	  priority = "extra-high-no-scale"
 	},
-} 
+}
 
 local construction_warehouse = {
   type = "container",
@@ -231,8 +231,8 @@ local construction_warehouse = {
       green = {0.40625, 0.375},
     }
   }
-  
+
 }
- 
- 
+
+
  data:extend({droidAssembler,guardStation, patrolPole, construction_warehouse})

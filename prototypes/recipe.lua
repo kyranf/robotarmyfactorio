@@ -120,7 +120,7 @@ data:extend(
 	{
 	  {"steel-plate",20},
 	  {"electronic-circuit", 25},
-	},	
+	},
     result = "loot-chest",
 	requester_paste_multiplier = 1
   },
@@ -131,7 +131,7 @@ data:extend(
 	ingredients =
 	{
 	  {"electronic-circuit", 1}
-	},	
+	},
     result = "droid-selection-tool",
 	requester_paste_multiplier = 1
   },
@@ -142,12 +142,12 @@ data:extend(
 	ingredients =
 	{
 	  {"electronic-circuit", 1}
-	},	
+	},
     result = "droid-pickup-tool",
 	requester_paste_multiplier = 1
   },
-  
-   {  
+
+   {
     type = "recipe",
     name = "droid-flame",
     enabled = false,
@@ -159,12 +159,12 @@ data:extend(
 	  {"electronic-circuit", 25},
 	  {"flamethrower", 1},
 	  {"light-armor", 2}
-    
-	},	
+
+	},
     result = "droid-flame",
 
   },
-  {  
+  {
     type = "recipe",
     name = "patrol-pole",
     enabled = false,
@@ -172,11 +172,11 @@ data:extend(
 	{
 	  {"steel-plate",5},
 	  {"electronic-circuit", 5},
-	},	
+	},
     result = "patrol-pole",
 	requester_paste_multiplier = 1
   },
-  -- adding in support for Klonan's Combat Units 
+  -- adding in support for Klonan's Combat Units
   	{
 		type = "recipe",
 		name = "defender-unit",
@@ -191,7 +191,7 @@ data:extend(
 		},
 		result = "defender-unit"
 	},
-	
+
   	{
 		type = "recipe",
 		name = "distractor-unit",
@@ -228,7 +228,7 @@ data:extend(
     {
       {"steel-plate",20},
       {"electronic-circuit", 25},
-    },	
+    },
       result = "construction-warehouse",
       requester_paste_multiplier = 1
   },
@@ -249,7 +249,7 @@ data:extend(
 })
 
 
-  
+
  -- deal with unlocking the recipes just piggy-backing on military research for now. most droids need more advanced research to build them anyway.
 table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-rifle"})
 if(GRAB_ARTIFACTS == 1) then
@@ -267,7 +267,7 @@ table.insert(data.raw["technology"]["military-2"].effects,{type="unlock-recipe",
 table.insert(data.raw["technology"]["military-2"].effects,{type="unlock-recipe",recipe="droid-rocket"})
 table.insert(data.raw["technology"]["military-2"].effects,{type="unlock-recipe",recipe="droid-flame"})
 
-table.insert(data.raw["technology"]["military-3"].effects,{type="unlock-recipe",recipe="terminator"})  
+table.insert(data.raw["technology"]["military-3"].effects,{type="unlock-recipe",recipe="terminator"})
 
 table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-counter"})
 table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="droid-settings"})

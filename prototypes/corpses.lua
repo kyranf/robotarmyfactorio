@@ -24,9 +24,9 @@ data:extend({
 				--shift = {scale * 0.546875, scale * 0.21875},
 				priority = "very-low",
 				--scale = scale,
-				
+
 			  }
 			}
 		}
 	}
-})  
+})

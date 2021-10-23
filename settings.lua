@@ -80,7 +80,7 @@ data:extend({
         allowed_values = {1,2,3}
 
     },
-    
+
     {
         type = "double-setting",
         name = "Droid Health Modifier",

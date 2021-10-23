@@ -98,6 +98,6 @@ data:extend(
     icon = "__robotarmy__/graphics/icons/signal_squad_size.png",
     subgroup = "virtual-signal-number",
     order = "r[droid]-[11]"
-  },  
-  
+  },
+
 })

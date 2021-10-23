@@ -1,19 +1,19 @@
 
-increase damage of distractor drones - balance damage ratio vs cost with vanilla drones? 
+increase damage of distractor drones - balance damage ratio vs cost with vanilla drones?
 
 fix destroy calls (on droid pickup) to ensure they raise destroy events for the units.
 
-deal with https://github.com/kyranf/robotarmyfactorio/issues/165 
+deal with https://github.com/kyranf/robotarmyfactorio/issues/165
 deal with https://github.com/kyranf/robotarmyfactorio/issues/166
 deal with https://github.com/kyranf/robotarmyfactorio/issues/151
 
-Make squad selection tool interface with unit control tool system to select all the units owned by the assembler which the unit belongs to. 
+Make squad selection tool interface with unit control tool system to select all the units owned by the assembler which the unit belongs to.
 note: above change needs Klonan's unit control mod remote interface access
 
-change the names and icons of the droid counter stuff, and settings modules, 
-update localisations and descriptions to reflect the new mechanics. 
+change the names and icons of the droid counter stuff, and settings modules,
+update localisations and descriptions to reflect the new mechanics.
 
-add flying robot unit counts and icons and signals. 
+add flying robot unit counts and icons and signals.
 
-add constructor unit build logic additional checks - if there are buildings nearby marked for deconstruction, kill them and add them to the first global warehouse with space in it. 
+add constructor unit build logic additional checks - if there are buildings nearby marked for deconstruction, kill them and add them to the first global warehouse with space in it.
 

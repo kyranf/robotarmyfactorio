@@ -30,7 +30,7 @@ data:extend({
       do_separation = true,
       allow_destroy_when_commands_fail = false
     },
-    
+
     attack_parameters =
     {
       type = "beam",
@@ -62,7 +62,7 @@ data:extend({
         }
       },]]--
       animation =
-    {   
+    {
       layers =
       {
         {
@@ -101,7 +101,7 @@ data:extend({
       }
      }
     },
-    
+
     friendly_map_color = {r = .05, g = .70, b = .29},
     enemy_map_color = {r = .100, g = .0, b = .0},
     vision_distance = 45,
@@ -176,11 +176,11 @@ data:extend({
       }
     },
       },
-      
+
   {
     type = "beam",
     name = "robot-electric-beam",
-    working_sound = 
+    working_sound =
     {
         filename = "__base__/sound/fight/electric-beam.ogg",
         volume = 0.7
@@ -203,8 +203,8 @@ data:extend({
         }
       }
     },
-    start = 
-    { 
+    start =
+    {
       filename = "__base__/graphics/entity/beam/tileable-beam-START.png",
       line_length = 4,
       width = 52,
@@ -225,8 +225,8 @@ data:extend({
         scale = 0.5,
       }
     },
-    ending = 
-    { 
+    ending =
+    {
       filename = "__base__/graphics/entity/beam/tileable-beam-END.png",
       line_length = 4,
       width = 49,
@@ -235,7 +235,7 @@ data:extend({
       axially_symmetrical = false,
       direction_count = 1,
       shift = {-0.046875, 0},
-      hr_version = { 
+      hr_version = {
         filename = "__base__/graphics/entity/beam/hr-tileable-beam-END.png",
         line_length = 4,
         width = 91,
@@ -245,7 +245,7 @@ data:extend({
         direction_count = 1,
         shift = {-0.078125, -0.046875},
         scale = 0.5,
-      } 
+      }
     },
     head =
     {
@@ -268,7 +268,7 @@ data:extend({
     },
     body =
     {
-    
+
       {
         filename = "__base__/graphics/entity/beam/beam-body-1.png",
         line_length = 16,
@@ -318,7 +318,7 @@ data:extend({
         blend_mode = beam_blend_mode,
       },
     }
-    --working_sound =    
+    --working_sound =
     --{
      -- {
       --  filename = "__base__/sound/fight/electric-beam.ogg",
@@ -326,5 +326,5 @@ data:extend({
       --}
     --}
   }
-  
+
 })

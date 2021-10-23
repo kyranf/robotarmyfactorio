@@ -1,5 +1,5 @@
 local beam_blend_mode = "additive-soft"
-local constructor_beam = 
+local constructor_beam =
 {
     type = "beam",
     name = "constructor-beam",
@@ -21,8 +21,8 @@ local constructor_beam =
         }
       }
     },
-    start = 
-    { 
+    start =
+    {
       filename = "__base__/graphics/entity/beam/tileable-beam-START.png",
       line_length = 4,
       width = 52,
@@ -44,8 +44,8 @@ local constructor_beam =
         scale = 0.5
       }
     },
-    ending = 
-    { 
+    ending =
+    {
       filename = "__base__/graphics/entity/beam/tileable-beam-END.png",
       line_length = 4,
       width = 49,
@@ -65,7 +65,7 @@ local constructor_beam =
         direction_count = 1,
         shift = {-0.078125, -0.046875},
         scale = 0.5
-      } 
+      }
     },
     head =
     {
@@ -144,6 +144,6 @@ local constructor_beam =
         volume = 0.7
       }
     }
-  
+
 }
 data:extend( { constructor_beam })
