@@ -13,7 +13,7 @@ for i, force in pairs(game.forces) do
         force.recipes["droid-rifle-deploy"].enabled=true
         if(GRAB_ARTIFACTS == 1) then
             force.recipes["loot-chest"].enabled=true
-        end 
+        end
         force.recipes["patrol-pole"].enabled=true
         force.recipes["droid-guard-station"].enabled=true
         force.recipes["droid-assembling-machine"].enabled=true
@@ -41,7 +41,7 @@ for i, force in pairs(game.forces) do
     if force.technologies["defender"].researched then
         force.recipes["defender-unit"].enabled=true
         force.recipes["defender-unit-deploy"].enabled=true
-    end 
+    end
 
     if force.technologies["distractor"].researched then
         force.recipes["distractor-unit"].enabled=true

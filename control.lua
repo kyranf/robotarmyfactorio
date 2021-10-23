@@ -48,9 +48,9 @@ function init_robotarmy()
         global.updateTable = {}
     end
 
-    if not global.units then 
+    if not global.units then
         global.units = {}
-    end 
+    end
 
     --deal with player force as default set-up process
     event =  {} --event stub, to match function inputs

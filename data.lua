@@ -1,6 +1,6 @@
 require("config.config")
-require("prototypes.droid-animations")
-require("prototypes.item") -- any buildable or placable object/entity needs this 
+--require("prototypes.droid-animations")
+require("prototypes.item") -- any buildable or placable object/entity needs this
 require("prototypes.building")
 require("prototypes.entity") -- any buildable or placable object/entity needs this
 require("prototypes.recipe")

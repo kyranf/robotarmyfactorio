@@ -86,7 +86,7 @@ function countNearbyDroids(position, force, radius)
     local sum = 0
     local surface = game.surfaces[1] --hardcoded for surface 1. this means underground/space whatever surfaces are not handled.
     for _, droid in pairs(spawnable) do
-        sum = sum + surface.count_entities_filtered{area={{position.x - 16 , position.y - 16 }, {position.x + 16, position.y + 16}}, name = droid, force = force}
+        sum = sum + surface.count_entities_filtered{area = {{position.x - 16, position.y - 16}, {position.x + 16, position.y + 16}}, name = droid, force = force}
     end
 
     return sum
@@ -148,7 +148,7 @@ function checkSettingsModules()
 
             --get the parameters, go through and check each one, while also checking the values are logically okay.
             local behaviour = settingsModule.get_or_create_control_behavior() -- a LuaConstantCombinatorControlBehavior
-            local parameters = behaviour.parameters 
+            local parameters = behaviour.parameters
 
             --Game.print_force(gameForce, string.format("Parameters table of force's settings module is length %d", #parameters))
             for index, parameter in pairs(parameters) do
@@ -244,22 +244,22 @@ function doCounterUpdate()
             end
 
             local circuitParams = {
-                parameters={
-                    {index=1, count = sum, signal={type="virtual",name="signal-droid-alive-count"}}, --end global droid count
-                    {index=2, count = rifleDroids, signal={type="virtual",name="signal-droid-rifle-count"}},
-                    {index=3, count = battleDroids, signal={type="virtual",name="signal-droid-smg-count"}},
-                    {index=4, count = rocketDroids, signal={type="virtual",name="signal-droid-rocket-count"}},
-                    {index=5, count = fireBots, signal={type="virtual",name="signal-droid-flame-count"}},
-                    {index=6, count = terminators, signal={type="virtual",name="signal-droid-terminator-count"}}
+                parameters = {
+                    {index = 1, count = sum,            signal = {type = "virtual", name = "signal-droid-alive-count"}}, --end global droid count
+                    {index = 2, count = rifleDroids,    signal = {type = "virtual", name = "signal-droid-rifle-count"}},
+                    {index = 3, count = battleDroids,   signal = {type = "virtual", name = "signal-droid-smg-count"}},
+                    {index = 4, count = rocketDroids,   signal = {type = "virtual", name = "signal-droid-rocket-count"}},
+                    {index = 5, count = fireBots,       signal = {type = "virtual", name = "signal-droid-flame-count"}},
+                    {index = 6, count = terminators,    signal = {type = "virtual", name = "signal-droid-terminator-count"}}
                 } --end parameters table
-            }-- end circuitParams
+            } -- end circuitParams
 
             removeNilsFromTable(global.droidCounters[gameForce.name])
 
             for _, counter in pairs(global.droidCounters[gameForce.name]) do
                 if(counter.valid) then
                     local currentParams = counter.get_or_create_control_behavior()
-                    if (currentParams) then 
+                    if (currentParams) then
                         local lengthOld = #currentParams.parameters
                         local lengthNew = #circuitParams.parameters
                         --Game.print_force(counter.force, string.format("counter number of signals %d, number of new signals %d",lengthOld, lengthNew))
@@ -560,11 +560,11 @@ function handleDroidAssemblerPlaced(event)
     if not global.DroidAssemblers[force.name] then
         global.DroidAssemblers[force.name] = {}
     end
-    
+
     if not global.AssemblerNearestEnemies then
         global.AssemblerNearestEnemies = {}
     end
-    
+
     if not global.AssemblerNearestEnemies[force.name] then
         global.AssemblerNearestEnemies[force.name] = {}
     end
@@ -612,16 +612,22 @@ end
 function setGoThenWanderCompoundCommand(commandable, position, radius, distraction_type)
     local d_type = distraction_type or defines.distraction.by_damage
     commandable.set_command(
-        {type=defines.command.compound,
-         structure_type=defines.compound_command.return_last,
-         commands={
-             {type=defines.command.go_to_location,
-              destination=position,
-              distraction=d_type},
-             {type=defines.command.wander,
-              destination=position,
-              distraction=d_type},
-         }
+        {
+            type = defines.command.compound,
+            structure_type = defines.compound_command.return_last,
+            commands =
+            {
+                {
+                    type = defines.command.go_to_location,
+                    destination = position,
+                    distraction = d_type
+                },
+                {
+                    type = defines.command.wander,
+                    destination = position,
+                    distraction = d_type
+                },
+            }
         }
     )
 end

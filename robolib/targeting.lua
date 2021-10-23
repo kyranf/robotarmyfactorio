@@ -70,9 +70,9 @@ function findHybridKeepRadiusClearTarget(squad)
         squad.unitGroup.position)
     if assembler then
         local ANEtable = global.AssemblerNearestEnemies[squad.force.name][assembler.unit_number]
-        
+
         if not ANEtable.enemy then
-            findAssemblerNearestEnemies(assembler, ANEtable) -- we have never found an enemy.. so lets find the first one. 
+            findAssemblerNearestEnemies(assembler, ANEtable) -- we have never found an enemy.. so lets find the first one.
         elseif ANEtable.enemy and not ANEtable.enemy.valid then
             findAssemblerNearestEnemies(assembler, ANEtable)
         end

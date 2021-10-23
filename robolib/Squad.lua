@@ -41,16 +41,16 @@ end
 function createNewSquad(forceSquadsTable, entity)
     global.uniqueSquadId  =  global.uniqueSquadId  or  {}
     global.uniqueSquadId[entity.force.name] = global.uniqueSquadId[entity.force.name] or 1
-	
+
 	if (type(global.uniqueSquadId[entity.force.name]) == "table") then
 	  global.uniqueSquadId[entity.force.name] = nil
 	  global.uniqueSquadId[entity.force.name] = 1
-	end	
-	
+	end
+
     --get next unique ID number and increment it
     local squadID = global.uniqueSquadId[entity.force.name]
-	
-	
+
+
     global.uniqueSquadId[entity.force.name] = global.uniqueSquadId[entity.force.name] + 1
 
     local newsquad = shallowcopy(global.SquadTemplate)
@@ -139,7 +139,7 @@ function addMemberToSquad(squad, soldier)
         table.insert(squad.members, soldier)
         table.insert(squad.mostRecentUnitGroupRemovalTick, 1)
         soldier.set_command{type=defines.command.go_to_location,destination=squad.unitGroup.position}
-        
+
         squad.unitGroup.add_member(soldier)
         squad.unitGroup.start_moving()
         local bigEnoughToHunt = shouldHunt(squad)
@@ -150,7 +150,7 @@ function addMemberToSquad(squad, soldier)
         end
 
         LOGGER.log(string.format( "Adding soldier to squad %d, squad size is now %d", squad.squadID, squad.numMembers))
-    else    
+    else
         Game.print_force(Game.forces[soldier.force], "Tried to addMember to broken squad!")
     end
     return squad
@@ -234,8 +234,8 @@ end
 
 
 function shouldHunt(squad)
-    if not squad then return false end 
-    
+    if not squad then return false end
+
     return (squad.command.type ~= commands.follow) and (squad.numMembers >= getSquadHuntSize(squad.force)
         or (squad.command.type == commands.hunt and squad.numMembers > getSquadRetreatSize(squad.force)))
 end
@@ -626,20 +626,20 @@ function validateSquadIntegrity(squad)
     end
 
 
-    --do another check for the unit group being valid before doing the next steps 
-    if not squad.unitGroup or not squad.unitGroup.valid then 
+    --do another check for the unit group being valid before doing the next steps
+    if not squad.unitGroup or not squad.unitGroup.valid then
         squad.unitGroup = recreateUnitGroupForSquad(squad, pos)
-    end 
+    end
 
-    if not squad.unitGroup or not squad.unitGroup.valid then 
+    if not squad.unitGroup or not squad.unitGroup.valid then
         return nil, false --give up
-    end 
+    end
 
     -- check each droid individually to confirm that it is part of the unitGroup
     for key, soldier in pairs(squad.members) do
         if soldier and soldier.valid and (soldier.force ~= squad.unitGroup.force) then
-            soldier.destroy() --destroy the unit if they are in the squad but of the wrong force... maybe this needs more finesse, if a mod has some kind of AOE2 monk team-changing ability? 
-        else 
+            soldier.destroy() --destroy the unit if they are in the squad but of the wrong force... maybe this needs more finesse, if a mod has some kind of AOE2 monk team-changing ability?
+        else
             if not table.contains(squad.unitGroup.members, soldier) then
                 if not recreatedUG then
                     ses_statistics.soldierUnitGroupDepartures = ses_statistics.soldierUnitGroupDepartures + 1
@@ -671,8 +671,8 @@ function validateSquadIntegrity(squad)
                         if not recreatedUG then
                             if not squad.mostRecentUnitGroupRemovalTick[key] then --if the member of the squad doesn't have a removal tick value for whatever reason, just whack one in here with default start value.
                                 squad.mostRecentUnitGroupRemovalTick[key] = 1
-                            end 
-                            
+                            end
+
                             if game.tick < squad.mostRecentUnitGroupRemovalTick[key] + SAFE_SOLDIER_UNITGROUP_REMOVAL_TICKS then
                                 -- not far, but there was another recent issue
                                 attemptToKickSoldierOut(squad, soldier, key, pos, soldier_group_distance)
@@ -689,7 +689,7 @@ function validateSquadIntegrity(squad)
                 end
             else
                 local soldier_group_distance = util.distance(pos, soldier.position)
-                
+
                 if ( soldier_group_distance and (soldier_group_distance > SQUAD_UNITGROUP_FAILURE_DISTANCE_ESTIMATE)) then
                     attemptToTeleport(squad, soldier, key, soldier_group_distance)
                 end
@@ -747,7 +747,7 @@ end
 
 function grabArtifactsBySquad(squad)
     if not squad then return end
-	
+
     local force = squad.force
     local chest = global.lootChests[force.name]
     if not chest or not chest.valid then return end
@@ -762,7 +762,7 @@ function grabArtifactsBySquad(squad)
 
             local position = squad.unitGroup.position
             local areaToCheck = {left_top = {position.x-ARTIFACT_GRAB_RADIUS, position.y-ARTIFACT_GRAB_RADIUS}, right_bottom = {position.x+ARTIFACT_GRAB_RADIUS, position.y+ARTIFACT_GRAB_RADIUS}}
-            local itemList = surface.find_entities_filtered{area=areaToCheck, type="item-entity"}
+            local itemList = surface.find_entities_filtered{area = areaToCheck, type = "item-entity"}
             local artifactList = {}
             for _, item in pairs(itemList) do
                 if item.valid and item.stack.valid then
@@ -822,11 +822,11 @@ end
 
 function orderSquadToAttack(squad, position)
     --make sure squad is good, then set command
-    
+
     if (not squad) or (not squad.unitGroup) or (not squad.unitGroup.valid) then
         return --we can't order them, if they don't exist .. catches rare bug issue #114
     end
-    
+
     squad.command.type = commands.hunt -- sets the squad's high level role to hunt.
     squad.command.pos = squad.unitGroup.position
     squad.command.dest = position
