@@ -31,6 +31,7 @@ Date: 2021.10.22
     - HR version of buildings (temporary upscale).
     - Visually shifted robots up, so it looks more natural.
     - Some code and file structure improvements.
+    - Removed some useless spaces in locales.
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.13
   Changes:

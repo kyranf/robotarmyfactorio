@@ -51,7 +51,7 @@ function basicConstructorCheck(constructor)
                     local revived, entity, requests = ghost.revive({return_item_request_proxy = true, raise_revive = true})
                     if revived then
                         local beamEntity = constructor.surface.create_entity( {name = "constructor-beam", position = constructor.position, source = constructor,
-                                                                            target = entity.position,force = constructor.force, duration=15 })
+                                                                            target = entity.position, force = constructor.force, duration = 15 })
 
                         handleOnRobotBuiltEntity( {created_entity = entity, player_index = entity.force.players[0] }) --might be a better way to pass through optional table params to indicate that
 
@@ -63,7 +63,7 @@ function basicConstructorCheck(constructor)
                 else
                     --get unit vector between constructor and ghost, find position of (settings.global["Engineer Droid Build Range"].value-1) away from ghost position, and move to that.
 
-                    constructor.set_command({type=defines.command.go_to_location, destination=ghost.position, radius=1, distraction=defines.distraction.by_nothing})
+                    constructor.set_command({type=defines.command.go_to_location, destination=ghost.position, radius = 1, distraction=defines.distraction.by_nothing})
                 end
             end
         end
