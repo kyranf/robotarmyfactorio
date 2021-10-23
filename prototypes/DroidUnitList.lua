@@ -5,13 +5,13 @@ require("robolib.util")
 spawnable = {"droid-smg", "droid-rocket", "droid-rifle", "terminator", "droid-flame", "defender-unit", "distractor-unit", "destroyer-unit", "basic-constructor"}
 
 --which of our custom entities can join squads? not necessarily all droids will be using the squad mechanic
-squadCapable = {"droid-smg", "droid-rocket","droid-rifle", "terminator", "droid-flame", "defender-unit", "distractor-unit", "destroyer-unit", "basic-constructor"}
+squadCapable = {"droid-smg", "droid-rocket", "droid-rifle", "terminator", "droid-flame", "defender-unit", "distractor-unit", "destroyer-unit", "basic-constructor"}
 
 -- lets pre-adjust the strings now, for fast matching in run-time, and only when we get a match do we convert back to the spawnable entity names.
 for _, name in pairs(spawnable) do
-	name = convertToMatchable(name)
+  name = convertToMatchable(name)
 end
 for _, name in pairs(squadCapable) do
-	name = convertToMatchable(name)
+  name = convertToMatchable(name)
 end
 -- remember to call convertToEntityNames before referencing these entries in spawning or other related uses
