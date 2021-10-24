@@ -847,6 +847,38 @@ local terminator =
 ------------------------------- BUILDINGS ------------------------------
 ------------------------------------------------------------------------
 
+local ledsprites =
+{
+  filename = "__base__/graphics/entity/combinator/activity-leds/constant-combinator-LED-N.png",
+  width = 8,
+  height = 6,
+  frame_count = 1,
+  shift = util.by_pixel(9, -12),
+  hr_version =
+  {
+    scale = 0.5,
+    filename = "__base__/graphics/entity/combinator/activity-leds/hr-constant-combinator-LED-N.png",
+    width = 14,
+    height = 12,
+    frame_count = 1,
+    shift = util.by_pixel(9, -11.5),
+  },
+}
+
+local circuit_wire_connection_points =
+{
+  shadow =
+  {
+    red = {0.15625, -0.28125},
+    green = {0.65625, -0.25}
+  },
+  wire =
+  {
+    red = {-0.28125, -0.5625},
+    green = {0.21875, -0.5625},
+  }
+}
+
 local droid_counter = {
   type = "constant-combinator",
   name = "droid-counter",
@@ -893,74 +925,10 @@ local droid_counter = {
   },
   activity_led_sprites =
   {
-    north =
-    {
-      filename = "__base__/graphics/entity/combinator/activity-leds/arithmetic-combinator-LED-N.png",
-      width = 8,
-      height = 8,
-      frame_count = 1,
-      shift = util.by_pixel(8, -12),
-      hr_version =
-      {
-        scale = 0.5,
-        filename = "__base__/graphics/entity/combinator/activity-leds/hr-arithmetic-combinator-LED-N.png",
-        width = 16,
-        height = 14,
-        frame_count = 1,
-        shift = util.by_pixel(8.5, -12.5),
-      },
-    },
-    east =
-    {
-      filename = "__base__/graphics/entity/combinator/activity-leds/arithmetic-combinator-LED-E.png",
-      width = 8,
-      height = 8,
-      frame_count = 1,
-      shift = util.by_pixel(17, -1),
-      hr_version =
-      {
-        scale = 0.5,
-        filename = "__base__/graphics/entity/combinator/activity-leds/hr-arithmetic-combinator-LED-E.png",
-        width = 14,
-        height = 14,
-        frame_count = 1,
-        shift = util.by_pixel(16.5, -1),
-      },
-    },
-    south =
-    {
-      filename = "__base__/graphics/entity/combinator/activity-leds/arithmetic-combinator-LED-S.png",
-      width = 8,
-      height = 8,
-      frame_count = 1,
-      shift = util.by_pixel(-8, 7),
-      hr_version =
-      {
-        scale = 0.5,
-        filename = "__base__/graphics/entity/combinator/activity-leds/hr-arithmetic-combinator-LED-S.png",
-        width = 16,
-        height = 16,
-        frame_count = 1,
-        shift = util.by_pixel(-8, 7.5),
-      },
-    },
-    west =
-    {
-      filename = "__base__/graphics/entity/combinator/activity-leds/arithmetic-combinator-LED-W.png",
-      width = 8,
-      height = 8,
-      frame_count = 1,
-      shift = util.by_pixel(-16, -12),
-      hr_version =
-      {
-        scale = 0.5,
-        filename = "__base__/graphics/entity/combinator/activity-leds/hr-arithmetic-combinator-LED-W.png",
-        width = 14,
-        height = 14,
-        frame_count = 1,
-        shift = util.by_pixel(-16, -12.5),
-      },
-    },
+    north = ledsprites,
+    east = ledsprites,
+    south = ledsprites,
+    west = ledsprites,
   },
   activity_led_light =
   {
@@ -971,60 +939,16 @@ local droid_counter = {
   activity_led_light_offsets =
   {
     {0.234375, -0.484375},
-    {0.5, 0},
-    {-0.265625, 0.140625},
-    {-0.453125, -0.359375}
+    {0.234375, -0.484375},
+    {0.234375, -0.484375},
+    {0.234375, -0.484375},
   },
   circuit_wire_connection_points =
   {
-    {
-      shadow =
-      {
-        red = {0.15625, -0.28125},
-        green = {0.65625, -0.25}
-      },
-      wire =
-      {
-        red = {-0.28125, -0.5625},
-        green = {0.21875, -0.5625},
-      }
-    },
-    {
-      shadow =
-      {
-        red = {0.75, -0.15625},
-        green = {0.75, 0.25},
-      },
-      wire =
-      {
-        red = {0.46875, -0.5},
-        green = {0.46875, -0.09375},
-      }
-    },
-    {
-      shadow =
-      {
-        red = {0.75, 0.5625},
-        green = {0.21875, 0.5625}
-      },
-      wire =
-      {
-        red = {0.28125, 0.15625},
-        green = {-0.21875, 0.15625}
-      }
-    },
-    {
-      shadow =
-      {
-        red = {-0.03125, 0.28125},
-        green = {-0.03125, -0.125},
-      },
-      wire =
-      {
-        red = {-0.46875, 0},
-        green = {-0.46875, -0.40625},
-      }
-    }
+    circuit_wire_connection_points,
+    circuit_wire_connection_points,
+    circuit_wire_connection_points,
+    circuit_wire_connection_points,
   },
   circuit_wire_max_distance = 10
 }
@@ -1075,74 +999,10 @@ local droid_settings =  {
   },
   activity_led_sprites =
   {
-    north =
-    {
-      filename = "__base__/graphics/entity/combinator/activity-leds/constant-combinator-LED-N.png",
-      width = 8,
-      height = 6,
-      frame_count = 1,
-      shift = util.by_pixel(9, -12),
-      hr_version =
-      {
-        scale = 0.5,
-        filename = "__base__/graphics/entity/combinator/activity-leds/hr-constant-combinator-LED-N.png",
-        width = 14,
-        height = 12,
-        frame_count = 1,
-        shift = util.by_pixel(9, -11.5),
-      },
-    },
-    east =
-    {
-      filename = "__base__/graphics/entity/combinator/activity-leds/constant-combinator-LED-E.png",
-      width = 8,
-      height = 8,
-      frame_count = 1,
-      shift = util.by_pixel(8, 0),
-      hr_version =
-      {
-        scale = 0.5,
-        filename = "__base__/graphics/entity/combinator/activity-leds/hr-constant-combinator-LED-E.png",
-        width = 14,
-        height = 14,
-        frame_count = 1,
-        shift = util.by_pixel(7.5, -0.5),
-      },
-    },
-    south =
-    {
-      filename = "__base__/graphics/entity/combinator/activity-leds/constant-combinator-LED-S.png",
-      width = 8,
-      height = 8,
-      frame_count = 1,
-      shift = util.by_pixel(-9, 2),
-      hr_version =
-      {
-        scale = 0.5,
-        filename = "__base__/graphics/entity/combinator/activity-leds/hr-constant-combinator-LED-S.png",
-        width = 14,
-        height = 16,
-        frame_count = 1,
-        shift = util.by_pixel(-9, 2.5),
-      },
-    },
-    west =
-    {
-      filename = "__base__/graphics/entity/combinator/activity-leds/constant-combinator-LED-W.png",
-      width = 8,
-      height = 8,
-      frame_count = 1,
-      shift = util.by_pixel(-7, -15),
-      hr_version =
-      {
-        scale = 0.5,
-        filename = "__base__/graphics/entity/combinator/activity-leds/hr-constant-combinator-LED-W.png",
-        width = 14,
-        height = 16,
-        frame_count = 1,
-        shift = util.by_pixel(-7, -15),
-      },
-    },
+    north = ledsprites,
+    east = ledsprites,
+    south = ledsprites,
+    west = ledsprites,
   },
   activity_led_light =
   {
@@ -1152,60 +1012,16 @@ local droid_settings =  {
   activity_led_light_offsets =
   {
     {0.296875, -0.40625},
-    {0.25, -0.03125},
-    {-0.296875, -0.078125},
-    {-0.21875, -0.46875}
+    {0.296875, -0.40625},
+    {0.296875, -0.40625},
+    {0.296875, -0.40625},
   },
   circuit_wire_connection_points =
   {
-    {
-      shadow =
-      {
-        red = {0.15625, -0.28125},
-        green = {0.65625, -0.25}
-      },
-      wire =
-      {
-        red = {-0.28125, -0.5625},
-        green = {0.21875, -0.5625},
-      }
-    },
-    {
-      shadow =
-      {
-        red = {0.75, -0.15625},
-        green = {0.75, 0.25},
-      },
-      wire =
-      {
-        red = {0.46875, -0.5},
-        green = {0.46875, -0.09375},
-      }
-    },
-    {
-      shadow =
-      {
-        red = {0.75, 0.5625},
-        green = {0.21875, 0.5625}
-      },
-      wire =
-      {
-        red = {0.28125, 0.15625},
-        green = {-0.21875, 0.15625}
-      }
-    },
-    {
-      shadow =
-      {
-        red = {-0.03125, 0.28125},
-        green = {-0.03125, -0.125},
-      },
-      wire =
-      {
-        red = {-0.46875, 0},
-        green = {-0.46875, -0.40625},
-      }
-    }
+    circuit_wire_connection_points,
+    circuit_wire_connection_points,
+    circuit_wire_connection_points,
+    circuit_wire_connection_points,
   },
   circuit_wire_max_distance = 10
 }
@@ -1239,27 +1055,31 @@ local loot_chest = {
     {
       {
         filename = BUILPATH .. "loot-chest.png",
-        width = 64,
-        height = 64,
+        width = 33,
+        height = 38,
+        shift = util.by_pixel(0, 0),
         hr_version =
         {
           filename = BUILPATH .. "hr-loot-chest.png",
-          width = 128,
-          height = 128,
+          width = 66,
+          height = 76,
+          shift = util.by_pixel(-0.5, -0.5),
           scale = 0.5,
         }
       },
       {
         filename = BUILPATH .. "loot-chest-shadow.png",
-        width = 64,
-        height = 64,
+        width = 55,
+        height = 25,
         draw_as_shadow = true,
+        shift = util.by_pixel(12, 8),
         hr_version =
         {
           filename = BUILPATH .. "hr-loot-chest-shadow.png",
-          width = 128,
-          height = 128,
+          width = 110,
+          height = 50,
           draw_as_shadow = true,
+          shift = util.by_pixel(12.5, 8),
           scale = 0.5,
         }
       },

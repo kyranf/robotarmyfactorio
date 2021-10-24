@@ -39,24 +39,25 @@ for i, force in pairs(game.forces) do
     if force.technologies["military-3"].researched then
         force.recipes["terminator"].enabled = true
     end
+
     if force.technologies["repair-tech"] and force.technologies["repair-tech"].researched then
         force.recipes["basic-constructor"].enabled = true
         force.recipes["construction-warehouse"].enabled = true
     end
+
     if force.technologies["defender"].researched then
         force.recipes["defender-unit"].enabled = true
         force.recipes["distractor-unit"].enabled = true
         force.recipes["destroyer-unit"].enabled = true
     end
 
-    --adding a guard staion table entry for each force in the game.
+    --adding a guard station table entry for each force in the game.
     global.droidGuardStations[force.name] = global.droidGuardStations[force.name] or {}
     global.Squads[force.name] = global.Squads[force.name] or {}
     global.DroidAssemblers[force.name] = global.DroidAssemblers[force.name] or {}
     global.droidCounters[force.name] = global.droidCounters[force.name] or {}
     global.lootChests[force.name] = global.lootChests[force.name] or {}
     global.uniqueSquadId[force.name] = global.uniqueSquadId[force.name] or 1
-
     global.updateTable[force.name] = global.updateTable[force.name] or {}
 
 end
