@@ -20,7 +20,7 @@ local dual_laser = {
           },
           {
             type = "damage",
-            damage = { amount = 30*settings.startup["Droid Damage Modifier"].value, type = "laser"}
+            damage = { amount = 30*settings.startup["Droid-Damage-Modifier"].value, type = "laser"}
           }
         }
       }
@@ -58,7 +58,7 @@ local dual_laser = {
           },
           {
             type = "damage",
-            damage = {amount = 275*settings.startup["Droid Damage Modifier"].value, type = "explosion"}
+            damage = {amount = 275*settings.startup["Droid-Damage-Modifier"].value, type = "explosion"}
           },
           {
             type = "create-entity",

@@ -261,10 +261,10 @@ function processDroidAssemblers(force)
                 local settingsModule = checkAttachedSettingsModule(assembler)
 
                 --set the various spawn and attack settings to default values
-                local huntSize = settings.global["Squad Hunt Size"].value
-                local huntRadius = settings.global["Squad Hunt Radius"].value
-                local retreatSize = settings.global["Squad Retreat Size"].value
-                local garrisonSize =  settings.global["Guard Station Garrison Size"].value
+                local huntSize = settings.global["Squad-Hunt-Size"].value
+                local huntRadius = settings.global["Squad-Hunt-Radius"].value
+                local retreatSize = settings.global["Squad-Retreat-Size"].value
+                local garrisonSize =  settings.global["Guard-Station-Garrison-Size"].value
 
                 --if we found the settings module, overwrite the above values.
                 if settingsModule and settingsModule.valid then
@@ -282,7 +282,7 @@ function processDroidAssemblers(force)
 
                     if(global.assemblerSquad[assembler.unit_number].numMembers >= huntSize) then
 
-                        local enemy = assembler.surface.find_nearest_enemy({position= assembler.position, max_distance = huntRadius, force=assembler.force})
+                        local enemy = assembler.surface.find_nearest_enemy({position = assembler.position, max_distance = huntRadius, force = assembler.force})
 
                         if (enemy and enemy.valid ) then
 
@@ -454,10 +454,10 @@ function processDroidGuardStations(force)
                  local settingsModule = checkAttachedSettingsModule(station)
 
                  --set the various spawn and attack settings to default values
-                 local huntSize = settings.global["Squad Hunt Size"].value
-                 local huntRadius = settings.global["Squad Keep Clear Radius"].value    -- NOTE THIS IS DIFFERENT, IT IS KEEP CLEAR NOT HUNT RADIUS
-                 local retreatSize = settings.global["Squad Retreat Size"].value
-                 local garrisonSize =  settings.global["Guard Station Garrison Size"].value
+                 local huntSize = settings.global["Squad-Hunt-Size"].value
+                 local huntRadius = settings.global["Squad-Keep-Clear-Radius"].value    -- NOTE THIS IS DIFFERENT, IT IS KEEP CLEAR NOT HUNT RADIUS
+                 local retreatSize = settings.global["Squad-Retreat-Size"].value
+                 local garrisonSize =  settings.global["Guard-Station-Garrison-Size"].value
                  --if we found the settings module, overwrite the above values.
                  if settingsModule and settingsModule.valid then
 
@@ -610,7 +610,7 @@ function processDroidAssemblersForTick(force, tick)
                     -- by a squad trying to retreat to it
                     forceAssemblerRetreatTable[assemblerIdx] = nil
                 end
-                if settings.global["Attack Targeting Type"].value == targetingTypes.hybridKeepRadiusClear then
+                if settings.global["Attack-Targeting-Type"].value == targetingTypes.hybridKeepRadiusClear then
                     if assembler.valid then
                         local ANEtable = global.AssemblerNearestEnemies[force.name][assemblerIdx]
                         if game.tick > ANEtable.lastChecked + CHECK_FOR_NEAREST_ENEMY_TO_ASSEMBLER_EVERY then

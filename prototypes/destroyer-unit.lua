@@ -86,7 +86,7 @@ data:extend({
   flags = {"placeable-player", "player-creation", "placeable-off-grid"},
   subgroup = "creatures",
   has_belt_immunity = true,
-  max_health = 120 * settings.startup["Droid Health Modifier"].value,
+  max_health = 120 * settings.startup["Droid-Health-Modifier"].value,
   minable = {hardness = 0.1, mining_time = 0.1, result = "destroyer-unit"},
   alert_when_damaged = false,
   order = "b-b-c",
@@ -193,7 +193,7 @@ data:extend({
       {
         {
           type = "damage",
-          damage = { amount = 15*settings.startup["Droid Damage Modifier"].value, type = "electric"}
+          damage = { amount = 15*settings.startup["Droid-Damage-Modifier"].value, type = "electric"}
         }
       }
     }
