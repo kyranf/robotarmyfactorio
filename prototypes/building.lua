@@ -266,7 +266,7 @@ local construction_warehouse = {
   type = "container",
   name = "construction-warehouse",
   icon_size = 64,
-  icon = ICONPATH .. "construction_warehouse.png",
+  icon = ICONPATH .. "droid-construction_warehouse.png",
   flags = {"placeable-neutral", "placeable-player", "player-creation"},
   minable = {hardness = 0.2, mining_time = 1, result = "construction-warehouse"},
   max_health = 400,
@@ -311,11 +311,13 @@ local construction_warehouse = {
         width = 156,
         height = 139,
         shift = {0, 0},
+        draw_as_shadow = true,
         hr_version = {
           filename = BUILPATH .. "hr-construction_warehouse-shadow.png",
           width = 312,
           height = 278,
           shift = {0, 0},
+          draw_as_shadow = true,
           scale = 0.5,
         }
       },
@@ -337,4 +339,4 @@ local construction_warehouse = {
 }
 
 
- data:extend({droidAssembler,guardStation, patrolPole, construction_warehouse})
+ data:extend({droidAssembler, guardStation, patrolPole, construction_warehouse})
