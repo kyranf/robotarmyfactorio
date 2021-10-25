@@ -320,7 +320,7 @@ data:extend({
   },
 })
 
-
+--[[ disabled since we bring our own techs now
 
 -- deal with unlocking the recipes just piggy-backing on military research for now. most droids need more advanced research to build them anyway.
 table.insert(data.raw["technology"]["military"].effects, {type="unlock-recipe",recipe="droid-rifle"})
@@ -355,3 +355,4 @@ table.insert(data.raw["technology"]["distractor"].effects, {type="unlock-recipe"
 table.insert(data.raw["technology"]["distractor"].effects, {type="unlock-recipe", recipe="distractor-unit-deploy"})
 table.insert(data.raw["technology"]["destroyer"].effects, {type="unlock-recipe", recipe="destroyer-unit"})
 table.insert(data.raw["technology"]["destroyer"].effects, {type="unlock-recipe", recipe="destroyer-unit-deploy"})
+]]
