@@ -513,24 +513,6 @@ function handleBuiltDroidCounter(event)
     end
 end
 
-
-function handleBuiltRallyBeacon(event)
-    local entity = event.created_entity
-    local entityForce = entity.force.name
-    --LOGGER.log( string.format("Adding rally beacon to force %s", entityForce) )
-    if not global.rallyBeacons then
-        global.rallyBeacons = {}
-        global.rallyBeacons[entityForce] = {}
-        table.insert(global.rallyBeacons[entityForce], entity )
-    elseif not global.rallyBeacons[entityForce] then
-        global.rallyBeacons[entityForce] = {}
-        table.insert(global.rallyBeacons[entityForce], entity)
-    else
-        table.insert(global.rallyBeacons[entityForce], entity)
-    end
-end
-
-
 function handleGuardStationPlaced(event)
     local entity = event.created_entity
     local force = entity.force

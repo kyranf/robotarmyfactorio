@@ -28,7 +28,6 @@ function updateSquad(squad)
     end
 end
 
-
 function executeBattleAI(squad)
     local attacking = isAttacking(squad)
     if attacking then
@@ -53,7 +52,6 @@ function executeBattleAI(squad)
     end
 end
 
-
 function orderSquadToHunt(squad)
     local target = chooseTarget(squad)
     if target then
@@ -62,7 +60,6 @@ function orderSquadToHunt(squad)
         orderSquadToWander(squad, squad.unitGroup.position)
     end
 end
-
 
 function executeGuardAI(squad)
     local surface = getSquadSurface(squad)
@@ -101,15 +98,15 @@ function executeGuardAI(squad)
 
         local waypointCount = table.countNonNil(squad.patrolState.waypointList)
         --Game.print_all(string.format("Squad's waypoint count: %d", waypointCount))
-        if(waypointCount >= 2) then
-            if(squad.patrolState.currentWaypoint == -1) then
+        if (waypointCount >= 2) then
+            if (squad.patrolState.currentWaypoint == -1) then
                 --Game.print_all("Setting up initial conditions...")
                 squad.patrolState.currentWaypoint = 0
                 squad.patrolState.movingToNext = false
                 squad.patrolState.arrived = true
             end
             --check if we are going to a waypoint, if we are, check if we are close yet
-            if(squad.patrolState.movingToNext == true) then
+            if (squad.patrolState.movingToNext == true) then
                 --get distance from squad position to the current waypoint
                 local dist = util.distance(squad.unitGroup.position, squad.patrolState.waypointList[squad.patrolState.currentWaypoint])
                 --Game.print_all("Checking if squad is near waypoint...")
@@ -122,9 +119,13 @@ function executeGuardAI(squad)
 
                     if validateSquadIntegrity(squad) then
                         squad.unitGroup.set_command(
-                            {type=defines.command.go_to_location,
-                             destination=position, radius=DEFAULT_SQUAD_RADIUS,
-                             distraction=defines.distraction.by_enemy})
+                            {
+                                type=defines.command.go_to_location,
+                                destination=position,
+                                radius=DEFAULT_SQUAD_RADIUS,
+                                distraction=defines.distraction.by_enemy
+                            }
+                        )
                     end
                 end
             end
@@ -154,9 +155,13 @@ function executeGuardAI(squad)
 
                 if validateSquadIntegrity(squad) then
                     squad.unitGroup.set_command(
-                        {type=defines.command.go_to_location, destination=position,
-                         radius=DEFAULT_SQUAD_RADIUS,
-                         distraction=defines.distraction.by_enemy})
+                        {
+                            type = defines.command.go_to_location,
+                            destination = position,
+                            radius = DEFAULT_SQUAD_RADIUS,
+                            distraction = defines.distraction.by_enemy
+                        }
+                    )
                 end
                 --squad.unitGroup.start_moving()
             end
@@ -165,55 +170,5 @@ function executeGuardAI(squad)
         -- validate, but then wait a while before validating again
         squad.command.tick = game.tick
         validateSquadIntegrity(squad)
-    end
-end
-
-
-function doRallyBeaconUpdate()
-    if global.Squads then
-        for _,force in pairs(game.forces) do
-            local forceName = force.name
-            if global.Squads[forceName] then
-                --if this force has any rally beacons in its table
-                if(global.rallyBeacons and global.rallyBeacons[forceName] and table.countValidElements(global.rallyBeacons[forceName]) >= 1) then
-
-                    local forceBeacons = global.rallyBeacons[forceName]
-                    local forceSquads = global.Squads[forceName]
-                    for _, squad in pairs(forceSquads) do
-                        if squad and squad.unitGroup and squad.unitGroup.valid then
-                            if squad.command.type ~= commands.guard
-                                and squad.command.type ~= commands.patrol
-                            then
-                                --find nearest rally pole to squad position and send them there.
-                                local squadPos = squad.unitGroup.position
-                                local closestRallyBeacon = getClosestEntity(squadPos, forceBeacons) --find closest rallyBeacon to move towards
-                                local beaconPos = closestRallyBeacon.position
-                                local surface = squad.unitGroup.surface
-                                beaconPos.x = beaconPos.x+2
-                                beaconPos.y = beaconPos.y+2
-                                local dist = util.distance(beaconPos, squad.unitGroup.position)
-                                if(dist >= 20) then
-                                    --give them command to move.
-                                    squad.rally = true
-                                    squad.unitGroup.destroy()
-                                    if validateSquadIntegrity(squad) then --this recreates the unitgroup and re-adds the members
-                                        squad.unitGroup.set_command({type=defines.command.go_to_location, destination=beaconPos, distraction=defines.distraction.none})
-                                        squad.unitGroup.start_moving()
-                                    end
-                                    --else if(dist > 20 ) then
-                                    --  squad.rally = nil
-                                end
-
-                            end
-                        end
-                    end
-                else
-                    --if no rally beacons, make sure no squads are stuck with rally == true
-                    for _, squad in pairs(global.Squads[force.name]) do
-                       if squad then squad.rally = false end
-                    end
-                end
-            end
-        end
     end
 end

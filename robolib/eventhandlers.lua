@@ -506,8 +506,6 @@ function handleOnBuiltEntity(event)
         handleBuiltDroidSettings(event)
     elseif entity.name == "loot-chest" then
         handleBuiltLootChest(event)
-    elseif entity.name == "rally-beacon" then
-        handleBuiltRallyBeacon(event)
     elseif entity.type == "unit" and table.contains(squadCapable, entity.name) then --squadCapable is defined in DroidUnitList.
         --add to the global units list. make it if it's not actually there yet.
         if not global.units then global.units = {} end
@@ -532,8 +530,6 @@ function handleOnRobotBuiltEntity(event)
         handleBuiltDroidCounter(event)
     elseif(entity.name == "droid-settings") then
         handleBuiltDroidSettings(event)
-    elseif entity.name == "rally-beacon" then
-        handleBuiltRallyBeacon(event)
     elseif entity.name == "loot-chest" then
         handleBuiltLootChest(event)
     end
@@ -550,8 +546,6 @@ function handleOnScriptRaisedBuilt(event)
         handleBuiltDroidCounter(event)
     elseif(entity.name == "droid-settings") then
         handleBuiltDroidSettings(event)
-    elseif entity.name == "rally-beacon" then
-        handleBuiltRallyBeacon(event)
     elseif entity.name == "loot-chest" then
         handleBuiltLootChest(event)
     end
@@ -595,9 +589,6 @@ function handleForceCreated(event)
 
     global.droidGuardStations = global.droidGuardStations or {}
     global.droidGuardStations[force.name] = {}
-
-    global.rallyBeacons = global.rallyBeacons or {}
-    global.rallyBeacons[force.name] = {}
 
      --set up the tick tables for this new force
     global.updateTable = global.updateTable or {}
