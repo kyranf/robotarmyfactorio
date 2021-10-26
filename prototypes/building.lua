@@ -17,6 +17,20 @@ circuit_connector_definitions["droid_assem"] = circuit_connector_definitions.cre
   }
 )
 
+
+circuit_connector_definitions["loot_box"] = circuit_connector_definitions.create
+(
+  universal_connector_template,
+  {
+    {
+      variation = 18,
+      main_offset = util.by_pixel(2.5, 18.0),
+      shadow_offset = util.by_pixel(2.0, 18.0),
+      show_shadow = false
+    }
+  }
+)
+
 local droidAssembler = {
   type = "container",
   name = "droid-assembling-machine",
@@ -30,14 +44,8 @@ local droidAssembler = {
   dying_explosion = "medium-explosion",
   resistances =
   {
-    {
-      type = "fire",
-      percent = 70
-    },
-    {
-      type = "acid",
-      percent = 70
-    }
+    {type = "fire", percent = 70},
+    {type = "acid", percent = 70}
   },
   collision_box = {{-1.2, -1.2}, {1.2, 1.2}},
   selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
@@ -271,7 +279,7 @@ local construction_warehouse = {
   minable = {hardness = 0.2, mining_time = 1, result = "construction-warehouse"},
   max_health = 400,
   corpse = "big-remnants",
-  open_sound = { filename = "__base__/sound/metallic-chest-open.ogg", volume=0.65 },
+  open_sound = { filename = "__base__/sound/metallic-chest-open.ogg", volume = 0.65 },
   close_sound = { filename = "__base__/sound/metallic-chest-close.ogg", volume = 0.7 },
   resistances =
   {
@@ -338,5 +346,277 @@ local construction_warehouse = {
   }
 }
 
+local ledsprites =
+{
+  filename = "__base__/graphics/entity/combinator/activity-leds/constant-combinator-LED-N.png",
+  width = 8,
+  height = 6,
+  frame_count = 1,
+  shift = util.by_pixel(9, -12),
+  hr_version =
+  {
+    scale = 0.5,
+    filename = "__base__/graphics/entity/combinator/activity-leds/hr-constant-combinator-LED-N.png",
+    width = 14,
+    height = 12,
+    frame_count = 1,
+    shift = util.by_pixel(9, -11.5),
+  },
+}
 
- data:extend({droidAssembler, guardStation, patrolPole, construction_warehouse})
+local circuit_wire_connection_points =
+{
+  shadow =
+  {
+    red = {0.15625, -0.28125},
+    green = {0.65625, -0.25}
+  },
+  wire =
+  {
+    red = {-0.28125, -0.5625},
+    green = {0.21875, -0.5625},
+  }
+}
+
+local droid_counter = {
+  type = "constant-combinator",
+  name = "droid-counter",
+  icon_size = 64,
+  icon = ICONPATH .. "droid-counter.png",
+  flags = {"placeable-neutral", "player-creation"},
+  minable = {hardness = 0.2, mining_time = 0.5, result = "droid-counter"},
+  max_health = 50,
+  corpse = "small-remnants",
+  collision_box = {{-0.35, -0.35}, {0.35, 0.35}},
+  selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
+  item_slot_count = 7,
+  sprites =
+  {
+    layers =
+    {
+      {
+        filename = BUILPATH .. "droid-counter.png",
+        width = 64,
+        height = 64,
+        hr_version =
+        {
+          filename = BUILPATH .. "hr-droid-counter.png",
+          width = 128,
+          height = 128,
+          scale = 0.5,
+        }
+      },
+      {
+        filename = BUILPATH .. "droid-counter-shadow.png",
+        width = 64,
+        height = 64,
+        draw_as_shadow = true,
+        hr_version =
+        {
+          filename = BUILPATH .. "hr-droid-counter-shadow.png",
+          width = 128,
+          height = 128,
+          draw_as_shadow = true,
+          scale = 0.5,
+        }
+      },
+    },
+  },
+  activity_led_sprites =
+  {
+    north = ledsprites,
+    east = ledsprites,
+    south = ledsprites,
+    west = ledsprites,
+  },
+  activity_led_light =
+  {
+    intensity = 0.8,
+    size = 1,
+    color = {r = 1.0, g = 1.0, b = 1.0}
+  },
+  activity_led_light_offsets =
+  {
+    {0.234375, -0.484375},
+    {0.234375, -0.484375},
+    {0.234375, -0.484375},
+    {0.234375, -0.484375},
+  },
+  circuit_wire_connection_points =
+  {
+    circuit_wire_connection_points,
+    circuit_wire_connection_points,
+    circuit_wire_connection_points,
+    circuit_wire_connection_points,
+  },
+  circuit_wire_max_distance = 10
+}
+
+local droid_settings = {
+  type = "constant-combinator",
+  name = "droid-settings",
+  icon_size = 64,
+  icon = ICONPATH .. "droid-settings.png",
+  flags = {"placeable-neutral", "player-creation"},
+  minable = {hardness = 0.2, mining_time = 0.5, result = "droid-settings"},
+  max_health = 50,
+  corpse = "small-remnants",
+  collision_box = {{-0.35, -0.35}, {0.35, 0.35}},
+  selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
+  item_slot_count = 6,
+  sprites =
+  {
+    layers =
+    {
+      {
+        filename = BUILPATH .. "droid-settings.png",
+        width = 64,
+        height = 64,
+        hr_version =
+        {
+          filename = BUILPATH .. "hr-droid-settings.png",
+          width = 128,
+          height = 128,
+          scale = 0.5,
+        }
+      },
+      {
+        filename = BUILPATH .. "droid-settings-shadow.png",
+        width = 64,
+        height = 64,
+        draw_as_shadow = true,
+        hr_version =
+        {
+          filename = BUILPATH .. "hr-droid-settings-shadow.png",
+          width = 128,
+          height = 128,
+          draw_as_shadow = true,
+          scale = 0.5,
+        }
+      },
+    },
+  },
+  activity_led_sprites =
+  {
+    north = ledsprites,
+    east = ledsprites,
+    south = ledsprites,
+    west = ledsprites,
+  },
+  activity_led_light =
+  {
+    intensity = 0.8,
+    size = 1,
+  },
+  activity_led_light_offsets =
+  {
+    {0.296875, -0.40625},
+    {0.296875, -0.40625},
+    {0.296875, -0.40625},
+    {0.296875, -0.40625},
+  },
+  circuit_wire_connection_points =
+  {
+    circuit_wire_connection_points,
+    circuit_wire_connection_points,
+    circuit_wire_connection_points,
+    circuit_wire_connection_points,
+  },
+  circuit_wire_max_distance = 10
+}
+
+local loot_chest = {
+  type = "container",
+  name = "loot-chest",
+  icon_size = 64,
+  icon = ICONPATH .. "loot-chest.png",
+  flags = {"placeable-neutral", "player-creation"},
+  minable = {mining_time = 1, result = "loot-chest"},
+  max_health = 400,
+  corpse = "small-remnants",
+  open_sound = { filename = "__base__/sound/metallic-chest-open.ogg", volume = 0.65 },
+  close_sound = { filename = "__base__/sound/metallic-chest-close.ogg", volume = 0.7 },
+  resistances =
+  {
+    {type = "fire", percent = 90}
+  },
+  collision_box = {{-0.35, -0.35}, {0.35, 0.35}},
+  selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
+  fast_replaceable_group = "",
+  inventory_size = 48,
+  vehicle_impact_sound = {filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65},
+  picture =
+  {
+    layers =
+    {
+      {
+        filename = BUILPATH .. "loot-chest.png",
+        width = 33,
+        height = 38,
+        shift = util.by_pixel(0, 0),
+        hr_version =
+        {
+          filename = BUILPATH .. "hr-loot-chest.png",
+          width = 66,
+          height = 76,
+          shift = util.by_pixel(-0.5, -0.5),
+          scale = 0.5,
+        }
+      },
+      {
+        filename = BUILPATH .. "loot-chest-shadow.png",
+        width = 55,
+        height = 25,
+        draw_as_shadow = true,
+        shift = util.by_pixel(12, 8),
+        hr_version =
+        {
+          filename = BUILPATH .. "hr-loot-chest-shadow.png",
+          width = 110,
+          height = 50,
+          draw_as_shadow = true,
+          shift = util.by_pixel(12.5, 8),
+          scale = 0.5,
+        }
+      },
+    },
+  },
+  circuit_wire_connection_point =
+  {
+    shadow =
+    {
+      red = {0.734375, 0.453125},
+      green = {0.609375, 0.515625},
+    },
+    wire =
+    {
+      red = {0.40625, 0.21875},
+      green = {0.40625, 0.375},
+    }
+  },
+  circuit_wire_connection_point = circuit_connector_definitions["loot_box"].points,
+  circuit_connector_sprites = circuit_connector_definitions["loot_box"].sprites,
+  circuit_wire_max_distance = 7.5
+}
+
+local selection_sticker = {
+  type = "sticker",
+  name = "selection-sticker",
+  flags = {"not-on-map"},
+  icon_size = 64,
+  icon = ICONPATH .. "unit-selection.png",
+  animation =
+  {
+    filename = ICONPATH .. "unit-selection.png",
+    priority = "extra-high",
+    width = 32,
+    height = 32,
+    frame_count = 1,
+    animation_speed = 1
+  },
+  duration_in_ticks = 3000 * 60,
+  target_movement_modifier = 0.9999
+}
+
+
+ data:extend({droidAssembler, guardStation, patrolPole, construction_warehouse, droid_counter, droid_settings, loot_chest, selection_sticker})
