@@ -776,10 +776,10 @@ function grabArtifactsBySquad(squad)
 
             if artifactList ~= {} then
                 --player.print(string.format("Squad ID %d found %d artifacts!", squad.squadID , artifactCount))
-                --player.insert({name="alien-artifact", count = artifactCount})
+                --player.insert({name = "alien-artifact", count = artifactCount})
                 local cannotInsert = false
                 for _, itemStack in pairs(artifactList) do
-                    if(chest.can_insert(itemStack)) then
+                    if (chest.can_insert(itemStack)) then
                         chest.insert(itemStack)
                     else
                         cannotInsert = true

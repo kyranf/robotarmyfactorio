@@ -14,22 +14,25 @@ function getDroidSpawnLocation(entity)
     local direction = entity.direction
 
     -- based on direction of building, set offset for spawn location
-    if(direction == defines.direction.east) then
-        entPos = ({x = entPos.x - 5,y = entPos.y }) end
-    if(direction == defines.direction.north) then
-        entPos = ({x = entPos.x,y = entPos.y + 5 }) end
-    if(direction == defines.direction.south) then
-        entPos = ({x = entPos.x,y = entPos.y - 5 }) end
-    if(direction == defines.direction.west) then
-        entPos = ({x = entPos.x + 5,y = entPos.y }) end
-
-    if(direction == defines.direction.east) then
+    if direction == defines.direction.east then
+        entPos = ({x = entPos.x - 5,y = entPos.y })
+    end
+    if direction == defines.direction.north then
+        entPos = ({x = entPos.x,y = entPos.y + 5 })
+    end
+    if direction == defines.direction.south then
+        entPos = ({x = entPos.x,y = entPos.y - 5 })
+    end
+    if direction == defines.direction.west then
+        entPos = ({x = entPos.x + 5,y = entPos.y })
+    end
+    if direction == defines.direction.east  then
         randX = math.random() - math.random(0, 4)
     else
         randX = math.random() + math.random(0, 4)
     end
 
-    if(direction == defines.direction.north) then
+    if direction == defines.direction.north then
         randY = math.random() + math.random(0, 4)
     else
         randY = math.random() - math.random(0, 4)
@@ -52,14 +55,18 @@ function getAssemblerRetreatLocation(assembler)
     local direction = assembler.direction
 
     -- based on direction of building, set offset for spawn location
-    if(direction == defines.direction.east) then
-        retreatPos = ({x = retreatPos.x - 5,y = retreatPos.y }) end
-    if(direction == defines.direction.north) then
-        retreatPos = ({x = retreatPos.x,y = retreatPos.y + 5 }) end
-    if(direction == defines.direction.south) then
-        retreatPos = ({x = retreatPos.x,y = retreatPos.y - 5 }) end
-    if(direction == defines.direction.west) then
-        retreatPos = ({x = retreatPos.x + 5,y = retreatPos.y }) end
+    if direction == defines.direction.east then
+        retreatPos = ({x = retreatPos.x - 5,y = retreatPos.y })
+    end
+    if direction == defines.direction.north then
+        retreatPos = ({x = retreatPos.x,y = retreatPos.y + 5 })
+    end
+    if direction == defines.direction.south then
+        retreatPos = ({x = retreatPos.x,y = retreatPos.y - 5 })
+    end
+    if direction == defines.direction.west then
+        retreatPos = ({x = retreatPos.x + 5,y = retreatPos.y })
+    end
 
     return retreatPos
 end
@@ -257,7 +264,7 @@ function doCounterUpdate()
             removeNilsFromTable(global.droidCounters[gameForce.name])
 
             for _, counter in pairs(global.droidCounters[gameForce.name]) do
-                if(counter.valid) then
+                if (counter.valid) then
                     local currentParams = counter.get_or_create_control_behavior()
                     if (currentParams) then
                         local lengthOld = #currentParams.parameters
@@ -369,7 +376,7 @@ end
 
 function buildWaypointList(waypointList, surface, poleArea, squad, force)
     local squadPosition = squad.unitGroup.position
-    local poleList = surface.find_entities_filtered({area = poleArea, squadPosition, name="patrol-pole"})
+    local poleList = surface.find_entities_filtered({area = poleArea, squadPosition, name = "patrol-pole"})
     local poleCount = table.countValidElements(poleList)
     local masterPoleList = {}
 
@@ -466,7 +473,7 @@ function handleBuiltLootChest(event)
         global.lootChests[force.name] = chest   --this is now the force's chest.
     else
         Game.print_force(force,"Error: Can only place one loot chest!")
-        chest.surface.spill_item_stack(chest.position, {name="loot-chest", count = 1})
+        chest.surface.spill_item_stack(chest.position, {name = "loot-chest", count = 1})
         chest.destroy()
         --LOGGER.log("WARNING: Can only place one loot chest!")
     end
@@ -489,7 +496,7 @@ function handleBuiltDroidSettings(event)
     else
 
         Game.print_force(force,"Error: Can only place one settings module!")
-        entity.surface.spill_item_stack(entity.position, {name="droid-settings", count = 1})
+        entity.surface.spill_item_stack(entity.position, {name = "droid-settings", count = 1})
         entity.destroy()
         --LOGGER.log("WARNING: Can only place one settings module!")
 
@@ -659,7 +666,7 @@ function containsSpawnableDroid(inv)
                 --LOGGER.log(string.format("spawnable list %s , %s", i, j))
                 local spawnable = convertToMatchable(j)
                 --LOGGER.log(spawnable)
-                if(string.find(itemName, spawnable)) then --example, in "droid-smg-dummy" find "droid-smg", but the names have been adjusted to replace '-' with '0' to allow string.find to work. turns out hyphens are an escape charater, THANKS LUA!!
+                if (string.find(itemName, spawnable)) then --example, in "droid-smg-dummy" find "droid-smg", but the names have been adjusted to replace '-' with '0' to allow string.find to work. turns out hyphens are an escape charater, THANKS LUA!!
                     --convert to spawnable entity name
                     local realName = convertToEntityNames(spawnable)
                     return realName -- should return the name of the item as a string which is then spawnable. eg "droid-smg"

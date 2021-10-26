@@ -209,7 +209,7 @@ end
 -- @tparam callable callback The callback to invoke if the filter passes. The object defined in the event parameter is passed.
 local function filter_event(event_parameter, entity_type, callback)
     return function(evt)
-        if(evt[event_parameter].name == entity_type) then
+        if evt[event_parameter].name == entity_type then
             callback(evt[event_parameter])
         end
     end

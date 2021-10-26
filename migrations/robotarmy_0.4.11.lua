@@ -11,7 +11,7 @@ for i, force in pairs(game.forces) do
     if force.technologies["military"].researched then
         force.recipes["droid-rifle"].enabled = true
         force.recipes["droid-rifle-deploy"].enabled = true
-        if(GRAB_ARTIFACTS == 1) then
+        if (GRAB_ARTIFACTS == 1) then
             force.recipes["loot-chest"].enabled = true
         end
         force.recipes["patrol-pole"].enabled = true

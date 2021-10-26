@@ -325,7 +325,7 @@ data:extend({
 -- deal with unlocking the recipes just piggy-backing on military research for now. most droids need more advanced research to build them anyway.
 table.insert(data.raw["technology"]["military"].effects, {type="unlock-recipe",recipe="droid-rifle"})
 table.insert(data.raw["technology"]["military"].effects, {type="unlock-recipe",recipe="droid-rifle-deploy"})
-if(GRAB_ARTIFACTS == 1) then
+if (GRAB_ARTIFACTS == 1) then
     table.insert(data.raw["technology"]["military"].effects, {type="unlock-recipe",recipe="loot-chest"})
 end
 table.insert(data.raw["technology"]["military"].effects, {type="unlock-recipe",recipe="patrol-pole"})

@@ -22,7 +22,7 @@ function updateSquad(squad)
         end
 
         --revealChunksBySquad(squad)   -- NOW HANDLED BY UNIT PROTOTYPES WITH radar_range = 1.
-        if(GRAB_ARTIFACTS == 1) then
+        if (GRAB_ARTIFACTS == 1) then
             grabArtifactsBySquad(squad) --disabled as of 0.15 where alien artifacts are no longer dropped!
         end
     end
@@ -37,9 +37,7 @@ function executeBattleAI(squad)
             LOGGER.log(string.format("Squad %d is attacking - once it no longer is attacking, it will need an order.", squad.squadID))
         end
     end
-    if (not attacking) and (squad.command.state_changed_since_last_command or
-                                squadOrderNeedsRefresh(squad))
-    then
+    if (not attacking) and (squad.command.state_changed_since_last_command or squadOrderNeedsRefresh(squad)) then
         squad, issue_command = validateSquadIntegrity(squad)
         if not squad or not issue_command then return end
         LOGGER.log(string.format("Squad %d Needs orders of some kind (last: %d) at tick %d",
@@ -73,7 +71,7 @@ function executeGuardAI(squad)
     local areaBottomRight = {x=squad.unitGroup.position.x+32, y=squad.unitGroup.position.y+32}
     local areaCheck = {areaTopLeft, areaBottomRight}
 
-    local poleList = surface.find_entities_filtered{area = {areaTopLeft, areaBottomRight}, squad.unitGroup.position, name="patrol-pole"}
+    local poleList = surface.find_entities_filtered{area = {areaTopLeft, areaBottomRight}, squad.unitGroup.position, name = "patrol-pole"}
     local poleCount = table.countValidElements(poleList)
     if poleCount > 1 then
         if not squad.patrolState then
@@ -120,17 +118,17 @@ function executeGuardAI(squad)
                     if validateSquadIntegrity(squad) then
                         squad.unitGroup.set_command(
                             {
-                                type=defines.command.go_to_location,
-                                destination=position,
-                                radius=DEFAULT_SQUAD_RADIUS,
-                                distraction=defines.distraction.by_enemy
+                                type = defines.command.go_to_location,
+                                destination = position,
+                                radius = DEFAULT_SQUAD_RADIUS,
+                                distraction = defines.distraction.by_enemy
                             }
                         )
                     end
                 end
             end
 
-            if(squad.patrolState.movingToNext == false and squad.patrolState.arrived == true) then
+            if (squad.patrolState.movingToNext == false and squad.patrolState.arrived == true) then
                 --Game.print_all("Setting new waypoint and giving orders!")
                 --adjust current waypoint, check for min/max issues, then issue command to move.
                 squad.patrolState.currentWaypoint = squad.patrolState.currentWaypoint + squad.patrolState.waypointDirection
@@ -141,7 +139,7 @@ function executeGuardAI(squad)
                 end
 
                 --from the direction value being negative
-                if(squad.patrolState.currentWaypoint == 0) then
+                if (squad.patrolState.currentWaypoint == 0) then
 
                     squad.patrolState.waypointDirection = 1 --reverse the waypoint iteration direction
                     squad.patrolState.currentWaypoint = squad.patrolState.currentWaypoint + 2 --set it to the second waypoint

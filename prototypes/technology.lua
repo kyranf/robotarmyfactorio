@@ -334,6 +334,6 @@ data:extend({
 })
 
 
-if(GRAB_ARTIFACTS == 1) then
+if (GRAB_ARTIFACTS == 1) then
     table.insert(data.raw.technology["robotarmy-tech-robotics"].effects, {type = "unlock-recipe", recipe = "loot-chest"} )
 end

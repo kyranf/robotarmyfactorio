@@ -30,7 +30,7 @@ for i, force in pairs(game.forces) do
     force.recipes["distractor-unit-deploy"].enabled = false
     force.recipes["destroyer-unit"].enabled = false
     force.recipes["destroyer-unit-deploy"].enabled = false
-    if(GRAB_ARTIFACTS == 1) then
+    if (GRAB_ARTIFACTS == 1) then
         force.recipes["loot-chest"].enabled = false
     end
 end
