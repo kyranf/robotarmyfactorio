@@ -1,5 +1,13 @@
 require("config.config")
 
+local function make_light_gunshot_sounds()
+  return {
+    {filename = "__base__/sound/fight/light-gunshot-1.ogg", volume = 0.7},
+    {filename = "__base__/sound/fight/light-gunshot-2.ogg", volume = 0.7},
+    {filename = "__base__/sound/fight/light-gunshot-3.ogg", volume = 0.7}
+  }
+end
+
 local defenderUnitAnim =
 {
   layers =
