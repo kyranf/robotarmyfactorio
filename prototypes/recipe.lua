@@ -3,18 +3,17 @@ require("config.config")
 data:extend({
   {
     type = "recipe",
-    name = "droid-smg",
-    enabled = false,
-    category = "advanced-crafting",
+    name = "basic-constructor",
+    enabled = true,
     energy_required = 10,
     ingredients =
     {
-      {"steel-plate", 5},
-      {"electronic-circuit", 15},
-      {"submachine-gun", 1},
+      {"copper-plate", 5},
+      {"electronic-circuit", 5},
+      {"repair-pack", 5},
       {"light-armor", 1}
     },
-    result = "droid-smg"
+    result = "basic-constructor"
   },
   {
     type = "recipe",
@@ -32,6 +31,21 @@ data:extend({
   },
   {
     type = "recipe",
+    name = "droid-smg",
+    enabled = false,
+    category = "advanced-crafting",
+    energy_required = 10,
+    ingredients =
+    {
+      {"steel-plate", 5},
+      {"electronic-circuit", 15},
+      {"submachine-gun", 1},
+      {"light-armor", 1}
+    },
+    result = "droid-smg"
+  },
+  {
+    type = "recipe",
     name = "droid-rocket",
     enabled = false,
     category = "advanced-crafting",
@@ -44,6 +58,21 @@ data:extend({
       {"light-armor", 1}
     },
     result = "droid-rocket"
+  },
+  {
+    type = "recipe",
+    name = "droid-flame",
+    enabled = false,
+    category = "advanced-crafting",
+    energy_required = 10,
+    ingredients =
+    {
+      {"steel-plate", 5},
+      {"electronic-circuit", 25},
+      {"flamethrower", 1},
+      {"light-armor", 2}
+    },
+    result = "droid-flame",
   },
   {
     type = "recipe",
@@ -96,7 +125,7 @@ data:extend({
       {"iron-plate",20},
       {"electronic-circuit", 25},
     },
-    result="droid-counter",
+    result = "droid-counter",
   },
   {
     type = "recipe",
@@ -108,7 +137,7 @@ data:extend({
       {"iron-plate",20},
       {"electronic-circuit", 25},
     },
-    result="droid-settings",
+    result = "droid-settings",
   },
   {
     type = "recipe",
@@ -143,23 +172,6 @@ data:extend({
     },
     result = "droid-pickup-tool",
     requester_paste_multiplier = 1
-  },
-
-   {
-    type = "recipe",
-    name = "droid-flame",
-    enabled = false,
-    category = "advanced-crafting",
-    energy_required = 10,
-    ingredients =
-    {
-      {"steel-plate", 5},
-      {"electronic-circuit", 25},
-      {"flamethrower", 1},
-      {"light-armor", 2}
-    },
-    result = "droid-flame",
-
   },
   {
     type = "recipe",
@@ -228,20 +240,6 @@ data:extend({
     result = "construction-warehouse",
     requester_paste_multiplier = 1
   },
-  {
-    type = "recipe",
-    name = "basic-constructor",
-    enabled = true,
-    energy_required = 10,
-    ingredients =
-    {
-      {"copper-plate", 5},
-      {"electronic-circuit", 5},
-      {"repair-pack", 5},
-      {"light-armor", 1}
-    },
-    result = "basic-constructor"
-  }
 })
 
 
