@@ -17,7 +17,6 @@ circuit_connector_definitions["droid_assem"] = circuit_connector_definitions.cre
   }
 )
 
-
 circuit_connector_definitions["loot_box"] = circuit_connector_definitions.create
 (
   universal_connector_template,
@@ -113,16 +112,9 @@ local guardStation = {
   is_deployer = true,
   corpse = "big-remnants",
   dying_explosion = "medium-explosion",
-  resistances =
-  {
-    {
-      type = "fire",
-      percent = 70
-    },
-    {
-      type = "acid",
-      percent = 70
-    }
+  resistances = {
+    {type = "fire", percent = 70},
+    {type = "acid", percent = 70}
   },
   collision_box = {{-1.7, -1.7}, {1.7, 1.7}},
   selection_box = {{-2, -2}, {2, 2}},
@@ -190,17 +182,14 @@ local patrolPole = {
   corpse = "small-remnants",
   resistances =
   {
-    {
-      type = "fire",
-      percent = 100
-    }
+    {type = "fire", percent = 100}
   },
   collision_box = {{-0.15, -0.15}, {0.15, 0.15}},
   selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
   drawing_box = {{-0.5, -2.8}, {0.5, 0.5}},
   maximum_wire_distance = GUARD_POLE_CONNECTION_RANGE,
   supply_area_distance = 0,
-  vehicle_impact_sound =  { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
+  vehicle_impact_sound =  {filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65},
   pictures =
   {
     layers = {
@@ -283,14 +272,8 @@ local construction_warehouse = {
   close_sound = { filename = "__base__/sound/metallic-chest-close.ogg", volume = 0.7 },
   resistances =
   {
-    {
-      type = "fire",
-      percent = 90
-    },
-    {
-      type = "acid",
-      percent = 70
-    }
+    {type = "fire", percent = 90},
+    {type = "acid", percent = 70}
   },
   collision_box = {{-1.2, -1.2}, {1.2, 1.2}},
   selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
@@ -618,5 +601,4 @@ local selection_sticker = {
   target_movement_modifier = 0.9999
 }
 
-
- data:extend({droidAssembler, guardStation, patrolPole, construction_warehouse, droid_counter, droid_settings, loot_chest, selection_sticker})
+data:extend({droidAssembler, guardStation, patrolPole, construction_warehouse, droid_counter, droid_settings, loot_chest, selection_sticker})
