@@ -12,44 +12,6 @@ global.updateTable = global.updateTable or {}
 --ensure all force-specific tables and researches are handled/created
 for i, force in pairs(game.forces) do
     force.reset_recipes()
-    force.reset_technologies()
-
-    --force all of the known recipes to be enabled if the appropriate research is already done.
-    if force.technologies["military"].researched then
-        force.recipes["droid-rifle"].enabled = true
-        force.recipes["loot-chest"].enabled = true
-        force.recipes["patrol-pole"].enabled = true
-        force.recipes["droid-guard-station"].enabled = true
-        force.recipes["droid-assembling-machine"].enabled = true
-        force.recipes["droid-pickup-tool"].enabled = true
-        force.recipes["droid-selection-tool"].enabled = true
-    end
-
-    if force.technologies["electronics"].researched then
-        force.recipes["droid-counter"].enabled = true
-        force.recipes["droid-settings"].enabled = true
-    end
-
-    if force.technologies["military-2"].researched then
-        force.recipes["droid-smg"].enabled = true
-        force.recipes["droid-rocket"].enabled = true
-        force.recipes["droid-flame"].enabled = true
-    end
-
-    if force.technologies["military-3"].researched then
-        force.recipes["terminator"].enabled = true
-    end
-
-    if force.technologies["repair-tech"] and force.technologies["repair-tech"].researched then
-        force.recipes["basic-constructor"].enabled = true
-        force.recipes["construction-warehouse"].enabled = true
-    end
-
-    if force.technologies["defender"].researched then
-        force.recipes["defender-unit"].enabled = true
-        force.recipes["distractor-unit"].enabled = true
-        force.recipes["destroyer-unit"].enabled = true
-    end
 
     --adding a guard station table entry for each force in the game.
     global.droidGuardStations[force.name] = global.droidGuardStations[force.name] or {}
@@ -59,5 +21,4 @@ for i, force in pairs(game.forces) do
     global.lootChests[force.name] = global.lootChests[force.name] or {}
     global.uniqueSquadId[force.name] = global.uniqueSquadId[force.name] or 1
     global.updateTable[force.name] = global.updateTable[force.name] or {}
-
 end
