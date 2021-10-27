@@ -260,42 +260,58 @@ local destroyerUnitAnim =
 
 
 
---[[local function add_recurrent_params(bot)
+local function add_recurrent_params(bot)
   bot.icon_size = 64
   bot.type = "unit"
   bot.flags = {"placeable-player", "player-creation", "placeable-off-grid"}
   bot.subgroup = "creatures"
   bot.has_belt_immunity = true
   bot.alert_when_damaged = false
-
-end]]
-
-local defender_unit = {
-  type = "unit",
-  name = "defender-unit",
-  icon_size = 64,
-  icon = "__base__/graphics/icons/defender.png",
-  flags = {"placeable-player", "player-creation", "placeable-off-grid"},
-  subgroup = "creatures",
-  has_belt_immunity = true,
-  max_health = 65 * settings.startup["Droid-Health-Modifier"].value,
-  minable = {hardness = 0.1, mining_time = 0.1, result = "defender-unit"},
-  alert_when_damaged = false,
-  order = "b-b-a",
-  resistances =
-  {
-    {type = "physical", decrease = 4},
-  },
-  healing_per_tick = 0,
-  collision_box = nil,
-  collision_mask = { "ghost-layer"},
-  selection_box = {{-0.3, -0.3}, {0.3, 0.3}},
-  sticker_box = {{-0.1, -0.1}, {0.1, 0.1}},
-  distraction_cooldown = 300,
-  ai_settings =
-  {
+  bot.working_sound = {
+    sound = {
+      {filename = "__base__/sound/flying-robot-1.ogg", volume = 0.6},
+      {filename = "__base__/sound/flying-robot-2.ogg", volume = 0.6},
+      {filename = "__base__/sound/flying-robot-3.ogg", volume = 0.6},
+      {filename = "__base__/sound/flying-robot-4.ogg", volume = 0.6},
+      {filename = "__base__/sound/flying-robot-5.ogg", volume = 0.6}
+    },
+    max_sounds_per_type = 3,
+    probability = 1 / (3 * 60)
+  }
+  bot.dying_sound = {
+    {filename = "__base__/sound/fight/robot-explosion-1.ogg", volume = 0.5},
+    {filename = "__base__/sound/fight/robot-explosion-2.ogg", volume = 0.5}
+  }
+  bot.corpse = "robot-corpse"
+  bot.dying_explosion = "explosion"
+  bot.ai_settings = {
     do_separation = true,
     allow_destroy_when_commands_fail = false
+  }
+  bot.healing_per_tick = 0
+  bot.collision_box = nil
+  bot.collision_mask = { "ghost-layer"}
+  bot.selection_box = {{-0.3, -0.3}, {0.3, 0.3}}
+  bot.sticker_box = {{-0.1, -0.1}, {0.1, 0.1}}
+  bot.distraction_cooldown = 300
+  bot.friendly_map_color = {r = 0.05, g = 0.7, b = 0.29}
+  bot.enemy_map_color = {r = 1, g = 0, b = 0}
+  bot.vision_distance = 45
+  bot.radar_range = 1
+  bot.can_open_gates = true
+  bot.movement_speed = 0.2
+  bot.distance_per_frame = 0.15
+  bot.pollution_to_join_attack = 0
+end
+
+local defender_unit = {
+  name = "defender-unit",
+  icon = "__base__/graphics/icons/defender.png",
+  max_health = 65 * settings.startup["Droid-Health-Modifier"].value,
+  minable = {hardness = 0.1, mining_time = 0.1, result = "defender-unit"},
+  order = "b-b-a",
+  resistances = {
+    {type = "physical", decrease = 4},
   },
   attack_parameters = {
     type = "projectile",
@@ -306,22 +322,17 @@ local defender_unit = {
     range = 12,
     min_attack_distance = 8,
     sound = make_light_gunshot_sounds(),
-    ammo_type =
-    {
+    ammo_type = {
       category = "bullet",
-      action =
-      {
+      action = {
         type = "direct",
-        action_delivery =
-        {
+        action_delivery = {
           type = "instant",
-          source_effects =
-          {
+          source_effects = {
             type = "create-explosion",
             entity_name = "explosion-gunshot-small"
           },
-          target_effects =
-          {
+          target_effects = {
             {
               type = "create-entity",
               entity_name = "explosion-hit"
@@ -329,83 +340,23 @@ local defender_unit = {
             {
               type = "damage",
               damage = { amount = 5 * settings.startup["Droid-Damage-Modifier"].value, type = "physical"}
-            }
-          }
-        }
-      }
+      } } } }
     },
     animation = defenderUnitAnim,
   },
-  friendly_map_color = {r = .05, g = .70, b = .29},
-  enemy_map_color = {r = .100, g = .0, b = .0},
-  vision_distance = 45,
-  radar_range = 1,
-  can_open_gates = true,
-  movement_speed = 0.2,
-  distance_per_frame = 0.15,
-  -- in pu
-  pollution_to_join_attack = 1000,
-  corpse = "robot-corpse",
-  dying_explosion = "explosion",
-  working_sound =
-    {
-    sound =
-    {
-      { filename = "__base__/sound/flying-robot-1.ogg", volume = 0.6 },
-      { filename = "__base__/sound/flying-robot-2.ogg", volume = 0.6 },
-      { filename = "__base__/sound/flying-robot-3.ogg", volume = 0.6 },
-      { filename = "__base__/sound/flying-robot-4.ogg", volume = 0.6 },
-      { filename = "__base__/sound/flying-robot-5.ogg", volume = 0.6 }
-    },
-    max_sounds_per_type = 3,
-    --audible_distance_modifier = 0.5,
-    probability = 1 / (3 * 60) -- average pause between the sound is 3 seconds
-  },
-  dying_sound =
-  {
-    {
-      filename = "__base__/sound/fight/robot-explosion-1.ogg",
-      volume = 0.5
-    },
-    {
-      filename = "__base__/sound/fight/robot-explosion-2.ogg",
-      volume = 0.5
-    }
-  },
   run_animation = defenderUnitAnim,
 }
+
 local distractor_unit = {
-  type = "unit",
   name = "distractor-unit",
-  icon_size = 64,
   icon = "__base__/graphics/icons/distractor.png",
-  flags = {"placeable-player", "player-creation", "placeable-off-grid"},
-  subgroup = "creatures",
-  has_belt_immunity = true,
   max_health = 85 * settings.startup["Droid-Health-Modifier"].value,
   minable = {hardness = 0.1, mining_time = 0.1, result = "distractor-unit"},
-  alert_when_damaged = false,
   order = "b-b-b",
-  resistances =
-  {
-    {
-      type = "physical",
-      decrease = 4,
-    },
+  resistances ={
+    {type = "physical", decrease = 4},
   },
-  healing_per_tick = 0,
-  collision_box = nil,
-  collision_mask = { "ghost-layer"},
-  selection_box = {{-0.3, -0.3}, {0.3, 0.3}},
-  sticker_box = {{-0.1, -0.1}, {0.1, 0.1}},
-  distraction_cooldown = 300,
-  ai_settings =
-  {
-    do_separation = true,
-      allow_destroy_when_commands_fail = false
-  },
-  attack_parameters =
-  {
+  attack_parameters = {
     type = "beam",
     ammo_category = "laser",
     cooldown = 20,
@@ -413,14 +364,11 @@ local distractor_unit = {
     damage_modifier = 1,
     range = 14,
     sound = make_laser_sounds(),
-    ammo_type =
-    {
+    ammo_type = {
       category = "laser",
-      action =
-      {
+      action = {
         type = "direct",
-        action_delivery =
-        {
+        action_delivery = {
           type = "beam",
           beam = "laser-beam",
           max_length = 15,
@@ -430,90 +378,29 @@ local distractor_unit = {
     },
     animation = distractorUnitAnim
   },
-  friendly_map_color = {r = .05, g = .70, b = .29},
-  enemy_map_color = {r = .100, g = .0, b = .0},
-  vision_distance = 45,
-  radar_range = 1,
-  can_open_gates = true,
-  movement_speed = 0.2,
-  distance_per_frame = 0.15,
-  -- in pu
-  pollution_to_join_attack = 1000,
-  corpse = "robot-corpse",
-  dying_explosion = "explosion",
-  working_sound =
-  {
-    sound =
-    {
-      { filename = "__base__/sound/flying-robot-1.ogg", volume = 0.6 },
-      { filename = "__base__/sound/flying-robot-2.ogg", volume = 0.6 },
-      { filename = "__base__/sound/flying-robot-3.ogg", volume = 0.6 },
-      { filename = "__base__/sound/flying-robot-4.ogg", volume = 0.6 },
-      { filename = "__base__/sound/flying-robot-5.ogg", volume = 0.6 }
-    },
-    max_sounds_per_type = 3,
-    --audible_distance_modifier = 0.5,
-    probability = 1 / (3 * 60) -- average pause between the sound is 3 seconds
-  },
-  dying_sound =
-  {
-    {
-      filename = "__base__/sound/fight/robot-explosion-1.ogg",
-      volume = 0.5
-    },
-    {
-      filename = "__base__/sound/fight/robot-explosion-2.ogg",
-      volume = 0.5
-    }
-  },
   run_animation = distractorUnitAnim,
 }
 
 local destroyer_unit = {
-  type = "unit",
   name = "destroyer-unit",
-  icon_size = 64,
   icon = "__base__/graphics/icons/destroyer.png",
-  flags = {"placeable-player", "player-creation", "placeable-off-grid"},
-  subgroup = "creatures",
-  has_belt_immunity = true,
   max_health = 120 * settings.startup["Droid-Health-Modifier"].value,
   minable = {hardness = 0.1, mining_time = 0.1, result = "destroyer-unit"},
-  alert_when_damaged = false,
   order = "b-b-c",
-  resistances =
-  {
-    {
-      type = "physical",
-      decrease = 4,
-    },
+  resistances = {
+    {type = "physical", decrease = 4,},
   },
-  healing_per_tick = 0,
-  collision_box = nil,
-  collision_mask = { "ghost-layer"},
-  selection_box = {{-0.3, -0.3}, {0.3, 0.3}},
-  sticker_box = {{-0.1, -0.1}, {0.1, 0.1}},
-  distraction_cooldown = 300,
-  ai_settings =
-  {
-    do_separation = true,
-    allow_destroy_when_commands_fail = false
-  },
-  attack_parameters =
-  {
+  attack_parameters = {
     type = "beam",
     ammo_category = "beam",
     cooldown = 20,
     range = 15,
     min_attack_distance = 9,
-    ammo_type =
-    {
+    ammo_type = {
       category = "beam",
-      action =
-      {
+      action = {
         type = "direct",
-        action_delivery =
-        {
+        action_delivery = {
           type = "beam",
           beam = "robot-electric-beam",
           max_length = 20,
@@ -524,44 +411,11 @@ local destroyer_unit = {
     },
     animation = destroyerUnitAnim,
   },
-  friendly_map_color = {r = .05, g = .70, b = .29},
-  enemy_map_color = {r = .100, g = .0, b = .0},
-  vision_distance = 45,
-  radar_range = 1,
-  can_open_gates = true,
-  movement_speed = 0.2,
-  distance_per_frame = 0.15,
-  -- in pu
-  pollution_to_join_attack = 1000000,
-  corpse = "robot-corpse",
-  dying_explosion = "explosion",
-  working_sound =
-  {
-    sound =
-    {
-      { filename = "__base__/sound/flying-robot-1.ogg", volume = 0.6 },
-      { filename = "__base__/sound/flying-robot-2.ogg", volume = 0.6 },
-      { filename = "__base__/sound/flying-robot-3.ogg", volume = 0.6 },
-      { filename = "__base__/sound/flying-robot-4.ogg", volume = 0.6 },
-      { filename = "__base__/sound/flying-robot-5.ogg", volume = 0.6 }
-    },
-    max_sounds_per_type = 3,
-    --audible_distance_modifier = 0.5,
-    probability = 1 / (3 * 60) -- average pause between the sound is 3 seconds
-  },
-  dying_sound =
-  {
-    {
-      filename = "__base__/sound/fight/robot-explosion-1.ogg",
-      volume = 0.5
-    },
-    {
-      filename = "__base__/sound/fight/robot-explosion-2.ogg",
-      volume = 0.5
-    }
-  },
   run_animation = destroyerUnitAnim,
 }
 
+add_recurrent_params(defender_unit)
+add_recurrent_params(distractor_unit)
+add_recurrent_params(destroyer_unit)
 
 data:extend({defender_unit, distractor_unit, destroyer_unit})
