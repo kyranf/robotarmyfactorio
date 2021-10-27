@@ -7,6 +7,7 @@ Date: 2021.10.23
     - Buildings visual adjustments (combinators, loot chest, patrol pole).
     - New building icons.
     - Sorted recipe/item order.
+    - Description improvements.
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.15
 Date: 2021.10.23
