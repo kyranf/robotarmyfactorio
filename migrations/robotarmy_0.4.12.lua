@@ -26,7 +26,7 @@ for i, force_ in pairs(game.forces) do
 
         -- get the list of units
         -- for each unit in the list, check the type and name is what we want, add to the list.
-        local units = surface_.find_units({area = {{-1000, -1000}, {1000, 1000}}, force = force_.name, condition = "same"})
+        local units = surface_.find_units({area = {{-500, -500}, {500, 500}}, force = force_.name, condition = "same"})
         for _, unitFound in pairs(units) do
             if names[unitFound.name] then
                 if unitFound.valid then
@@ -42,3 +42,4 @@ for i, force_ in pairs(game.forces) do
 end
 
 Game.print_all(string.format("units added in robot army migration script: %d", numUnitsAdded))
+Game.print_all("Note that any units away from starting area (+-500 tiles) should be re-deployed for improved AI behaviours.")

@@ -14,6 +14,10 @@ function orderSquadToRetreat(squad)
 		global.DroidAssemblers[squad.force.name], squad.unitGroup.position)
     local currentPos = squad.unitGroup.position
 
+
+    if not  squad.unitGroup then return end;
+    if not  squad.unitGroup.valid then return end;
+    
 	if assembler then
         local retreatPos = getDroidSpawnLocation(assembler)
         if not retreatPos then
