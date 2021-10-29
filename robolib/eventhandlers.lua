@@ -80,7 +80,7 @@ function processSquadUpdatesForTick(force_name, tickProcessIndex)
 
     local forceTickTable = global.updateTable[force_name]
     local squadTable = global.Squads[force_name]
-    if(forceTickTable and squadTable) then
+    if (forceTickTable and squadTable) then
 
         for i, squadref in pairs(forceTickTable[tickProcessIndex]) do
             if squadref and squadTable[squadref] then
@@ -191,7 +191,7 @@ function reportSelectedUnits(event, alt)
 		else --command selected units to move to position clicked.
 			if global.selected_squad and global.selected_squad[event.player_index] then
 			local squad = global.Squads[player.force.name][(global.selected_squad[event.player_index])]
-				if(squad) then
+				if (squad) then
 					--Game.print_all(string.format("Tool %s Selected alt-selected-area! Player ID %d, box %d,%d and %d,%d, droids in squad %d ", event.item, event.player_index, area.left_top.x,area.left_top.y, area.right_bottom.x, area.right_bottom.y, squad.numMembers ) )
 					--Game.print_all(string.format("Commanding Squad ID %d ...", global.selected_squad[event.player_index]))
 					squad.command.type = commands.guard
@@ -230,7 +230,7 @@ function reportSelectedUnits(event, alt)
 					if not removed and (string.find(nameOfUnit, comparableDroidName)) then
 						removed = true
 
-						if player.insert{name= unit.name, count=1} == 0 then
+						if player.insert{name = unit.name, count = 1} == 0 then
                             player.print("Not enough inventory space to pick up droid!")
                         else
                             unit.destroy()
@@ -411,7 +411,7 @@ function updateSelectionCircles(force)
 	if not global.selected_squad or global.selected_squad[force.name] then return end
 
 	local squad_id = global.selected_squad[force.name]
-	if(squad_id) then
+	if (squad_id) then
 		local squad = global.Squads[force.name][squad_id]
 		for _, unit in pairs(squad.unitGroup.members) do
 			if unit and unit.valid then
@@ -496,18 +496,16 @@ end
 function handleOnBuiltEntity(event)
     local entity = event.created_entity
 
-    if(entity.name == "droid-assembling-machine") then
+    if entity.name == "droid-assembling-machine" then
         handleDroidAssemblerPlaced(event)
-    elseif(entity.name == "droid-guard-station") then
+    elseif entity.name == "droid-guard-station" then
         handleGuardStationPlaced(event)
-    elseif(entity.name == "droid-counter") then
+    elseif entity.name == "droid-counter" then
         handleBuiltDroidCounter(event)
-    elseif(entity.name == "droid-settings") then
+    elseif entity.name == "droid-settings" then
         handleBuiltDroidSettings(event)
     elseif entity.name == "loot-chest" then
         handleBuiltLootChest(event)
-    elseif entity.name == "rally-beacon" then
-        handleBuiltRallyBeacon(event)
     elseif entity.type == "unit" and table.contains(squadCapable, entity.name) then --squadCapable is defined in DroidUnitList.
         --add to the global units list. make it if it's not actually there yet.
         if not global.units then global.units = {} end
@@ -524,16 +522,14 @@ end -- handleOnBuiltEntity
 
 function handleOnRobotBuiltEntity(event)
     local entity = event.created_entity
-    if(entity.name == "droid-assembling-machine") then
+    if entity.name == "droid-assembling-machine" then
         handleDroidAssemblerPlaced(event)
-    elseif(entity.name == "droid-guard-station") then
+    elseif entity.name == "droid-guard-station" then
         handleGuardStationPlaced(event)
-    elseif(entity.name == "droid-counter") then
+    elseif entity.name == "droid-counter" then
         handleBuiltDroidCounter(event)
-    elseif(entity.name == "droid-settings") then
+    elseif entity.name == "droid-settings" then
         handleBuiltDroidSettings(event)
-    elseif entity.name == "rally-beacon" then
-        handleBuiltRallyBeacon(event)
     elseif entity.name == "loot-chest" then
         handleBuiltLootChest(event)
     end
@@ -542,16 +538,14 @@ end -- handleOnRobotBuiltEntity
 function handleOnScriptRaisedBuilt(event)
     local entity = event.entity
     event.created_entity = event.entity
-    if(entity.name == "droid-assembling-machine") then
+    if entity.name == "droid-assembling-machine" then
         handleDroidAssemblerPlaced(event)
-    elseif(entity.name == "droid-guard-station") then
+    elseif entity.name == "droid-guard-station" then
         handleGuardStationPlaced(event)
-    elseif(entity.name == "droid-counter") then
+    elseif entity.name == "droid-counter" then
         handleBuiltDroidCounter(event)
-    elseif(entity.name == "droid-settings") then
+    elseif entity.name == "droid-settings" then
         handleBuiltDroidSettings(event)
-    elseif entity.name == "rally-beacon" then
-        handleBuiltRallyBeacon(event)
     elseif entity.name == "loot-chest" then
         handleBuiltLootChest(event)
     end
@@ -596,9 +590,6 @@ function handleForceCreated(event)
     global.droidGuardStations = global.droidGuardStations or {}
     global.droidGuardStations[force.name] = {}
 
-    global.rallyBeacons = global.rallyBeacons or {}
-    global.rallyBeacons[force.name] = {}
-
      --set up the tick tables for this new force
     global.updateTable = global.updateTable or {}
     if not global.updateTable[force.name] then global.updateTable[force.name] = {} end
@@ -634,9 +625,9 @@ function handleModChanges()
 
     --check if we have grab artifacts enabled - if we do, but it was added after the game started, and the force has military 1 researched
     --then lets force the recipe to be enabled (because they have missed the usual trigger)
-    if(GRAB_ARTIFACTS == 1) then
+    if (GRAB_ARTIFACTS == 1) then
         for fkey, force in pairs(forces) do
-            if(force.technologies["military"].researched == true) then
+            if force.technologies["military"].researched == true then
                 force.recipes["loot-chest"].enabled = true
             end
         end

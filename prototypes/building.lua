@@ -251,13 +251,46 @@ local patrolPole = {
   vehicle_impact_sound =  { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
   pictures =
   {
-    filename = "__robotarmy__/graphics/entity/patrol-pole.png",
-    priority = "high",
-    width = 136,
-    height = 122,
-    tint = {r=1.0, g=0.5, b=0.5, a=1},
-    direction_count = 1,
-    shift = {1.4, -1.0}
+    layers = {
+      {
+        filename = BUILPATH .. "patrol-pole.png",
+        priority = "high",
+        width = 136,
+        height = 122,
+        tint = {r=1.0, g=0.9, b=0.9, a=0.8},
+        direction_count = 1,
+        shift = {1.4, -1.0},
+        hr_version = {
+          filename = BUILPATH .. "hr-patrol-pole.png",
+          priority = "high",
+          width = 272,
+          height = 244,
+          tint = {r=1.0, g=0.9, b=0.9, a=1},
+          direction_count = 1,
+          shift = {1.4, -1.0},
+          scale = 0.5,
+        }
+      },
+      {
+        filename = BUILPATH .. "patrol-pole-shadow.png",
+        priority = "high",
+        width = 136,
+        height = 122,
+        direction_count = 1,
+        shift = {1.4, -1.0},
+        draw_as_shadow = true,
+        hr_version = {
+          filename = BUILPATH .. "hr-patrol-pole-shadow.png",
+          priority = "high",
+          width = 272,
+          height = 244,
+          direction_count = 1,
+          shift = {1.4, -1.0},
+          draw_as_shadow = true,
+          scale = 0.5,
+        }
+      },
+    }
   },
   connection_points =
   {

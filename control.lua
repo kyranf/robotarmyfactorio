@@ -36,8 +36,8 @@ function init_robotarmy()
         global.lootChests = {}
     end
 
-    if not global.rallyBeacons then
-        global.rallyBeacons = {}
+    if global.rallyBeacons then
+        global.rallyBeacons = nil
     end
 
     if not global.droidGuardStations then
@@ -53,7 +53,7 @@ function init_robotarmy()
     end
 
     --deal with player force as default set-up process
-    event =  {} --event stub, to match function inputs
+    event = {} --event stub, to match function inputs
     for _, v in pairs(game.forces) do
         event.force = v
         handleForceCreated(event)

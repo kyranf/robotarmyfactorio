@@ -320,16 +320,15 @@ data:extend({
   },
 })
 
-
+--[[ disabled since we bring our own techs now
 
 -- deal with unlocking the recipes just piggy-backing on military research for now. most droids need more advanced research to build them anyway.
 table.insert(data.raw["technology"]["military"].effects, {type="unlock-recipe",recipe="droid-rifle"})
 table.insert(data.raw["technology"]["military"].effects, {type="unlock-recipe",recipe="droid-rifle-deploy"})
-if(GRAB_ARTIFACTS == 1) then
+if (GRAB_ARTIFACTS == 1) then
     table.insert(data.raw["technology"]["military"].effects, {type="unlock-recipe",recipe="loot-chest"})
 end
 table.insert(data.raw["technology"]["military"].effects, {type="unlock-recipe",recipe="patrol-pole"})
--- DISABLED DUE TO BUGGY BEHAVIOUR table.insert(data.raw["technology"]["military"].effects,{type="unlock-recipe",recipe="rally-beacon"})
 table.insert(data.raw["technology"]["military"].effects, {type="unlock-recipe",recipe="droid-assembling-machine"})
 table.insert(data.raw["technology"]["military"].effects, {type="unlock-recipe",recipe="droid-guard-station"})
 table.insert(data.raw["technology"]["military"].effects, {type="unlock-recipe",recipe="droid-selection-tool"})
@@ -355,3 +354,4 @@ table.insert(data.raw["technology"]["distractor"].effects, {type="unlock-recipe"
 table.insert(data.raw["technology"]["distractor"].effects, {type="unlock-recipe", recipe="distractor-unit-deploy"})
 table.insert(data.raw["technology"]["destroyer"].effects, {type="unlock-recipe", recipe="destroyer-unit"})
 table.insert(data.raw["technology"]["destroyer"].effects, {type="unlock-recipe", recipe="destroyer-unit-deploy"})
+]]

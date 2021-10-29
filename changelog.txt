@@ -1,7 +1,17 @@
 ---------------------------------------------------------------------------------------------------
-Version: 0.4.15
+Version: 0.4.16
 Date: 2021.10.23
   Changes:
+    - (snouz)
+    - 9 new technologies
+    - Buildings visual adjustments (combinators, loot chest, patrol pole).
+    - New building icons.
+    - Sorted recipe/item order.
+    - Description improvements.
+---------------------------------------------------------------------------------------------------
+Version: 0.4.15
+Date: 2021.10.23
+  Bugfixes:
     - removed old migration file which causes script issues
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.14
@@ -12,7 +22,6 @@ Date: 2021.10.22
     - Removed the artificial tint to apply some custom ones in the images.
     - Attacking bots now use 22 directions animation instead of 8.
     - Standardized and redrew shadows.
-    - Fixed flying bots shadows, used HR version from vanilla.
     - Removed unused images and optimized PNGs.
     - New 64px icons for bots and signals.
     - Deployment icons now don't display in player crafting.
@@ -21,19 +30,23 @@ Date: 2021.10.22
     - HR version of buildings (temporary upscale).
     - Visually shifted robots up, so it looks more natural.
     - Some code and file structure improvements.
+  Bugfixes:
+    - Fixed flying bots shadows, using HR version from vanilla.
+    - Removed visible "deploy" dummy items.
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.13
-  Changes:
+  Bugfixes:
     - attempting to fix github issue #164
     - attempting to fix github issue #172
     - fixing migration script issue with the 0.4.12 migration where it would chew up peoples RAM and break their computers. made it do +-1000 tiles instead of +-15000 tiles for each surface, and each force.
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.12
   Changes:
-    - added Brazilian Portuguese language translations thanks to Felipe Bueno Aliski Alves
-    - added Russian language translations thanks to Varoga on Github
     - added migration script to detect and add all droid units to script-tracked array
     - added AI distraction custom commands for selecting nearest target instead of random target (overriding default ai behaviour of biters) thanks to Klonan
+  Locale:
+    - added Brazilian Portuguese language translations thanks to Felipe Bueno Aliski Alves
+    - added Russian language translations thanks to Varoga on Github
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.11
   Changes:
@@ -54,19 +67,20 @@ Version: 0.4.9
     - reducing how/when the guard and assembler stations try to run logic when spawning units while Unit Control is active. Basically all droid processing is halted.
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.8
-  Changes:
+  Bugfixes:
     - fixes to the Droid Counter module and the Settings Module code, which had issues with referencing parameters tables which have changed in recent history. instead of  control_behaviours.parameters.parameters, there's only one layer of parameters table now. Yay! Means I can get rid of the comment I had in the code, "-- ridiculous, we have to do parameters WHY WUBE WHY"
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.7
-  Changes:
+  Bugfixes:
     - removed migration file for v.0.3.5, super old and not needed, was causing issues with referring to old/out-dated tech names too.
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.6
   Changes:
-    - compatibility with 1.1.1, deployable flying robots unlocked at same tech level as their capsule friends. defender, distractor, and destroyer at the same tech levels, rather than all of them ready as soon as you get Defender tech.
+    - Compatible with 1.1.1
+    - deployable flying robots unlocked at same tech level as their capsule friends. defender, distractor, and destroyer at the same tech levels, rather than all of them ready as soon as you get Defender tech.
 ---------------------------------------------------------------------------------------------------
 Version: 0.4.5
   Changes:
-    - made compatible with 0.18.27+ , by using the new raise_built flag instead of calling script raise entity event.
+    - Compatible with 0.18.27 (by using the new raise_built flag instead of calling script raise entity event).
     - biter factions should no longer cause a tick error for squads/forces
 ---------------------------------------------------------------------------------------------------
