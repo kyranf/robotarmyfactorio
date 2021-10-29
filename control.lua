@@ -67,17 +67,18 @@ script.on_event(defines.events.on_force_created, handleForceCreated)
 script.on_event(defines.events.on_built_entity, handleOnBuiltEntity)
 script.on_event(defines.events.on_robot_built_entity, handleOnRobotBuiltEntity)
 
-function playerSelectedArea(event)
+local function playerSelectedArea(event)
 	reportSelectedUnits(event, false)
 end
 script.on_event(defines.events.on_player_selected_area, playerSelectedArea)
-function playerAltSelectedArea(event)
+
+local function playerAltSelectedArea(event)
 	reportSelectedUnits(event, true)
 end
 script.on_event(defines.events.on_player_alt_selected_area, playerAltSelectedArea)
 
 script.on_nth_tick(CONSTRUCTOR_UPDATE_TICKRATE+1, constructorTickUpdates) -- all logic for constructor units
-script.on_nth_tick(settings.global["Counter Update Tickrate"].value, botCounterUpdates)
+script.on_nth_tick(settings.global["Counter-Update-Tickrate"].value, botCounterUpdates)
 script.on_event(defines.events.on_tick, handleTick)
 script.on_event(defines.events.on_ai_command_completed, handleTaskCompleted)
 script.on_event(defines.events.on_player_joined_game, onPlayerJoined)

@@ -89,7 +89,7 @@ function countNearbyDroids(position, force, radius)
     local sum = 0
     local surface = game.surfaces[1] --hardcoded for surface 1. this means underground/space whatever surfaces are not handled.
     for _, droid in pairs(spawnable) do
-        sum = sum + surface.count_entities_filtered{area={{position.x - 16 , position.y - 16 }, {position.x + 16, position.y + 16}}, name = droid, force = force}
+        sum = sum + surface.count_entities_filtered{area = {{position.x - 16 , position.y - 16 }, {position.x + 16, position.y + 16}}, name = droid, force = force}
     end
 
     return sum
@@ -100,7 +100,7 @@ function getSquadHuntSize(force)
     if global.settings and global.settings[force.name] and global.settings[force.name].huntSizeOverride then
         return global.settings[force.name].huntSizeOverride --overriden value from settings combinator for that force
     else
-        return settings.global["Squad Hunt Size"].value --default one set in config.lua
+        return settings.global["Squad-Hunt-Size"].value --default one set in config.lua
     end
 end
 
@@ -109,7 +109,7 @@ function getSquadGuardSize(force)
     if global.settings and global.settings[force.name] and global.settings[force.name].guardSizeOverride then
         return global.settings[force.name].guardSizeOverride    --overriden value from settings combinator for that force
     else
-        return settings.global["Guard Station Garrison Size"].value --default one set mod settings
+        return settings.global["Guard-Station-Garrison-Size"].value --default one set mod settings
     end
 end
 
@@ -118,7 +118,7 @@ function getSquadRetreatSize(force)
     if global.settings and global.settings[force.name] and global.settings[force.name].retreatSizeOverride then
         return global.settings[force.name].retreatSizeOverride  --overriden value from settings combinator for that force
     else
-        return settings.global["Squad Retreat Size"].value --default one set mod settings
+        return settings.global["Squad-Retreat-Size"].value --default one set mod settings
     end
 end
 
@@ -127,7 +127,7 @@ function getForceHuntRange(force)
     if global.settings and global.settings[force.name] and global.settings[force.name].huntRangeOverride then
         return global.settings[force.name].huntRangeOverride    --overriden value from settings combinator for that force
     else
-        return settings.global["Squad Hunt Radius"].value --default one set mod settingsa
+        return settings.global["Squad-Hunt-Radius"].value --default one set mod settingsa
     end
 end
 
@@ -136,7 +136,7 @@ function getAssemblerKeepRadiusClear(assembler)
 	if global.settings and global.settings[assembler.force.name] and global.settings[assembler.force.name].keepClearRadiusOverride then
         return global.settings[assembler.force.name].keepClearRadiusOverride    --overriden value from settings combinator for that force
     else
-        return settings.global["Squad Keep Clear Radisu"].value --default one set mod settings
+        return settings.global["Squad-Keep-Clear-Radius"].value --default one set mod settings
     end
 end
 
@@ -212,7 +212,7 @@ function checkValidSignalSetting(force, signal, count, huntSize)
             if count > 0 and count < huntSize then
                 return true
             end
-        elseif count > 0 and count < settings.global["Squad Hunt Size"].value then
+        elseif count > 0 and count < settings.global["Squad-Hunt-Size"].value then
             return true
         else
             Game.print_force(force, string.format("WARNING: The droid settings signal %s must be positive and less than current squad hunt size setting!", signal))
@@ -252,14 +252,14 @@ function doCounterUpdate()
             end
 
             local circuitParams = {
-                parameters={
-                    {index=1, count = sum, signal={type="virtual",name="signal-droid-alive-count"}}, --end global droid count
-                    {index=2, count = rifleDroids, signal={type="virtual",name="signal-droid-rifle-count"}},
-                    {index=3, count = battleDroids, signal={type="virtual",name="signal-droid-smg-count"}},
-                    {index=4, count = rocketDroids, signal={type="virtual",name="signal-droid-rocket-count"}},
-                    {index=5, count = fireBots, signal={type="virtual",name="signal-droid-flame-count"}},
-                    {index=6, count = terminators, signal={type="virtual",name="signal-droid-terminator-count"}},
-                    {index=7, count = engineers, signal={type="virtual",name="signal-droid-engineer-count"}}
+                parameters = {
+                    {index=1, count = sum, signal = {type = "virtual",name = "signal-droid-alive-count"}}, --end global droid count
+                    {index=2, count = rifleDroids, signal = {type = "virtual",name = "signal-droid-rifle-count"}},
+                    {index=3, count = battleDroids, signal = {type = "virtual",name = "signal-droid-smg-count"}},
+                    {index=4, count = rocketDroids, signal = {type = "virtual",name = "signal-droid-rocket-count"}},
+                    {index=5, count = fireBots, signal = {type = "virtual",name = "signal-droid-flame-count"}},
+                    {index=6, count = terminators, signal = {type = "virtual",name = "signal-droid-terminator-count"}},
+                    {index=7, count = engineers, signal = {type = "virtual",name = "signal-droid-engineer-count"}}
                 } --end parameters table
             }-- end circuitParams
 
@@ -376,7 +376,7 @@ end
 
 function buildWaypointList(waypointList, surface, poleArea, squad, force)
     local squadPosition = squad.unitGroup.position
-    local poleList = surface.find_entities_filtered({area = poleArea, squadPosition, name="patrol-pole"})
+    local poleList = surface.find_entities_filtered({area = poleArea, squadPosition, name = "patrol-pole"})
     local poleCount = table.countValidElements(poleList)
     local masterPoleList = {}
 
@@ -473,7 +473,7 @@ function handleBuiltLootChest(event)
         global.lootChests[force.name] = chest   --this is now the force's chest.
     else
         Game.print_force(force,"Error: Can only place one loot chest!")
-        chest.surface.spill_item_stack(chest.position, {name="loot-chest", count = 1})
+        chest.surface.spill_item_stack(chest.position, {name = "loot-chest", count = 1})
         chest.destroy({raise_destroy = true})
         --LOGGER.log("WARNING: Can only place one loot chest!")
     end
@@ -496,7 +496,7 @@ function handleBuiltDroidSettings(event)
     --else
 
         --Game.print_force(force,"Error: Can only place one settings module!")
-        --entity.surface.spill_item_stack(entity.position, {name="droid-settings", count = 1})
+        --entity.surface.spill_item_stack(entity.position, {name = "droid-settings", count = 1})
         --entity.destroy({raise_destroy = true})
         --LOGGER.log("WARNING: Can only place one settings module!")
 
@@ -567,11 +567,11 @@ function handleDroidAssemblerPlaced(event)
     if not global.DroidAssemblers[force.name] then
         global.DroidAssemblers[force.name] = {}
     end
-    
+
     if not global.AssemblerNearestEnemies then
         global.AssemblerNearestEnemies = {}
     end
-    
+
     if not global.AssemblerNearestEnemies[force.name] then
         global.AssemblerNearestEnemies[force.name] = {}
     end
@@ -621,7 +621,7 @@ function setGoThenWanderCompoundCommand(commandable, position, radius, distracti
     commandable.set_command(
         {type=defines.command.compound,
          structure_type=defines.compound_command.return_last,
-         commands={
+         commands = {
              {type=defines.command.go_to_location,
               destination=position,
               distraction=d_type},
@@ -692,13 +692,13 @@ function containsSpawnableDroid(inv)
     end
 end
 
---this function returns the connected droid counter, if any, of the input 'source' droid assembler entity. if none is found, returns nil. 
+--this function returns the connected droid counter, if any, of the input 'source' droid assembler entity. if none is found, returns nil.
 function getConnectedCounterModule(source)
     if not source.valid then return nil end
 
-    --check green connected entities first. 
+    --check green connected entities first.
     local connected = source.circuit_connected_entities.green
-    
+
     for _,  entity in pairs(connected) do
         if entity.valid and entity.name == "droid-counter" then
             return entity --return with the first connected droid counter entity.
@@ -712,18 +712,18 @@ function getConnectedCounterModule(source)
             return entity --return with the first connected droid counter entity.
         end
     end
-    
-    return nil -- if there's nothing returned by now, return nil to represent a failure/no connected counters.
-end 
 
---this function returns the connected droid settings module, if any, of the input assembler entity. if entity is nil or invalid, function returns nil. 
+    return nil -- if there's nothing returned by now, return nil to represent a failure/no connected counters.
+end
+
+--this function returns the connected droid settings module, if any, of the input assembler entity. if entity is nil or invalid, function returns nil.
 --if no attached droid settings module is found, returns nil
 function checkAttachedSettingsModule(assembler)
     if not assembler.valid then return nil end
 
-    --check green connected entities first. 
+    --check green connected entities first.
     local connected = assembler.circuit_connected_entities.green
-    
+
     for _,  entity in pairs(connected) do
         if entity.valid and entity.name == "droid-settings" then
             return entity --return with the first connected droid settings module entity.
@@ -737,77 +737,77 @@ function checkAttachedSettingsModule(assembler)
             return entity --return with the first connected droid settings module entity.
         end
     end
-    
+
     return nil -- if there's nothing returned by now, return nil to represent a failure/no connected settings module.
 end
 
 
---this function returns the number of times the given string name was found in the table entityTable of Factorio LuaEntities 
+--this function returns the number of times the given string name was found in the table entityTable of Factorio LuaEntities
 function getCountOfEntityNameInTable(name, entityTable)
 
     local count = 0
-    for key, entity in pairs(entityTable) do 
+    for key, entity in pairs(entityTable) do
 
-        if(entity.valid) then 
+        if(entity.valid) then
             if entity.name == name then
                 count = count + 1
-            end 
-        else 
+            end
+        else
             entityTable[key] = nil --maintain the table if it's an invalid entity.
         end
 
-    end 
+    end
 
     return count
-end 
+end
 
---this function takes in a droid assembler and connected counter, and updates signal values in the counter. 
---this function doesn't return anything, just exits silently if either input is nil or game-invalid, or the globals/assembler squad tables needed are nil. 
+--this function takes in a droid assembler and connected counter, and updates signal values in the counter.
+--this function doesn't return anything, just exits silently if either input is nil or game-invalid, or the globals/assembler squad tables needed are nil.
 function updateCountsFromDroidAssembler(assembler, counter)
 
     if not assembler or not assembler.valid then return end
     if not counter or not counter.valid then return end
-    
+
     --grab the assembler's unit list also known as members table.
     -- first sanity/valid check everything..
     if not global.assemblerSquad then return end
     if not global.assemblerSquad[assembler.unit_number] then return end
-    if not global.assemblerSquad[assembler.unit_number].members then return end 
+    if not global.assemblerSquad[assembler.unit_number].members then return end
     if not global.assemblerSquad[assembler.unit_number].numMembers then return end
 
-    local unitsList = global.assemblerSquad[assembler.unit_number].members 
+    local unitsList = global.assemblerSquad[assembler.unit_number].members
     local squadSize =  global.assemblerSquad[assembler.unit_number].numMembers
-   
-    if table_size(unitsList) > 0 then 
-        
+
+    if table_size(unitsList) > 0 then
+
         local rifleCount = getCountOfEntityNameInTable("droid-rifle", unitsList)
         local smgCount = getCountOfEntityNameInTable("droid-smg", unitsList)
         local rocketCount = getCountOfEntityNameInTable("droid-rocket", unitsList)
         local flameCount = getCountOfEntityNameInTable("droid-flame", unitsList)
         local terminatorCount = getCountOfEntityNameInTable("terminator", unitsList)
         local engineerCount = getCountOfEntityNameInTable("basic-constructor", unitsList)
-        
-        local parameters={
-            {index=1, count = squadSize, signal={type="virtual",name="signal-droid-alive-count"}}, --end global droid count
-            {index=2, count = rifleCount, signal={type="virtual",name="signal-droid-rifle-count"}},
-            {index=3, count = smgCount, signal={type="virtual",name="signal-droid-smg-count"}},
-            {index=4, count = rocketCount, signal={type="virtual",name="signal-droid-rocket-count"}},
-            {index=5, count = flameCount, signal={type="virtual",name="signal-droid-flame-count"}},
-            {index=6, count = terminatorCount, signal={type="virtual",name="signal-droid-terminator-count"}},
-            {index=7, count = engineerCount, signal={type="virtual",name="signal-droid-engineer-count"}}
+
+        local parameters = {
+            {index=1, count = squadSize, signal = {type = "virtual",name = "signal-droid-alive-count"}}, --end global droid count
+            {index=2, count = rifleCount, signal = {type = "virtual",name = "signal-droid-rifle-count"}},
+            {index=3, count = smgCount, signal = {type = "virtual",name = "signal-droid-smg-count"}},
+            {index=4, count = rocketCount, signal = {type = "virtual",name = "signal-droid-rocket-count"}},
+            {index=5, count = flameCount, signal = {type = "virtual",name = "signal-droid-flame-count"}},
+            {index=6, count = terminatorCount, signal = {type = "virtual",name = "signal-droid-terminator-count"}},
+            {index=7, count = engineerCount, signal = {type = "virtual",name = "signal-droid-engineer-count"}}
         } --end parameters table
-     
+
 
         counter.get_or_create_control_behavior().parameters = parameters
-        
-        
+
+
     end -- end if table has something in it
 
 end
 
---this function goes through the settings module entity input, and returns the 4 settings override values as a multi-return list, note the values start valid (or should be), 
--- and only if we find the signal does this function modify them! i.e if huntSize is given as 10 at the beginning, and we can't find the signal in the list, 
---it stays untouched as 10 and returned by the function as a return value.  
+--this function goes through the settings module entity input, and returns the 4 settings override values as a multi-return list, note the values start valid (or should be),
+-- and only if we find the signal does this function modify them! i.e if huntSize is given as 10 at the beginning, and we can't find the signal in the list,
+--it stays untouched as 10 and returned by the function as a return value.
 function getSettingsOverrides(settingsModule, huntSize, huntRadius, retreatSize, garrisonSize)
 
     --get the parameters, go through and check each one, while also checking the values are logically okay.
@@ -815,7 +815,7 @@ function getSettingsOverrides(settingsModule, huntSize, huntRadius, retreatSize,
     local parameters = behaviour.parameters
 
     for index, parameter in pairs(parameters) do
-        
+
         if parameter.count and parameter.signal.name ~= nil then
            -- game.print("index: "..index.." param name: "..parameter.signal.name.." count: "..parameter.count)
             local sigName = parameter.signal.name
@@ -840,4 +840,4 @@ function getSettingsOverrides(settingsModule, huntSize, huntRadius, retreatSize,
         end
     end
     return huntSize, huntRadius, retreatSize, garrisonSize
-end 
+end

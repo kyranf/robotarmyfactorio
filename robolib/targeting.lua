@@ -25,7 +25,7 @@ end
 
 function getTargetingType(squad)
     -- for now, it's a global
-    return settings.global["Attack Targeting Type"].value
+    return settings.global["Attack-Targeting-Type"].value
     -- later, it might be per-squad
 end
 
@@ -70,9 +70,9 @@ function findHybridKeepRadiusClearTarget(squad)
         squad.unitGroup.position)
     if assembler then
         local ANEtable = global.AssemblerNearestEnemies[squad.force.name][assembler.unit_number]
-        
+
         if not ANEtable.enemy then
-            findAssemblerNearestEnemies(assembler, ANEtable) -- we have never found an enemy.. so lets find the first one. 
+            findAssemblerNearestEnemies(assembler, ANEtable) -- we have never found an enemy.. so lets find the first one.
         elseif ANEtable.enemy and not ANEtable.enemy.valid then
             findAssemblerNearestEnemies(assembler, ANEtable)
         end
@@ -163,28 +163,28 @@ function getForceMapTarget(force)
 end
 
 function onChantTagAdded(event)
-	if event.tag.icon then 
-		if event.tag.icon.name == "droid-selection-tool" then 
+	if event.tag.icon then
+		if event.tag.icon.name == "droid-selection-tool" then
 			addForceMapTarget(event.tag)
 		end
-	end 
+	end
 end
 
 
 function onChantTagModified(event)
-	if event.tag.icon then 
-		if event.old_icon.name == "droid-selection-tool" then 
+	if event.tag.icon then
+		if event.old_icon.name == "droid-selection-tool" then
 			removeForceMapTarget(event.tag)
 		end
-		if event.tag.icon.name == "droid-selection-tool" then 
+		if event.tag.icon.name == "droid-selection-tool" then
 			addForceMapTarget(event.tag)
 		end
 	end
 end
 
 function onChantTagRemoved(event)
-	if event.tag.icon then 
-		if event.tag.icon.name == "droid-selection-tool" then 
+	if event.tag.icon then
+		if event.tag.icon.name == "droid-selection-tool" then
 			removeForceMapTarget(event.tag)
 		end
 	end
