@@ -191,7 +191,7 @@ function reportSelectedUnits(event, alt)
 		else --command selected units to move to position clicked.
 			if global.selected_squad and global.selected_squad[event.player_index] then
 			local squad = global.Squads[player.force.name][(global.selected_squad[event.player_index])]
-				if (squad) then
+				if (squad and squad.unitGroup and squad.unitGroup.valid) then
 					--Game.print_all(string.format("Tool %s Selected alt-selected-area! Player ID %d, box %d,%d and %d,%d, droids in squad %d ", event.item, event.player_index, area.left_top.x,area.left_top.y, area.right_bottom.x, area.right_bottom.y, squad.numMembers ) )
 					--Game.print_all(string.format("Commanding Squad ID %d ...", global.selected_squad[event.player_index]))
 					squad.command.type = commands.guard
