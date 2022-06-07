@@ -312,7 +312,7 @@ local droid_flame =
     },
   {
       type = "fire",
-      percent = 100
+      percent = 95
     }
   },
   destroy_action =
