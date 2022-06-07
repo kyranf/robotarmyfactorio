@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.4.17
+Date: 2022.06.06
+  Changes:
+    - adding Polish translation thanks to Ziomek24
+    - updated Russian translation by Varoga, issue #180
+    - reducing flame droid fire resist from 100% to 95%, so they can eventually kill eachother if they get into friendly fire or against other forces
+  Bugfixes:
+    - bugfix for invalid unit group during attack orders with command tool
+---------------------------------------------------------------------------------------------------
 Version: 0.4.16
 Date: 2021.10.23
   Changes:
