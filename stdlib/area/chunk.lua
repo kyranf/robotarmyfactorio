@@ -48,15 +48,15 @@ end
 function Chunk.get_data(surface, chunk_pos, default_value)
     fail_if_missing(surface, "missing surface argument")
     fail_if_missing(chunk_pos, "missing chunk_pos argument")
-    if not global._chunk_data then
+    if not storage._chunk_data then
         if not default_value then return nil end
-        global._chunk_data = {}
+        storage._chunk_data = {}
     end
 
     local idx = Chunk.get_index(surface, chunk_pos)
-    local val = global._chunk_data[idx]
+    local val = storage._chunk_data[idx]
     if not val then
-        global._chunk_data[idx] = default_value
+        storage._chunk_data[idx] = default_value
         val = default_value
     end
 
@@ -72,11 +72,11 @@ end
 function Chunk.set_data(surface, chunk_pos, data)
     fail_if_missing(surface, "missing surface argument")
     fail_if_missing(chunk_pos, "missing chunk_pos argument")
-    if not global._chunk_data then global._chunk_data = {} end
+    if not storage._chunk_data then storage._chunk_data = {} end
 
     local idx = Chunk.get_index(surface, chunk_pos)
-    local prev = global._chunk_data[idx]
-    global._chunk_data[idx] = data
+    local prev = storage._chunk_data[idx]
+    storage._chunk_data[idx] = data
 
     return prev
 end
@@ -88,20 +88,20 @@ end
 function Chunk.get_index(surface, chunk_pos)
     fail_if_missing(surface, "missing surface argument")
     fail_if_missing(chunk_pos, "missing chunk_pos argument")
-    if not global._next_chunk_index then global._next_chunk_index = 0 end
-    if not global._chunk_indexes then global._chunk_indexes = {} end
+    if not storage._next_chunk_index then storage._next_chunk_index = 0 end
+    if not storage._chunk_indexes then storage._chunk_indexes = {} end
 
     if type(surface) == "string" then
         surface = game.surfaces[surface]
     end
     local surface_idx = surface.index
-    if not global._chunk_indexes[surface_idx] then global._chunk_indexes[surface_idx] = {} end
+    if not storage._chunk_indexes[surface_idx] then storage._chunk_indexes[surface_idx] = {} end
 
-    local surface_chunks = global._chunk_indexes[surface_idx]
+    local surface_chunks = storage._chunk_indexes[surface_idx]
     if not surface_chunks[chunk_pos.x] then surface_chunks[chunk_pos.x] = {} end
     if not surface_chunks[chunk_pos.x][chunk_pos.y] then
-        surface_chunks[chunk_pos.x][chunk_pos.y] = global._next_chunk_index
-        global._next_chunk_index = global._next_chunk_index + 1
+        surface_chunks[chunk_pos.x][chunk_pos.y] = storage._next_chunk_index
+        storage._next_chunk_index = storage._next_chunk_index + 1
     end
 
     return surface_chunks[chunk_pos.x][chunk_pos.y]

@@ -47,16 +47,16 @@ end
 -- @return the data, or nil if no data exists for the entity
 function Entity.get_data(entity)
     fail_if_missing(entity, "missing entity argument")
-    if not global._entity_data then return nil end
+    if not storage._entity_data then return nil end
 
     local unit_number = entity.unit_number
     if unit_number then
-         return global._entity_data[unit_number]
+         return storage._entity_data[unit_number]
      else
         local entity_name = entity.name
-        if not global._entity_data[entity_name] then return nil end
+        if not storage._entity_data[entity_name] then return nil end
 
-        local entity_category = global._entity_data[entity_name]
+        local entity_category = storage._entity_data[entity_name]
         for _, entity_data in pairs(entity_category) do
             if Entity._are_equal(entity_data.entity, entity) then
                 return entity_data.data
@@ -74,20 +74,20 @@ end
 function Entity.set_data(entity, data)
     fail_if_missing(entity, "missing entity argument")
 
-    if not global._entity_data then global._entity_data = {} end
+    if not storage._entity_data then storage._entity_data = {} end
 
     local unit_number = entity.unit_number
     if unit_number then
-        local prev = global._entity_data[unit_number]
-         global._entity_data[unit_number] = data
+        local prev = storage._entity_data[unit_number]
+         storage._entity_data[unit_number] = data
          return prev
     else
         local entity_name = entity.name
-        if not global._entity_data[entity_name] then
-            global._entity_data[entity_name] = {}
+        if not storage._entity_data[entity_name] then
+            storage._entity_data[entity_name] = {}
          end
 
-        local entity_category = global._entity_data[entity_name]
+        local entity_category = storage._entity_data[entity_name]
 
         for i = #entity_category, 1, -1 do
             local entity_data = entity_category[i]

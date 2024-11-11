@@ -1,6 +1,6 @@
 {
 	"name": "robotarmy",
-	"version": "0.4.17",
+	"version": "2.4.17",
 	"title": "Robot Army",
 	"author": "Kyranzor",
 	"contact": "kyranzor@gmail.com",
@@ -10,5 +10,5 @@
     	"base >= 1.1.38",
     	"? Unit_Control >= 0.3.10"
     ],
-    "factorio_version": "1.1"
+    "factorio_version": "2.0"
 }

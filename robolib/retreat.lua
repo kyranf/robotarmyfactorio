@@ -11,7 +11,7 @@ require("stdlib/game")
 
 function orderSquadToRetreat(squad)
 	local assembler, distance = findClosestAssemblerToPosition(
-		global.DroidAssemblers[squad.force.name], squad.unitGroup.position)
+		storage.DroidAssemblers[squad.force.name], squad.unitGroup.position)
     local currentPos = squad.unitGroup.position
 
 
@@ -57,9 +57,9 @@ end
 
 function addSquadToRetreatTables(squad, targetAssembler)
     -- look for nearby assemblers and add squad to those tables as well
-    retreatAssemblers = findNearbyAssemblers(global.DroidAssemblers[squad.force.name],
+    retreatAssemblers = findNearbyAssemblers(storage.DroidAssemblers[squad.force.name],
                                              targetAssembler.position, AT_ASSEMBLER_RANGE)
-    local forceRetreatTables = global.AssemblerRetreatTables[squad.force.name]
+    local forceRetreatTables = storage.AssemblerRetreatTables[squad.force.name]
     for i=1, #retreatAssemblers do -- cool/faster iteration syntax for list-like table
         local assembler = retreatAssemblers[i]
         LOGGER.log(string.format("Inserting squad %d into retreat table of assembler %d at (%d,%d)",

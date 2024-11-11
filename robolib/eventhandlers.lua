@@ -42,7 +42,7 @@ end
 --run by the AI finished event, if it was distraction, it can select another target.
 function processDistractionCompleted(event)
 
-  local unit = global.units[event.unit_number]
+  local unit = storage.units[event.unit_number]
   if not unit then return end
   if not unit.valid then return end
 
@@ -59,14 +59,14 @@ function processDistractionCompleted(event)
 end
 
 function runOnceCheck(game_forces)
-    if not global.runOnce then
+    if not storage.runOnce then
         LOGGER.log("Running the runOnce function to reset recipes and tech to ensure all are correct...")
         --force reset every force's recipes and techs. I'm sick of it not doing this for me!
         for _, force in pairs(game_forces) do
             force.reset_recipes()
             force.reset_technologies()
         end
-        global.runOnce = true
+        storage.runOnce = true
     end
 end
 
@@ -74,23 +74,23 @@ end
 function processSquadUpdatesForTick(force_name, tickProcessIndex)
     --for the current tick, look at the global table for that tick (mod 60) and any squad references in there.
     --LOGGER.log(string.format("Processing AI for AI tick %d of 60", tickProcessIndex))
-    if not global.updateTable[force_name] then return end
-    if not global.Squads[force_name] then return end
+    if not storage.updateTable[force_name] then return end
+    if not storage.Squads[force_name] then return end
 
 
-    local forceTickTable = global.updateTable[force_name]
-    local squadTable = global.Squads[force_name]
+    local forceTickTable = storage.updateTable[force_name]
+    local squadTable = storage.Squads[force_name]
     if (forceTickTable and squadTable) then
 
         for i, squadref in pairs(forceTickTable[tickProcessIndex]) do
             if squadref and squadTable[squadref] then
-                -- local squad = global.Squads[force_name][squadref]
+                -- local squad = storage.Squads[force_name][squadref]
                 -- if not squad.force then squad.force = force
                 updateSquad(squadTable[squadref])
             else
                 -- the squad has been deleted at some point, so let's stop looping over it here.
                 LOGGER.log(string.format("Removing nil squad %d from tick table", squadref))
-                global.updateTable[force_name][tickProcessIndex][i] = nil
+                storage.updateTable[force_name][tickProcessIndex][i] = nil
             end
         end
     end
@@ -116,16 +116,16 @@ function reportSelectedUnits(event, alt)
 			--local select_entities = player.surface.find_entities_filtered{ area = area, type = "unit", force = player.force}
 			--local numberOfSelected = table.countNonNil(select_entities)
 
-			local squad = getClosestSquadToPos(global.Squads[player.force.name], clickPosition, SQUAD_CHECK_RANGE) --get nearest squad within SQUAD_CHECK_RANGE amount of tiles radius from click point.
+			local squad = getClosestSquadToPos(storage.Squads[player.force.name], clickPosition, SQUAD_CHECK_RANGE) --get nearest squad within SQUAD_CHECK_RANGE amount of tiles radius from click point.
 
 			if squad then
 
                 -- if there's a currently selected squad, deselect them!
                 --DESELECT LOGIC
-				if global.selected_squad and global.selected_squad[player.index] and global.selected_squad[player.index] ~= nil then
-					if global.Squads[player.force.name][global.selected_squad[player.index]] then  --if the squad still exists, even though we have the ID still in selection
-						Game.print_all(string.format("De-selected Squad ID %d", global.selected_squad[player.index]) )
-						for _, member in pairs(global.Squads[player.force.name][global.selected_squad[player.index]].unitGroup.members) do
+				if storage.selected_squad and storage.selected_squad[player.index] and storage.selected_squad[player.index] ~= nil then
+					if storage.Squads[player.force.name][storage.selected_squad[player.index]] then  --if the squad still exists, even though we have the ID still in selection
+						Game.print_all(string.format("De-selected Squad ID %d", storage.selected_squad[player.index]) )
+						for _, member in pairs(storage.Squads[player.force.name][storage.selected_squad[player.index]].unitGroup.members) do
 							local unitBox = member.bounding_box
 							unitBox.left_top.x = unitBox.left_top.x - 0.1
 							unitBox.left_top.y = unitBox.left_top.y - 0.1
@@ -145,27 +145,27 @@ function reportSelectedUnits(event, alt)
 
 
 				--make sure we have the global table..
-				if not global.selected_squad then global.selected_squad = {} end
+				if not storage.selected_squad then storage.selected_squad = {} end
 
-				global.selected_squad[player.index] = {}
-				global.selected_squad[player.index] = squad.squadID
+				storage.selected_squad[player.index] = {}
+				storage.selected_squad[player.index] = squad.squadID
 
-				for _, member in pairs(global.Squads[player.force.name][squad.squadID].unitGroup.members) do
+				for _, member in pairs(storage.Squads[player.force.name][squad.squadID].unitGroup.members) do
 
-					 global.Squads[player.force.name][squad.squadID].unitGroup.surface.create_entity{name = "selection-sticker", position = member.position , target = member}
+					 storage.Squads[player.force.name][squad.squadID].unitGroup.surface.create_entity{name = "selection-sticker", position = member.position , target = member}
 
 				end
 
 			else
 				--no squad was nearby the click point!
 				--make sure we have the global table..
-				if not global.selected_squad then global.selected_squad = {} end
+				if not storage.selected_squad then storage.selected_squad = {} end
 
 				--DESELECT LOGIC
-                if global.selected_squad[player.index] ~= nil then
-                    local squadRef = global.Squads[player.force.name][global.selected_squad[player.index]]
+                if storage.selected_squad[player.index] ~= nil then
+                    local squadRef = storage.Squads[player.force.name][storage.selected_squad[player.index]]
 					if squadRef and squadRef.unitGroup.valid then  --if the squad still exists, even though we have the ID still in selection
-						player.print(string.format("De-selected Squad ID %d", global.selected_squad[player.index]) )
+						player.print(string.format("De-selected Squad ID %d", storage.selected_squad[player.index]) )
 						for _, member in pairs(squadRef.unitGroup.members) do
 							local unitBox = member.bounding_box
 							unitBox.left_top.x = unitBox.left_top.x - 0.1
@@ -178,10 +178,10 @@ function reportSelectedUnits(event, alt)
 							end
 						end
                     end
-                    global.selected_squad[player.index] = nil
+                    storage.selected_squad[player.index] = nil
 				else
 
-					global.selected_squad[player.index] = nil
+					storage.selected_squad[player.index] = nil
 				end
 
 			end
@@ -189,11 +189,11 @@ function reportSelectedUnits(event, alt)
 
 
 		else --command selected units to move to position clicked.
-			if global.selected_squad and global.selected_squad[event.player_index] then
-			local squad = global.Squads[player.force.name][(global.selected_squad[event.player_index])]
+			if storage.selected_squad and storage.selected_squad[event.player_index] then
+			local squad = storage.Squads[player.force.name][(storage.selected_squad[event.player_index])]
 				if (squad and squad.unitGroup and squad.unitGroup.valid) then
 					--Game.print_all(string.format("Tool %s Selected alt-selected-area! Player ID %d, box %d,%d and %d,%d, droids in squad %d ", event.item, event.player_index, area.left_top.x,area.left_top.y, area.right_bottom.x, area.right_bottom.y, squad.numMembers ) )
-					--Game.print_all(string.format("Commanding Squad ID %d ...", global.selected_squad[event.player_index]))
+					--Game.print_all(string.format("Commanding Squad ID %d ...", storage.selected_squad[event.player_index]))
 					squad.command.type = commands.guard
 					orderSquadToAttack(squad, clickPosition)
 				end
@@ -252,26 +252,26 @@ function processSpawnedDroid(droid, guard, guardPos, manuallyPlaced)
     local position = droid.position
 
     --if this is the first time we are using the player's tables, make it
-    if not global.Squads[force.name] then
-        global.Squads[force.name] = {}
+    if not storage.Squads[force.name] then
+        storage.Squads[force.name] = {}
     end
 
     --add to the global units list. make it if it's not actually there yet.
-    if not global.units then global.units = {} end
+    if not storage.units then storage.units = {} end
 
-    if not global.units[droid.unit_number] then
-        global.units[droid.unit_number] = droid  -- reference to the LuaEntity with a lookup via the unit number.
+    if not storage.units[droid.unit_number] then
+        storage.units[droid.unit_number] = droid  -- reference to the LuaEntity with a lookup via the unit number.
     end
 
     --deal with squad allocations
-    local squad = getClosestSquadToPos(global.Squads[force.name], droid.position, SQUAD_CHECK_RANGE)
+    local squad = getClosestSquadToPos(storage.Squads[force.name], droid.position, SQUAD_CHECK_RANGE)
     if squad and getSquadSurface(squad) ~= droid.surface then
         squad = nil  --we cannot allow a squad to be joined if it's on the wrong surface
     end
 
     if not squad then
         --if we didnt find a squad nearby, create one
-        squad = createNewSquad(global.Squads[force.name], droid)
+        squad = createNewSquad(storage.Squads[force.name], droid)
         if not squad then
             Game.print_force(force, "Failed to create squad for newly spawned droid!!")
         end
@@ -305,7 +305,7 @@ end
 
 function onPlayerJoined(event)
     local playerIndex = event.player_index
-    if game.active_mods["Unit_Control"] then
+    if script.active_mods["Unit_Control"] then
         game.players[playerIndex].print("Robot Army: Unit Control Mod is active! Please use Unit Control selection and command method. Automated behaviours disabled.")
     else
         game.players[playerIndex].print("Robot Army: Unit Control Mod is NOT active! Use Squad Selection tool like normal. Automated behaviours enabled.")
@@ -313,9 +313,9 @@ function onPlayerJoined(event)
 end
 
 function processDroidAssemblers(force)
-    if global.DroidAssemblers and global.DroidAssemblers[force.name] then
+    if storage.DroidAssemblers and storage.DroidAssemblers[force.name] then
         --for each building in their list using name as key
-        for index, assembler in pairs(global.DroidAssemblers[force.name]) do
+        for index, assembler in pairs(storage.DroidAssemblers[force.name]) do
             if assembler and assembler.valid and assembler.force == force then
                 local player = assembler.last_user
                 local inv = assembler.get_output_inventory() --gets us a LuaInventory
@@ -338,12 +338,12 @@ function processDroidAssemblers(force)
 
                             if returnedEntity then
                                  --add to the global units list. make it if it's not actually there yet.
-                                if not global.units then global.units = {} end
+                                if not storage.units then storage.units = {} end
 
-                                if not global.units[returnedEntity.unit_number] then
-                                    global.units[returnedEntity.unit_number] = returnedEntity  -- reference to the LuaEntity with a lookup via the unit number.
+                                if not storage.units[returnedEntity.unit_number] then
+                                    storage.units[returnedEntity.unit_number] = returnedEntity  -- reference to the LuaEntity with a lookup via the unit number.
                                 end
-                                if not game.active_mods["Unit_Control"] then
+                                if not script.active_mods["Unit_Control"] then
                                     processSpawnedDroid(returnedEntity)
                                 else
                                     local control_events = remote.call("unit_control", "get_events")
@@ -367,8 +367,8 @@ end
 function processDroidGuardStations(force)
     --handle guard station spawning here
 
-    if global.droidGuardStations and global.droidGuardStations[force.name] then
-        for _, station in pairs(global.droidGuardStations[force.name]) do
+    if storage.droidGuardStations and storage.droidGuardStations[force.name] then
+        for _, station in pairs(storage.droidGuardStations[force.name]) do
             if station and station.valid and station.force == force then
                 local inv = station.get_output_inventory() --gets us a luainventory
                 local player = station.last_user
@@ -383,12 +383,12 @@ function processDroidGuardStations(force)
                                                                             force = station.force, raise_built=true })
                         if returnedEntity then
                             --add to the global units list. make it if it's not actually there yet.
-                            if not global.units then global.units = {} end
+                            if not storage.units then storage.units = {} end
 
-                            if not global.units[returnedEntity.unit_number] then
-                                global.units[returnedEntity.unit_number] = returnedEntity  -- reference to the LuaEntity with a lookup via the unit number.
+                            if not storage.units[returnedEntity.unit_number] then
+                                storage.units[returnedEntity.unit_number] = returnedEntity  -- reference to the LuaEntity with a lookup via the unit number.
                             end
-                            if not game.active_mods["Unit_Control"] then
+                            if not script.active_mods["Unit_Control"] then
                                 processSpawnedDroid(returnedEntity, true, station.position)
                             else
                                 local control_events = remote.call("unit_control", "get_events")
@@ -405,17 +405,17 @@ function processDroidGuardStations(force)
 end
 
 function updateSelectionCircles(force)
-	global.selection_circles = global.selection_circles or {}
-	global.selection_circles[force.name] = global.selection_circles[force.name] or {}
+	storage.selection_circles = storage.selection_circles or {}
+	storage.selection_circles[force.name] = storage.selection_circles[force.name] or {}
 
-	if not global.selected_squad or global.selected_squad[force.name] then return end
+	if not storage.selected_squad or storage.selected_squad[force.name] then return end
 
-	local squad_id = global.selected_squad[force.name]
+	local squad_id = storage.selected_squad[force.name]
 	if (squad_id) then
-		local squad = global.Squads[force.name][squad_id]
+		local squad = storage.Squads[force.name][squad_id]
 		for _, unit in pairs(squad.unitGroup.members) do
 			if unit and unit.valid then
-				if not global.selection_circles[force.name][unit.unit_number] then
+				if not storage.selection_circles[force.name][unit.unit_number] then
 				   -- make it
 				   --unit.surface.create_entity( name = "selection-sticker", position = unit.position , target= unit)
 				end
@@ -441,7 +441,7 @@ function tickForces(forces, tick)
                 processDroidGuardStations(force)
             end
 
-            if not game.active_mods["Unit_Control"] then
+            if not script.active_mods["Unit_Control"] then
                 processDroidAssemblersForTick(force, tick)
                 processSquadUpdatesForTick(force.name, tick % 60 + 1)
                 updateSelectionCircles(force)
@@ -460,11 +460,11 @@ end
 CHECK_FOR_NEAREST_ENEMY_TO_ASSEMBLER_EVERY = 3600 -- in ticks
 
 function processDroidAssemblersForTick(force, tick)
-    local forceAssemblerRetreatTable = global.AssemblerRetreatTables[force.name]
+    local forceAssemblerRetreatTable = storage.AssemblerRetreatTables[force.name]
     if not forceAssemblerRetreatTable then return end -- Checks if the assembler retreat table for that force actually exists
     for assemblerIdx, squads in pairs(forceAssemblerRetreatTable) do
         if assemblerIdx % ASSEMBLER_MERGE_TICKRATE == tick % ASSEMBLER_MERGE_TICKRATE then
-            local assembler = global.DroidAssemblers[force.name][assemblerIdx]
+            local assembler = storage.DroidAssemblers[force.name][assemblerIdx]
             if assembler then
                 if (not assembler.valid or not checkRetreatAssemblerForMergeableSquads(assembler, squads)) then
                     -- don't iterate over this assembler again until it is 'recreated'
@@ -473,17 +473,17 @@ function processDroidAssemblersForTick(force, tick)
                 end
                 if GLOBAL_TARGETING_TYPE == targetingTypes.hybridKeepRadiusClear then
                     if assembler.valid then
-                        local ANEtable = global.AssemblerNearestEnemies[force.name][assemblerIdx]
+                        local ANEtable = storage.AssemblerNearestEnemies[force.name][assemblerIdx]
                         if game.tick > ANEtable.lastChecked + CHECK_FOR_NEAREST_ENEMY_TO_ASSEMBLER_EVERY then
                             findAssemblerNearestEnemies(assembler, ANEtable)
                         end
                     else
-                        global.AssemblerNearestEnemies[force.name][assemblerIdx] = nil
+                        storage.AssemblerNearestEnemies[force.name][assemblerIdx] = nil
                     end
                 end
             else
                 -- clean up assembler that no longer exists
-                global.DroidAssemblers[force.name][assemblerIdx] = nil
+                storage.DroidAssemblers[force.name][assemblerIdx] = nil
                 forceAssemblerRetreatTable[assemblerIdx] = nil
             end
         end
@@ -494,7 +494,7 @@ end
 
 
 function handleOnBuiltEntity(event)
-    local entity = event.created_entity
+    local entity = event.entity
 
     if entity.name == "droid-assembling-machine" then
         handleDroidAssemblerPlaced(event)
@@ -508,12 +508,12 @@ function handleOnBuiltEntity(event)
         handleBuiltLootChest(event)
     elseif entity.type == "unit" and table.contains(squadCapable, entity.name) then --squadCapable is defined in DroidUnitList.
         --add to the global units list. make it if it's not actually there yet.
-        if not global.units then global.units = {} end
+        if not storage.units then storage.units = {} end
 
-        if not global.units[entity.unit_number] then
-            global.units[entity.unit_number] = entity  -- reference to the LuaEntity with a lookup via the unit number.
+        if not storage.units[entity.unit_number] then
+            storage.units[entity.unit_number] = entity  -- reference to the LuaEntity with a lookup via the unit number.
         end
-        if not game.active_mods["Unit_Control"] then
+        if not script.active_mods["Unit_Control"] then
             processSpawnedDroid(entity, false, nil, true) --this deals with droids spawning manually by the player
         end
     end
@@ -521,7 +521,7 @@ end -- handleOnBuiltEntity
 
 
 function handleOnRobotBuiltEntity(event)
-    local entity = event.created_entity
+    local entity = event.entity
     if entity.name == "droid-assembling-machine" then
         handleDroidAssemblerPlaced(event)
     elseif entity.name == "droid-guard-station" then
@@ -537,7 +537,7 @@ end -- handleOnRobotBuiltEntity
 
 function handleOnScriptRaisedBuilt(event)
     local entity = event.entity
-    event.created_entity = event.entity
+    event.entity = event.entity
     if entity.name == "droid-assembling-machine" then
         handleDroidAssemblerPlaced(event)
     elseif entity.name == "droid-guard-station" then
@@ -569,34 +569,34 @@ end -- handleTick
 function handleForceCreated(event)
     force = event.force
     LOGGER.log(string.format("New force detected... %s",force.name) )
-    global.DroidAssemblers = global.DroidAssemblers or {}
-    global.DroidAssemblers[force.name] = {}
+    storage.DroidAssemblers = storage.DroidAssemblers or {}
+    storage.DroidAssemblers[force.name] = {}
 
-    global.AssemblerNearestEnemies = global.AssemblerNearestEnemies or {}
-    global.AssemblerNearestEnemies[force.name] = {}
+    storage.AssemblerNearestEnemies = storage.AssemblerNearestEnemies or {}
+    storage.AssemblerNearestEnemies[force.name] = {}
 
-    global.Squads = global.Squads or {}
-    global.Squads[force.name] = {}
+    storage.Squads = storage.Squads or {}
+    storage.Squads[force.name] = {}
 
-    global.uniqueSquadId = global.uniqueSquadId or {}
-    global.uniqueSquadId[force.name] = 1
+    storage.uniqueSquadId = storage.uniqueSquadId or {}
+    storage.uniqueSquadId[force.name] = 1
 
-    global.lootChests = global.lootChests or {}
-    global.lootChests[force.name] = {}
+    storage.lootChests = storage.lootChests or {}
+    storage.lootChests[force.name] = {}
 
-    global.droidCounters = global.droidCounters or {}
-    global.droidCounters[force.name] = {}
+    storage.droidCounters = storage.droidCounters or {}
+    storage.droidCounters[force.name] = {}
 
-    global.droidGuardStations = global.droidGuardStations or {}
-    global.droidGuardStations[force.name] = {}
+    storage.droidGuardStations = storage.droidGuardStations or {}
+    storage.droidGuardStations[force.name] = {}
 
      --set up the tick tables for this new force
-    global.updateTable = global.updateTable or {}
-    if not global.updateTable[force.name] then global.updateTable[force.name] = {} end
+    storage.updateTable = storage.updateTable or {}
+    if not storage.updateTable[force.name] then storage.updateTable[force.name] = {} end
 
        --check if the table has the 1st tick in it. if not, then go through and fill the table
-    if not global.updateTable[force.name][1] then
-        fillTableWithTickEntries(global.updateTable[force.name]) -- make sure it has got the 1-60 tick entries initialized
+    if not storage.updateTable[force.name][1] then
+        fillTableWithTickEntries(storage.updateTable[force.name]) -- make sure it has got the 1-60 tick entries initialized
     end
     global_ensureTablesExist()
     global_fixupTickTablesForForceName(force.name) -- run this at the end just to make sure all other tables I missed are added properly.. mostly for tick and retreat handling

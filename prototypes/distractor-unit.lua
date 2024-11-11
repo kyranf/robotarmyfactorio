@@ -149,7 +149,7 @@ data:extend({
   movement_speed = 0.2,
   distance_per_frame = 0.15,
   -- in pu
-  pollution_to_join_attack = 1000,
+  absorptions_to_join_attack={},
   corpse = "robot-corpse",
   dying_explosion = "explosion",
   working_sound =

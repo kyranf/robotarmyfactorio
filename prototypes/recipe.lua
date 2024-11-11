@@ -1,6 +1,6 @@
 require("config.config")
 
-data:extend({
+local a = {
   {
     type = "recipe",
     name = "droid-smg",
@@ -9,12 +9,12 @@ data:extend({
     energy_required = 10,
     ingredients =
     {
-      {"steel-plate", 5},
-      {"electronic-circuit", 15},
-      {"submachine-gun", 1},
-      {"light-armor", 1}
+      {type="item", name="steel-plate", amount=5},
+      {type="item", name="electronic-circuit", amount=15},
+      {type="item", name="submachine-gun", amount=1},
+      {type="item", name="light-armor", amount=1}
     },
-    result = "droid-smg"
+    results={ {type="item", name="droid-smg", amount=1} }
   },
   {
     type = "recipe",
@@ -24,11 +24,11 @@ data:extend({
     energy_required = 5,
     ingredients =
     {
-      {"copper-plate", 20},
-      {"electronic-circuit", 5},
-      {"iron-gear-wheel", 10},
+      {type="item", name="copper-plate", amount=20},
+      {type="item", name="electronic-circuit", amount=5},
+      {type="item", name="iron-gear-wheel", amount=10},
     },
-    result = "droid-rifle"
+    results={ {type="item", name="droid-rifle", amount=1} }
   },
   {
     type = "recipe",
@@ -38,12 +38,12 @@ data:extend({
     energy_required = 10,
     ingredients =
     {
-      {"steel-plate", 5},
-      {"electronic-circuit", 25},
-      {"rocket-launcher", 1},
-      {"light-armor", 1}
+      {type="item", name="steel-plate", amount=5},
+      {type="item", name="electronic-circuit", amount=25},
+      {type="item", name="rocket-launcher", amount=1},
+      {type="item", name="light-armor", amount=1}
     },
-    result = "droid-rocket"
+    results={ {type="item", name="droid-rocket", amount=1} }
   },
   {
     type = "recipe",
@@ -53,12 +53,12 @@ data:extend({
     energy_required = 10,
     ingredients =
     {
-      {"steel-plate", 10},
-      {"laser-turret", 2},
-      {"processing-unit", 10},
-      {"modular-armor", 1}
+      {type="item", name="steel-plate", amount=10},
+      {type="item", name="laser-turret", amount=2},
+      {type="item", name="processing-unit", amount=10},
+      {type="item", name="modular-armor", amount=1}
     },
-    result = "terminator"
+    results={ {type="item", name="terminator", amount=1} }
   },
   {
     type = "recipe",
@@ -69,9 +69,9 @@ data:extend({
     energy_required = 10,
     ingredients =
     {
-      {"terminator", 1}
+      {type="item", name="terminator", amount=1}
     },
-    result = "terminator-dummy"
+    results={ {type="item", name="terminator-dummy", amount=1} }
   },
   {
     type = "recipe",
@@ -79,12 +79,12 @@ data:extend({
     enabled = false,
     ingredients =
     {
-      {"iron-plate", 10},
-      {"electronic-circuit", 50},
-      {"iron-gear-wheel", 50},
-      {"assembling-machine-1", 1}
+      {type="item", name="iron-plate", amount=10},
+      {type="item", name="electronic-circuit", amount=50},
+      {type="item", name="iron-gear-wheel", amount=50},
+      {type="item", name="assembling-machine-1", amount=1}
     },
-    result = "droid-assembling-machine"
+    results={ {type="item", name="droid-assembling-machine", amount=1} }
   },
   {
     type = "recipe",
@@ -92,12 +92,12 @@ data:extend({
     enabled = false,
     ingredients =
     {
-      {"iron-plate", 10},
-      {"electronic-circuit", 50},
-      {"iron-gear-wheel", 50},
-      {"assembling-machine-1", 1}
+      {type="item", name="iron-plate", amount=10},
+      {type="item", name="electronic-circuit", amount=50},
+      {type="item", name="iron-gear-wheel", amount=50},
+      {type="item", name="assembling-machine-1", amount=1}
     },
-    result = "droid-guard-station"
+    results={ {type="item", name="droid-guard-station", amount=1} }
   },
   {
     type = "recipe",
@@ -108,9 +108,9 @@ data:extend({
     energy_required = 6,
     ingredients =
     {
-      {"droid-smg", 1}
+      {type="item", name="droid-smg", amount=1}
     },
-    result = "droid-smg-dummy"
+    results={ {type="item", name="droid-smg-dummy", amount=1} }
   },
   {
     type = "recipe",
@@ -121,9 +121,9 @@ data:extend({
     energy_required = 6,
     ingredients =
     {
-      {"droid-rocket", 1}
+      {type="item", name="droid-rocket", amount=1}
     },
-    result = "droid-rocket-dummy"
+    results={ {type="item", name="droid-rocket-dummy", amount=1} }
   },
   {
     type = "recipe",
@@ -134,9 +134,9 @@ data:extend({
     energy_required = 3,
     ingredients =
     {
-      {"droid-rifle", 1}
+      {type="item", name="droid-rifle", amount=1}
     },
-    result = "droid-rifle-dummy"
+    results={ {type="item", name="droid-rifle-dummy", amount=1} }
   },
   {
     type = "recipe",
@@ -144,11 +144,11 @@ data:extend({
     enabled = false,
     ingredients =
     {
-      {"constant-combinator", 1},
-      {"iron-plate", 20},
-      {"electronic-circuit", 25},
+      {type="item", name="constant-combinator", amount=1},
+      {type="item", name="iron-plate", amount=20},
+      {type="item", name="electronic-circuit", amount=25},
     },
-    result="droid-counter",
+    results={ {type="item", name="droid-counter", amount=1} },
   },
   {
     type = "recipe",
@@ -156,11 +156,11 @@ data:extend({
     enabled = false,
     ingredients =
     {
-      {"constant-combinator", 1},
-      {"iron-plate", 20},
-      {"electronic-circuit", 25},
+      {type="item", name="constant-combinator", amount=1},
+      {type="item", name="iron-plate", amount=20},
+      {type="item", name="electronic-circuit", amount=25},
     },
-    result="droid-settings",
+    results={ {type="item", name="droid-settings", amount=1} },
   },
   {
     type = "recipe",
@@ -168,10 +168,10 @@ data:extend({
     enabled = false,
     ingredients =
     {
-      {"steel-plate", 20},
-      {"electronic-circuit", 25},
+      {type="item", name="steel-plate", amount=20},
+      {type="item", name="electronic-circuit", amount=25},
     },
-    result = "loot-chest",
+    results={ {type="item", name="loot-chest", amount=1} },
     requester_paste_multiplier = 1
   },
   {
@@ -180,9 +180,9 @@ data:extend({
     enabled = false,
     ingredients =
     {
-      {"electronic-circuit", 1}
+      {type="item", name="electronic-circuit", amount=1}
     },
-    result = "droid-selection-tool",
+    results={ {type="item", name="droid-selection-tool", amount=1} },
     requester_paste_multiplier = 1
   },
   {
@@ -191,9 +191,9 @@ data:extend({
     enabled = false,
     ingredients =
     {
-      {"electronic-circuit", 1}
+      {type="item", name="electronic-circuit", amount=1}
     },
-    result = "droid-pickup-tool",
+    results={ {type="item", name="droid-pickup-tool", amount=1} },
     requester_paste_multiplier = 1
   },
   {
@@ -204,12 +204,12 @@ data:extend({
     energy_required = 10,
     ingredients =
     {
-      {"steel-plate", 5},
-      {"electronic-circuit", 25},
-      {"flamethrower", 1},
-      {"light-armor", 2}
+      {type="item", name="steel-plate", amount=5},
+      {type="item", name="electronic-circuit", amount=25},
+      {type="item", name="flamethrower", amount=1},
+      {type="item", name="light-armor", amount=2}
     },
-    result = "droid-flame",
+    results={ {type="item", name="droid-flame", amount=1} },
   },
   {
     type = "recipe",
@@ -220,9 +220,9 @@ data:extend({
     energy_required = 8,
     ingredients =
     {
-      {"droid-flame",1}
+      {type="item", name="droid-flame", amount=1}
     },
-    result = "droid-flame-dummy",
+    results={ {type="item", name="droid-flame-dummy", amount=1} },
   },
   {
     type = "recipe",
@@ -230,10 +230,10 @@ data:extend({
     enabled = false,
     ingredients =
     {
-      {"steel-plate", 5},
-      {"electronic-circuit", 5},
+      {type="item", name="steel-plate", amount=5},
+      {type="item", name="electronic-circuit", amount=5},
     },
-    result = "patrol-pole",
+    results={ {type="item", name="patrol-pole", amount=1} },
     requester_paste_multiplier = 1
   },
   -- adding in support for Klonan's Combat Units
@@ -245,11 +245,11 @@ data:extend({
     energy_required = 5,
     ingredients =
     {
-      {"piercing-rounds-magazine", 1},
-      {"electronic-circuit", 5},
-      {"iron-gear-wheel", 5},
+      {type="item", name="piercing-rounds-magazine", amount=1},
+      {type="item", name="electronic-circuit", amount=5},
+      {type="item", name="iron-gear-wheel", amount=5},
     },
-    result = "defender-unit"
+    results={ {type="item", name="defender-unit", amount=1} }
   },
   {
     type = "recipe",
@@ -260,9 +260,9 @@ data:extend({
     energy_required = 3,
     ingredients =
     {
-      {"defender-unit", 1}
+      {type="item", name="defender-unit", amount=1}
     },
-    result = "defender-unit-dummy"
+    results={ {type="item", name="defender-unit-dummy", amount=1} }
   },
   {
     type = "recipe",
@@ -272,11 +272,11 @@ data:extend({
     energy_required = 5,
     ingredients =
     {
-      {"piercing-rounds-magazine", 1},
-      {"advanced-circuit", 3},
-      {"steel-plate", 5},
+      {type="item", name="piercing-rounds-magazine", amount=1},
+      {type="item", name="advanced-circuit", amount=3},
+      {type="item", name="steel-plate", amount=5},
     },
-    result = "distractor-unit"
+    results={ {type="item", name="distractor-unit", amount=1} }
   },
   {
     type = "recipe",
@@ -287,9 +287,9 @@ data:extend({
     category = "droids",
     ingredients =
     {
-      {"distractor-unit", 1}
+      {type="item", name="distractor-unit", amount=1}
     },
-    result = "distractor-unit-dummy"
+    results={ {type="item", name="distractor-unit-dummy", amount=1} }
   },
   {
     type = "recipe",
@@ -299,11 +299,11 @@ data:extend({
     energy_required = 8,
     ingredients =
     {
-      {"piercing-rounds-magazine", 5},
-      {"processing-unit", 5},
-      {"steel-plate", 5},
+      {type="item", name="piercing-rounds-magazine", amount=5},
+      {type="item", name="processing-unit", amount=5},
+      {type="item", name="steel-plate", amount=5},
     },
-    result = "destroyer-unit"
+    results={ {type="item", name="destroyer-unit", amount=1} }
   },
   {
     type = "recipe",
@@ -314,11 +314,14 @@ data:extend({
     category = "droids",
     ingredients =
     {
-      {"destroyer-unit", 1}
+      {type="item", name="destroyer-unit", amount=1}
     },
-    result = "destroyer-unit-dummy"
+    results={ {type="item", name="destroyer-unit-dummy", amount=1} }
   },
-})
+}
+for _, a0 in pairs(a) do
+	data:extend({a0});
+end
 
 --[[ disabled since we bring our own techs now
 

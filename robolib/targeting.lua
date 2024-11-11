@@ -34,7 +34,7 @@ end
 function findDefendAssemblerTarget(squad)
     local huntRadius = getForceHuntRange(squad.force)
     local assembler, distance = findClosestAssemblerToPosition(
-        global.DroidAssemblers[squad.force.name],
+        storage.DroidAssemblers[squad.force.name],
         squad.unitGroup.position)
     local huntOrigin = squad.unitGroup.position
     if assembler then
@@ -66,10 +66,10 @@ function findHybridKeepRadiusClearTarget(squad)
     local msg = string.format("Looking for hybrid target for squad %d", squad.squadID)
     LOGGER.log(msg)
     local assembler, distance = findClosestAssemblerToPosition(
-        global.DroidAssemblers[squad.force.name],
+        storage.DroidAssemblers[squad.force.name],
         squad.unitGroup.position)
     if assembler then
-        local ANEtable = global.AssemblerNearestEnemies[squad.force.name][assembler.unit_number]
+        local ANEtable = storage.AssemblerNearestEnemies[squad.force.name][assembler.unit_number]
 
         if not ANEtable.enemy then
             findAssemblerNearestEnemies(assembler, ANEtable) -- we have never found an enemy.. so lets find the first one.

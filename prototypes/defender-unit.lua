@@ -114,7 +114,7 @@ data:extend({
   },
   healing_per_tick = 0,
   collision_box = nil,
-  collision_mask = { "ghost-layer"},
+  collision_mask = {layers={ghost = true}},
   selection_box = {{-0.3, -0.3}, {0.3, 0.3}},
   sticker_box = {{-0.1, -0.1}, {0.1, 0.1}},
   distraction_cooldown = 300,
@@ -169,7 +169,7 @@ data:extend({
   movement_speed = 0.2,
   distance_per_frame = 0.15,
   -- in pu
-  pollution_to_join_attack = 1000,
+  absorptions_to_join_attack={},
   corpse = "robot-corpse",
   dying_explosion = "explosion",
   working_sound =

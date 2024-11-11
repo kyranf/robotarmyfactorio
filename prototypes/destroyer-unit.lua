@@ -143,7 +143,7 @@ data:extend({
   movement_speed = 0.2,
   distance_per_frame = 0.15,
   -- in pu
-  pollution_to_join_attack = 1000000,
+  absorptions_to_join_attack={},
   corpse = "robot-corpse",
   dying_explosion = "explosion",
   working_sound =
@@ -200,6 +200,7 @@ data:extend({
       }
     }
   },
+  graphics_set = { beam={
   start =
   {
     filename = "__base__/graphics/entity/beam/tileable-beam-START.png",
@@ -314,6 +315,7 @@ data:extend({
       blend_mode = beam_blend_mode,
     },
   }
+  }}
 }
 
 })

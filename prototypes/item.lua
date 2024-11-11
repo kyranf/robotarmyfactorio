@@ -1,6 +1,6 @@
 local ICONPATH = "__robotarmy__/graphics/icons/"
 
-data:extend(
+local a =
 {
   {
     type = "item-subgroup",
@@ -122,7 +122,7 @@ data:extend(
     name = "terminator-dummy",
     icon_size = 64,
     icon = ICONPATH .. "terminator.png",
-    flags = {"hidden"},
+    flags = {},
     order = "z-z",
     subgroup = "capsule",
     place_result = "",
@@ -133,7 +133,7 @@ data:extend(
     name = "droid-rocket-dummy",
     icon_size = 64,
     icon = ICONPATH .. "droid_rocket.png",
-    flags = {"hidden"},
+    flags = {},
     order = "z-z",
     subgroup = "capsule",
     place_result = "",
@@ -144,7 +144,7 @@ data:extend(
     name = "droid-rifle-dummy",
     icon_size = 64,
     icon = ICONPATH .. "droid_rifle.png",
-    flags = {"hidden"},
+    flags = {},
     order = "z-z",
     subgroup = "capsule",
     place_result = "",
@@ -155,7 +155,7 @@ data:extend(
     name = "droid-flame-dummy",
     icon_size = 64,
     icon = ICONPATH .. "droid_flame.png",
-    flags = {"hidden"},
+    flags = {},
     order = "z-z",
     subgroup = "capsule",
     place_result = "",
@@ -166,7 +166,7 @@ data:extend(
     name = "droid-smg-dummy",
     icon_size = 64,
     icon = ICONPATH .. "droid_smg.png",
-    flags = {"hidden"},
+    flags = {},
     order = "z-z",
     subgroup = "capsule",
     place_result = "",
@@ -177,7 +177,7 @@ data:extend(
     name = "defender-unit-dummy",
     icon_size = 64,
     icon = ICONPATH .. "defender.png",
-    flags = {"hidden"},
+    flags = {},
     order = "z-z",
     subgroup = "capsule",
     place_result = "",
@@ -188,7 +188,7 @@ data:extend(
     name = "distractor-unit-dummy",
     icon_size = 64,
     icon = ICONPATH .. "distractor.png",
-    flags = {"hidden"},
+    flags = {},
     order = "z-z",
     subgroup = "capsule",
     place_result = "",
@@ -199,7 +199,7 @@ data:extend(
     name = "destroyer-unit-dummy",
     icon_size = 64,
     icon = ICONPATH .. "destroyer.png",
-    flags = {"hidden"},
+    flags = {},
     order = "z-z",
     subgroup = "capsule",
     place_result = "",
@@ -272,12 +272,16 @@ data:extend(
     order = "d[droid-control]-s[selection]",
     stack_size = 1,
     stackable = false,
-    selection_color = { r = 0, g = 1, b = 0 },
-    alt_selection_color = { r = 0, g = 1, b = 0 },
-    selection_mode = {"same-force"},
-    alt_selection_mode = {"same-force"},
-    selection_cursor_box_type = "not-allowed",
-    alt_selection_cursor_box_type = "not-allowed"
+	select={ 
+		border_color = { r = 0, g = 1, b = 0 },
+		mode = {"same-force"},
+		cursor_box_type = "not-allowed",
+	},
+	alt_select={
+		border_color = { r = 0, g = 1, b = 0 },
+		mode = {"same-force"},
+		cursor_box_type = "not-allowed"
+	},
   },
   -- This allows loading the selection-tool type item when mods are removed
   {
@@ -290,11 +294,19 @@ data:extend(
     order = "d[droid-control]-p[pickup]",
     stack_size = 1,
     stackable = false,
-    selection_color = { r = 1, g = 0, b = 0 },
-    alt_selection_color = { r = 1, g = 0, b = 0 },
-    selection_mode = {"blueprint"},
-    alt_selection_mode = {"blueprint"},
-    selection_cursor_box_type = "not-allowed",
-    alt_selection_cursor_box_type = "not-allowed"
+	select={    
+		border_color = { r = 1, g = 0, b = 0 },
+		mode = {"blueprint"},
+		cursor_box_type = "not-allowed",
+	},
+	alt_select={
+		border_color = { r = 1, g = 0, b = 0 },
+		mode = {"blueprint"},
+		cursor_box_type = "not-allowed"
+	},
+
   },
-})
+}
+for _, v in pairs(a) do
+	data:extend({v})
+end
