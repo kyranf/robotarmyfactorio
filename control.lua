@@ -67,12 +67,11 @@ script.on_event(defines.events.on_force_created, handleForceCreated)
 script.on_event(defines.events.on_built_entity, handleOnBuiltEntity)
 script.on_event(defines.events.on_robot_built_entity, handleOnRobotBuiltEntity)
 
-local function playerSelectedArea(event)
+function playerSelectedArea(event)
 	reportSelectedUnits(event, false)
 end
 script.on_event(defines.events.on_player_selected_area, playerSelectedArea)
-
-local function playerAltSelectedArea(event)
+function playerAltSelectedArea(event)
 	reportSelectedUnits(event, true)
 end
 script.on_event(defines.events.on_player_alt_selected_area, playerAltSelectedArea)
