@@ -3,7 +3,7 @@ require("prototypes.DroidUnitList")
 require("robolib.util")
 game.reload_script()
 
-if not global.units then global.units = {} end
+if not storage.units then storage.units = {} end
 
 --prep list of names to check against for unit checking
 
@@ -30,9 +30,9 @@ for i, force_ in pairs(game.forces) do
         for _, unitFound in pairs(units) do
             if names[unitFound.name] then
                 if unitFound.valid then
-                    if not global.units[unitFound.unit_number] then
+                    if not storage.units[unitFound.unit_number] then
 
-                        global.units[unitFound.unit_number] = unitFound  -- reference to the LuaEntity with a lookup via the unit number.
+                        storage.units[unitFound.unit_number] = unitFound  -- reference to the LuaEntity with a lookup via the unit number.
                         numUnitsAdded = numUnitsAdded + 1
                     end
                 end

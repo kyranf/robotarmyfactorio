@@ -97,20 +97,20 @@ end
 
 --any new global tables we need to add, just add them in here and it will be easier to maintain. not used yet.
 -- function checkGlobalTableInitStates()
---     global.Squads = global.Squads or {}
---     global.uniqueSquadId = global.uniqueSquadId or {}
---     global.DroidAssemblers = global.DroidAssemblers or {}
---     global.droidCounters = global.droidCounters or {}
---     global.lootChests = global.lootChests or {}
---     global.droidGuardStations = global.droidGuardStations or {}
+--     storage.Squads = storage.Squads or {}
+--     storage.uniqueSquadId = storage.uniqueSquadId or {}
+--     storage.DroidAssemblers = storage.DroidAssemblers or {}
+--     storage.droidCounters = storage.droidCounters or {}
+--     storage.lootChests = storage.lootChests or {}
+--     storage.droidGuardStations = storage.droidGuardStations or {}
 --     local forceList = game.forces
 --     for _, force in pairs(forceList) do
---         global.droidGuardStations[force.name] = global.droidGuardStations[force.name] or {}
---         global.Squads[force.name] = global.Squads[force.name] or {}
---         global.DroidAssemblers[force.name] = global.DroidAssemblers[force.name] or {}
---         global.droidCounters[force.name] = global.droidCounters[force.name] or {}
---         global.lootChests[force.name] = global.lootChests[force.name] or {}
---         global.uniqueSquadId[force.name] = global.uniqueSquadId[force.name] or 1
+--         storage.droidGuardStations[force.name] = storage.droidGuardStations[force.name] or {}
+--         storage.Squads[force.name] = storage.Squads[force.name] or {}
+--         storage.DroidAssemblers[force.name] = storage.DroidAssemblers[force.name] or {}
+--         storage.droidCounters[force.name] = storage.droidCounters[force.name] or {}
+--         storage.lootChests[force.name] = storage.lootChests[force.name] or {}
+--         storage.uniqueSquadId[force.name] = storage.uniqueSquadId[force.name] or 1
 --     end
 -- end
 
@@ -145,7 +145,7 @@ function getClosestEntity(position, entityList)
 end
 
 
---input is a sub-table of global.updateTable, and is the table for a particular force
+--input is a sub-table of storage.updateTable, and is the table for a particular force
 function fillTableWithTickEntries(inputTable)
     -- Game.print_all("filling update tick table")
     for i = 1, 60 do
@@ -155,15 +155,15 @@ end
 
 
 function global_getLeastFullTickTable(force)
-    if not global.updateTable then global.updateTable = {} end
-    if not global.updateTable[force.name] then global.updateTable[force.name] = {} end
+    if not storage.updateTable then storage.updateTable = {} end
+    if not storage.updateTable[force.name] then storage.updateTable[force.name] = {} end
 
     --check if the table has the 1st tick in it. if not, then go through and fill the table
-    if not global.updateTable[force.name][1] then
-        fillTableWithTickEntries(global.updateTable[force.name]) -- make sure it has got the 0-59 tick entries initialized
+    if not storage.updateTable[force.name][1] then
+        fillTableWithTickEntries(storage.updateTable[force.name]) -- make sure it has got the 0-59 tick entries initialized
     end
 
-    local forceTickTable = global.updateTable[force.name]
+    local forceTickTable = storage.updateTable[force.name]
     --the forceTickTable consists of 60 entries, from 1 to 60 representing 60 ticks.
     --each entry is indexed by tick.
     --each entry is another table, which consists of any number of squad references

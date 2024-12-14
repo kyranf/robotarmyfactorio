@@ -13,19 +13,19 @@ end
 
 
 function global_ensureTablesExist()
-    if not global.updateTable then global.updateTable = {} end
-    if not global.Squads then global.Squads = {} end
-    if not global.AssemblerRetreatTables then global.AssemblerRetreatTables = {} end
-    if not global.AssemblerNearestEnemies then global.AssemblerNearestEnemies = {} end
-    if not global.DroidAssemblers then global.DroidAssemblers = {} end
-    if not global.droidGuardStations then global.droidGuardStations = {} end
+    if not storage.updateTable then storage.updateTable = {} end
+    if not storage.Squads then storage.Squads = {} end
+    if not storage.AssemblerRetreatTables then storage.AssemblerRetreatTables = {} end
+    if not storage.AssemblerNearestEnemies then storage.AssemblerNearestEnemies = {} end
+    if not storage.DroidAssemblers then storage.DroidAssemblers = {} end
+    if not storage.droidGuardStations then storage.droidGuardStations = {} end
 end
 
 
 function migrateForce(fkey, force)
     LOGGER.log(string.format("Migrating force %s...", force.name))
     global_fixupTickTablesForForceName(force.name)
-    for skey, squad in pairs(global.Squads[force.name]) do
+    for skey, squad in pairs(storage.Squads[force.name]) do
         migrateSquad(skey, squad)
     end
 
@@ -68,7 +68,7 @@ function migrateSquadTo_0_2_4(squad)
 
     -- put squad in tick tables if not there already
     local found = false
-    for tkey, tickTable in pairs(global.updateTable[squad.force.name]) do
+    for tkey, tickTable in pairs(storage.updateTable[squad.force.name]) do
         if table.contains(tickTable, squad.squadID) then
             found = true
             break
@@ -78,7 +78,7 @@ function migrateSquadTo_0_2_4(squad)
         squad = validateSquadIntegrity(squad)
         if squad then
             LOGGER.log(string.format("Inserting squad %d of size %d into tickTables", squad.squadID, squad.numMembers))
-            table.insert(global.updateTable[squad.force.name][squad.squadID % 60 + 1], squad.squadID)
+            table.insert(storage.updateTable[squad.force.name][squad.squadID % 60 + 1], squad.squadID)
         end
     end
 end
@@ -86,8 +86,8 @@ end
 
 function migrateDroidAssemblersTo_0_2_4(force)
     -- index these by their globally unique "unit_number" instead.
-    local forceAssemblers = global.DroidAssemblers[force.name]
-    local assemblerNearestEnemies = global.AssemblerNearestEnemies[force.name]
+    local forceAssemblers = storage.DroidAssemblers[force.name]
+    local assemblerNearestEnemies = storage.AssemblerNearestEnemies[force.name]
     for dkey, assembler in pairs(forceAssemblers) do
         if not assembler or not assembler.valid then
             forceAssemblers[dkey] = nil
@@ -106,49 +106,49 @@ end
 
 
 function global_fixupTickTablesForForceName(force_name)
-    if not global.updateTable[force_name] then global.updateTable[force_name] = {} end
+    if not storage.updateTable[force_name] then storage.updateTable[force_name] = {} end
 
     --check if the table has the 1st tick in it. if not, then go through and fill the table
-    if not global.updateTable[force_name][1] then
-        fillTableWithTickEntries(global.updateTable[force_name]) -- make sure it has got the 1-60 tick entries initialized
+    if not storage.updateTable[force_name][1] then
+        fillTableWithTickEntries(storage.updateTable[force_name]) -- make sure it has got the 1-60 tick entries initialized
     end
 
-    if not global.DroidAssemblers[force_name] then
-        global.DroidAssemblers[force_name] = {}
+    if not storage.DroidAssemblers[force_name] then
+        storage.DroidAssemblers[force_name] = {}
     end
-    if not global.AssemblerRetreatTables[force_name] then
-        global.AssemblerRetreatTables[force_name] = {}
+    if not storage.AssemblerRetreatTables[force_name] then
+        storage.AssemblerRetreatTables[force_name] = {}
     end
-    if not global.AssemblerNearestEnemies[force_name] then
-        global.AssemblerNearestEnemies[force_name] = {}
+    if not storage.AssemblerNearestEnemies[force_name] then
+        storage.AssemblerNearestEnemies[force_name] = {}
     end
-    if not global.droidGuardStations[force_name] then
-        global.droidGuardStations[force_name] = {}
+    if not storage.droidGuardStations[force_name] then
+        storage.droidGuardStations[force_name] = {}
     end
-    if not global.droidCounters[force_name] then
-        global.droidCounters[force_name] = {}
+    if not storage.droidCounters[force_name] then
+        storage.droidCounters[force_name] = {}
     end
-    if not global.lootChests[force_name] then
-        global.lootChests[force_name] = {}
+    if not storage.lootChests[force_name] then
+        storage.lootChests[force_name] = {}
     end
-    if not global.uniqueSquadId[force_name] then
-        global.uniqueSquadId[force_name] = {}
+    if not storage.uniqueSquadId[force_name] then
+        storage.uniqueSquadId[force_name] = {}
     end
 
-    if not global.updateTable[force_name] or not global.Squads[force_name]  then
+    if not storage.updateTable[force_name] or not storage.Squads[force_name]  then
         -- this is a more-or-less fatal error
         -- in the condition of a new game, and you haven't placed a squad yet, can have issues with player force not having the squad table init yet.
-        global.Squads[force_name] = {}
+        storage.Squads[force_name] = {}
         return false
 
         --disabling below code for now
         --[[Game.print_all("Update Table or squad table for force is missing! Can't run update functions - force name:")
         Game.print_all(force_name)
-        if not global.updateTable[force_name] then
+        if not storage.updateTable[force_name] then
             Game.print_all("missing update table...")
         end
 
-        if not global.Squads[force_name] then
+        if not storage.Squads[force_name] then
             Game.print_all("missing squad table...")
         end
         return false]]--

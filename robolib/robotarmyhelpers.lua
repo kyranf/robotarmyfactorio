@@ -101,8 +101,8 @@ end
 
 
 function getSquadHuntSize(force)
-    if global.settings and global.settings[force.name] and global.settings[force.name].huntSizeOverride then
-        return global.settings[force.name].huntSizeOverride --overriden value from settings combinator for that force
+    if storage.settings and storage.settings[force.name] and storage.settings[force.name].huntSizeOverride then
+        return storage.settings[force.name].huntSizeOverride --overriden value from settings combinator for that force
     else
         return SQUAD_SIZE_MIN_BEFORE_HUNT --default one set in config.lua
     end
@@ -110,8 +110,8 @@ end
 
 
 function getSquadGuardSize(force)
-    if global.settings and global.settings[force.name] and global.settings[force.name].guardSizeOverride then
-        return global.settings[force.name].guardSizeOverride    --overriden value from settings combinator for that force
+    if storage.settings and storage.settings[force.name] and storage.settings[force.name].guardSizeOverride then
+        return storage.settings[force.name].guardSizeOverride    --overriden value from settings combinator for that force
     else
         return GUARD_STATION_GARRISON_SIZE --default one set in config.lua
     end
@@ -119,8 +119,8 @@ end
 
 
 function getSquadRetreatSize(force)
-    if global.settings and global.settings[force.name] and global.settings[force.name].retreatSizeOverride then
-        return global.settings[force.name].retreatSizeOverride  --overriden value from settings combinator for that force
+    if storage.settings and storage.settings[force.name] and storage.settings[force.name].retreatSizeOverride then
+        return storage.settings[force.name].retreatSizeOverride  --overriden value from settings combinator for that force
     else
         return SQUAD_SIZE_MIN_BEFORE_RETREAT --default one set in config.lua
     end
@@ -128,8 +128,8 @@ end
 
 
 function getForceHuntRange(force)
-    if global.settings and global.settings[force.name] and global.settings[force.name].huntRangeOverride then
-        return global.settings[force.name].huntRangeOverride    --overriden value from settings combinator for that force
+    if storage.settings and storage.settings[force.name] and storage.settings[force.name].huntRangeOverride then
+        return storage.settings[force.name].huntRangeOverride    --overriden value from settings combinator for that force
     else
         return SQUAD_HUNT_RADIUS --default one set in config.lua
     end
@@ -142,46 +142,48 @@ end
 
 
 function checkSettingsModules()
-    if not global.settingsModule then global.settingsModule = {} end --quick check to ensure state
-    if not global.settings then global.settings = {} end
+    if not storage.settingsModule then storage.settingsModule = {} end
+    if not storage.settings then storage.settings = {} end
 
-    --for each force, update settings if they are different
     for _, gameForce in pairs(game.forces) do
-        --check the signals of each force's settings modules, and if there are the correct signals, set them as override values
-        if global.settingsModule[gameForce.name] and global.settingsModule[gameForce.name].valid then
+        local settingsModule = storage.settingsModule[gameForce.name]
+        if settingsModule and settingsModule.valid then
+            if not storage.settings[gameForce.name] then storage.settings[gameForce.name] = {} end
 
-            local settingsModule = global.settingsModule[gameForce.name]
-            if not global.settings[gameForce.name] then global.settings[gameForce.name] = {} end
+            local settingsCtlBehaviour = settingsModule.get_or_create_control_behavior()
+            if settingsCtlBehaviour and settingsCtlBehaviour.valid then
+                -- Access the single logistic section
+                local section = settingsCtlBehaviour.get_section(1)
+                if section and section.valid then
+                    -- Iterate through the filters to retrieve signal names and values
+                    for slot_filter_index = 1, section.filters_count do
+                        local filter = section.filters[slot_filter_index]
+                        if filter and filter.value and filter.value.name and filter.min then
+                            local sigName = filter.value.name
+                            local sigCount = filter.min
 
-            --get the parameters, go through and check each one, while also checking the values are logically okay.
-            local behaviour = settingsModule.get_or_create_control_behavior() -- a LuaConstantCombinatorControlBehavior
-            local parameters = behaviour.parameters
-
-            --Game.print_force(gameForce, string.format("Parameters table of force's settings module is length %d", #parameters))
-            for index, parameter in pairs(parameters) do
-                if parameter.count and parameter.signal.name ~= nil then
-                    --Game.print_force(gameForce, string.format("Settings module signal %s with count %d being checked...", parameter.signal.name, parameter.count))
-                    local sigName = parameter.signal.name
-                    if sigName == "signal-squad-size" then --huntSizeOverride
-                        if global.settings[gameForce.name].huntSizeOverride ~= parameter.count and checkValidSignalSetting(gameForce, sigName, parameter.count) then
-                            global.settings[gameForce.name].huntSizeOverride = parameter.count
-                            Game.print_force(gameForce, string.format("Setting hunt squad size override value to %d for force %s",parameter.count, gameForce.name))
-                        end
-
-                    elseif sigName == "signal-guard-size" then --guardSizeOverride
-                        if global.settings[gameForce.name].guardSizeOverride ~= parameter.count and checkValidSignalSetting(gameForce, sigName, parameter.count) then
-                            global.settings[gameForce.name].guardSizeOverride = parameter.count
-                            Game.print_force(gameForce, string.format("Setting guard squad size override value to %d for force %s",parameter.count, gameForce.name))
-                        end
-                    elseif sigName == "signal-retreat-size" then --retreatSizeOverride
-                        if global.settings[gameForce.name].retreatSizeOverride ~= parameter.count and checkValidSignalSetting(gameForce, sigName, parameter.count) then
-                            global.settings[gameForce.name].retreatSizeOverride = parameter.count
-                            Game.print_force(gameForce, string.format("Setting retreat squad size override value to %d for force %s",parameter.count, gameForce.name))
-                        end
-                    elseif sigName == "signal-hunt-radius" then --huntRangeOverride
-                        if global.settings[gameForce.name].huntRangeOverride ~= parameter.count and checkValidSignalSetting(gameForce, sigName, parameter.count) then
-                            global.settings[gameForce.name].huntRangeOverride = parameter.count
-                            Game.print_force(gameForce, string.format("Setting hunt radius override value to %d for force %s",parameter.count, gameForce.name))
+                            -- Update settings based on signal names and values
+                            if sigName == "signal-squad-size" then
+                                if storage.settings[gameForce.name].huntSizeOverride ~= sigCount and checkValidSignalSetting(gameForce, sigName, sigCount) then
+                                    storage.settings[gameForce.name].huntSizeOverride = sigCount
+                                    Game.print_force(gameForce, string.format("Setting hunt squad size override value to %d for force %s", sigCount, gameForce.name))
+                                end
+                            elseif sigName == "signal-guard-size" then
+                                if storage.settings[gameForce.name].guardSizeOverride ~= sigCount and checkValidSignalSetting(gameForce, sigName, sigCount) then
+                                    storage.settings[gameForce.name].guardSizeOverride = sigCount
+                                    Game.print_force(gameForce, string.format("Setting guard squad size override value to %d for force %s", sigCount, gameForce.name))
+                                end
+                            elseif sigName == "signal-retreat-size" then
+                                if storage.settings[gameForce.name].retreatSizeOverride ~= sigCount and checkValidSignalSetting(gameForce, sigName, sigCount) then
+                                    storage.settings[gameForce.name].retreatSizeOverride = sigCount
+                                    Game.print_force(gameForce, string.format("Setting retreat squad size override value to %d for force %s", sigCount, gameForce.name))
+                                end
+                            elseif sigName == "signal-hunt-radius" then
+                                if storage.settings[gameForce.name].huntRangeOverride ~= sigCount and checkValidSignalSetting(gameForce, sigName, sigCount) then
+                                    storage.settings[gameForce.name].huntRangeOverride = sigCount
+                                    Game.print_force(gameForce, string.format("Setting hunt radius override value to %d for force %s", sigCount, gameForce.name))
+                                end
+                            end
                         end
                     end
                 end
@@ -208,8 +210,8 @@ function checkValidSignalSetting(force, signal, count)
         end
     elseif signal == "signal-retreat-size" then
         -- we care about retreat size being smaller than the current huntSizeOverride if there is one, otherwise just less than the default hunt squad size.
-        if global.settings[force.name].huntSizeOverride then
-            if count > 0 and count < global.settings[force.name].huntSizeOverride then
+        if storage.settings[force.name].huntSizeOverride then
+            if count > 0 and count < storage.settings[force.name].huntSizeOverride then
                 return true
             end
         elseif count > 0 and count < SQUAD_SIZE_MIN_BEFORE_HUNT then
@@ -236,7 +238,7 @@ end
 
 
 function doCounterUpdate()
-    --for each force in game, sum droids, then find/update droid-counters
+    -- For each force in the game, sum droids, then find/update droid-counters
     for _, gameForce in pairs(game.forces) do
         local sum = 0
         local rifleDroids = gameForce.get_entity_count("droid-rifle")
@@ -244,42 +246,56 @@ function doCounterUpdate()
         local rocketDroids = gameForce.get_entity_count("droid-rocket")
         local fireBots = gameForce.get_entity_count("droid-flame")
         local terminators = gameForce.get_entity_count("terminator")
-        if global.droidCounters and global.droidCounters[gameForce.name] then
-            --sum all droids named in the spawnable list
-            for _, droidName in pairs(spawnable) do
-                sum = sum + gameForce.get_entity_count(droidName)
-            end
 
-            local circuitParams = {
-                parameters = {
-                    {index = 1, count = sum,            signal = {type = "virtual", name = "signal-droid-alive-count"}}, --end global droid count
-                    {index = 2, count = rifleDroids,    signal = {type = "virtual", name = "signal-droid-rifle-count"}},
-                    {index = 3, count = battleDroids,   signal = {type = "virtual", name = "signal-droid-smg-count"}},
-                    {index = 4, count = rocketDroids,   signal = {type = "virtual", name = "signal-droid-rocket-count"}},
-                    {index = 5, count = fireBots,       signal = {type = "virtual", name = "signal-droid-flame-count"}},
-                    {index = 6, count = terminators,    signal = {type = "virtual", name = "signal-droid-terminator-count"}}
-                } --end parameters table
-            } -- end circuitParams
+        -- Sum all droids named in the spawnable list
+        for _, droidName in pairs(spawnable) do
+            sum = sum + gameForce.get_entity_count(droidName)
+        end
 
-            removeNilsFromTable(global.droidCounters[gameForce.name])
+        -- Define the signals and their corresponding counts
+        local signals = {
+            {index = 1, count = sum,          name = "signal-droid-alive-count"},
+            {index = 2, count = rifleDroids,  name = "signal-droid-rifle-count"},
+            {index = 3, count = battleDroids, name = "signal-droid-smg-count"},
+            {index = 4, count = rocketDroids, name = "signal-droid-rocket-count"},
+            {index = 5, count = fireBots,     name = "signal-droid-flame-count"},
+            {index = 6, count = terminators,  name = "signal-droid-terminator-count"}
+        }
 
-            for _, counter in pairs(global.droidCounters[gameForce.name]) do
-                if (counter.valid) then
-                    local currentParams = counter.get_or_create_control_behavior()
-                    if (currentParams) then
-                        local lengthOld = #currentParams.parameters
-                        local lengthNew = #circuitParams.parameters
-                        --Game.print_force(counter.force, string.format("counter number of signals %d, number of new signals %d",lengthOld, lengthNew))
-                        if lengthOld ~= lengthNew then
-                            local pos = counter.position
-                            local surface = counter.surface
-                            counter.destroy()
-                            counter = surface.create_entity({name = "droid-counter" , position = pos, direction = defines.direction.east, force = gameForce })
-                            Game.print_force(counter.force, string.format("Counter replaced at X %d,Y %d to update signal output table. Will need new wires if you had any!", pos.x, pos.y))
-                            table.insert(global.droidCounters[gameForce.name], counter) -- insert the new counter so it can get updated again
+        -- Ensure the droidCounters storage is initialized
+        if storage.droidCounters and storage.droidCounters[gameForce.name] then
+            removeNilsFromTable(storage.droidCounters[gameForce.name])
+
+            for _, counter in pairs(storage.droidCounters[gameForce.name]) do
+                if counter.valid then
+                    local behavior = counter.get_or_create_control_behavior()
+                    if behavior and behavior.valid then
+                        -- Ensure the combinator has at least one section
+                        if behavior.sections_count == 0 then
+                            behavior.add_section()
+                        end
+
+                        local section = behavior.get_section(1)
+                        if section and section.valid then
+                             -- Clear all existing slots to prevent duplicates
+                            for slot_index = 1, section.filters_count do
+                                section.clear_slot(slot_index)
+                            end
+                            -- Set each slot with the corresponding signal and count
+                            for _, signal in pairs(signals) do
+                                local filter = {
+                                    value = {
+                                        name = signal.name,
+                                        type = "virtual",
+                                        quality = "normal"
+                                    },
+                                    min = signal.count,
+                                    max = signal.count
+                                }
+                                section.set_slot(signal.index, filter)
+                            end
                         end
                     end
-                    counter.get_or_create_control_behavior().parameters = circuitParams.parameters
                 end
             end
         end
@@ -462,15 +478,15 @@ end
 --logic for handling loot chest spawning, cannot have more than one per force.
 function handleBuiltLootChest(event)
     --check if there is a global table entry for loot chests yet, make one if not.
-    if not global.lootChests then
-        global.lootChests = {}
+    if not storage.lootChests then
+        storage.lootChests = {}
     end
 
-    local chest = event.created_entity
+    local chest = event.entity
     local force = chest.force
     --LOGGER.log( string.format("Adding loot chest to force %s", force.name) )
-    if not global.lootChests[force.name] or not global.lootChests[force.name].valid  then
-        global.lootChests[force.name] = chest   --this is now the force's chest.
+    if not storage.lootChests[force.name] or not storage.lootChests[force.name].valid  then
+        storage.lootChests[force.name] = chest   --this is now the force's chest.
     else
         Game.print_force(force,"Error: Can only place one loot chest!")
         chest.surface.spill_item_stack(chest.position, {name = "loot-chest", count = 1})
@@ -483,16 +499,16 @@ end
 --logic for handling settings module spawning, cannot have more than one per force.
 function handleBuiltDroidSettings(event)
     --check if there is a global table entry for settings modules yet, make one if not.
-    if not global.settingsModule then
-        global.settingsModule = {}
+    if not storage.settingsModule then
+        storage.settingsModule = {}
     end
 
-    local entity = event.created_entity
+    local entity = event.entity
     local force = entity.force
 
-    if not global.settingsModule[force.name] or not global.settingsModule[force.name].valid  then
+    if not storage.settingsModule[force.name] or not storage.settingsModule[force.name].valid  then
         --LOGGER.log( string.format("Adding settings module to force %s", force.name) )
-        global.settingsModule[force.name] = entity   --this is now the force's settings module.
+        storage.settingsModule[force.name] = entity   --this is now the force's settings module.
     else
 
         Game.print_force(force,"Error: Can only place one settings module!")
@@ -505,62 +521,62 @@ end
 
 
 function handleBuiltDroidCounter(event)
-    local entity = event.created_entity
+    local entity = event.entity
     local entityForce = entity.force.name
     --LOGGER.log( string.format("Adding droid counter to force %s", entityForce) )
-    if not global.droidCounters then
-        global.droidCounters = {}
-        global.droidCounters[entityForce] = {}
-        table.insert(global.droidCounters[entityForce], entity )
-    elseif not global.droidCounters[entityForce] then
-        global.droidCounters[entityForce] = {}
-        table.insert(global.droidCounters[entityForce], entity)
+    if not storage.droidCounters then
+        storage.droidCounters = {}
+        storage.droidCounters[entityForce] = {}
+        table.insert(storage.droidCounters[entityForce], entity )
+    elseif not storage.droidCounters[entityForce] then
+        storage.droidCounters[entityForce] = {}
+        table.insert(storage.droidCounters[entityForce], entity)
     else
-        table.insert(global.droidCounters[entityForce], entity)
+        table.insert(storage.droidCounters[entityForce], entity)
     end
 end
 
 function handleGuardStationPlaced(event)
-    local entity = event.created_entity
+    local entity = event.entity
     local force = entity.force
     --LOGGER.log( string.format("Adding guard station to force %s", force.name) )
 
     --check for droid guard station global tables first.
-    if not global.droidGuardStations then
-        global.droidGuardStations = {}
+    if not storage.droidGuardStations then
+        storage.droidGuardStations = {}
     end
-    if not global.droidGuardStations[force.name] then
-        global.droidGuardStations[force.name] = {}
+    if not storage.droidGuardStations[force.name] then
+        storage.droidGuardStations[force.name] = {}
     end
 
-    table.insert(global.droidGuardStations[force.name], entity)
-    removeNilsFromTable(global.droidGuardStations[force.name]) -- helps remove old invalid/nil entries.
+    table.insert(storage.droidGuardStations[force.name], entity)
+    removeNilsFromTable(storage.droidGuardStations[force.name]) -- helps remove old invalid/nil entries.
 end
 
 
 function handleDroidAssemblerPlaced(event)
-    local entity = event.created_entity
+    local entity = event.entity
     local force = entity.force
 
     --check for droid guard station global tables first.
-    if not global.DroidAssemblers then
-        global.DroidAssemblers = {}
+    if not storage.DroidAssemblers then
+        storage.DroidAssemblers = {}
     end
-    if not global.DroidAssemblers[force.name] then
-        global.DroidAssemblers[force.name] = {}
-    end
-
-    if not global.AssemblerNearestEnemies then
-        global.AssemblerNearestEnemies = {}
+    if not storage.DroidAssemblers[force.name] then
+        storage.DroidAssemblers[force.name] = {}
     end
 
-    if not global.AssemblerNearestEnemies[force.name] then
-        global.AssemblerNearestEnemies[force.name] = {}
+    if not storage.AssemblerNearestEnemies then
+        storage.AssemblerNearestEnemies = {}
+    end
+
+    if not storage.AssemblerNearestEnemies[force.name] then
+        storage.AssemblerNearestEnemies[force.name] = {}
     end
 
     LOGGER.log(string.format("Adding assembler to force %s", force.name))
-    global.DroidAssemblers[force.name][entity.unit_number] = entity
-    global.AssemblerNearestEnemies[force.name][entity.unit_number] = {lastChecked = 0,
+    storage.DroidAssemblers[force.name][entity.unit_number] = entity
+    storage.AssemblerNearestEnemies[force.name][entity.unit_number] = {lastChecked = 0,
                                                                       enemy = nil,
                                                                       distance = 0}
 end
@@ -624,7 +640,7 @@ end
 
 function isEntityNearAssembler(entity, entity_position)
     local nearestAssembler, distance = findClosestAssemblerToPosition(
-        global.DroidAssemblers[entity.force.name], entity_position)
+        storage.DroidAssemblers[entity.force.name], entity_position)
     if nearestAssembler then
         local spawnPos = getDroidSpawnLocation(nearestAssembler)
         if spawnPos then
@@ -657,7 +673,9 @@ function containsSpawnableDroid(inv)
     local itemList = inv.get_contents()
 
     if itemList then
-        for item, count in pairs(itemList) do
+        for _, i in pairs(itemList) do
+			local item = i.name
+			local count = i.count
             --LOGGER.log(string.format("item inv list %s , %s", item, count))
             local itemName = convertToMatchable(item)
             --LOGGER.log(item)

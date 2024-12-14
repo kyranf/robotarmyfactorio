@@ -18,16 +18,14 @@ droidRifleTint = {r=1, g=1, b=1, a=1}
 droidMapColour = {r = .05, g = .70, b = .29}
 
 
-circuit_connector_definitions["loot_box"] = circuit_connector_definitions.create
+circuit_connector_definitions["loot_box"] = circuit_connector_definitions.create_single
 (
   universal_connector_template,
   {
-    {
-      variation = 18,
-      main_offset = util.by_pixel(2.5, 18.0),
-      shadow_offset = util.by_pixel(2.0, 18.0),
-      show_shadow = false
-    }
+  variation = 18,
+  main_offset = util.by_pixel(2.5, 18.0),
+  shadow_offset = util.by_pixel(2.0, 18.0),
+  draw_shadow = false
   }
 )
 
@@ -141,7 +139,7 @@ local droid_smg =
   },
   movement_speed = 0.11,
   minable = {hardness = 0.1, mining_time = 0.1, result = "droid-smg"},
-  pollution_to_join_attack = 0.0,
+  absorptions_to_join_attack={},
   distraction_cooldown = 0,
   distance_per_frame =  0.05,
   friendly_map_color = droidMapColour,
@@ -288,7 +286,7 @@ local droid_flame =
   },
   movement_speed = 0.09,
   minable = {hardness = 0.1, mining_time = 0.1, result = "droid-flame"},
-  pollution_to_join_attack = 0.0,
+  absorptions_to_join_attack={},
   distraction_cooldown = 0,
   distance_per_frame =  0.05,
   friendly_map_color = droidMapColour,
@@ -443,7 +441,7 @@ local droid_rifle =
   movement_speed = 0.08,
   friendly_map_color = droidMapColour,
   minable = {hardness = 0.1, mining_time = 0.1, result = "droid-rifle"},
-  pollution_to_join_attack = 0.0,
+  absorptions_to_join_attack={},
   distraction_cooldown = 0,
   distance_per_frame =  0.05,
   dying_explosion = "medium-explosion",
@@ -590,7 +588,7 @@ local droid_rocket =
   friendly_map_color = droidMapColour,
   movement_speed = 0.11,
   minable = {hardness = 0.1, mining_time = 0.1, result = "droid-rocket"},
-  pollution_to_join_attack = 0.0,
+  absorptions_to_join_attack={},
   distraction_cooldown = 0,
   distance_per_frame =  0.05,
   dying_explosion = "medium-explosion",
@@ -723,7 +721,7 @@ local terminator =
   },
   movement_speed = 0.18,
   minable = {hardness = 0.1, mining_time = 0.1, result = "terminator"},
-  pollution_to_join_attack = 0.0,
+  absorptions_to_join_attack={},
   distraction_cooldown = 0,
   distance_per_frame =  0.05,
   dying_explosion = "medium-explosion",

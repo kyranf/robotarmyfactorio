@@ -11,45 +11,45 @@ require("stdlib/game")
 
 LOGGER = Logger.new("robotarmy", "robot_army_logs", false, {log_ticks = false})
 
-global.runOnce = false
+storage.runOnce = false
 
 function init_robotarmy()
     LOGGER.log("Robot Army mod Init script running...")
 
-    if not global.Squads then
-        global.Squads = {}
+    if not storage.Squads then
+        storage.Squads = {}
     end
 
-    if not global.uniqueSquadId then
-        global.uniqueSquadId = {}
+    if not storage.uniqueSquadId then
+        storage.uniqueSquadId = {}
     end
 
-    if not global.DroidAssemblers then
-        global.DroidAssemblers = {}
+    if not storage.DroidAssemblers then
+        storage.DroidAssemblers = {}
     end
 
-    if not global.droidCounters then
-        global.droidCounters = {}
+    if not storage.droidCounters then
+        storage.droidCounters = {}
     end
 
-    if not global.lootChests then
-        global.lootChests = {}
+    if not storage.lootChests then
+        storage.lootChests = {}
     end
 
-    if global.rallyBeacons then
-        global.rallyBeacons = nil
+    if storage.rallyBeacons then
+        storage.rallyBeacons = nil
     end
 
-    if not global.droidGuardStations then
-        global.droidGuardStations = {}
+    if not storage.droidGuardStations then
+        storage.droidGuardStations = {}
     end
 
-    if not global.updateTable then
-        global.updateTable = {}
+    if not storage.updateTable then
+        storage.updateTable = {}
     end
 
-    if not global.units then
-        global.units = {}
+    if not storage.units then
+        storage.units = {}
     end
 
     --deal with player force as default set-up process

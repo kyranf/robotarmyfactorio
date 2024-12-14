@@ -1,14 +1,14 @@
 {
 	"name": "robotarmy",
-	"version": "0.4.17",
+	"version": "2.4.18",
 	"title": "Robot Army",
 	"author": "Kyranzor",
 	"contact": "kyranzor@gmail.com",
 	"homepage": "https://github.com/kyranf/robotarmyfactorio",
 	"description": "Manufacture and deploy automated robot soldiers to attack your foes and defend your factory!",
     "dependencies": [
-    	"base >= 1.1.38",
+    	"base >= 2.0.0",
     	"? Unit_Control >= 0.3.10"
     ],
-    "factorio_version": "1.1"
+    "factorio_version": "2.0"
 }

@@ -65,17 +65,17 @@ end
 function Tile.get_data(surface, tile_pos, default_value)
     fail_if_missing(surface, "missing surface argument")
     fail_if_missing(tile_pos, "missing tile_pos argument")
-    if not global._tile_data then
+    if not storage._tile_data then
         if not default_value then return nil end
-        global._tile_data = {}
+        storage._tile_data = {}
     end
     local chunk_idx = Chunk.get_index(surface, Chunk.from_position(tile_pos))
-    if not global._tile_data[chunk_idx] then
+    if not storage._tile_data[chunk_idx] then
         if not default_value then return nil end
-        global._tile_data[chunk_idx] = {}
+        storage._tile_data[chunk_idx] = {}
     end
 
-    local chunk_tiles = global._tile_data[chunk_idx]
+    local chunk_tiles = storage._tile_data[chunk_idx]
     if not chunk_tiles then return nil end
 
     local idx = Tile.get_index(tile_pos)
@@ -97,12 +97,12 @@ end
 function Tile.set_data(surface, tile_pos, data)
     fail_if_missing(surface, "missing surface argument")
     fail_if_missing(tile_pos, "missing tile_pos argument")
-    if not global._tile_data then global._tile_data = {} end
+    if not storage._tile_data then storage._tile_data = {} end
 
     local chunk_idx = Chunk.get_index(surface, Chunk.from_position(tile_pos))
-    if not global._tile_data[chunk_idx] then global._tile_data[chunk_idx] = {} end
+    if not storage._tile_data[chunk_idx] then storage._tile_data[chunk_idx] = {} end
 
-    local chunk_tiles = global._tile_data[chunk_idx]
+    local chunk_tiles = storage._tile_data[chunk_idx]
     local idx = Tile.get_index(tile_pos)
     local prev = chunk_tiles[idx]
     chunk_tiles[idx] = data

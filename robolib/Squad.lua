@@ -22,9 +22,9 @@ ugFailureResponses = {
     ignoreSquad = 4,
 }
 
-global.SquadTemplate = {squadID= 0, player=true, unitGroup = true, members = {size = 0}, home = true, force = true, surface = true, radius=DEFAULT_SQUAD_RADIUS, patrolPoint1 = true, patrolPoint2 = true, currentCommand = "none"} -- this is the empty squad table template
+storage.SquadTemplate = {squadID= 0, player=true, unitGroup = true, members = {size = 0}, home = true, force = true, surface = true, radius=DEFAULT_SQUAD_RADIUS, patrolPoint1 = true, patrolPoint2 = true, currentCommand = "none"} -- this is the empty squad table template
 
-global.patrolState = {lastPole = nil,currentPole = nil,nextPole = nil,movingToNext = false}
+storage.patrolState = {lastPole = nil,currentPole = nil,nextPole = nil,movingToNext = false}
 
 function makeCommandTable(cmd_type, pos, dest)
     local command = {}
@@ -39,21 +39,21 @@ end
 
 
 function createNewSquad(forceSquadsTable, entity)
-    global.uniqueSquadId  =  global.uniqueSquadId  or  {}
-    global.uniqueSquadId[entity.force.name] = global.uniqueSquadId[entity.force.name] or 1
+    storage.uniqueSquadId  =  storage.uniqueSquadId  or  {}
+    storage.uniqueSquadId[entity.force.name] = storage.uniqueSquadId[entity.force.name] or 1
 
-	if (type(global.uniqueSquadId[entity.force.name]) == "table") then
-	  global.uniqueSquadId[entity.force.name] = nil
-	  global.uniqueSquadId[entity.force.name] = 1
+	if (type(storage.uniqueSquadId[entity.force.name]) == "table") then
+	  storage.uniqueSquadId[entity.force.name] = nil
+	  storage.uniqueSquadId[entity.force.name] = 1
 	end
 
     --get next unique ID number and increment it
-    local squadID = global.uniqueSquadId[entity.force.name]
+    local squadID = storage.uniqueSquadId[entity.force.name]
 
 
-    global.uniqueSquadId[entity.force.name] = global.uniqueSquadId[entity.force.name] + 1
+    storage.uniqueSquadId[entity.force.name] = storage.uniqueSquadId[entity.force.name] + 1
 
-    local newsquad = shallowcopy(global.SquadTemplate)
+    local newsquad = shallowcopy(storage.SquadTemplate)
 
     newsquad.force = entity.force
     newsquad.home = entity.position
@@ -79,7 +79,7 @@ function createNewSquad(forceSquadsTable, entity)
     forceSquadsTable[squadID] = newsquad
 
     local tick = global_getLeastFullTickTable(entity.force) --get the least utilised tick in the tick table
-    table.insert(global.updateTable[entity.force.name][tick], squadID) --insert this squad reference to the least used tick for running its AI
+    table.insert(storage.updateTable[entity.force.name][tick], squadID) --insert this squad reference to the least used tick for running its AI
     LOGGER.log(string.format("CREATING squad %d", squadID))
     ses_statistics.squadsCreated = ses_statistics.squadsCreated + 1
     return newsquad
@@ -103,14 +103,14 @@ function deleteSquad(squad, suppress_msg)
     end
     if squad.unitGroup then squad.unitGroup = nil end
 
-    if global.Squads[squad.force.name][squad.squadID] then
+    if storage.Squads[squad.force.name][squad.squadID] then
         if print_msg == 1 then
             -- using stdlib, print message to entire force
             Game.print_force(squad.force, string.format("Squad %d is no more...", squad.squadID))
         end
         LOGGER.log(string.format("Squad id %d from force %s has died/lost all its members...", squad.squadID, squad.force.name))
 
-        global.Squads[squad.force.name][squad.squadID] = nil  --set the entire squad itself to nil
+        storage.Squads[squad.force.name][squad.squadID] = nil  --set the entire squad itself to nil
     end
     squad.deleted = true
     ses_statistics.squadsDeleted = ses_statistics.squadsDeleted + 1
@@ -124,6 +124,9 @@ function squadOrderNeedsRefresh(squad)
     local sanity_check_period = SANITY_CHECK_PERIOD_SECONDS * 60 *
         (squad.command.distance / SANITY_CHECK_PATH_DISTANCE_DIV_FACTOR + 1)
     local its_been_awhile = game.tick > (squad.command.tick + sanity_check_period)
+    if its_been_awhile then 
+        LOGGER.log(string.format("Squad id %d waiting around %d ticks since last command, refreshing orders", squad.squadID, sanity_check_period))
+    end
     return its_been_awhile
 end
 
@@ -138,7 +141,7 @@ function addMemberToSquad(squad, soldier)
 
         table.insert(squad.members, soldier)
         table.insert(squad.mostRecentUnitGroupRemovalTick, 1)
-        soldier.set_command{type=defines.command.go_to_location,destination=squad.unitGroup.position}
+        soldier.commandable.set_command{type=defines.command.go_to_location,destination=squad.unitGroup.position}
 
         squad.unitGroup.add_member(soldier)
         squad.unitGroup.start_moving()
@@ -275,7 +278,7 @@ function getSquadAvgPosition(squad)
 end
 
 
---input is table of squads (global.Squads[force.name]), and position to find closest to
+--input is table of squads (storage.Squads[force.name]), and position to find closest to
 function getClosestSquadToPos(forceSquads, position, maxRange, ignore_squad,
                               only_with_squad_commands)
     local leastDist = maxRange
@@ -385,7 +388,7 @@ function squadStillExists(squad)
         if not squad.unitGroup or not squad.unitGroup.valid then
             squad = validateSquadIntegrity(squad)
         elseif not squad.members or not squad.numMembers or squad.numMembers < 2 or
-            not global.Squads[squad.force.name][squad.squadID]
+            not storage.Squads[squad.force.name][squad.squadID]
         then
             squad = trimSquad(squad)
         end
@@ -421,9 +424,9 @@ function retreatMisbehavingLoneWolf(soldier)
     -- we've failed to 'fix' the soldier - remove it from the group
     -- attempt to retreat to a nearby assembler
     local assembler, distance = findClosestAssemblerToPosition(
-        global.DroidAssemblers[soldier.force.name], soldier.position)
+        storage.DroidAssemblers[soldier.force.name], soldier.position)
     if assembler then
-        local loneWolfSquad = createNewSquad(global.Squads[soldier.force.name], soldier)
+        local loneWolfSquad = createNewSquad(storage.Squads[soldier.force.name], soldier)
         if loneWolfSquad then
             LOGGER.log(string.format("About to order lone wolf squad %d to retreat...", loneWolfSquad.squadID))
             addMemberToSquad(loneWolfSquad, soldier)
@@ -452,7 +455,7 @@ function disbandAndRetreatEntireSquad(squad, current_pos)
         local retreatSquad = nil
         for key, soldier in pairs(squad.members) do
             if not retreatSquad then
-                retreatSquad = createNewSquad(global.Squads[squad.force.name], soldier)
+                retreatSquad = createNewSquad(storage.Squads[squad.force.name], soldier)
             end
             if removeMemberFromSquad(squad, key, true) then
                 addMemberToSquad(retreatSquad, soldier)
@@ -749,7 +752,7 @@ function grabArtifactsBySquad(squad)
     if not squad then return end
 
     local force = squad.force
-    local chest = global.lootChests[force.name]
+    local chest = storage.lootChests[force.name]
     if not chest or not chest.valid then return end
 
     if squad and squad.unitGroup and squad.unitGroup.valid then
