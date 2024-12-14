@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.4.18
+Date: 2024.12.13
+  Changes:
+    - ported to support v2.0, thanks greatly to 
+    - changed target type to search&destroy for more direct fighting behaviours. can change target type back to 3 if you want.
+    - reducing flame droid fire resist from 100% to 95%, so they can eventually kill eachother if they get into friendly fire or against other forces
+  Bugfixes:
+    - much better AI update rates which you can tune in the config.lua sanity-check seconds and distance multiplier.
+---------------------------------------------------------------------------------------------------
 Version: 0.4.17
 Date: 2022.06.06
   Changes:

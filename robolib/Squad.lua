@@ -124,6 +124,9 @@ function squadOrderNeedsRefresh(squad)
     local sanity_check_period = SANITY_CHECK_PERIOD_SECONDS * 60 *
         (squad.command.distance / SANITY_CHECK_PATH_DISTANCE_DIV_FACTOR + 1)
     local its_been_awhile = game.tick > (squad.command.tick + sanity_check_period)
+    if its_been_awhile then 
+        LOGGER.log(string.format("Squad id %d waiting around %d ticks since last command, refreshing orders", squad.squadID, sanity_check_period))
+    end
     return its_been_awhile
 end
 

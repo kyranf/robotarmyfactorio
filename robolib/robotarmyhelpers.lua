@@ -142,46 +142,48 @@ end
 
 
 function checkSettingsModules()
-    if not storage.settingsModule then storage.settingsModule = {} end --quick check to ensure state
+    if not storage.settingsModule then storage.settingsModule = {} end
     if not storage.settings then storage.settings = {} end
 
-    --for each force, update settings if they are different
     for _, gameForce in pairs(game.forces) do
-        --check the signals of each force's settings modules, and if there are the correct signals, set them as override values
-        if storage.settingsModule[gameForce.name] and storage.settingsModule[gameForce.name].valid then
-
-            local settingsModule = storage.settingsModule[gameForce.name]
+        local settingsModule = storage.settingsModule[gameForce.name]
+        if settingsModule and settingsModule.valid then
             if not storage.settings[gameForce.name] then storage.settings[gameForce.name] = {} end
 
-            --get the parameters, go through and check each one, while also checking the values are logically okay.
-            local behaviour = settingsModule.get_or_create_control_behavior() -- a LuaConstantCombinatorControlBehavior
-            local parameters = behaviour.parameters
+            local settingsCtlBehaviour = settingsModule.get_or_create_control_behavior()
+            if settingsCtlBehaviour and settingsCtlBehaviour.valid then
+                -- Access the single logistic section
+                local section = settingsCtlBehaviour.get_section(1)
+                if section and section.valid then
+                    -- Iterate through the filters to retrieve signal names and values
+                    for slot_filter_index = 1, section.filters_count do
+                        local filter = section.filters[slot_filter_index]
+                        if filter and filter.value and filter.value.name and filter.min then
+                            local sigName = filter.value.name
+                            local sigCount = filter.min
 
-            --Game.print_force(gameForce, string.format("Parameters table of force's settings module is length %d", #parameters))
-            for index, parameter in pairs(parameters) do
-                if parameter.count and parameter.signal.name ~= nil then
-                    --Game.print_force(gameForce, string.format("Settings module signal %s with count %d being checked...", parameter.signal.name, parameter.count))
-                    local sigName = parameter.signal.name
-                    if sigName == "signal-squad-size" then --huntSizeOverride
-                        if storage.settings[gameForce.name].huntSizeOverride ~= parameter.count and checkValidSignalSetting(gameForce, sigName, parameter.count) then
-                            storage.settings[gameForce.name].huntSizeOverride = parameter.count
-                            Game.print_force(gameForce, string.format("Setting hunt squad size override value to %d for force %s",parameter.count, gameForce.name))
-                        end
-
-                    elseif sigName == "signal-guard-size" then --guardSizeOverride
-                        if storage.settings[gameForce.name].guardSizeOverride ~= parameter.count and checkValidSignalSetting(gameForce, sigName, parameter.count) then
-                            storage.settings[gameForce.name].guardSizeOverride = parameter.count
-                            Game.print_force(gameForce, string.format("Setting guard squad size override value to %d for force %s",parameter.count, gameForce.name))
-                        end
-                    elseif sigName == "signal-retreat-size" then --retreatSizeOverride
-                        if storage.settings[gameForce.name].retreatSizeOverride ~= parameter.count and checkValidSignalSetting(gameForce, sigName, parameter.count) then
-                            storage.settings[gameForce.name].retreatSizeOverride = parameter.count
-                            Game.print_force(gameForce, string.format("Setting retreat squad size override value to %d for force %s",parameter.count, gameForce.name))
-                        end
-                    elseif sigName == "signal-hunt-radius" then --huntRangeOverride
-                        if storage.settings[gameForce.name].huntRangeOverride ~= parameter.count and checkValidSignalSetting(gameForce, sigName, parameter.count) then
-                            storage.settings[gameForce.name].huntRangeOverride = parameter.count
-                            Game.print_force(gameForce, string.format("Setting hunt radius override value to %d for force %s",parameter.count, gameForce.name))
+                            -- Update settings based on signal names and values
+                            if sigName == "signal-squad-size" then
+                                if storage.settings[gameForce.name].huntSizeOverride ~= sigCount and checkValidSignalSetting(gameForce, sigName, sigCount) then
+                                    storage.settings[gameForce.name].huntSizeOverride = sigCount
+                                    Game.print_force(gameForce, string.format("Setting hunt squad size override value to %d for force %s", sigCount, gameForce.name))
+                                end
+                            elseif sigName == "signal-guard-size" then
+                                if storage.settings[gameForce.name].guardSizeOverride ~= sigCount and checkValidSignalSetting(gameForce, sigName, sigCount) then
+                                    storage.settings[gameForce.name].guardSizeOverride = sigCount
+                                    Game.print_force(gameForce, string.format("Setting guard squad size override value to %d for force %s", sigCount, gameForce.name))
+                                end
+                            elseif sigName == "signal-retreat-size" then
+                                if storage.settings[gameForce.name].retreatSizeOverride ~= sigCount and checkValidSignalSetting(gameForce, sigName, sigCount) then
+                                    storage.settings[gameForce.name].retreatSizeOverride = sigCount
+                                    Game.print_force(gameForce, string.format("Setting retreat squad size override value to %d for force %s", sigCount, gameForce.name))
+                                end
+                            elseif sigName == "signal-hunt-radius" then
+                                if storage.settings[gameForce.name].huntRangeOverride ~= sigCount and checkValidSignalSetting(gameForce, sigName, sigCount) then
+                                    storage.settings[gameForce.name].huntRangeOverride = sigCount
+                                    Game.print_force(gameForce, string.format("Setting hunt radius override value to %d for force %s", sigCount, gameForce.name))
+                                end
+                            end
                         end
                     end
                 end
@@ -236,7 +238,7 @@ end
 
 
 function doCounterUpdate()
-    --for each force in game, sum droids, then find/update droid-counters
+    -- For each force in the game, sum droids, then find/update droid-counters
     for _, gameForce in pairs(game.forces) do
         local sum = 0
         local rifleDroids = gameForce.get_entity_count("droid-rifle")
@@ -244,42 +246,56 @@ function doCounterUpdate()
         local rocketDroids = gameForce.get_entity_count("droid-rocket")
         local fireBots = gameForce.get_entity_count("droid-flame")
         local terminators = gameForce.get_entity_count("terminator")
+
+        -- Sum all droids named in the spawnable list
+        for _, droidName in pairs(spawnable) do
+            sum = sum + gameForce.get_entity_count(droidName)
+        end
+
+        -- Define the signals and their corresponding counts
+        local signals = {
+            {index = 1, count = sum,          name = "signal-droid-alive-count"},
+            {index = 2, count = rifleDroids,  name = "signal-droid-rifle-count"},
+            {index = 3, count = battleDroids, name = "signal-droid-smg-count"},
+            {index = 4, count = rocketDroids, name = "signal-droid-rocket-count"},
+            {index = 5, count = fireBots,     name = "signal-droid-flame-count"},
+            {index = 6, count = terminators,  name = "signal-droid-terminator-count"}
+        }
+
+        -- Ensure the droidCounters storage is initialized
         if storage.droidCounters and storage.droidCounters[gameForce.name] then
-            --sum all droids named in the spawnable list
-            for _, droidName in pairs(spawnable) do
-                sum = sum + gameForce.get_entity_count(droidName)
-            end
-
-            local circuitParams = {
-                parameters = {
-                    {index = 1, count = sum,            signal = {type = "virtual", name = "signal-droid-alive-count"}}, --end global droid count
-                    {index = 2, count = rifleDroids,    signal = {type = "virtual", name = "signal-droid-rifle-count"}},
-                    {index = 3, count = battleDroids,   signal = {type = "virtual", name = "signal-droid-smg-count"}},
-                    {index = 4, count = rocketDroids,   signal = {type = "virtual", name = "signal-droid-rocket-count"}},
-                    {index = 5, count = fireBots,       signal = {type = "virtual", name = "signal-droid-flame-count"}},
-                    {index = 6, count = terminators,    signal = {type = "virtual", name = "signal-droid-terminator-count"}}
-                } --end parameters table
-            } -- end circuitParams
-
             removeNilsFromTable(storage.droidCounters[gameForce.name])
 
             for _, counter in pairs(storage.droidCounters[gameForce.name]) do
-                if (counter.valid) then
-                    local currentParams = counter.get_or_create_control_behavior()
-                    if (currentParams) then
-                        local lengthOld = #currentParams.parameters
-                        local lengthNew = #circuitParams.parameters
-                        --Game.print_force(counter.force, string.format("counter number of signals %d, number of new signals %d",lengthOld, lengthNew))
-                        if lengthOld ~= lengthNew then
-                            local pos = counter.position
-                            local surface = counter.surface
-                            counter.destroy()
-                            counter = surface.create_entity({name = "droid-counter" , position = pos, direction = defines.direction.east, force = gameForce })
-                            Game.print_force(counter.force, string.format("Counter replaced at X %d,Y %d to update signal output table. Will need new wires if you had any!", pos.x, pos.y))
-                            table.insert(storage.droidCounters[gameForce.name], counter) -- insert the new counter so it can get updated again
+                if counter.valid then
+                    local behavior = counter.get_or_create_control_behavior()
+                    if behavior and behavior.valid then
+                        -- Ensure the combinator has at least one section
+                        if behavior.sections_count == 0 then
+                            behavior.add_section()
+                        end
+
+                        local section = behavior.get_section(1)
+                        if section and section.valid then
+                             -- Clear all existing slots to prevent duplicates
+                            for slot_index = 1, section.filters_count do
+                                section.clear_slot(slot_index)
+                            end
+                            -- Set each slot with the corresponding signal and count
+                            for _, signal in pairs(signals) do
+                                local filter = {
+                                    value = {
+                                        name = signal.name,
+                                        type = "virtual",
+                                        quality = "normal"
+                                    },
+                                    min = signal.count,
+                                    max = signal.count
+                                }
+                                section.set_slot(signal.index, filter)
+                            end
                         end
                     end
-                    counter.get_or_create_control_behavior().parameters = circuitParams.parameters
                 end
             end
         end

@@ -21,8 +21,8 @@ GUARD_STATION_GARRISON_SIZE = 10 -- limit to how many a guard station will spawn
 USE_TELEPORTATION_FIX = 1 --if player is not looking, teleport stuck droids back to their squad-mates so they can keep moving
 PLAYER_VIEW_RADIUS = 60  -- this is very simplistic, but it's a start. helps avoid having teleporting droids while the player is looking.
 
-SANITY_CHECK_PERIOD_SECONDS = 120
-SANITY_CHECK_PATH_DISTANCE_DIV_FACTOR = 500 -- every extra 500 tiles should give us an extra SANITY_CHECK_PERIOD_SECONDS
+SANITY_CHECK_PERIOD_SECONDS = 10
+SANITY_CHECK_PATH_DISTANCE_DIV_FACTOR = 5000 -- every extra 500 tiles should give us an extra SANITY_CHECK_PERIOD_SECONDS
 PRINT_SQUAD_DEATH_MESSAGES = 1 --if you want it to tell you when squad x completely dies
 -- PRINT_SQUAD_MERGE_MESSAGES = 0
 ASSEMBLER_MERGE_TICKRATE = 180
@@ -31,7 +31,7 @@ SQUAD_UNITGROUP_FAILURE_DISTANCE_ESTIMATE = 40
 UG_FAILURE_RECENCY_TICKS = 300 --unit group command failure timeout
 MAX_CONSECUTIVE_UNITGROUP_FAILURES_BEFORE_RETREAT = 2 --how many times they totally fail before the squad disbands/retreats
 
-GLOBAL_TARGETING_TYPE = 3 -- see targeting.lua for type options
+GLOBAL_TARGETING_TYPE = 1 -- see targeting.lua for type options
 DEFAULT_KEEP_RADIUS_CLEAR = 500 -- in tiles from nearest assembler to squad. squad will keep this area clear as priority, and then check hunt radius.
 
 --CONFIG SETTINGS FOR THOSE WHO WANT TO SCALE THE DAMAGE AND HEALTH OF DROIDS

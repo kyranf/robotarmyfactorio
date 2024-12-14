@@ -17,6 +17,7 @@ function chooseTarget(squad)
     elseif targetingType == targetingTypes.hybridKeepRadiusClear then
         targetPos = findHybridKeepRadiusClearTarget(squad)
     else -- search and destroy
+        LOGGER.log(string.format("Squad %d Searching for nearest target", squad.squadID))
         targetPos = findNearestTarget(squad)
     end
     return targetPos

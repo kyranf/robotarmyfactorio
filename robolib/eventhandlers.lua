@@ -17,8 +17,8 @@ end
 
 --used by the distraction event handler to select nearest unit to fire at next. this is much better targeting AI than was default.
 function selectDistractionTarget(unit)
-
-  local command = unit.command
+  
+  local command = unit.commandable.command
   local distraction = (command and command.distraction) or defines.distraction.by_enemy or defines.distraction.by_anything
 
   --if it's a distraction by NOTHING then just return.
@@ -45,12 +45,12 @@ function processDistractionCompleted(event)
   local unit = storage.units[event.unit_number]
   if not unit then return end
   if not unit.valid then return end
-
+  if not unit.commandable then return end
   local enemy = selectDistractionTarget(unit)
 
   if not enemy then return end
 
-  unit.set_distraction_command
+  unit.commandable.set_distraction_command
   {
     type = defines.command.attack,
     target = enemy
@@ -457,7 +457,7 @@ function tickForces(forces, tick)
 end
 
 
-CHECK_FOR_NEAREST_ENEMY_TO_ASSEMBLER_EVERY = 3600 -- in ticks
+CHECK_FOR_NEAREST_ENEMY_TO_ASSEMBLER_EVERY = 1800 -- in ticks
 
 function processDroidAssemblersForTick(force, tick)
     local forceAssemblerRetreatTable = storage.AssemblerRetreatTables[force.name]
