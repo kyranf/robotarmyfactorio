@@ -322,39 +322,3 @@ local a = {
 for _, a0 in pairs(a) do
 	data:extend({a0});
 end
-
---[[ disabled since we bring our own techs now
-
--- deal with unlocking the recipes just piggy-backing on military research for now. most droids need more advanced research to build them anyway.
-table.insert(data.raw["technology"]["military"].effects, {type="unlock-recipe",recipe="droid-rifle"})
-table.insert(data.raw["technology"]["military"].effects, {type="unlock-recipe",recipe="droid-rifle-deploy"})
-if (GRAB_ARTIFACTS == 1) then
-    table.insert(data.raw["technology"]["military"].effects, {type="unlock-recipe",recipe="loot-chest"})
-end
-table.insert(data.raw["technology"]["military"].effects, {type="unlock-recipe",recipe="patrol-pole"})
-table.insert(data.raw["technology"]["military"].effects, {type="unlock-recipe",recipe="droid-assembling-machine"})
-table.insert(data.raw["technology"]["military"].effects, {type="unlock-recipe",recipe="droid-guard-station"})
-table.insert(data.raw["technology"]["military"].effects, {type="unlock-recipe",recipe="droid-selection-tool"})
-table.insert(data.raw["technology"]["military"].effects, {type="unlock-recipe",recipe="droid-pickup-tool"})
-table.insert(data.raw["technology"]["military"].effects, {type="unlock-recipe",recipe="droid-counter"})
-table.insert(data.raw["technology"]["military"].effects, {type="unlock-recipe",recipe="droid-settings"})
-
-table.insert(data.raw["technology"]["military-2"].effects, {type="unlock-recipe",recipe="droid-smg-deploy"})
-table.insert(data.raw["technology"]["military-2"].effects, {type="unlock-recipe",recipe="droid-smg"})
-table.insert(data.raw["technology"]["military-2"].effects, {type="unlock-recipe",recipe="droid-rocket-deploy"})
-table.insert(data.raw["technology"]["military-2"].effects, {type="unlock-recipe",recipe="droid-rocket"})
-table.insert(data.raw["technology"]["military-2"].effects, {type="unlock-recipe",recipe="droid-flame-deploy"})
-table.insert(data.raw["technology"]["military-2"].effects, {type="unlock-recipe",recipe="droid-flame"})
-
-table.insert(data.raw["technology"]["military-3"].effects, {type="unlock-recipe",recipe="terminator-deploy"})
-table.insert(data.raw["technology"]["military-3"].effects, {type="unlock-recipe",recipe="terminator"})
-
-
-
-table.insert(data.raw["technology"]["defender"].effects, {type="unlock-recipe", recipe="defender-unit"})
-table.insert(data.raw["technology"]["defender"].effects, {type="unlock-recipe", recipe="defender-unit-deploy"})
-table.insert(data.raw["technology"]["distractor"].effects, {type="unlock-recipe", recipe="distractor-unit"})
-table.insert(data.raw["technology"]["distractor"].effects, {type="unlock-recipe", recipe="distractor-unit-deploy"})
-table.insert(data.raw["technology"]["destroyer"].effects, {type="unlock-recipe", recipe="destroyer-unit"})
-table.insert(data.raw["technology"]["destroyer"].effects, {type="unlock-recipe", recipe="destroyer-unit-deploy"})
-]]
