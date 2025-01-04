@@ -204,10 +204,10 @@ local a = {
     energy_required = 10,
     ingredients =
     {
-      {type="item", name="steel-plate", amount=5},
+      {type="item", name="steel-plate", amount=10},
       {type="item", name="electronic-circuit", amount=25},
       {type="item", name="flamethrower", amount=1},
-      {type="item", name="light-armor", amount=2}
+      {type="item", name="light-armor", amount=1}
     },
     results={ {type="item", name="droid-flame", amount=1} },
   },

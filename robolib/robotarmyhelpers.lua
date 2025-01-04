@@ -391,32 +391,39 @@ end
 
 
 function buildWaypointList(waypointList, surface, poleArea, squad, force)
+    return nill -- stub this fuction for now, it's a broken system. 
+
     local squadPosition = squad.unitGroup.position
     local poleList = surface.find_entities_filtered({area = poleArea, squadPosition, name = "patrol-pole"})
     local poleCount = table.countValidElements(poleList)
     local masterPoleList = {}
 
-    --Game.print_all(string.format("Waypoint building pole count %d", poleCount))
+    Game.print_all(string.format("Waypoint building pole count %d", poleCount))
     for _, pole in pairs(poleList) do
-        local connected = pole.circuit_connected_entities.green
-        for _,  entity in pairs(connected) do
-            if entity.name == "patrol-pole" and (table.contains(masterPoleList, entity) == false) then
-                table.insert(masterPoleList, entity)
+        local connector = pole.get_wire_connector(defines.wire_connector_id.circuit_green, false)
+        if connector then 
+            local connectedCount = connector.real_connection_count
+            Game.print_all(string.format("Patrol Pole %s has %d connected", connector.owner, connectedCount) )
+            local connectedList = connector.real_connections
+            for i=1, connectedCount do
+                if connectedList[i].object_name == "patrol-pole" and (table.contains(masterPoleList, connector.owner) == false) then
+                    table.insert(masterPoleList, connector.owner)
+                end
             end
         end
     end
 
     local masterPoleCount = table.countValidElements(masterPoleList)
-    --Game.print_all(string.format("first iteration of master pole list count %d", masterPoleCount))
+    Game.print_all(string.format("first iteration of master pole list count %d", masterPoleCount))
 
     local recursiveSearch = true
     while recursiveSearch do
         local sizeBefore = table.countValidElements(masterPoleList)
         local sizeAfter = recursiveAdd(masterPoleList)
-        --Game.print_all(string.format("Recursive search - list size before %d, size after %d", sizeBefore, sizeAfter ))
+        Game.print_all(string.format("Recursive search - list size before %d, size after %d", sizeBefore, sizeAfter ))
         if sizeBefore == sizeAfter then
             recursiveSearch = false
-            --Game.print_all("ending recursive search!")
+            Game.print_all("ending recursive search!")
         end
     end
 
@@ -424,7 +431,7 @@ function buildWaypointList(waypointList, surface, poleArea, squad, force)
         local waypoint = pole.position
         waypoint.x = waypoint.x+3
         waypoint.y = waypoint.y+3
-        --Game.print_all(string.format("Adding waypoint to list, (%d,%d)", waypoint.x, waypoint.y))
+        Game.print_all(string.format("Adding waypoint to list, (%d,%d)", waypoint.x, waypoint.y))
         table.insert(waypointList, waypoint )
     end
 end
@@ -506,13 +513,16 @@ function handleBuiltDroidSettings(event)
     local entity = event.entity
     local force = entity.force
 
+    if not entity then return nil end
+    if not force then return nil end
+
     if not storage.settingsModule[force.name] or not storage.settingsModule[force.name].valid  then
         --LOGGER.log( string.format("Adding settings module to force %s", force.name) )
         storage.settingsModule[force.name] = entity   --this is now the force's settings module.
     else
 
         Game.print_force(force,"Error: Can only place one settings module!")
-        entity.surface.spill_item_stack(entity.position, {name = "droid-settings", count = 1})
+        entity.surface.spill_item_stack( { position = entity.position, stack = {name = "droid-settings", count = 1 } } )
         entity.destroy()
         --LOGGER.log("WARNING: Can only place one settings module!")
 
