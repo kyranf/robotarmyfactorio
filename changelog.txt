@@ -1,8 +1,16 @@
+Version: 2.4.19
+Date: 2025.01.05
+  Changes:
+    - Adding mod conflict for Combat Robot Overhaul mod (#190)
+    - temporarily disabled patrol post processing to prevent crashing user's games, until a new system can be made. (#189)
+  Bugfixes:
+    - Fixed flamebot not able to be manufactured due to stack size changes for light armour (#191)
+    - Fixed new api change for spill-item-stack when making multiple settings modules (#188)
 ---------------------------------------------------------------------------------------------------
 Version: 2.4.18
 Date: 2024.12.13
   Changes:
-    - ported to support v2.0, thanks greatly to 
+    - ported to support v2.0, thanks greatly to Cyril Orlov
     - changed target type to search&destroy for more direct fighting behaviours. can change target type back to 3 if you want.
     - reducing flame droid fire resist from 100% to 95%, so they can eventually kill eachother if they get into friendly fire or against other forces
   Bugfixes:
