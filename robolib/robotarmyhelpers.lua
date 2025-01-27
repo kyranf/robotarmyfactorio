@@ -393,6 +393,7 @@ end
 function buildWaypointList(waypointList, surface, poleArea, squad, force)
     return nill -- stub this fuction for now, it's a broken system. 
 
+    --[[
     local squadPosition = squad.unitGroup.position
     local poleList = surface.find_entities_filtered({area = poleArea, squadPosition, name = "patrol-pole"})
     local poleCount = table.countValidElements(poleList)
@@ -434,6 +435,8 @@ function buildWaypointList(waypointList, surface, poleArea, squad, force)
         Game.print_all(string.format("Adding waypoint to list, (%d,%d)", waypoint.x, waypoint.y))
         table.insert(waypointList, waypoint )
     end
+
+    ]]--
 end
 
 

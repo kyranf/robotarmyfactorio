@@ -1,3 +1,8 @@
+Version: 2.4.20
+Date: 2025.01.05
+  Bugfixes:
+    - Fixed code error causing crash on load or newgame
+---------------------------------------------------------------------------------------------------
 Version: 2.4.19
 Date: 2025.01.05
   Changes:
