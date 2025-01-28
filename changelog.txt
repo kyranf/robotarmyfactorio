@@ -1,3 +1,9 @@
+Version: 2.4.21
+Date: 2025.01.27
+  Bugfixes:
+    - Fixed german locale file encoding
+    - added more unitgroup/commandable validity checks to reduce crashing
+---------------------------------------------------------------------------------------------------
 Version: 2.4.20
 Date: 2025.01.05
   Bugfixes:

@@ -629,6 +629,11 @@ end
 --- since the 'wander' command doesn't ever 'expire'.
 function setGoThenWanderCompoundCommand(commandable, position, radius, distraction_type)
     local d_type = distraction_type or defines.distraction.by_damage
+
+    if not commandable or not commandable.valid then
+        return
+    end 
+    
     commandable.set_command(
         {
             type = defines.command.compound,

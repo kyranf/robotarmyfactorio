@@ -17,7 +17,8 @@ end
 
 --used by the distraction event handler to select nearest unit to fire at next. this is much better targeting AI than was default.
 function selectDistractionTarget(unit)
-  
+  if unit.commandable == nil or not unit.commandable.valid then return end
+
   local command = unit.commandable.command
   local distraction = (command and command.distraction) or defines.distraction.by_enemy or defines.distraction.by_anything
 
@@ -45,7 +46,7 @@ function processDistractionCompleted(event)
   local unit = storage.units[event.unit_number]
   if not unit then return end
   if not unit.valid then return end
-  if not unit.commandable then return end
+  if not unit.commandable or not unit.commandable.valid then return end
   local enemy = selectDistractionTarget(unit)
 
   if not enemy then return end
