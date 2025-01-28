@@ -36,9 +36,11 @@ function orderSquadToRetreat(squad)
             -- issue an actual retreat command
             squad.command.dest = retreatPos
             squad.command.distance = distance
-            debugSquadOrder(squad, "RETREAT TO ASSEMBLER", retreatPos)
-            setGoThenWanderCompoundCommand(squad.unitGroup, retreatPos)
-            squad.unitGroup.start_moving()
+            if squad.unitGroup.valid then
+                debugSquadOrder(squad, "RETREAT TO ASSEMBLER", retreatPos)
+                setGoThenWanderCompoundCommand(squad.unitGroup, retreatPos)
+                squad.unitGroup.start_moving()
+            end
         end
 
         addSquadToRetreatTables(squad, assembler)
