@@ -643,11 +643,14 @@ function validateSquadIntegrity(squad)
     if not squad.unitGroup or not squad.unitGroup.valid then
         return nil, false --give up
     end
-
+    
     -- check each droid individually to confirm that it is part of the unitGroup
     for key, soldier in pairs(squad.members) do
-        if soldier and soldier.valid and (soldier.force ~= squad.unitGroup.force) then
-            soldier.destroy() --destroy the unit if they are in the squad but of the wrong force... maybe this needs more finesse, if a mod has some kind of AOE2 monk team-changing ability?
+        if  soldier and soldier.valid and soldier.commandable 
+            and soldier.commandable.valid 
+            and (soldier.force ~= squad.unitGroup.force) then
+            
+                soldier.destroy() --destroy the unit if they are in the squad but of the wrong force... maybe this needs more finesse, if a mod has some kind of AOE2 monk team-changing ability?
         else
             if not table.contains(squad.unitGroup.members, soldier) then
                 if not recreatedUG then
