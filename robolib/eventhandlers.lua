@@ -292,14 +292,6 @@ function processSpawnedDroid(droid, guard, guardPos, manuallyPlaced)
             squad.home = guardPos
             --game.players[1].print(string.format("Setting guard squad to wander around %s", event.guardPos))
 
-            --check if the squad it just joined is patrolling,
-            -- if it is, don't force any more move commands because it will be disruptive!
-            if not squad.patrolState or
-                (squad.patrolState and squad.patrolState.currentWaypoint == -1)
-            then
-                --Game.print_force(droid.force, "Setting move command to squad home..." )
-                orderSquadToWander(squad, squad.home, true)
-            end
         end
     end
 end
