@@ -102,17 +102,6 @@ local a =
     subgroup = "robotarmy-droids",
     order = "z[droid]-i",
   },
-  {
-    type = "item",
-    name = "patrol-pole",
-    icon = ICONPATH .. "patrol-pole.png",
-    icon_size = 64,
-    flags = {},
-    place_result = "patrol-pole",
-    stack_size = 50,
-    subgroup = "robotarmy-droids",
-    order = "z[droid]-j",
-  },
 
 
 

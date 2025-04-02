@@ -14,7 +14,6 @@ for i, force in pairs(game.forces) do
         if (GRAB_ARTIFACTS == 1) then
             force.recipes["loot-chest"].enabled = true
         end
-        force.recipes["patrol-pole"].enabled = true
         force.recipes["droid-guard-station"].enabled = true
         force.recipes["droid-assembling-machine"].enabled = true
         force.recipes["droid-pickup-tool"].enabled = true

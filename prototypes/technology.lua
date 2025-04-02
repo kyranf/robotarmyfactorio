@@ -53,10 +53,6 @@ data:extend({
     {
       {
         type = "unlock-recipe",
-        recipe = "patrol-pole"
-      },
-      {
-        type = "unlock-recipe",
         recipe = "droid-guard-station"
       },
       {
