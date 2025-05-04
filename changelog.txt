@@ -125,4 +125,3 @@ Version: 0.4.5
   Changes:
     - Compatible with 0.18.27 (by using the new raise_built flag instead of calling script raise entity event).
     - biter factions should no longer cause a tick error for squads/forces
----------------------------------------------------------------------------------------------------
