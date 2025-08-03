@@ -65,14 +65,6 @@ data:extend({
       },
       {
         type = "unlock-recipe",
-        recipe = "droid-pickup-tool"
-      },
-      {
-        type = "unlock-recipe",
-        recipe = "droid-selection-tool"
-      },
-      {
-        type = "unlock-recipe",
         recipe = "droid-counter"
       },
       {

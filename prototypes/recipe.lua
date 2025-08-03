@@ -176,28 +176,6 @@ local a = {
   },
   {
     type = "recipe",
-    name = "droid-selection-tool",
-    enabled = false,
-    ingredients =
-    {
-      {type="item", name="electronic-circuit", amount=1}
-    },
-    results={ {type="item", name="droid-selection-tool", amount=1} },
-    requester_paste_multiplier = 1
-  },
-  {
-    type = "recipe",
-    name = "droid-pickup-tool",
-    enabled = false,
-    ingredients =
-    {
-      {type="item", name="electronic-circuit", amount=1}
-    },
-    results={ {type="item", name="droid-pickup-tool", amount=1} },
-    requester_paste_multiplier = 1
-  },
-  {
-    type = "recipe",
     name = "droid-flame",
     enabled = false,
     category = "advanced-crafting",

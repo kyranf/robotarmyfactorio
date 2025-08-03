@@ -1,8 +1,8 @@
 # Robot Army mod for Factorio V2.0+
 
 ## Version
-2.4.18,
-Known to be compatible with Factorio v2.0.23. Requires at least v2.0 due to mod script API features used.
+2.4.22,
+Known to be compatible with Factorio v2.0.60. Requires at least v2.0 due to mod script API features used.
 
 
 ## Description

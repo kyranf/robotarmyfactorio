@@ -640,62 +640,59 @@ function validateSquadIntegrity(squad)
 
     -- check each droid individually to confirm that it is part of the unitGroup
     for key, soldier in pairs(squad.members) do
-        if soldier and soldier.valid and (soldier.force ~= squad.unitGroup.force) then
-            soldier.destroy() --destroy the unit if they are in the squad but of the wrong force... maybe this needs more finesse, if a mod has some kind of AOE2 monk team-changing ability?
-        else
-            if not table.contains(squad.unitGroup.members, soldier) then
-                if not recreatedUG then
-                    ses_statistics.soldierUnitGroupDepartures = ses_statistics.soldierUnitGroupDepartures + 1
-                end
-                if soldier.surface ~= squad.unitGroup.surface then
-                    -- the unit group and the soldier are on different surfaces. Very odd, but let's try to fix it.
-                    msg = string.format("BAD ERROR: Destroying unit group for squad ID %d because a soldier is on the wrong surface.",
-                                        squad.squadID)
-                    LOGGER.log(msg)
-                    squad.unitGroup.destroy()
-                    squad.unitGroup = recreateUnitGroupForSquad(squad, pos)
-                    if not squad.unitGroup then return nil end
-                else -- (everyone is on the same surface)
-                    local soldier_group_distance = util.distance(pos, soldier.position)
-                    if soldier_group_distance > SQUAD_UNITGROUP_FAILURE_DISTANCE_ESTIMATE then
-                        -- far! - attempt to teleport. This may fix many problems.
-                        if not attemptToTeleport(squad, soldier, key, soldier_group_distance) then
-                            -- kick out
-                            if not attemptToKickSoldierOut(squad, soldier, key, pos, soldier_group_distance) then
-                                msg = string.format("Squad %d could not kick a soldier out for some reason.", squad.squadID)
-                                LOGGER.log(msg)
-                                squad.unitGroup.add_member(soldier)
-                                wander = true -- the whole squad must now suffer for this soldier
-                                ses_statistics.soldierUnitGroupReadds = ses_statistics.soldierUnitGroupReadds + 1
-                            end
-                        end
-                    else
-                        -- not far
-                        if not recreatedUG then
-                            if not squad.mostRecentUnitGroupRemovalTick[key] then --if the member of the squad doesn't have a removal tick value for whatever reason, just whack one in here with default start value.
-                                squad.mostRecentUnitGroupRemovalTick[key] = 1
-                            end
 
-                            if game.tick < squad.mostRecentUnitGroupRemovalTick[key] + SAFE_SOLDIER_UNITGROUP_REMOVAL_TICKS then
-                                -- not far, but there was another recent issue
-                                attemptToKickSoldierOut(squad, soldier, key, pos, soldier_group_distance)
-                            else -- not far and no recent issues
-                                squad.unitGroup.add_member(soldier)
-                                squad.mostRecentUnitGroupRemovalTick[key] = game.tick
-                                ses_statistics.soldierUnitGroupReadds = ses_statistics.soldierUnitGroupReadds + 1
-                            end
-                        else -- everybody was kicked out, so we're just re-adding everybody
+        if not table.contains(squad.unitGroup.members, soldier) then
+            if not recreatedUG then
+                ses_statistics.soldierUnitGroupDepartures = ses_statistics.soldierUnitGroupDepartures + 1
+            end
+            if soldier.surface ~= squad.unitGroup.surface then
+                -- the unit group and the soldier are on different surfaces. Very odd, but let's try to fix it.
+                msg = string.format("BAD ERROR: Destroying unit group for squad ID %d because a soldier is on the wrong surface.",
+                                    squad.squadID)
+                LOGGER.log(msg)
+                squad.unitGroup.destroy()
+                squad.unitGroup = recreateUnitGroupForSquad(squad, pos)
+                if not squad.unitGroup then return nil end
+            else -- (everyone is on the same surface)
+                local soldier_group_distance = util.distance(pos, soldier.position)
+                if soldier_group_distance > SQUAD_UNITGROUP_FAILURE_DISTANCE_ESTIMATE then
+                    -- far! - attempt to teleport. This may fix many problems.
+                    if not attemptToTeleport(squad, soldier, key, soldier_group_distance) then
+                        -- kick out
+                        if not attemptToKickSoldierOut(squad, soldier, key, pos, soldier_group_distance) then
+                            msg = string.format("Squad %d could not kick a soldier out for some reason.", squad.squadID)
+                            LOGGER.log(msg)
                             squad.unitGroup.add_member(soldier)
+                            wander = true -- the whole squad must now suffer for this soldier
                             ses_statistics.soldierUnitGroupReadds = ses_statistics.soldierUnitGroupReadds + 1
                         end
                     end
-                end
-            else
-                local soldier_group_distance = util.distance(pos, soldier.position)
+                else
+                    -- not far
+                    if not recreatedUG then
+                        if not squad.mostRecentUnitGroupRemovalTick[key] then --if the member of the squad doesn't have a removal tick value for whatever reason, just whack one in here with default start value.
+                            squad.mostRecentUnitGroupRemovalTick[key] = 1
+                        end
 
-                if ( soldier_group_distance and (soldier_group_distance > SQUAD_UNITGROUP_FAILURE_DISTANCE_ESTIMATE)) then
-                    attemptToTeleport(squad, soldier, key, soldier_group_distance)
+                        if game.tick < squad.mostRecentUnitGroupRemovalTick[key] + SAFE_SOLDIER_UNITGROUP_REMOVAL_TICKS then
+                            -- not far, but there was another recent issue
+                            attemptToKickSoldierOut(squad, soldier, key, pos, soldier_group_distance)
+                        else -- not far and no recent issues
+                            squad.unitGroup.add_member(soldier)
+                            squad.mostRecentUnitGroupRemovalTick[key] = game.tick
+                            ses_statistics.soldierUnitGroupReadds = ses_statistics.soldierUnitGroupReadds + 1
+                        end
+                    else -- everybody was kicked out, so we're just re-adding everybody
+                        squad.unitGroup.add_member(soldier)
+                        ses_statistics.soldierUnitGroupReadds = ses_statistics.soldierUnitGroupReadds + 1
+                    end
                 end
+            end
+        else
+            local soldier_group_distance = util.distance(pos, soldier.position)
+
+            if ( soldier_group_distance and (soldier_group_distance > SQUAD_UNITGROUP_FAILURE_DISTANCE_ESTIMATE)) then
+                attemptToTeleport(squad, soldier, key, soldier_group_distance)
             end
         end
     end

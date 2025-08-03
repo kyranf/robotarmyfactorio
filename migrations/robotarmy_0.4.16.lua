@@ -12,8 +12,6 @@ for i, force in pairs(game.forces) do
     force.recipes["patrol-pole"].enabled = false
     force.recipes["droid-guard-station"].enabled = false
     force.recipes["droid-assembling-machine"].enabled = false
-    force.recipes["droid-pickup-tool"].enabled = false
-    force.recipes["droid-selection-tool"].enabled = false
     force.recipes["droid-counter"].enabled = false
     force.recipes["droid-settings"].enabled = false
     force.recipes["droid-smg"].enabled = false

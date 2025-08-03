@@ -1,3 +1,19 @@
+Version: 2.4.22
+Date: 2025.08.03
+  Changes:
+    - Removed the selection and pickup tool as recipe items, now you can add them to the filter bar as shortcut style items at any time.
+    - Selection and pickup tools work on the map view now. Rejoice!
+  Bugfixes:
+    - Tried to fix the invalid commandable bug yet again - completely removed the code which does the check, that should do it! haha
+---------------------------------------------------------------------------------------------------
+Version: 2.4.21
+Date: 2025.04.01
+  Changes:
+    - completely removed patrol poles from the mod, will replace with something else in the future, maybe.
+  Bugfixes:
+    - Fixed german locale file encoding
+    - added more unitgroup/commandable validity checks to reduce crashing
+---------------------------------------------------------------------------------------------------
 Version: 2.4.20
 Date: 2025.01.05
   Bugfixes:
