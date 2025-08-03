@@ -314,145 +314,6 @@ function sendSquadHome(squad)
 end
 
 
--- inputs are the squad table, and the list of patrol-pole entities found by find_entities_filtered
--- returns true if it removed a pole from the pole list, or false if nothing was removed
-function removeCurrentPole(squad, poleList)
-    if table.countValidElements(poleList) == 0 then return false end
-    --if the squad has a table entry for lastPole, then remove it from the pole list
-    if squad.currentPole and squad.currentPole.valid then
-        for _, pole in pairs(poleList) do
-            if squad.currentPole == pole then
-                Game.print_force(pole.force, "Removed current pole from polelist")
-                pole = nil
-                return true
-            end
-        end
-    end
-    return false
-end
-
-
--- inputs are the squad table, and the list of patrol-pole entities found by find_entities_filtered
--- returns true if it removed a pole from the pole list, or false if nothing was removed
-function removeLastPole(squad, poleList)
-    if table.countValidElements(poleList) == 0 then return false end
-
-    --if the squad has a table entry for lastPole, then remove it from the pole list
-    if squad.lastPole and squad.lastPole.valid then
-        for _, pole in pairs(poleList) do
-            if squad.lastPole == pole then
-                Game.print_force(pole.force, "Removed last pole from polelist")
-                pole = nil
-                return true
-            end
-        end
-    end
-    return false
-end
-
-
-function getClosestPole(poleList, position)
-    local dist = 0
-    local distance = 999999
-    local closestPole = nil
-    for _, pole in pairs(poleList) do
-        --distance between the droid assembler and the squad
-        if pole and pole.valid then
-            dist = util.distance(pole.position, position)
-            if dist <= distance then
-                closestPole = pole
-                distance = dist
-            end
-        end
-    end
-
-    Game.print_all(string.format("closest pole fount at %d:%d", closestPole.position.x, closestPole.position.y) )
-    return closestPole
-end
-
-
---waypointList is a list of LuaPositions,
-function getClosestWayPoint(waypointList, position)
-    local dist = 0
-    local distance = 999999
-    local closestIndex = nil
-    for index, waypoint in pairs(waypointList) do
-        --distance between the droid assembler and the squad
-        dist = util.distance(waypoint, position)
-        if dist <= distance then
-            closestIndex = index
-            distance = dist
-        end
-    end
-
-    --Game.print_all(string.format("closest waypoint fount at index %d", closestIndex) )
-    return closestIndex
-end
-
-
-function buildWaypointList(waypointList, surface, poleArea, squad, force)
-    return nill -- stub this fuction for now, it's a broken system. 
-
-    --[[
-    local squadPosition = squad.unitGroup.position
-    local poleList = surface.find_entities_filtered({area = poleArea, squadPosition, name = "patrol-pole"})
-    local poleCount = table.countValidElements(poleList)
-    local masterPoleList = {}
-
-    Game.print_all(string.format("Waypoint building pole count %d", poleCount))
-    for _, pole in pairs(poleList) do
-        local connector = pole.get_wire_connector(defines.wire_connector_id.circuit_green, false)
-        if connector then 
-            local connectedCount = connector.real_connection_count
-            Game.print_all(string.format("Patrol Pole %s has %d connected", connector.owner, connectedCount) )
-            local connectedList = connector.real_connections
-            for i=1, connectedCount do
-                if connectedList[i].object_name == "patrol-pole" and (table.contains(masterPoleList, connector.owner) == false) then
-                    table.insert(masterPoleList, connector.owner)
-                end
-            end
-        end
-    end
-
-    local masterPoleCount = table.countValidElements(masterPoleList)
-    Game.print_all(string.format("first iteration of master pole list count %d", masterPoleCount))
-
-    local recursiveSearch = true
-    while recursiveSearch do
-        local sizeBefore = table.countValidElements(masterPoleList)
-        local sizeAfter = recursiveAdd(masterPoleList)
-        Game.print_all(string.format("Recursive search - list size before %d, size after %d", sizeBefore, sizeAfter ))
-        if sizeBefore == sizeAfter then
-            recursiveSearch = false
-            Game.print_all("ending recursive search!")
-        end
-    end
-
-    for index, pole in pairs(masterPoleList) do
-        local waypoint = pole.position
-        waypoint.x = waypoint.x+3
-        waypoint.y = waypoint.y+3
-        Game.print_all(string.format("Adding waypoint to list, (%d,%d)", waypoint.x, waypoint.y))
-        table.insert(waypointList, waypoint )
-    end
-
-    ]]--
-end
-
-
-function recursiveAdd(poleList)
-    for _, pole in pairs(poleList) do
-        local connected = pole.circuit_connected_entities.green
-        for _,  entity in pairs(connected) do
-            if entity.name == "patrol-pole" and (table.contains(poleList, entity) == false) then
-                table.insert(poleList, entity)
-            end
-        end
-    end
-    local newPoleCount = table.countValidElements(poleList)
-    return newPoleCount
-end
-
 
 function getFirstValidSoldier(squad)
     for _, soldier in pairs(squad.members) do
@@ -629,6 +490,11 @@ end
 --- since the 'wander' command doesn't ever 'expire'.
 function setGoThenWanderCompoundCommand(commandable, position, radius, distraction_type)
     local d_type = distraction_type or defines.distraction.by_damage
+
+    if not commandable or not commandable.valid then
+        return
+    end 
+    
     commandable.set_command(
         {
             type = defines.command.compound,

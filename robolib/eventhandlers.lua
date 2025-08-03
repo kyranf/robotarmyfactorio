@@ -17,7 +17,8 @@ end
 
 --used by the distraction event handler to select nearest unit to fire at next. this is much better targeting AI than was default.
 function selectDistractionTarget(unit)
-  
+  if unit.commandable == nil or not unit.commandable.valid then return end
+
   local command = unit.commandable.command
   local distraction = (command and command.distraction) or defines.distraction.by_enemy or defines.distraction.by_anything
 
@@ -45,7 +46,7 @@ function processDistractionCompleted(event)
   local unit = storage.units[event.unit_number]
   if not unit then return end
   if not unit.valid then return end
-  if not unit.commandable then return end
+  if not unit.commandable or not unit.commandable.valid then return end
   local enemy = selectDistractionTarget(unit)
 
   if not enemy then return end
@@ -291,14 +292,6 @@ function processSpawnedDroid(droid, guard, guardPos, manuallyPlaced)
             squad.home = guardPos
             --game.players[1].print(string.format("Setting guard squad to wander around %s", event.guardPos))
 
-            --check if the squad it just joined is patrolling,
-            -- if it is, don't force any more move commands because it will be disruptive!
-            if not squad.patrolState or
-                (squad.patrolState and squad.patrolState.currentWaypoint == -1)
-            then
-                --Game.print_force(droid.force, "Setting move command to squad home..." )
-                orderSquadToWander(squad, squad.home, true)
-            end
         end
     end
 end

@@ -141,7 +141,10 @@ function addMemberToSquad(squad, soldier)
 
         table.insert(squad.members, soldier)
         table.insert(squad.mostRecentUnitGroupRemovalTick, 1)
-        soldier.commandable.set_command{type=defines.command.go_to_location,destination=squad.unitGroup.position}
+
+        if(soldier.commandable and soldier.commandable.valid) then
+            soldier.commandable.set_command{type=defines.command.go_to_location,destination=squad.unitGroup.position}
+        end
 
         squad.unitGroup.add_member(soldier)
         squad.unitGroup.start_moving()
@@ -245,8 +248,11 @@ end
 
 
 function isAttacking(squad)
-    return squad.unitGroup.state == defines.group_state.attacking_target or
-        squad.unitGroup.state == defines.group_state.attacking_distraction
+    if(squad and squad.unitGroup and squad.unitGroup.valid) then
+        return squad.unitGroup.state == defines.group_state.attacking_target or
+            squad.unitGroup.state == defines.group_state.attacking_distraction
+    end
+    return false
 end
 
 
@@ -637,7 +643,7 @@ function validateSquadIntegrity(squad)
     if not squad.unitGroup or not squad.unitGroup.valid then
         return nil, false --give up
     end
-
+    
     -- check each droid individually to confirm that it is part of the unitGroup
     for key, soldier in pairs(squad.members) do
 

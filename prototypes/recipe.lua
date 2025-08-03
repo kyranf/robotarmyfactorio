@@ -202,18 +202,6 @@ local a = {
     },
     results={ {type="item", name="droid-flame-dummy", amount=1} },
   },
-  {
-    type = "recipe",
-    name = "patrol-pole",
-    enabled = false,
-    ingredients =
-    {
-      {type="item", name="steel-plate", amount=5},
-      {type="item", name="electronic-circuit", amount=5},
-    },
-    results={ {type="item", name="patrol-pole", amount=1} },
-    requester_paste_multiplier = 1
-  },
   -- adding in support for Klonan's Combat Units
   {
     type = "recipe",
