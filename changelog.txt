@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.4.23
+Date: 2025.08.04
+  Changes:
+    - Updated the Unit Control mod reference - only the "Unit_Controll" one is updated for v2.0+ of Factorio.
+---------------------------------------------------------------------------------------------------
 Version: 2.4.22
 Date: 2025.08.03
   Changes:

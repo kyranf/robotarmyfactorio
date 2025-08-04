@@ -14,7 +14,7 @@ function updateSquad(squad)
         if squad.command.type == commands.guard then
             executeGuardAI(squad)
         elseif not squad.rally then
-            if not script.active_mods["Unit_Control"] then
+            if not script.active_mods["Unit_Controll"] then
                 executeBattleAI(squad)
             end
         else
