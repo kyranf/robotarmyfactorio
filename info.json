@@ -1,6 +1,6 @@
 {
 	"name": "robotarmy",
-	"version": "2.4.22",
+	"version": "2.4.23",
 	"title": "Robot Army",
 	"author": "Kyranzor",
 	"contact": "kyranzor@gmail.com",
@@ -8,7 +8,7 @@
 	"description": "Manufacture and deploy automated robot soldiers to attack your foes and defend your factory!",
     "dependencies": [
     	"base >= 2.0.0",
-    	"? Unit_Control >= 0.3.10",
+    	"? Unit_Controll >= 2.0.3",
 		"! CombatRobotsOverhaul"
     ],
     "factorio_version": "2.0"

@@ -298,7 +298,7 @@ end
 
 function onPlayerJoined(event)
     local playerIndex = event.player_index
-    if script.active_mods["Unit_Control"] then
+    if script.active_mods["Unit_Controll"] then
         game.players[playerIndex].print("Robot Army: Unit Control Mod is active! Please use Unit Control selection and command method. Automated behaviours disabled.")
     else
         game.players[playerIndex].print("Robot Army: Unit Control Mod is NOT active! Use Squad Selection tool like normal. Automated behaviours enabled.")
@@ -336,10 +336,10 @@ function processDroidAssemblers(force)
                                 if not storage.units[returnedEntity.unit_number] then
                                     storage.units[returnedEntity.unit_number] = returnedEntity  -- reference to the LuaEntity with a lookup via the unit number.
                                 end
-                                if not script.active_mods["Unit_Control"] then
+                                if not script.active_mods["Unit_Controll"] then
                                     processSpawnedDroid(returnedEntity)
                                 else
-                                    local control_events = remote.call("unit_control", "get_events")
+                                    local control_events = remote.call("unit_controll", "get_events")
                                     unit_spawned_event = control_events.on_unit_spawned
                                     script.raise_event(unit_spawned_event, {entity = returnedEntity, spawner = assembler})
                                 end
@@ -381,10 +381,10 @@ function processDroidGuardStations(force)
                             if not storage.units[returnedEntity.unit_number] then
                                 storage.units[returnedEntity.unit_number] = returnedEntity  -- reference to the LuaEntity with a lookup via the unit number.
                             end
-                            if not script.active_mods["Unit_Control"] then
+                            if not script.active_mods["Unit_Controll"] then
                                 processSpawnedDroid(returnedEntity, true, station.position)
                             else
-                                local control_events = remote.call("unit_control", "get_events")
+                                local control_events = remote.call("unit_controll", "get_events")
                                 unit_spawned_event = control_events.on_unit_spawned
                                 script.raise_event(unit_spawned_event, {entity = returnedEntity, spawner = station})
                             end
@@ -434,7 +434,7 @@ function tickForces(forces, tick)
                 processDroidGuardStations(force)
             end
 
-            if not script.active_mods["Unit_Control"] then
+            if not script.active_mods["Unit_Controll"] then
                 processDroidAssemblersForTick(force, tick)
                 processSquadUpdatesForTick(force.name, tick % 60 + 1)
                 updateSelectionCircles(force)
@@ -506,7 +506,7 @@ function handleOnBuiltEntity(event)
         if not storage.units[entity.unit_number] then
             storage.units[entity.unit_number] = entity  -- reference to the LuaEntity with a lookup via the unit number.
         end
-        if not script.active_mods["Unit_Control"] then
+        if not script.active_mods["Unit_Controll"] then
             processSpawnedDroid(entity, false, nil, true) --this deals with droids spawning manually by the player
         end
     end
