@@ -1,3 +1,6 @@
+-- Quick Reaction Force (QRF) settings
+-- Distance in tiles for QRF response. 0 disables the feature.
+QRF_RESPONSE_DISTANCE = settings.startup and settings.startup["robotarmy-qrf-distance"] and settings.startup["robotarmy-qrf-distance"].value or 0
 
 TICK_UPDATE_SQUAD_AI = 60 -- 60 ticks per second, how many ticks between updating squad AI (finding new targets, moving back into position, etc)
 DEFAULT_SQUAD_RADIUS = 2 -- how wide their attack_area radius is. not really used honestly..

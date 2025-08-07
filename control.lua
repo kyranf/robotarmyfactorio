@@ -69,14 +69,17 @@ script.on_event(defines.events.on_force_created, handleForceCreated)
 script.on_event(defines.events.on_built_entity, handleOnBuiltEntity)
 script.on_event(defines.events.on_robot_built_entity, handleOnRobotBuiltEntity)
 script.on_event(defines.events.script_raised_built, handleOnScriptRaisedBuilt)
+
+-- QRF: Listen for entity death events
+script.on_event(defines.events.on_entity_died, handleOnEntityDied)
 script.on_event(defines.events.on_ai_command_completed, AiCommandCompleteHandler)
 
 function playerSelectedArea(event)
-	reportSelectedUnits(event, false)
+    reportSelectedUnits(event, false)
 end
 
 function playerAltSelectedArea(event)
-	reportSelectedUnits(event, true)
+    reportSelectedUnits(event, true)
 end
 
 script.on_event(defines.events.on_player_selected_area, playerSelectedArea)

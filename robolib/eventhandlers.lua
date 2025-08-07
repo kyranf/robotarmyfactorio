@@ -1,3 +1,28 @@
+-- QRF: Quick Reaction Force handler
+function handleOnEntityDied(event)
+    -- Only react if QRF is enabled
+    if QRF_RESPONSE_DISTANCE == 0 then return end
+    local entity = event.entity
+    if not entity or not entity.valid then return end
+    -- Only react to buildings on player force (not enemy, not neutral, not units)
+    if not entity.force or entity.force.name == "enemy" or entity.force.name == "neutral" then return end
+    if not entity.type or (entity.type ~= "assembling-machine" and entity.type ~= "container" and entity.type ~= "furnace" and entity.type ~= "lab" and entity.type ~= "beacon" and entity.type ~= "roboport" and entity.type ~= "electric-energy-interface" and entity.type ~= "radar" and entity.type ~= "reactor" and entity.type ~= "accumulator" and entity.type ~= "generator" and entity.type ~= "boiler" and entity.type ~= "pump" and entity.type ~= "offshore-pump" and entity.type ~= "storage-tank" and entity.type ~= "lamp" and entity.type ~= "rocket-silo" and entity.type ~= "turret" and entity.type ~= "ammo-turret" and entity.type ~= "fluid-turret" and entity.type ~= "electric-turret" and entity.type ~= "artillery-turret" and entity.type ~= "artillery-wagon" and entity.type ~= "train-stop" and entity.type ~= "rail-signal" and entity.type ~= "rail-chain-signal" and entity.type ~= "rail" and entity.type ~= "straight-rail" and entity.type ~= "curved-rail") then return end
+    local force_name = entity.force.name
+    local surface = entity.surface
+    local pos = entity.position
+    -- Find all squads for this force
+    local squads = storage.Squads and storage.Squads[force_name]
+    if not squads then return end
+    for _, squad in pairs(squads) do
+        if squad and squad.unitGroup and squad.unitGroup.valid and squad.unitGroup.position and util.distance(squad.unitGroup.position, pos) <= QRF_RESPONSE_DISTANCE then
+            -- Save original position for return order
+            squad.qrf_return_pos = {x = squad.unitGroup.position.x, y = squad.unitGroup.position.y}
+            -- Issue attack-move to destroyed building position
+            orderSquadToAttack(squad, pos)
+            squad.qrf_active = true
+        end
+    end
+end
 require("util")
 require("config.config") -- config for squad control mechanics - important for anyone using
 require("robolib.util") -- some utility functions not necessarily related to robot army mod
@@ -87,7 +112,15 @@ function processSquadUpdatesForTick(force_name, tickProcessIndex)
             if squadref and squadTable[squadref] then
                 -- local squad = storage.Squads[force_name][squadref]
                 -- if not squad.force then squad.force = force
-                updateSquad(squadTable[squadref])
+                local squad = squadTable[squadref]
+                -- QRF: If squad is in QRF mode and has finished attack, return to original position
+                if squad and squad.qrf_active and squad.command.type ~= commands.hunt and squad.qrf_return_pos then
+                    orderSquadToAttack(squad, squad.qrf_return_pos)
+                    squad.qrf_active = false
+                    squad.qrf_return_pos = nil
+                else
+                    updateSquad(squad)
+                end
             else
                 -- the squad has been deleted at some point, so let's stop looping over it here.
                 LOGGER.log(string.format("Removing nil squad %d from tick table", squadref))
@@ -100,150 +133,150 @@ end
 
 
 function reportSelectedUnits(event, alt)
-	if (event.item == "droid-selection-tool") then
-		local player = game.players[event.player_index]
-		local area = event.area;
+    if (event.item == "droid-selection-tool") then
+        local player = game.players[event.player_index]
+        local area = event.area;
 
-		-- ensure the area is non-zero
-		area.left_top.x = area.left_top.x - 0.1
-		area.left_top.y = area.left_top.y - 0.1
-		area.right_bottom.x = area.right_bottom.x + 0.1
-		area.right_bottom.y = area.right_bottom.y + 0.1
+        -- ensure the area is non-zero
+        area.left_top.x = area.left_top.x - 0.1
+        area.left_top.y = area.left_top.y - 0.1
+        area.right_bottom.x = area.right_bottom.x + 0.1
+        area.right_bottom.y = area.right_bottom.y + 0.1
 
-		local clickPosition = {x = (area.right_bottom.x + area.left_top.x) / 2 , y = (area.right_bottom.y + area.left_top.y)/ 2}
-		--Game.print_all(string.format("point %d,%d, middle of box %d,%d and %d,%d", clickPosition.x, clickPosition.y, area.left_top.x, area.left_top.y, area.right_bottom.x, area.right_bottom.y))
-		if not alt then -- add units to selection table
+        local clickPosition = {x = (area.right_bottom.x + area.left_top.x) / 2 , y = (area.right_bottom.y + area.left_top.y)/ 2}
+        --Game.print_all(string.format("point %d,%d, middle of box %d,%d and %d,%d", clickPosition.x, clickPosition.y, area.left_top.x, area.left_top.y, area.right_bottom.x, area.right_bottom.y))
+        if not alt then -- add units to selection table
 
-			--local select_entities = player.surface.find_entities_filtered{ area = area, type = "unit", force = player.force}
-			--local numberOfSelected = table.countNonNil(select_entities)
+            --local select_entities = player.surface.find_entities_filtered{ area = area, type = "unit", force = player.force}
+            --local numberOfSelected = table.countNonNil(select_entities)
 
-			local squad = getClosestSquadToPos(storage.Squads[player.force.name], clickPosition, SQUAD_CHECK_RANGE) --get nearest squad within SQUAD_CHECK_RANGE amount of tiles radius from click point.
+            local squad = getClosestSquadToPos(storage.Squads[player.force.name], clickPosition, SQUAD_CHECK_RANGE) --get nearest squad within SQUAD_CHECK_RANGE amount of tiles radius from click point.
 
-			if squad then
+            if squad then
 
                 -- if there's a currently selected squad, deselect them!
                 --DESELECT LOGIC
-				if storage.selected_squad and storage.selected_squad[player.index] and storage.selected_squad[player.index] ~= nil then
-					if storage.Squads[player.force.name][storage.selected_squad[player.index]] then  --if the squad still exists, even though we have the ID still in selection
-						Game.print_all(string.format("De-selected Squad ID %d", storage.selected_squad[player.index]) )
-						for _, member in pairs(storage.Squads[player.force.name][storage.selected_squad[player.index]].unitGroup.members) do
-							local unitBox = member.bounding_box
-							unitBox.left_top.x = unitBox.left_top.x - 0.1
-							unitBox.left_top.y = unitBox.left_top.y - 0.1
-							unitBox.right_bottom.x = unitBox.right_bottom.x + 0.1
-							unitBox.right_bottom.y = unitBox.right_bottom.y + 0.1
+                if storage.selected_squad and storage.selected_squad[player.index] and storage.selected_squad[player.index] ~= nil then
+                    if storage.Squads[player.force.name][storage.selected_squad[player.index]] then  --if the squad still exists, even though we have the ID still in selection
+                        Game.print_all(string.format("De-selected Squad ID %d", storage.selected_squad[player.index]) )
+                        for _, member in pairs(storage.Squads[player.force.name][storage.selected_squad[player.index]].unitGroup.members) do
+                            local unitBox = member.bounding_box
+                            unitBox.left_top.x = unitBox.left_top.x - 0.1
+                            unitBox.left_top.y = unitBox.left_top.y - 0.1
+                            unitBox.right_bottom.x = unitBox.right_bottom.x + 0.1
+                            unitBox.right_bottom.y = unitBox.right_bottom.y + 0.1
 
-							for _,e in pairs(member.surface.find_entities_filtered{type = "sticker", area = unitBox}) do
-							  e.destroy()
-							end
-						end
-					end
-				end
-
-
-				Game.print_all(string.format("Squad ID %d selected! Droids in squad: %d", squad.squadID, squad.numMembers) )
-				--Game.print_all(string.format("Tool %s Selected area! Player ID %d, box %d,%d and %d,%d, droids in squad %d ",  event.item , event.player_index, area.left_top.x, area.left_top.y, area.right_bottom.x, area.right_bottom.y, squad.numMembers ) )
+                            for _,e in pairs(member.surface.find_entities_filtered{type = "sticker", area = unitBox}) do
+                              e.destroy()
+                            end
+                        end
+                    end
+                end
 
 
-				--make sure we have the global table..
-				if not storage.selected_squad then storage.selected_squad = {} end
+                Game.print_all(string.format("Squad ID %d selected! Droids in squad: %d", squad.squadID, squad.numMembers) )
+                --Game.print_all(string.format("Tool %s Selected area! Player ID %d, box %d,%d and %d,%d, droids in squad %d ",  event.item , event.player_index, area.left_top.x, area.left_top.y, area.right_bottom.x, area.right_bottom.y, squad.numMembers ) )
 
-				storage.selected_squad[player.index] = {}
-				storage.selected_squad[player.index] = squad.squadID
 
-				for _, member in pairs(storage.Squads[player.force.name][squad.squadID].unitGroup.members) do
+                --make sure we have the global table..
+                if not storage.selected_squad then storage.selected_squad = {} end
 
-					 storage.Squads[player.force.name][squad.squadID].unitGroup.surface.create_entity{name = "selection-sticker", position = member.position , target = member}
+                storage.selected_squad[player.index] = {}
+                storage.selected_squad[player.index] = squad.squadID
 
-				end
+                for _, member in pairs(storage.Squads[player.force.name][squad.squadID].unitGroup.members) do
 
-			else
-				--no squad was nearby the click point!
-				--make sure we have the global table..
-				if not storage.selected_squad then storage.selected_squad = {} end
+                     storage.Squads[player.force.name][squad.squadID].unitGroup.surface.create_entity{name = "selection-sticker", position = member.position , target = member}
 
-				--DESELECT LOGIC
+                end
+
+            else
+                --no squad was nearby the click point!
+                --make sure we have the global table..
+                if not storage.selected_squad then storage.selected_squad = {} end
+
+                --DESELECT LOGIC
                 if storage.selected_squad[player.index] ~= nil then
                     local squadRef = storage.Squads[player.force.name][storage.selected_squad[player.index]]
-					if squadRef and squadRef.unitGroup.valid then  --if the squad still exists, even though we have the ID still in selection
-						player.print(string.format("De-selected Squad ID %d", storage.selected_squad[player.index]) )
-						for _, member in pairs(squadRef.unitGroup.members) do
-							local unitBox = member.bounding_box
-							unitBox.left_top.x = unitBox.left_top.x - 0.1
-							unitBox.left_top.y = unitBox.left_top.y - 0.1
-							unitBox.right_bottom.x = unitBox.right_bottom.x + 0.1
-							unitBox.right_bottom.y = unitBox.right_bottom.y + 0.1
+                    if squadRef and squadRef.unitGroup.valid then  --if the squad still exists, even though we have the ID still in selection
+                        player.print(string.format("De-selected Squad ID %d", storage.selected_squad[player.index]) )
+                        for _, member in pairs(squadRef.unitGroup.members) do
+                            local unitBox = member.bounding_box
+                            unitBox.left_top.x = unitBox.left_top.x - 0.1
+                            unitBox.left_top.y = unitBox.left_top.y - 0.1
+                            unitBox.right_bottom.x = unitBox.right_bottom.x + 0.1
+                            unitBox.right_bottom.y = unitBox.right_bottom.y + 0.1
 
-							for _,e in pairs(member.surface.find_entities_filtered{type = "sticker", area = unitBox}) do
-							  e.destroy()
-							end
-						end
+                            for _,e in pairs(member.surface.find_entities_filtered{type = "sticker", area = unitBox}) do
+                              e.destroy()
+                            end
+                        end
                     end
                     storage.selected_squad[player.index] = nil
-				else
+                else
 
-					storage.selected_squad[player.index] = nil
-				end
+                    storage.selected_squad[player.index] = nil
+                end
 
-			end
+            end
 
 
 
-		else --command selected units to move to position clicked.
-			if storage.selected_squad and storage.selected_squad[event.player_index] then
-			local squad = storage.Squads[player.force.name][(storage.selected_squad[event.player_index])]
-				if (squad and squad.unitGroup and squad.unitGroup.valid) then
-					--Game.print_all(string.format("Tool %s Selected alt-selected-area! Player ID %d, box %d,%d and %d,%d, droids in squad %d ", event.item, event.player_index, area.left_top.x,area.left_top.y, area.right_bottom.x, area.right_bottom.y, squad.numMembers ) )
-					--Game.print_all(string.format("Commanding Squad ID %d ...", storage.selected_squad[event.player_index]))
-					squad.command.type = commands.guard
-					orderSquadToAttack(squad, clickPosition)
-				end
-			end
+        else --command selected units to move to position clicked.
+            if storage.selected_squad and storage.selected_squad[event.player_index] then
+            local squad = storage.Squads[player.force.name][(storage.selected_squad[event.player_index])]
+                if (squad and squad.unitGroup and squad.unitGroup.valid) then
+                    --Game.print_all(string.format("Tool %s Selected alt-selected-area! Player ID %d, box %d,%d and %d,%d, droids in squad %d ", event.item, event.player_index, area.left_top.x,area.left_top.y, area.right_bottom.x, area.right_bottom.y, squad.numMembers ) )
+                    --Game.print_all(string.format("Commanding Squad ID %d ...", storage.selected_squad[event.player_index]))
+                    squad.command.type = commands.guard
+                    orderSquadToAttack(squad, clickPosition)
+                end
+            end
 
-		end
+        end
 
-	else --if it's a pickup tool maybe?
+    else --if it's a pickup tool maybe?
 
-		if (event.item == "droid-pickup-tool") then
+        if (event.item == "droid-pickup-tool") then
 
-			local player = game.players[event.player_index]
-			local area = event.area;
+            local player = game.players[event.player_index]
+            local area = event.area;
 
-			-- ensure the area is non-zero
-			area.left_top.x = area.left_top.x - 0.01
-			area.left_top.y = area.left_top.y - 0.01
-			area.right_bottom.x = area.right_bottom.x + 0.01
-			area.right_bottom.y = area.right_bottom.y + 0.01
+            -- ensure the area is non-zero
+            area.left_top.x = area.left_top.x - 0.01
+            area.left_top.y = area.left_top.y - 0.01
+            area.right_bottom.x = area.right_bottom.x + 0.01
+            area.right_bottom.y = area.right_bottom.y + 0.01
 
-			local unitList = player.surface.find_entities_filtered{	area = area, type = "unit",	force = player.force }
+            local unitList = player.surface.find_entities_filtered{	area = area, type = "unit",	force = player.force }
 
-			--Game.print_all(string.format( "number of units in area selected %d", #unitList) )
+            --Game.print_all(string.format( "number of units in area selected %d", #unitList) )
 
-			for _ , unit in pairs(unitList) do
+            for _ , unit in pairs(unitList) do
 
-				--Game.print_all(string.format( "Trying to pick up unit type %s, unit name %s" , unit.type, unit.name ) )
-				local nameOfUnit = convertToMatchable(unit.name)
-				--if it's one of our droids, kill it!  Note, the spawnable table comes from DroidUnitList.lua in prototypes folder.
-				local removed = false
-				for _, droidname in pairs(spawnable) do
-					local comparableDroidName = convertToMatchable(droidname)
-					--Game.print_all(string.format( "Trying to compare names: unit name  %s, spawnable droid list name %s" , nameOfUnit, comparableDroidName ) )
-					if not removed and (string.find(nameOfUnit, comparableDroidName)) then
-						removed = true
+                --Game.print_all(string.format( "Trying to pick up unit type %s, unit name %s" , unit.type, unit.name ) )
+                local nameOfUnit = convertToMatchable(unit.name)
+                --if it's one of our droids, kill it!  Note, the spawnable table comes from DroidUnitList.lua in prototypes folder.
+                local removed = false
+                for _, droidname in pairs(spawnable) do
+                    local comparableDroidName = convertToMatchable(droidname)
+                    --Game.print_all(string.format( "Trying to compare names: unit name  %s, spawnable droid list name %s" , nameOfUnit, comparableDroidName ) )
+                    if not removed and (string.find(nameOfUnit, comparableDroidName)) then
+                        removed = true
 
-						if player.insert{name = unit.name, count = 1} == 0 then
+                        if player.insert{name = unit.name, count = 1} == 0 then
                             player.print("Not enough inventory space to pick up droid!")
                         else
                             unit.destroy()
                         end
-					end
-				end
+                    end
+                end
 
-			end
+            end
 
-		end
+        end
 
-	end
+    end
 end
 
 
@@ -398,31 +431,31 @@ function processDroidGuardStations(force)
 end
 
 function updateSelectionCircles(force)
-	storage.selection_circles = storage.selection_circles or {}
-	storage.selection_circles[force.name] = storage.selection_circles[force.name] or {}
+    storage.selection_circles = storage.selection_circles or {}
+    storage.selection_circles[force.name] = storage.selection_circles[force.name] or {}
 
-	if not storage.selected_squad or storage.selected_squad[force.name] then return end
+    if not storage.selected_squad or storage.selected_squad[force.name] then return end
 
-	local squad_id = storage.selected_squad[force.name]
-	if (squad_id) then
-		local squad = storage.Squads[force.name][squad_id]
-		for _, unit in pairs(squad.unitGroup.members) do
-			if unit and unit.valid then
-				if not storage.selection_circles[force.name][unit.unit_number] then
-				   -- make it
-				   --unit.surface.create_entity( name = "selection-sticker", position = unit.position , target= unit)
-				end
-			else
-			 --remove the sticker
-				for _,e in pairs(unit.surface.find_entities_filtered{type = "sticker", area = unit.bounding_box}) do
-					e.destroy()
-				end
+    local squad_id = storage.selected_squad[force.name]
+    if (squad_id) then
+        local squad = storage.Squads[force.name][squad_id]
+        for _, unit in pairs(squad.unitGroup.members) do
+            if unit and unit.valid then
+                if not storage.selection_circles[force.name][unit.unit_number] then
+                   -- make it
+                   --unit.surface.create_entity( name = "selection-sticker", position = unit.position , target= unit)
+                end
+            else
+             --remove the sticker
+                for _,e in pairs(unit.surface.find_entities_filtered{type = "sticker", area = unit.bounding_box}) do
+                    e.destroy()
+                end
 
-			end
+            end
 
-		end
+        end
 
-	end
+    end
 
 end
 
