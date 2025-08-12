@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.4.24
+Date: 2025.08.12
+  Bugfixes:
+    - Fixed Unit Controll remote call references back to "Unit_Control" naming.
+    - removed the "place_result" empty elements to help Krastorio2 support.
+---------------------------------------------------------------------------------------------------
 Version: 2.4.23
 Date: 2025.08.04
   Changes:

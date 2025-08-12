@@ -339,7 +339,7 @@ function processDroidAssemblers(force)
                                 if not script.active_mods["Unit_Controll"] then
                                     processSpawnedDroid(returnedEntity)
                                 else
-                                    local control_events = remote.call("unit_controll", "get_events")
+                                    local control_events = remote.call("unit_control", "get_events")
                                     unit_spawned_event = control_events.on_unit_spawned
                                     script.raise_event(unit_spawned_event, {entity = returnedEntity, spawner = assembler})
                                 end
@@ -384,7 +384,7 @@ function processDroidGuardStations(force)
                             if not script.active_mods["Unit_Controll"] then
                                 processSpawnedDroid(returnedEntity, true, station.position)
                             else
-                                local control_events = remote.call("unit_controll", "get_events")
+                                local control_events = remote.call("unit_control", "get_events")
                                 unit_spawned_event = control_events.on_unit_spawned
                                 script.raise_event(unit_spawned_event, {entity = returnedEntity, spawner = station})
                             end

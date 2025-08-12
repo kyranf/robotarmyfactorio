@@ -114,7 +114,7 @@ local a =
     flags = {},
     order = "z-z",
     subgroup = "capsule",
-    place_result = "",
+    
     stack_size = 1,
   },
   {
@@ -125,7 +125,7 @@ local a =
     flags = {},
     order = "z-z",
     subgroup = "capsule",
-    place_result = "",
+    
     stack_size = 1,
   },
   {
@@ -136,7 +136,7 @@ local a =
     flags = {},
     order = "z-z",
     subgroup = "capsule",
-    place_result = "",
+    
     stack_size = 1,
   },
   {
@@ -147,7 +147,7 @@ local a =
     flags = {},
     order = "z-z",
     subgroup = "capsule",
-    place_result = "",
+    
     stack_size = 1,
   },
   {
@@ -158,7 +158,7 @@ local a =
     flags = {},
     order = "z-z",
     subgroup = "capsule",
-    place_result = "",
+    
     stack_size = 1,
   },
   {
@@ -169,7 +169,7 @@ local a =
     flags = {},
     order = "z-z",
     subgroup = "capsule",
-    place_result = "",
+    
     stack_size = 1,
   },
   {
@@ -180,7 +180,7 @@ local a =
     flags = {},
     order = "z-z",
     subgroup = "capsule",
-    place_result = "",
+    
     stack_size = 1,
   },
   {
@@ -191,7 +191,7 @@ local a =
     flags = {},
     order = "z-z",
     subgroup = "capsule",
-    place_result = "",
+    
     stack_size = 1,
   },
 
