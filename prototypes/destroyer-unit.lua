@@ -4,75 +4,39 @@ local destroyerUnitAnim =
 {
   layers =
   {
-    {
-      filename = "__base__/graphics/entity/destroyer-robot/destroyer-robot.png",
-      priority = "high",
-      line_length = 32,
-      width = 45,
-      height = 39,
-      frame_count = 1,
-      direction_count = 32,
-      shift = util.by_pixel(2.5, -1.25),
-      hr_version =
-      {
-        filename = "__base__/graphics/entity/destroyer-robot/hr-destroyer-robot.png",
+     {
+        filename = "__base__/graphics/entity/destroyer-robot/destroyer-robot.png",
         priority = "high",
         line_length = 32,
         width = 88,
         height = 77,
-        frame_count = 1,
+        y = 77,
         direction_count = 32,
         shift = util.by_pixel(2.5, -1.25),
         scale = 0.5
-      }
-    },
-    {
-      filename = "__base__/graphics/entity/destroyer-robot/destroyer-robot-mask.png",
-      priority = "high",
-      line_length = 32,
-      width = 27,
-      height = 21,
-      frame_count = 1,
-      direction_count = 32,
-      shift = util.by_pixel(2.5, -7),
-      apply_runtime_tint = true,
-      hr_version =
+      },
       {
-        filename = "__base__/graphics/entity/destroyer-robot/hr-destroyer-robot-mask.png",
+        filename = "__base__/graphics/entity/destroyer-robot/destroyer-robot-mask.png",
         priority = "high",
         line_length = 32,
         width = 52,
         height = 42,
-        frame_count = 1,
+        y = 42,
         direction_count = 32,
         shift = util.by_pixel(2.5, -7),
         apply_runtime_tint = true,
         scale = 0.5
-      }
-    },
+      },
     {
       filename = "__base__/graphics/entity/destroyer-robot/destroyer-robot-shadow.png",
       priority = "high",
       line_length = 32,
-      width = 55,
-      height = 34,
-      frame_count = 1,
+      width = 108,
+      height = 66,
       direction_count = 32,
       shift = util.by_pixel(23.5, 19),
-      draw_as_shadow = true,
-      hr_version =
-      {
-        filename = "__base__/graphics/entity/destroyer-robot/hr-destroyer-robot-shadow.png",
-        priority = "high",
-        line_length = 32,
-        width = 108,
-        height = 66,
-        frame_count = 1,
-        direction_count = 32,
-        shift = util.by_pixel(23.5, 19),
-        scale = 0.5,
-        draw_as_shadow = true
-      }
+      scale = 0.5,
+      draw_as_shadow = true
     }
   }
 }
@@ -185,6 +149,9 @@ data:extend({
   flags = {"not-on-map"},
   width = 0.5,
   damage_interval = 20,
+  random_target_offset = true,
+  target_offset = {0, -0.5},
+  action_triggered_automatically = false,
   action =
   {
     type = "direct",
@@ -204,117 +171,112 @@ data:extend({
   start =
   {
     filename = "__base__/graphics/entity/beam/tileable-beam-START.png",
+    draw_as_glow = true,
     line_length = 4,
-    width = 52,
-    height = 40,
+    width = 94,
+    height = 66,
     frame_count = 16,
-    axially_symmetrical = false,
-    direction_count = 1,
-    shift = {-0.03125, 0},
-    hr_version = {
-      filename = "__base__/graphics/entity/beam/hr-tileable-beam-START.png",
-      line_length = 4,
-      width = 94,
-      height = 66,
-      frame_count = 16,
-      axially_symmetrical = false,
-      direction_count = 1,
-      shift = {0.53125, 0},
-      scale = 0.5,
-    }
+    shift = {0.53125, 0},
+    scale = 0.5
   },
+
   ending =
   {
     filename = "__base__/graphics/entity/beam/tileable-beam-END.png",
+    draw_as_glow = true,
     line_length = 4,
-    width = 49,
-    height = 54,
+    width = 91,
+    height = 93,
     frame_count = 16,
-    axially_symmetrical = false,
-    direction_count = 1,
-    shift = {-0.046875, 0},
-    hr_version = {
-      filename = "__base__/graphics/entity/beam/hr-tileable-beam-END.png",
-      line_length = 4,
-      width = 91,
-      height = 93,
+    shift = {-0.078125, -0.046875},
+    scale = 0.5
+  },
+   head =
+    {
+      filename = "__base__/graphics/entity/beam/beam-head.png",
+      flags = beam_flags or beam_non_light_flags,
+      draw_as_glow = true,
+      line_length = 16,
+      width = 45 - 7,
+      height = 39,
       frame_count = 16,
-      axially_symmetrical = false,
-      direction_count = 1,
-      shift = {-0.078125, -0.046875},
-      scale = 0.5,
-    }
-  },
-  head =
-  {
-    filename = "__base__/graphics/entity/beam/beam-head.png",
-    line_length = 16,
-    width = 45,
-    height = 39,
-    frame_count = 16,
-    animation_speed = 0.5,
-    blend_mode = beam_blend_mode,
-  },
+      shift = util.by_pixel(-7/2, 0)
+    },
   tail =
   {
-    filename = "__base__/graphics/entity/beam/beam-tail.png",
-    line_length = 16,
-    width = 45,
-    height = 39,
-    frame_count = 16,
-    blend_mode = beam_blend_mode,
+      filename = "__base__/graphics/entity/beam/beam-tail.png",
+      flags = beam_flags or beam_non_light_flags,
+      draw_as_glow = true,
+      line_length = 16,
+      width = 45 - 6,
+      height = 39,
+      frame_count = 16,
+      shift = util.by_pixel(6/2, 0),
   },
-  body =
-  {
+   body =
     {
-      filename = "__base__/graphics/entity/beam/beam-body-1.png",
-      line_length = 16,
-      width = 45,
-      height = 39,
-      frame_count = 16,
-      blend_mode = beam_blend_mode,
-    },
-    {
-      filename = "__base__/graphics/entity/beam/beam-body-2.png",
-      line_length = 16,
-      width = 45,
-      height = 39,
-      frame_count = 16,
-      blend_mode = beam_blend_mode,
-    },
-    {
-      filename = "__base__/graphics/entity/beam/beam-body-3.png",
-      line_length = 16,
-      width = 45,
-      height = 39,
-      frame_count = 16,
-      blend_mode = beam_blend_mode,
-    },
-    {
-      filename = "__base__/graphics/entity/beam/beam-body-4.png",
-      line_length = 16,
-      width = 45,
-      height = 39,
-      frame_count = 16,
-      blend_mode = beam_blend_mode,
-    },
-    {
-      filename = "__base__/graphics/entity/beam/beam-body-5.png",
-      line_length = 16,
-      width = 45,
-      height = 39,
-      frame_count = 16,
-      blend_mode = beam_blend_mode,
-    },
-    {
-      filename = "__base__/graphics/entity/beam/beam-body-6.png",
-      line_length = 16,
-      width = 45,
-      height = 39,
-      frame_count = 16,
-      blend_mode = beam_blend_mode,
-    },
-  }
+      {
+        filename = "__base__/graphics/entity/beam/beam-body-1.png",
+        flags = beam_flags or beam_non_light_flags,
+        draw_as_glow = true,
+        line_length = 16,
+        width = 32,
+        height = 39,
+        frame_count = 16,
+        tint = beam_tint,
+        blend_mode =  beam_blend_mode
+      },
+      {
+        filename = "__base__/graphics/entity/beam/beam-body-2.png",
+        flags = beam_flags or beam_non_light_flags,
+        draw_as_glow = true,
+        line_length = 16,
+        width = 32,
+        height = 39,
+        frame_count = 16,
+        blend_mode =  beam_blend_mode
+      },
+      {
+        filename = "__base__/graphics/entity/beam/beam-body-3.png",
+        flags = beam_flags or beam_non_light_flags,
+        draw_as_glow = true,
+        line_length = 16,
+        width = 32,
+        height = 39,
+        frame_count = 16,
+        blend_mode =  beam_blend_mode
+      },
+      {
+        filename = "__base__/graphics/entity/beam/beam-body-4.png",
+        flags = beam_flags or beam_non_light_flags,
+        draw_as_glow = true,
+        line_length = 16,
+        width = 32,
+        height = 39,
+        frame_count = 16,
+        blend_mode =  beam_blend_mode
+      },
+      {
+        filename = "__base__/graphics/entity/beam/beam-body-5.png",
+        flags = beam_flags or beam_non_light_flags,
+        draw_as_glow = true,
+        line_length = 16,
+        width = 32,
+        height = 39,
+        frame_count = 16,
+        blend_mode = beam_blend_mode
+      },
+      {
+        filename = "__base__/graphics/entity/beam/beam-body-6.png",
+        flags = beam_flags or beam_non_light_flags,
+        draw_as_glow = true,
+        line_length = 16,
+        width = 32,
+        height = 39,
+        frame_count = 16,
+        blend_mode = beam_blend_mode
+      }
+    }
   }}
 }
 
