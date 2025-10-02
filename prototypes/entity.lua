@@ -33,48 +33,26 @@ local function robotAnimation(sheet, tint, scale)
   return {
     layers = {
       {
-        filename = BOTPATH .. sheet .. ".png",
-        width = 80,
-        height = 80,
+        filename = BOTPATH .. "hr-" .. sheet .. ".png",
+        width = 160,
+        height = 160,
         --tint = tint,
         direction_count = 22,
         frame_count = 1,
         animation_speed = 0.01,
         shift = {0, -0.5},
-        scale = scale,
-        hr_version = {
-          filename = BOTPATH .. "hr-" .. sheet .. ".png",
-          width = 160,
-          height = 160,
-          --tint = tint,
-          direction_count = 22,
-          frame_count = 1,
-          animation_speed = 0.01,
-          shift = {0, -0.5},
-          scale = (scale / 2),
-        }
+        scale = (scale / 2),
       },
       {
-        filename = BOTPATH .. sheet .. "-shadow.png",
-        width = 160,
-        height = 80,
+        filename = BOTPATH .. "hr-" .. sheet .. "-shadow.png",
+        width = 320,
+        height = 160,
         direction_count = 22,
         frame_count = 1,
         animation_speed = 0.01,
         shift = {0, -0.5},
-        scale = scale,
+        scale = (scale / 2),
         draw_as_shadow = true,
-        hr_version = {
-          filename = BOTPATH .. "hr-" .. sheet .. "-shadow.png",
-          width = 320,
-          height = 160,
-          direction_count = 22,
-          frame_count = 1,
-          animation_speed = 0.01,
-          shift = {0, -0.5},
-          scale = (scale / 2),
-          draw_as_shadow = true,
-        }
       }
     }
   }
@@ -887,30 +865,17 @@ local droid_counter = {
     layers =
     {
       {
-        filename = BUILPATH .. "droid-counter.png",
-        width = 64,
-        height = 64,
-        hr_version =
-        {
-          filename = BUILPATH .. "hr-droid-counter.png",
-          width = 128,
-          height = 128,
-          scale = 0.5,
-        }
+        filename = BUILPATH .. "hr-droid-counter.png",
+        width = 128,
+        height = 128,
+        scale = 0.5,
       },
       {
-        filename = BUILPATH .. "droid-counter-shadow.png",
-        width = 64,
-        height = 64,
+        filename = BUILPATH .. "hr-droid-counter-shadow.png",
+        width = 128,
+        height = 128,
         draw_as_shadow = true,
-        hr_version =
-        {
-          filename = BUILPATH .. "hr-droid-counter-shadow.png",
-          width = 128,
-          height = 128,
-          draw_as_shadow = true,
-          scale = 0.5,
-        }
+        scale = 0.5,
       },
     },
   },
@@ -961,30 +926,17 @@ local droid_settings =  {
     layers =
     {
       {
-        filename = BUILPATH .. "droid-settings.png",
-        width = 64,
-        height = 64,
-        hr_version =
-        {
-          filename = BUILPATH .. "hr-droid-settings.png",
-          width = 128,
-          height = 128,
-          scale = 0.5,
-        }
+        filename = BUILPATH .. "hr-droid-settings.png",
+        width = 128,
+        height = 128,
+        scale = 0.5,
       },
       {
-        filename = BUILPATH .. "droid-settings-shadow.png",
-        width = 64,
-        height = 64,
+        filename = BUILPATH .. "hr-droid-settings-shadow.png",
+        width = 128,
+        height = 128,
         draw_as_shadow = true,
-        hr_version =
-        {
-          filename = BUILPATH .. "hr-droid-settings-shadow.png",
-          width = 128,
-          height = 128,
-          draw_as_shadow = true,
-          scale = 0.5,
-        }
+        scale = 0.5,
       },
     },
   },
@@ -1045,34 +997,19 @@ local loot_chest = {
     layers =
     {
       {
-        filename = BUILPATH .. "loot-chest.png",
-        width = 33,
-        height = 38,
-        shift = util.by_pixel(0, 0),
-        hr_version =
-        {
-          filename = BUILPATH .. "hr-loot-chest.png",
-          width = 66,
-          height = 76,
-          shift = util.by_pixel(-0.5, -0.5),
-          scale = 0.5,
-        }
+        filename = BUILPATH .. "hr-loot-chest.png",
+        width = 66,
+        height = 76,
+        shift = util.by_pixel(-0.5, -0.5),
+        scale = 0.5,
       },
       {
-        filename = BUILPATH .. "loot-chest-shadow.png",
-        width = 55,
-        height = 25,
+        filename = BUILPATH .. "hr-loot-chest-shadow.png",
+        width = 110,
+        height = 50,
         draw_as_shadow = true,
-        shift = util.by_pixel(12, 8),
-        hr_version =
-        {
-          filename = BUILPATH .. "hr-loot-chest-shadow.png",
-          width = 110,
-          height = 50,
-          draw_as_shadow = true,
-          shift = util.by_pixel(12.5, 8),
-          scale = 0.5,
-        }
+        shift = util.by_pixel(12.5, 8),
+        scale = 0.5,
       },
     },
   },
