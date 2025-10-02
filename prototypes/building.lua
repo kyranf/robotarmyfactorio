@@ -63,36 +63,21 @@ local droidAssembler = {
 		layers =
 		{
 		  {
-			filename = BUILPATH .. "droid-assembler.png",
-			width = 156,
-			height = 139,
+			filename = BUILPATH .. "hr-droid-assembler.png",
+			width = 312,
+			height = 278,
 			frame_count = 1,
 			line_length = 1,
-			hr_version = {
-			  filename = BUILPATH .. "hr-droid-assembler.png",
-			  width = 312,
-			  height = 278,
-			  frame_count = 1,
-			  line_length = 1,
-			  scale = 0.5,
-			}
+			scale = 0.5,
 		  },
 		  {
-			filename = BUILPATH .. "droid-assembler-shadow.png",
-			width = 156,
-			height = 139,
+			filename = BUILPATH .. "hr-droid-assembler-shadow.png",
+			width = 312,
+			height = 278,
 			frame_count = 1,
 			line_length = 1,
 			draw_as_shadow = true,
-			hr_version = {
-			  filename = BUILPATH .. "hr-droid-assembler-shadow.png",
-			  width = 312,
-			  height = 278,
-			  frame_count = 1,
-			  line_length = 1,
-			  draw_as_shadow = true,
-			  scale = 0.5,
-			}
+			scale = 0.5,
 		  }
 		}
 	  }
@@ -163,36 +148,21 @@ local guardStation = {
 		layers =
 		{
 		  {
-			filename = BUILPATH .. "guard-station.png",
-			width = 208,
-			height = 228,
+			filename = BUILPATH .. "hr-guard-station.png",
+			width = 416,
+			height = 456,
 			frame_count = 1,
 			line_length = 1,
-			hr_version = {
-			  filename = BUILPATH .. "hr-guard-station.png",
-			  width = 416,
-			  height = 456,
-			  frame_count = 1,
-			  line_length = 1,
-			  scale = 0.5,
-			}
+			scale = 0.5,
 		  },
 		  {
-			filename = BUILPATH .. "guard-station-shadow.png",
-			width = 208,
-			height = 228,
+			filename = BUILPATH .. "hr-guard-station-shadow.png",
+			width = 416,
+			height = 456,
 			frame_count = 1,
 			line_length = 1,
 			draw_as_shadow = true,
-			hr_version = {
-			  filename = BUILPATH .. "hr-guard-station-shadow.png",
-			  width = 416,
-			  height = 456,
-			  frame_count = 1,
-			  line_length = 1,
-			  draw_as_shadow = true,
-			  scale = 0.5,
-			}
+			scale = 0.5,
 		  }
 		}
 	  }
