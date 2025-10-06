@@ -1,26 +1,81 @@
+-- QRF: Helper function to get current QRF distance setting
+function getQrfDistance()
+    -- Get the runtime setting value, fallback to default if not available
+    return settings.global["robotarmy-qrf-distance"] and settings.global["robotarmy-qrf-distance"].value or QRF_RESPONSE_DISTANCE_DEFAULT or 500
+end
+
 -- QRF: Quick Reaction Force handler
 function handleOnEntityDied(event)
+    local qrf_distance = getQrfDistance()
     -- Only react if QRF is enabled
-    if QRF_RESPONSE_DISTANCE == 0 then return end
+    if qrf_distance == 0 then 
+        if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] QRF disabled (distance = 0)") end
+        return 
+    end
     local entity = event.entity
     if not entity or not entity.valid then return end
     -- Only react to buildings on player force (not enemy, not neutral, not units)
-    if not entity.force or entity.force.name == "enemy" or entity.force.name == "neutral" then return end
-    if not entity.type or (entity.type ~= "assembling-machine" and entity.type ~= "container" and entity.type ~= "furnace" and entity.type ~= "lab" and entity.type ~= "beacon" and entity.type ~= "roboport" and entity.type ~= "electric-energy-interface" and entity.type ~= "radar" and entity.type ~= "reactor" and entity.type ~= "accumulator" and entity.type ~= "generator" and entity.type ~= "boiler" and entity.type ~= "pump" and entity.type ~= "offshore-pump" and entity.type ~= "storage-tank" and entity.type ~= "lamp" and entity.type ~= "rocket-silo" and entity.type ~= "turret" and entity.type ~= "ammo-turret" and entity.type ~= "fluid-turret" and entity.type ~= "electric-turret" and entity.type ~= "artillery-turret" and entity.type ~= "artillery-wagon" and entity.type ~= "train-stop" and entity.type ~= "rail-signal" and entity.type ~= "rail-chain-signal" and entity.type ~= "rail" and entity.type ~= "straight-rail" and entity.type ~= "curved-rail") then return end
+    if not entity.force or entity.force.name == "enemy" or entity.force.name == "neutral" then 
+        if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Entity died but not player force: " .. (entity.force and entity.force.name or "no force")) end
+        return 
+    end
+    if not entity.type or (entity.type ~= "assembling-machine" and entity.type ~= "container" and entity.type ~= "furnace" and entity.type ~= "lab" and entity.type ~= "beacon" and entity.type ~= "roboport" and entity.type ~= "electric-energy-interface" and entity.type ~= "radar" and entity.type ~= "reactor" and entity.type ~= "accumulator" and entity.type ~= "generator" and entity.type ~= "boiler" and entity.type ~= "pump" and entity.type ~= "offshore-pump" and entity.type ~= "storage-tank" and entity.type ~= "lamp" and entity.type ~= "rocket-silo" and entity.type ~= "turret" and entity.type ~= "ammo-turret" and entity.type ~= "fluid-turret" and entity.type ~= "electric-turret" and entity.type ~= "artillery-turret" and entity.type ~= "artillery-wagon" and entity.type ~= "train-stop" and entity.type ~= "rail-signal" and entity.type ~= "rail-chain-signal" and entity.type ~= "rail" and entity.type ~= "straight-rail" and entity.type ~= "curved-rail") then 
+        if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Entity died but not a building type: " .. entity.type) end
+        return 
+    end
+    
+    if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Building destroyed: " .. entity.type .. " at " .. entity.position.x .. "," .. entity.position.y) end
+    
     local force_name = entity.force.name
     local surface = entity.surface
     local pos = entity.position
     -- Find all squads for this force
     local squads = storage.Squads and storage.Squads[force_name]
-    if not squads then return end
+    if not squads then 
+        if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] No squads found for force: " .. force_name) end
+        return 
+    end
+    
+    local qrf_activated_count = 0
     for _, squad in pairs(squads) do
-        if squad and squad.unitGroup and squad.unitGroup.valid and squad.unitGroup.position and util.distance(squad.unitGroup.position, pos) <= QRF_RESPONSE_DISTANCE then
-            -- Save original position for return order
-            squad.qrf_return_pos = {x = squad.unitGroup.position.x, y = squad.unitGroup.position.y}
-            -- Issue attack-move to destroyed building position
-            orderSquadToAttack(squad, pos)
-            squad.qrf_active = true
+        if squad and squad.unitGroup and squad.unitGroup.valid and squad.unitGroup.position then
+            local distance = util.distance(squad.unitGroup.position, pos)
+            if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " distance: " .. distance .. " (max: " .. qrf_distance .. ")") end
+            if distance <= qrf_distance then
+                -- Save original squad state for restoration
+                local current_pos = squad.unitGroup.position
+                squad.qrf_original_state = {
+                    command_type = squad.command.type,
+                    dest = {x = squad.command.dest.x, y = squad.command.dest.y},
+                    tick = squad.command.tick,
+                    state_changed = squad.command.state_changed_since_last_command
+                }
+                -- Store the EXACT position where QRF was activated from
+                squad.qrf_activation_position = {x = current_pos.x, y = current_pos.y}
+                -- Issue attack-move to destroyed building position with full combat capability
+                squad.command.type = commands.hunt
+                squad.command.pos = squad.unitGroup.position
+                squad.command.dest = pos
+                squad.command.distance = util.distance(pos, squad.command.pos)
+                squad.unitGroup.set_command({type=defines.command.attack_area,
+                                            destination=pos,
+                                            radius=5, 
+                                            distraction=defines.distraction.by_anything})
+                squad.command.state_changed_since_last_command = false
+                squad.command.tick = game.tick
+                squad.unitGroup.start_moving()
+                squad.qrf_active = true
+                squad.qrf_return_in_progress = false
+                qrf_activated_count = qrf_activated_count + 1
+                if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " activated for QRF response with attack-move command!") end
+            end
         end
+    end
+    
+    if qrf_activated_count > 0 then
+        game.print("[QRF ALERT] " .. qrf_activated_count .. " squads responding to building destruction!")
+    else
+        if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] No squads within range for QRF response") end
     end
 end
 require("util")
@@ -113,12 +168,165 @@ function processSquadUpdatesForTick(force_name, tickProcessIndex)
                 -- local squad = storage.Squads[force_name][squadref]
                 -- if not squad.force then squad.force = force
                 local squad = squadTable[squadref]
-                -- QRF: If squad is in QRF mode and has finished attack, return to original position
-                if squad and squad.qrf_active and squad.command.type ~= commands.hunt and squad.qrf_return_pos then
-                    orderSquadToAttack(squad, squad.qrf_return_pos)
-                    squad.qrf_active = false
-                    squad.qrf_return_pos = nil
+                -- QRF: If squad is in QRF mode and has finished attack, return to original state
+                -- Only proceed if squad has members (prevents operations on picked-up squads)
+                if squad and squad.numMembers and squad.numMembers > 0 and squad.qrf_active and squad.qrf_original_state and squad.qrf_activation_position then
+                    local unit_group = squad.unitGroup
+                    if unit_group and unit_group.valid then
+                        -- Check if QRF mission is complete (not attacking and close to target)
+                        local qrf_complete = false
+                        local completion_check_success = false
+                        
+                        -- Use protected call to check mission completion
+                        local success, error_msg = pcall(function()
+                            local distance_to_target = util.distance(unit_group.position, squad.command.dest)
+                            local unit_state = unit_group.state
+                            
+                            if unit_state == defines.group_state.finished or 
+                               unit_state == defines.group_state.gathering or
+                               (unit_state == defines.group_state.moving and distance_to_target < 10) then
+                                qrf_complete = true
+                            end
+                            completion_check_success = true
+                        end)
+                        
+                        if not success or not completion_check_success then
+                            -- Failed to check completion, assume unit group is invalid, clean up
+                            if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " failed completion check: " .. (error_msg or "unknown")) end
+                            squad.qrf_active = false
+                            squad.qrf_return_in_progress = false
+                            squad.qrf_original_state = nil
+                            squad.qrf_activation_position = nil
+                        end
+                        
+                        if success and completion_check_success and qrf_complete then
+                            if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " QRF mission complete, starting return to QRF activation position") end
+                            local return_pos = squad.qrf_activation_position
+                            
+                            if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " returning to (" .. return_pos.x .. "," .. return_pos.y .. ")") end
+                            
+                            -- Wrap all unit group operations in protected calls
+                            local command_success = false
+                            if unit_group.valid then
+                                -- Try to issue return command with full error protection
+                                local success, error_msg = pcall(function()
+                                    unit_group.set_command({
+                                        type = defines.command.go_to_location,
+                                        destination = return_pos,
+                                        distraction = defines.distraction.by_anything
+                                    })
+                                    -- Double-check validity before start_moving
+                                    if unit_group.valid then
+                                        unit_group.start_moving()
+                                        command_success = true
+                                    end
+                                end)
+                                
+                                if success and command_success then
+                                    -- Mark as returning
+                                    squad.qrf_return_in_progress = true
+                                    squad.command.tick = game.tick
+                                    squad.command.state_changed_since_last_command = false
+                                    if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " now returning to post") end
+                                else
+                                    -- Command failed, clean up QRF state
+                                    if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " command failed: " .. (error_msg or "unknown")) end
+                                    squad.qrf_active = false
+                                    squad.qrf_return_in_progress = false
+                                    squad.qrf_original_state = nil
+                                    squad.qrf_activation_position = nil
+                                end
+                            else
+                                -- Unit group became invalid, clean up QRF state
+                                if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " unit group became invalid, cleaning up QRF state") end
+                                squad.qrf_active = false
+                                squad.qrf_return_in_progress = false
+                                squad.qrf_original_state = nil
+                                squad.qrf_activation_position = nil
+                            end
+                        end
+                        
+                        -- Handle squads that are returning from QRF
+                        if squad.qrf_return_in_progress then
+                            local return_pos = squad.qrf_activation_position
+                            -- Use protected call to access unit group properties
+                            local position_success = false
+                            local current_pos, unit_group_state
+                            
+                            if unit_group.valid then
+                                local success, error_msg = pcall(function()
+                                    current_pos = unit_group.position
+                                    unit_group_state = unit_group.state
+                                    position_success = true
+                                end)
+                                
+                                if success and position_success and current_pos then
+                                    local distance_to_return = util.distance(current_pos, return_pos)
+                                    
+                                    -- Check if squad has reached return position or is idle/finished
+                                    if distance_to_return < 15 or 
+                                       unit_group_state == defines.group_state.finished or
+                                       unit_group_state == defines.group_state.gathering then
+                                       
+                                        if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " has returned to original position, restoring state") end
+                                        local original = squad.qrf_original_state
+                                        
+                                        -- Restore the original squad behavior
+                                        squad.command.type = original.command_type
+                                        squad.command.pos = return_pos
+                                        squad.command.dest = original.dest
+                                        squad.command.distance = util.distance(return_pos, original.dest)
+                                        squad.command.tick = game.tick
+                                        squad.command.state_changed_since_last_command = true  -- Force AI to give new orders
+                                        
+                                        -- Clear ALL QRF data
+                                        squad.qrf_active = false
+                                        squad.qrf_return_in_progress = false
+                                        squad.qrf_original_state = nil
+                                        squad.qrf_activation_position = nil
+                                        
+                                        if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " QRF complete - returned to normal operations") end
+                                    end
+                                else
+                                    -- Failed to access unit group properties, clean up QRF state
+                                    if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " failed to access unit group during return: " .. (error_msg or "unknown")) end
+                                    squad.qrf_active = false
+                                    squad.qrf_return_in_progress = false
+                                    squad.qrf_original_state = nil
+                                    squad.qrf_activation_position = nil
+                                end
+                            else
+                                -- Unit group became invalid during return, clean up QRF state
+                                if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " unit group became invalid during return, cleaning up QRF state") end
+                                squad.qrf_active = false
+                                squad.qrf_return_in_progress = false
+                                squad.qrf_original_state = nil
+                                squad.qrf_activation_position = nil
+                            end
+                        end
+                    else
+                        -- Unit group is invalid, clean up QRF state immediately
+                        if squad.qrf_active or squad.qrf_return_in_progress then
+                            if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " unit group invalid, cleaning up QRF state") end
+                            squad.qrf_active = false
+                            squad.qrf_return_in_progress = false
+                            squad.qrf_original_state = nil
+                            squad.qrf_activation_position = nil
+                        end
+                    end
                 else
+                    -- Squad is in QRF mode but has no members (picked up), clean up QRF state
+                    if squad and (squad.qrf_active or squad.qrf_return_in_progress) and (not squad.numMembers or squad.numMembers <= 0) then
+                        if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " has no members, cleaning up QRF state") end
+                        squad.qrf_active = false
+                        squad.qrf_return_in_progress = false
+                        squad.qrf_original_state = nil
+                        squad.qrf_activation_position = nil
+                    end
+                end
+                
+                -- Only run normal squad AI if not in any QRF mode
+                if not squad.qrf_active and not squad.qrf_return_in_progress then
                     updateSquad(squad)
                 end
             else
