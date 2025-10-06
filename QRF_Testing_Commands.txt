@@ -1,0 +1,170 @@
+FACTORIO CONSOLE COMMANDS FOR TESTING QRF (Quick Reaction Force)
+================================================================
+
+These commands can be copied and pasted into the Factorio console (~ key) to test the QRF feature.
+
+SIMPLE QRF TESTS (Recommended)
+==============================
+
+1. Quick QRF Test - Place and destroy a chest:
+/c game.player.surface.create_entity{name="wooden-chest", position=game.player.position, force="player"}.die("enemy")
+
+2. QRF Test with notification:
+/c local pos = game.player.position
+local chest = game.player.surface.create_entity{name="wooden-chest", position=pos, force="player"}
+if chest then
+  chest.die("enemy")
+  game.print("Chest destroyed to trigger QRF at " .. pos.x .. "," .. pos.y)
+end
+
+3. Destroy nearest player building:
+/c local pos = game.player.position
+local buildings = game.player.surface.find_entities_filtered{force="player", position=pos, radius=10}
+if buildings[1] then
+  buildings[1].die("enemy")
+  game.print("Building destroyed at " .. buildings[1].position.x .. "," .. buildings[1].position.y .. " to trigger QRF")
+end
+
+ENEMY ATTACK COMMANDS
+====================
+
+4. Make nearby enemies attack your buildings:
+/c local surface = game.player.surface
+local enemies = surface.find_entities_filtered{force="enemy", type="unit", area={{game.player.position.x-100, game.player.position.y-100}, {game.player.position.x+100, game.player.position.y+100}}}
+local buildings = surface.find_entities_filtered{force="player", area={{game.player.position.x-50, game.player.position.y-50}, {game.player.position.x+50, game.player.position.y+50}}}
+for _, enemy in pairs(enemies) do
+  if buildings[1] and enemy.commandable then
+    enemy.commandable.set_command{type=defines.command.attack, target=buildings[1]}
+  end
+end
+
+5. Spawn a single attacking biter:
+/c local surface = game.player.surface
+local pos = game.player.position
+local biter = surface.create_entity{name="medium-biter", position={pos.x-20, pos.y}, force="enemy"}
+if biter and biter.commandable then
+  biter.commandable.set_command{type=defines.command.attack, target=game.player.character}
+end
+
+6. Create unit group attack:
+/c local surface = game.player.surface
+local pos = game.player.position
+local group = surface.create_unit_group{position={pos.x-50, pos.y-50}, force="enemy"}
+for i = 1, 5 do
+  local biter = surface.create_entity{name="medium-biter", position={pos.x-50 + math.random(-5, 5), pos.y-50 + math.random(-5, 5)}, force="enemy"}
+  if biter then group.add_member(biter) end
+end
+group.set_command{type=defines.command.attack_area, destination=pos, radius=10}
+
+7. Spawn multiple biters and make them attack:
+/c local surface = game.player.surface
+local pos = game.player.position
+local enemies = {}
+for i = 1, 5 do
+  local enemy = surface.create_entity{name="small-biter", position={pos.x + math.random(-20, 20), pos.y + math.random(-20, 20)}, force="enemy"}
+  if enemy and enemy.commandable then
+    enemy.commandable.set_command{type=defines.command.attack, target=game.player.character}
+  end
+end
+
+TESTING QRF SETTINGS
+====================
+
+8. Check current QRF distance setting:
+/c game.print("Current QRF distance: " .. (settings.global["robotarmy-qrf-distance"] and settings.global["robotarmy-qrf-distance"].value or "Not set"))
+
+9. Set QRF distance to maximum (500):
+/c settings.global["robotarmy-qrf-distance"] = {value = 500}
+game.print("QRF distance set to 500 tiles")
+
+10. Disable QRF (set distance to 0):
+/c settings.global["robotarmy-qrf-distance"] = {value = 0}
+game.print("QRF disabled (distance = 0)")
+
+UTILITY COMMANDS
+===============
+
+11. Find nearby robot army squads:
+/c local squads = storage.Squads and storage.Squads[game.player.force.name]
+if squads then
+  for id, squad in pairs(squads) do
+    if squad.unitGroup and squad.unitGroup.valid then
+      local pos = squad.unitGroup.position
+      game.print("Squad " .. id .. " at position " .. pos.x .. "," .. pos.y)
+    end
+  end
+else
+  game.print("No robot army squads found")
+end
+
+12. Clear all enemies in area:
+/c local enemies = game.player.surface.find_entities_filtered{force="enemy", area={{game.player.position.x-100, game.player.position.y-100}, {game.player.position.x+100, game.player.position.y+100}}}
+for _, enemy in pairs(enemies) do
+  enemy.destroy()
+end
+game.print("Cleared " .. #enemies .. " enemies")
+
+13. Check QRF status of all squads:
+/c local squads = storage.Squads and storage.Squads[game.player.force.name]
+if squads then
+  for id, squad in pairs(squads) do
+    if squad.unitGroup and squad.unitGroup.valid then
+      local pos = squad.unitGroup.position
+      local qrf_status = "Normal"
+      if squad.qrf_active then qrf_status = "QRF ATTACKING"
+      elseif squad.qrf_return_in_progress then qrf_status = "QRF RETURNING" end
+      local activation_pos = squad.qrf_activation_position and ("(" .. squad.qrf_activation_position.x .. "," .. squad.qrf_activation_position.y .. ")") or "N/A"
+      game.print("Squad " .. id .. " at " .. pos.x .. "," .. pos.y .. " - Status: " .. qrf_status .. " - QRF Start: " .. activation_pos)
+    end
+  end
+else
+  game.print("No robot army squads found")
+end
+
+14. Force QRF return (emergency reset):
+/c local squads = storage.Squads and storage.Squads[game.player.force.name]
+if squads then
+  local count = 0
+  for id, squad in pairs(squads) do
+    if squad.qrf_active or squad.qrf_return_in_progress then
+      squad.qrf_active = false
+      squad.qrf_return_in_progress = false
+      squad.qrf_original_state = nil
+      squad.qrf_activation_position = nil
+      count = count + 1
+    end
+  end
+  game.print("Force-cleared QRF status from " .. count .. " squads")
+else
+  game.print("No squads found")
+end
+
+NOTES
+=====
+- Commands 1-3 are best for testing QRF response directly
+- Commands 4-7 create enemy attacks to test the system naturally  
+- Commands 8-10 help test different QRF distance settings
+- Commands 11-12 are utility commands for debugging
+- Commands 13-14 help monitor and manage QRF squad states
+
+QRF BEHAVIOR
+============
+- QRF squads respond aggressively with full combat capability (distraction by anything)
+- During return journey, squads can defend themselves from attacks (distraction by anything)
+- Squads will complete their QRF mission before returning to original posts
+- Original squad behavior (hunting/guarding) is fully restored after QRF completion
+
+DEBUG MESSAGES
+==============
+- QRF debug messages are disabled by default for clean gameplay
+- To enable detailed QRF debug logging, set QRF_DEBUG_ENABLED = true in config/config.lua
+- Debug messages show QRF activation, mission progress, return journey, and error handling
+- Only [QRF ALERT] messages are shown by default (when squads respond to threats)
+
+API WARNING
+===========
+These commands are written for current Factorio API (2.x).
+If commands don't work, the API may have changed and commands may need updating.
+Key changes from older versions:
+- entity.set_command is now entity.commandable.set_command
+- find_nearest_entity has been replaced with other methods
