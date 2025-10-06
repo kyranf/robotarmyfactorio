@@ -4,6 +4,57 @@ function getQrfDistance()
     return settings.global["robotarmy-qrf-distance"] and settings.global["robotarmy-qrf-distance"].value or QRF_RESPONSE_DISTANCE_DEFAULT or 500
 end
 
+-- QRF: Helper function to determine if an entity should trigger QRF response
+function shouldTriggerQrf(entity)
+    if not entity or not entity.valid then return false end
+    if not entity.type then return false end
+    
+    -- Exclude units (biters, robots, players, etc.) - we only want buildings/structures
+    if entity.type == "unit" or 
+       entity.type == "construction-robot" or 
+       entity.type == "logistic-robot" or 
+       entity.type == "combat-robot" or 
+       entity.type == "character" then
+        return false
+    end
+    
+    -- Exclude temporary/effect entities
+    if entity.type == "projectile" or 
+       entity.type == "explosion" or 
+       entity.type == "smoke" or 
+       entity.type == "sticker" or 
+       entity.type == "particle" then
+        return false
+    end
+    
+    -- Exclude items on ground and corpses
+    if entity.type == "item-entity" or 
+       entity.type == "corpse" or 
+       entity.type == "item-request-proxy" then
+        return false
+    end
+    
+    -- Check vehicle configuration
+    if entity.type == "car" or 
+       entity.type == "tank" or 
+       entity.type == "locomotive" or 
+       entity.type == "cargo-wagon" or 
+       entity.type == "fluid-wagon" or 
+       entity.type == "artillery-wagon" then
+        return QRF_TRIGGER_ON_VEHICLES
+    end
+    
+    -- Check walls/defensive structure configuration
+    if entity.type == "wall" or 
+       entity.type == "gate" or 
+       entity.type == "simple-entity-with-owner" then -- includes decorative walls, etc.
+        return QRF_TRIGGER_ON_WALLS
+    end
+    
+    -- Everything else (buildings, power poles, belts, inserters, etc.) triggers QRF
+    return true
+end
+
 -- QRF: Quick Reaction Force handler
 function handleOnEntityDied(event)
     local qrf_distance = getQrfDistance()
@@ -19,9 +70,11 @@ function handleOnEntityDied(event)
         if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Entity died but not player force: " .. (entity.force and entity.force.name or "no force")) end
         return 
     end
-    if not entity.type or (entity.type ~= "assembling-machine" and entity.type ~= "container" and entity.type ~= "furnace" and entity.type ~= "lab" and entity.type ~= "beacon" and entity.type ~= "roboport" and entity.type ~= "electric-energy-interface" and entity.type ~= "radar" and entity.type ~= "reactor" and entity.type ~= "accumulator" and entity.type ~= "generator" and entity.type ~= "boiler" and entity.type ~= "pump" and entity.type ~= "offshore-pump" and entity.type ~= "storage-tank" and entity.type ~= "lamp" and entity.type ~= "rocket-silo" and entity.type ~= "turret" and entity.type ~= "ammo-turret" and entity.type ~= "fluid-turret" and entity.type ~= "electric-turret" and entity.type ~= "artillery-turret" and entity.type ~= "artillery-wagon" and entity.type ~= "train-stop" and entity.type ~= "rail-signal" and entity.type ~= "rail-chain-signal" and entity.type ~= "rail" and entity.type ~= "straight-rail" and entity.type ~= "curved-rail") then 
-        if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Entity died but not a building type: " .. entity.type) end
-        return 
+    
+    -- Check if this entity should trigger QRF (buildings, structures, vehicles, etc.)
+    if not shouldTriggerQrf(entity) then
+        if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Entity died but not QRF-triggering type: " .. entity.type) end
+        return
     end
     
     if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Building destroyed: " .. entity.type .. " at " .. entity.position.x .. "," .. entity.position.y) end

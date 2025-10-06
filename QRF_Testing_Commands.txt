@@ -139,6 +139,33 @@ else
   game.print("No squads found")
 end
 
+15. Test QRF triggers - Place various entities and destroy them:
+/c local pos = game.player.position
+local surface = game.player.surface
+local entities = {
+  {name="wooden-chest", type="container"},
+  {name="small-electric-pole", type="electric-pole"},
+  {name="transport-belt", type="transport-belt"},
+  {name="inserter", type="inserter"},
+  {name="stone-wall", type="wall"},
+  {name="car", type="vehicle"}
+}
+local y_offset = -3
+for _, ent_data in pairs(entities) do
+  local entity = surface.create_entity{name=ent_data.name, position={pos.x, pos.y + y_offset}, force="player"}
+  if entity then
+    game.print("Created " .. ent_data.type .. ": " .. ent_data.name)
+    entity.die("enemy")
+  end
+  y_offset = y_offset + 1
+end
+
+16. Check QRF trigger configuration:
+/c game.print("QRF Trigger Settings:")
+game.print("- Vehicles: " .. tostring(QRF_TRIGGER_ON_VEHICLES))
+game.print("- Walls: " .. tostring(QRF_TRIGGER_ON_WALLS))
+game.print("- Debug: " .. tostring(QRF_DEBUG_ENABLED))
+
 NOTES
 =====
 - Commands 1-3 are best for testing QRF response directly
@@ -153,6 +180,15 @@ QRF BEHAVIOR
 - During return journey, squads can defend themselves from attacks (distraction by anything)
 - Squads will complete their QRF mission before returning to original posts
 - Original squad behavior (hunting/guarding) is fully restored after QRF completion
+
+QRF TRIGGERS
+============
+- QRF triggers on destruction of most player-owned buildings and structures
+- Includes: factories, power poles, belts, inserters, chests, turrets, etc.
+- Vehicle destruction: configurable via QRF_TRIGGER_ON_VEHICLES (default: true)
+- Wall destruction: configurable via QRF_TRIGGER_ON_WALLS (default: true)
+- Excludes: units, robots, temporary effects, items on ground, corpses
+- Configuration: modify trigger settings in config/config.lua
 
 DEBUG MESSAGES
 ==============
