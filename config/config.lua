@@ -1,3 +1,14 @@
+-- Quick Reaction Force (QRF) settings
+-- Distance in tiles for QRF response. 0 disables the feature.
+-- Note: This is now a runtime setting, so it will be accessed dynamically in the code when needed
+QRF_RESPONSE_DISTANCE_DEFAULT = 500
+QRF_DEBUG_ENABLED = false -- Set to true to enable QRF debug messages
+
+-- QRF Trigger Configuration
+-- Set to true to have QRF respond to vehicle destruction (cars, tanks, trains, etc.)
+QRF_TRIGGER_ON_VEHICLES = true
+-- Set to true to have QRF respond to walls, gates, and defensive structures
+QRF_TRIGGER_ON_WALLS = true
 
 TICK_UPDATE_SQUAD_AI = 60 -- 60 ticks per second, how many ticks between updating squad AI (finding new targets, moving back into position, etc)
 DEFAULT_SQUAD_RADIUS = 2 -- how wide their attack_area radius is. not really used honestly..

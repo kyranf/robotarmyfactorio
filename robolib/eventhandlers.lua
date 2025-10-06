@@ -1,3 +1,136 @@
+-- QRF: Helper function to get current QRF distance setting
+function getQrfDistance()
+    -- Get the runtime setting value, fallback to default if not available
+    return settings.global["robotarmy-qrf-distance"] and settings.global["robotarmy-qrf-distance"].value or QRF_RESPONSE_DISTANCE_DEFAULT or 500
+end
+
+-- QRF: Helper function to determine if an entity should trigger QRF response
+function shouldTriggerQrf(entity)
+    if not entity or not entity.valid then return false end
+    if not entity.type then return false end
+    
+    -- Exclude units (biters, robots, players, etc.) - we only want buildings/structures
+    if entity.type == "unit" or 
+       entity.type == "construction-robot" or 
+       entity.type == "logistic-robot" or 
+       entity.type == "combat-robot" or 
+       entity.type == "character" then
+        return false
+    end
+    
+    -- Exclude temporary/effect entities
+    if entity.type == "projectile" or 
+       entity.type == "explosion" or 
+       entity.type == "smoke" or 
+       entity.type == "sticker" or 
+       entity.type == "particle" then
+        return false
+    end
+    
+    -- Exclude items on ground and corpses
+    if entity.type == "item-entity" or 
+       entity.type == "corpse" or 
+       entity.type == "item-request-proxy" then
+        return false
+    end
+    
+    -- Check vehicle configuration
+    if entity.type == "car" or 
+       entity.type == "tank" or 
+       entity.type == "locomotive" or 
+       entity.type == "cargo-wagon" or 
+       entity.type == "fluid-wagon" or 
+       entity.type == "artillery-wagon" then
+        return QRF_TRIGGER_ON_VEHICLES
+    end
+    
+    -- Check walls/defensive structure configuration
+    if entity.type == "wall" or 
+       entity.type == "gate" or 
+       entity.type == "simple-entity-with-owner" then -- includes decorative walls, etc.
+        return QRF_TRIGGER_ON_WALLS
+    end
+    
+    -- Everything else (buildings, power poles, belts, inserters, etc.) triggers QRF
+    return true
+end
+
+-- QRF: Quick Reaction Force handler
+function handleOnEntityDied(event)
+    local qrf_distance = getQrfDistance()
+    -- Only react if QRF is enabled
+    if qrf_distance == 0 then 
+        if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] QRF disabled (distance = 0)") end
+        return 
+    end
+    local entity = event.entity
+    if not entity or not entity.valid then return end
+    -- Only react to buildings on player force (not enemy, not neutral, not units)
+    if not entity.force or entity.force.name == "enemy" or entity.force.name == "neutral" then 
+        if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Entity died but not player force: " .. (entity.force and entity.force.name or "no force")) end
+        return 
+    end
+    
+    -- Check if this entity should trigger QRF (buildings, structures, vehicles, etc.)
+    if not shouldTriggerQrf(entity) then
+        if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Entity died but not QRF-triggering type: " .. entity.type) end
+        return
+    end
+    
+    if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Building destroyed: " .. entity.type .. " at " .. entity.position.x .. "," .. entity.position.y) end
+    
+    local force_name = entity.force.name
+    local surface = entity.surface
+    local pos = entity.position
+    -- Find all squads for this force
+    local squads = storage.Squads and storage.Squads[force_name]
+    if not squads then 
+        if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] No squads found for force: " .. force_name) end
+        return 
+    end
+    
+    local qrf_activated_count = 0
+    for _, squad in pairs(squads) do
+        if squad and squad.unitGroup and squad.unitGroup.valid and squad.unitGroup.position then
+            local distance = util.distance(squad.unitGroup.position, pos)
+            if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " distance: " .. distance .. " (max: " .. qrf_distance .. ")") end
+            if distance <= qrf_distance then
+                -- Save original squad state for restoration
+                local current_pos = squad.unitGroup.position
+                squad.qrf_original_state = {
+                    command_type = squad.command.type,
+                    dest = {x = squad.command.dest.x, y = squad.command.dest.y},
+                    tick = squad.command.tick,
+                    state_changed = squad.command.state_changed_since_last_command
+                }
+                -- Store the EXACT position where QRF was activated from
+                squad.qrf_activation_position = {x = current_pos.x, y = current_pos.y}
+                -- Issue attack-move to destroyed building position with full combat capability
+                squad.command.type = commands.hunt
+                squad.command.pos = squad.unitGroup.position
+                squad.command.dest = pos
+                squad.command.distance = util.distance(pos, squad.command.pos)
+                squad.unitGroup.set_command({type=defines.command.attack_area,
+                                            destination=pos,
+                                            radius=5, 
+                                            distraction=defines.distraction.by_anything})
+                squad.command.state_changed_since_last_command = false
+                squad.command.tick = game.tick
+                squad.unitGroup.start_moving()
+                squad.qrf_active = true
+                squad.qrf_return_in_progress = false
+                qrf_activated_count = qrf_activated_count + 1
+                if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " activated for QRF response with attack-move command!") end
+            end
+        end
+    end
+    
+    if qrf_activated_count > 0 then
+        game.print("[QRF ALERT] " .. qrf_activated_count .. " squads responding to building destruction!")
+    else
+        if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] No squads within range for QRF response") end
+    end
+end
 require("util")
 require("config.config") -- config for squad control mechanics - important for anyone using
 require("robolib.util") -- some utility functions not necessarily related to robot army mod
@@ -87,7 +220,168 @@ function processSquadUpdatesForTick(force_name, tickProcessIndex)
             if squadref and squadTable[squadref] then
                 -- local squad = storage.Squads[force_name][squadref]
                 -- if not squad.force then squad.force = force
-                updateSquad(squadTable[squadref])
+                local squad = squadTable[squadref]
+                -- QRF: If squad is in QRF mode and has finished attack, return to original state
+                -- Only proceed if squad has members (prevents operations on picked-up squads)
+                if squad and squad.numMembers and squad.numMembers > 0 and squad.qrf_active and squad.qrf_original_state and squad.qrf_activation_position then
+                    local unit_group = squad.unitGroup
+                    if unit_group and unit_group.valid then
+                        -- Check if QRF mission is complete (not attacking and close to target)
+                        local qrf_complete = false
+                        local completion_check_success = false
+                        
+                        -- Use protected call to check mission completion
+                        local success, error_msg = pcall(function()
+                            local distance_to_target = util.distance(unit_group.position, squad.command.dest)
+                            local unit_state = unit_group.state
+                            
+                            if unit_state == defines.group_state.finished or 
+                               unit_state == defines.group_state.gathering or
+                               (unit_state == defines.group_state.moving and distance_to_target < 10) then
+                                qrf_complete = true
+                            end
+                            completion_check_success = true
+                        end)
+                        
+                        if not success or not completion_check_success then
+                            -- Failed to check completion, assume unit group is invalid, clean up
+                            if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " failed completion check: " .. (error_msg or "unknown")) end
+                            squad.qrf_active = false
+                            squad.qrf_return_in_progress = false
+                            squad.qrf_original_state = nil
+                            squad.qrf_activation_position = nil
+                        end
+                        
+                        if success and completion_check_success and qrf_complete then
+                            if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " QRF mission complete, starting return to QRF activation position") end
+                            local return_pos = squad.qrf_activation_position
+                            
+                            if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " returning to (" .. return_pos.x .. "," .. return_pos.y .. ")") end
+                            
+                            -- Wrap all unit group operations in protected calls
+                            local command_success = false
+                            if unit_group.valid then
+                                -- Try to issue return command with full error protection
+                                local success, error_msg = pcall(function()
+                                    unit_group.set_command({
+                                        type = defines.command.go_to_location,
+                                        destination = return_pos,
+                                        distraction = defines.distraction.by_anything
+                                    })
+                                    -- Double-check validity before start_moving
+                                    if unit_group.valid then
+                                        unit_group.start_moving()
+                                        command_success = true
+                                    end
+                                end)
+                                
+                                if success and command_success then
+                                    -- Mark as returning
+                                    squad.qrf_return_in_progress = true
+                                    squad.command.tick = game.tick
+                                    squad.command.state_changed_since_last_command = false
+                                    if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " now returning to post") end
+                                else
+                                    -- Command failed, clean up QRF state
+                                    if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " command failed: " .. (error_msg or "unknown")) end
+                                    squad.qrf_active = false
+                                    squad.qrf_return_in_progress = false
+                                    squad.qrf_original_state = nil
+                                    squad.qrf_activation_position = nil
+                                end
+                            else
+                                -- Unit group became invalid, clean up QRF state
+                                if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " unit group became invalid, cleaning up QRF state") end
+                                squad.qrf_active = false
+                                squad.qrf_return_in_progress = false
+                                squad.qrf_original_state = nil
+                                squad.qrf_activation_position = nil
+                            end
+                        end
+                        
+                        -- Handle squads that are returning from QRF
+                        if squad.qrf_return_in_progress then
+                            local return_pos = squad.qrf_activation_position
+                            -- Use protected call to access unit group properties
+                            local position_success = false
+                            local current_pos, unit_group_state
+                            
+                            if unit_group.valid then
+                                local success, error_msg = pcall(function()
+                                    current_pos = unit_group.position
+                                    unit_group_state = unit_group.state
+                                    position_success = true
+                                end)
+                                
+                                if success and position_success and current_pos then
+                                    local distance_to_return = util.distance(current_pos, return_pos)
+                                    
+                                    -- Check if squad has reached return position or is idle/finished
+                                    if distance_to_return < 15 or 
+                                       unit_group_state == defines.group_state.finished or
+                                       unit_group_state == defines.group_state.gathering then
+                                       
+                                        if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " has returned to original position, restoring state") end
+                                        local original = squad.qrf_original_state
+                                        
+                                        -- Restore the original squad behavior
+                                        squad.command.type = original.command_type
+                                        squad.command.pos = return_pos
+                                        squad.command.dest = original.dest
+                                        squad.command.distance = util.distance(return_pos, original.dest)
+                                        squad.command.tick = game.tick
+                                        squad.command.state_changed_since_last_command = true  -- Force AI to give new orders
+                                        
+                                        -- Clear ALL QRF data
+                                        squad.qrf_active = false
+                                        squad.qrf_return_in_progress = false
+                                        squad.qrf_original_state = nil
+                                        squad.qrf_activation_position = nil
+                                        
+                                        if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " QRF complete - returned to normal operations") end
+                                    end
+                                else
+                                    -- Failed to access unit group properties, clean up QRF state
+                                    if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " failed to access unit group during return: " .. (error_msg or "unknown")) end
+                                    squad.qrf_active = false
+                                    squad.qrf_return_in_progress = false
+                                    squad.qrf_original_state = nil
+                                    squad.qrf_activation_position = nil
+                                end
+                            else
+                                -- Unit group became invalid during return, clean up QRF state
+                                if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " unit group became invalid during return, cleaning up QRF state") end
+                                squad.qrf_active = false
+                                squad.qrf_return_in_progress = false
+                                squad.qrf_original_state = nil
+                                squad.qrf_activation_position = nil
+                            end
+                        end
+                    else
+                        -- Unit group is invalid, clean up QRF state immediately
+                        if squad.qrf_active or squad.qrf_return_in_progress then
+                            if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " unit group invalid, cleaning up QRF state") end
+                            squad.qrf_active = false
+                            squad.qrf_return_in_progress = false
+                            squad.qrf_original_state = nil
+                            squad.qrf_activation_position = nil
+                        end
+                    end
+                else
+                    -- Squad is in QRF mode but has no members (picked up), clean up QRF state
+                    if squad and (squad.qrf_active or squad.qrf_return_in_progress) and (not squad.numMembers or squad.numMembers <= 0) then
+                        if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " has no members, cleaning up QRF state") end
+                        squad.qrf_active = false
+                        squad.qrf_return_in_progress = false
+                        squad.qrf_original_state = nil
+                        squad.qrf_activation_position = nil
+                    end
+                end
+                
+                -- Only run normal squad AI if not in any QRF mode
+                if not squad.qrf_active and not squad.qrf_return_in_progress then
+                    updateSquad(squad)
+                end
             else
                 -- the squad has been deleted at some point, so let's stop looping over it here.
                 LOGGER.log(string.format("Removing nil squad %d from tick table", squadref))
@@ -100,150 +394,150 @@ end
 
 
 function reportSelectedUnits(event, alt)
-	if (event.item == "droid-selection-tool") then
-		local player = game.players[event.player_index]
-		local area = event.area;
+    if (event.item == "droid-selection-tool") then
+        local player = game.players[event.player_index]
+        local area = event.area;
 
-		-- ensure the area is non-zero
-		area.left_top.x = area.left_top.x - 0.1
-		area.left_top.y = area.left_top.y - 0.1
-		area.right_bottom.x = area.right_bottom.x + 0.1
-		area.right_bottom.y = area.right_bottom.y + 0.1
+        -- ensure the area is non-zero
+        area.left_top.x = area.left_top.x - 0.1
+        area.left_top.y = area.left_top.y - 0.1
+        area.right_bottom.x = area.right_bottom.x + 0.1
+        area.right_bottom.y = area.right_bottom.y + 0.1
 
-		local clickPosition = {x = (area.right_bottom.x + area.left_top.x) / 2 , y = (area.right_bottom.y + area.left_top.y)/ 2}
-		--Game.print_all(string.format("point %d,%d, middle of box %d,%d and %d,%d", clickPosition.x, clickPosition.y, area.left_top.x, area.left_top.y, area.right_bottom.x, area.right_bottom.y))
-		if not alt then -- add units to selection table
+        local clickPosition = {x = (area.right_bottom.x + area.left_top.x) / 2 , y = (area.right_bottom.y + area.left_top.y)/ 2}
+        --Game.print_all(string.format("point %d,%d, middle of box %d,%d and %d,%d", clickPosition.x, clickPosition.y, area.left_top.x, area.left_top.y, area.right_bottom.x, area.right_bottom.y))
+        if not alt then -- add units to selection table
 
-			--local select_entities = player.surface.find_entities_filtered{ area = area, type = "unit", force = player.force}
-			--local numberOfSelected = table.countNonNil(select_entities)
+            --local select_entities = player.surface.find_entities_filtered{ area = area, type = "unit", force = player.force}
+            --local numberOfSelected = table.countNonNil(select_entities)
 
-			local squad = getClosestSquadToPos(storage.Squads[player.force.name], clickPosition, SQUAD_CHECK_RANGE) --get nearest squad within SQUAD_CHECK_RANGE amount of tiles radius from click point.
+            local squad = getClosestSquadToPos(storage.Squads[player.force.name], clickPosition, SQUAD_CHECK_RANGE) --get nearest squad within SQUAD_CHECK_RANGE amount of tiles radius from click point.
 
-			if squad then
+            if squad then
 
                 -- if there's a currently selected squad, deselect them!
                 --DESELECT LOGIC
-				if storage.selected_squad and storage.selected_squad[player.index] and storage.selected_squad[player.index] ~= nil then
-					if storage.Squads[player.force.name][storage.selected_squad[player.index]] then  --if the squad still exists, even though we have the ID still in selection
-						Game.print_all(string.format("De-selected Squad ID %d", storage.selected_squad[player.index]) )
-						for _, member in pairs(storage.Squads[player.force.name][storage.selected_squad[player.index]].unitGroup.members) do
-							local unitBox = member.bounding_box
-							unitBox.left_top.x = unitBox.left_top.x - 0.1
-							unitBox.left_top.y = unitBox.left_top.y - 0.1
-							unitBox.right_bottom.x = unitBox.right_bottom.x + 0.1
-							unitBox.right_bottom.y = unitBox.right_bottom.y + 0.1
+                if storage.selected_squad and storage.selected_squad[player.index] and storage.selected_squad[player.index] ~= nil then
+                    if storage.Squads[player.force.name][storage.selected_squad[player.index]] then  --if the squad still exists, even though we have the ID still in selection
+                        Game.print_all(string.format("De-selected Squad ID %d", storage.selected_squad[player.index]) )
+                        for _, member in pairs(storage.Squads[player.force.name][storage.selected_squad[player.index]].unitGroup.members) do
+                            local unitBox = member.bounding_box
+                            unitBox.left_top.x = unitBox.left_top.x - 0.1
+                            unitBox.left_top.y = unitBox.left_top.y - 0.1
+                            unitBox.right_bottom.x = unitBox.right_bottom.x + 0.1
+                            unitBox.right_bottom.y = unitBox.right_bottom.y + 0.1
 
-							for _,e in pairs(member.surface.find_entities_filtered{type = "sticker", area = unitBox}) do
-							  e.destroy()
-							end
-						end
-					end
-				end
-
-
-				Game.print_all(string.format("Squad ID %d selected! Droids in squad: %d", squad.squadID, squad.numMembers) )
-				--Game.print_all(string.format("Tool %s Selected area! Player ID %d, box %d,%d and %d,%d, droids in squad %d ",  event.item , event.player_index, area.left_top.x, area.left_top.y, area.right_bottom.x, area.right_bottom.y, squad.numMembers ) )
+                            for _,e in pairs(member.surface.find_entities_filtered{type = "sticker", area = unitBox}) do
+                              e.destroy()
+                            end
+                        end
+                    end
+                end
 
 
-				--make sure we have the global table..
-				if not storage.selected_squad then storage.selected_squad = {} end
+                Game.print_all(string.format("Squad ID %d selected! Droids in squad: %d", squad.squadID, squad.numMembers) )
+                --Game.print_all(string.format("Tool %s Selected area! Player ID %d, box %d,%d and %d,%d, droids in squad %d ",  event.item , event.player_index, area.left_top.x, area.left_top.y, area.right_bottom.x, area.right_bottom.y, squad.numMembers ) )
 
-				storage.selected_squad[player.index] = {}
-				storage.selected_squad[player.index] = squad.squadID
 
-				for _, member in pairs(storage.Squads[player.force.name][squad.squadID].unitGroup.members) do
+                --make sure we have the global table..
+                if not storage.selected_squad then storage.selected_squad = {} end
 
-					 storage.Squads[player.force.name][squad.squadID].unitGroup.surface.create_entity{name = "selection-sticker", position = member.position , target = member}
+                storage.selected_squad[player.index] = {}
+                storage.selected_squad[player.index] = squad.squadID
 
-				end
+                for _, member in pairs(storage.Squads[player.force.name][squad.squadID].unitGroup.members) do
 
-			else
-				--no squad was nearby the click point!
-				--make sure we have the global table..
-				if not storage.selected_squad then storage.selected_squad = {} end
+                     storage.Squads[player.force.name][squad.squadID].unitGroup.surface.create_entity{name = "selection-sticker", position = member.position , target = member}
 
-				--DESELECT LOGIC
+                end
+
+            else
+                --no squad was nearby the click point!
+                --make sure we have the global table..
+                if not storage.selected_squad then storage.selected_squad = {} end
+
+                --DESELECT LOGIC
                 if storage.selected_squad[player.index] ~= nil then
                     local squadRef = storage.Squads[player.force.name][storage.selected_squad[player.index]]
-					if squadRef and squadRef.unitGroup.valid then  --if the squad still exists, even though we have the ID still in selection
-						player.print(string.format("De-selected Squad ID %d", storage.selected_squad[player.index]) )
-						for _, member in pairs(squadRef.unitGroup.members) do
-							local unitBox = member.bounding_box
-							unitBox.left_top.x = unitBox.left_top.x - 0.1
-							unitBox.left_top.y = unitBox.left_top.y - 0.1
-							unitBox.right_bottom.x = unitBox.right_bottom.x + 0.1
-							unitBox.right_bottom.y = unitBox.right_bottom.y + 0.1
+                    if squadRef and squadRef.unitGroup.valid then  --if the squad still exists, even though we have the ID still in selection
+                        player.print(string.format("De-selected Squad ID %d", storage.selected_squad[player.index]) )
+                        for _, member in pairs(squadRef.unitGroup.members) do
+                            local unitBox = member.bounding_box
+                            unitBox.left_top.x = unitBox.left_top.x - 0.1
+                            unitBox.left_top.y = unitBox.left_top.y - 0.1
+                            unitBox.right_bottom.x = unitBox.right_bottom.x + 0.1
+                            unitBox.right_bottom.y = unitBox.right_bottom.y + 0.1
 
-							for _,e in pairs(member.surface.find_entities_filtered{type = "sticker", area = unitBox}) do
-							  e.destroy()
-							end
-						end
+                            for _,e in pairs(member.surface.find_entities_filtered{type = "sticker", area = unitBox}) do
+                              e.destroy()
+                            end
+                        end
                     end
                     storage.selected_squad[player.index] = nil
-				else
+                else
 
-					storage.selected_squad[player.index] = nil
-				end
+                    storage.selected_squad[player.index] = nil
+                end
 
-			end
+            end
 
 
 
-		else --command selected units to move to position clicked.
-			if storage.selected_squad and storage.selected_squad[event.player_index] then
-			local squad = storage.Squads[player.force.name][(storage.selected_squad[event.player_index])]
-				if (squad and squad.unitGroup and squad.unitGroup.valid) then
-					--Game.print_all(string.format("Tool %s Selected alt-selected-area! Player ID %d, box %d,%d and %d,%d, droids in squad %d ", event.item, event.player_index, area.left_top.x,area.left_top.y, area.right_bottom.x, area.right_bottom.y, squad.numMembers ) )
-					--Game.print_all(string.format("Commanding Squad ID %d ...", storage.selected_squad[event.player_index]))
-					squad.command.type = commands.guard
-					orderSquadToAttack(squad, clickPosition)
-				end
-			end
+        else --command selected units to move to position clicked.
+            if storage.selected_squad and storage.selected_squad[event.player_index] then
+            local squad = storage.Squads[player.force.name][(storage.selected_squad[event.player_index])]
+                if (squad and squad.unitGroup and squad.unitGroup.valid) then
+                    --Game.print_all(string.format("Tool %s Selected alt-selected-area! Player ID %d, box %d,%d and %d,%d, droids in squad %d ", event.item, event.player_index, area.left_top.x,area.left_top.y, area.right_bottom.x, area.right_bottom.y, squad.numMembers ) )
+                    --Game.print_all(string.format("Commanding Squad ID %d ...", storage.selected_squad[event.player_index]))
+                    squad.command.type = commands.guard
+                    orderSquadToAttack(squad, clickPosition)
+                end
+            end
 
-		end
+        end
 
-	else --if it's a pickup tool maybe?
+    else --if it's a pickup tool maybe?
 
-		if (event.item == "droid-pickup-tool") then
+        if (event.item == "droid-pickup-tool") then
 
-			local player = game.players[event.player_index]
-			local area = event.area;
+            local player = game.players[event.player_index]
+            local area = event.area;
 
-			-- ensure the area is non-zero
-			area.left_top.x = area.left_top.x - 0.01
-			area.left_top.y = area.left_top.y - 0.01
-			area.right_bottom.x = area.right_bottom.x + 0.01
-			area.right_bottom.y = area.right_bottom.y + 0.01
+            -- ensure the area is non-zero
+            area.left_top.x = area.left_top.x - 0.01
+            area.left_top.y = area.left_top.y - 0.01
+            area.right_bottom.x = area.right_bottom.x + 0.01
+            area.right_bottom.y = area.right_bottom.y + 0.01
 
-			local unitList = player.surface.find_entities_filtered{	area = area, type = "unit",	force = player.force }
+            local unitList = player.surface.find_entities_filtered{	area = area, type = "unit",	force = player.force }
 
-			--Game.print_all(string.format( "number of units in area selected %d", #unitList) )
+            --Game.print_all(string.format( "number of units in area selected %d", #unitList) )
 
-			for _ , unit in pairs(unitList) do
+            for _ , unit in pairs(unitList) do
 
-				--Game.print_all(string.format( "Trying to pick up unit type %s, unit name %s" , unit.type, unit.name ) )
-				local nameOfUnit = convertToMatchable(unit.name)
-				--if it's one of our droids, kill it!  Note, the spawnable table comes from DroidUnitList.lua in prototypes folder.
-				local removed = false
-				for _, droidname in pairs(spawnable) do
-					local comparableDroidName = convertToMatchable(droidname)
-					--Game.print_all(string.format( "Trying to compare names: unit name  %s, spawnable droid list name %s" , nameOfUnit, comparableDroidName ) )
-					if not removed and (string.find(nameOfUnit, comparableDroidName)) then
-						removed = true
+                --Game.print_all(string.format( "Trying to pick up unit type %s, unit name %s" , unit.type, unit.name ) )
+                local nameOfUnit = convertToMatchable(unit.name)
+                --if it's one of our droids, kill it!  Note, the spawnable table comes from DroidUnitList.lua in prototypes folder.
+                local removed = false
+                for _, droidname in pairs(spawnable) do
+                    local comparableDroidName = convertToMatchable(droidname)
+                    --Game.print_all(string.format( "Trying to compare names: unit name  %s, spawnable droid list name %s" , nameOfUnit, comparableDroidName ) )
+                    if not removed and (string.find(nameOfUnit, comparableDroidName)) then
+                        removed = true
 
-						if player.insert{name = unit.name, count = 1} == 0 then
+                        if player.insert{name = unit.name, count = 1} == 0 then
                             player.print("Not enough inventory space to pick up droid!")
                         else
                             unit.destroy()
                         end
-					end
-				end
+                    end
+                end
 
-			end
+            end
 
-		end
+        end
 
-	end
+    end
 end
 
 
@@ -398,31 +692,31 @@ function processDroidGuardStations(force)
 end
 
 function updateSelectionCircles(force)
-	storage.selection_circles = storage.selection_circles or {}
-	storage.selection_circles[force.name] = storage.selection_circles[force.name] or {}
+    storage.selection_circles = storage.selection_circles or {}
+    storage.selection_circles[force.name] = storage.selection_circles[force.name] or {}
 
-	if not storage.selected_squad or storage.selected_squad[force.name] then return end
+    if not storage.selected_squad or storage.selected_squad[force.name] then return end
 
-	local squad_id = storage.selected_squad[force.name]
-	if (squad_id) then
-		local squad = storage.Squads[force.name][squad_id]
-		for _, unit in pairs(squad.unitGroup.members) do
-			if unit and unit.valid then
-				if not storage.selection_circles[force.name][unit.unit_number] then
-				   -- make it
-				   --unit.surface.create_entity( name = "selection-sticker", position = unit.position , target= unit)
-				end
-			else
-			 --remove the sticker
-				for _,e in pairs(unit.surface.find_entities_filtered{type = "sticker", area = unit.bounding_box}) do
-					e.destroy()
-				end
+    local squad_id = storage.selected_squad[force.name]
+    if (squad_id) then
+        local squad = storage.Squads[force.name][squad_id]
+        for _, unit in pairs(squad.unitGroup.members) do
+            if unit and unit.valid then
+                if not storage.selection_circles[force.name][unit.unit_number] then
+                   -- make it
+                   --unit.surface.create_entity( name = "selection-sticker", position = unit.position , target= unit)
+                end
+            else
+             --remove the sticker
+                for _,e in pairs(unit.surface.find_entities_filtered{type = "sticker", area = unit.bounding_box}) do
+                    e.destroy()
+                end
 
-			end
+            end
 
-		end
+        end
 
-	end
+    end
 
 end
 
