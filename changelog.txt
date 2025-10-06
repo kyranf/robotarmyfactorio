@@ -1,4 +1,24 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.4.27
+Date: 2025.10.06
+  Major Features:
+    - Added Quick Reaction Force (QRF) system - squads automatically respond to building destruction within configurable range
+    - QRF squads attack threat area, then return to their original positions and resume previous behavior
+    - New runtime setting "QRF Response Distance" (0-500 tiles, default 500) - adjustable in-game without restart
+  Settings:
+    - Fixed mod loading error caused by incorrectly placed int-setting in data phase
+    - Moved QRF distance setting to proper settings.lua file with full localization support
+    - Added mod setting descriptions in English locale
+  Stability:
+    - Added comprehensive crash protection for pick-up tool interactions during QRF operations
+    - Implemented protected API calls (pcall) for all unit group operations to prevent invalid commandable errors
+    - Added squad member count validation to prevent operations on empty squads
+    - Enhanced error handling with graceful QRF state cleanup when squads become invalid
+  Quality of Life:
+    - Added detailed QRF debug messages for testing and troubleshooting
+    - Created comprehensive testing command file (QRF_Testing_Commands.txt) with console commands
+    - Improved QRF state management with proper cleanup in all edge cases
+---------------------------------------------------------------------------------------------------
 Version: 2.4.26
 Date: 2025.10.02
   Bugfixes:
