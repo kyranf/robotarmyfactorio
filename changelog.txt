@@ -1,4 +1,19 @@
 ---------------------------------------------------------------------------------------------------
+Version: 2.4.28
+Date: 2026.09.21
+  Bugfixes:
+    - Fixed "LuaCommandable API call when LuaCommandable was invalid" error in the QRF handler
+      when a droid dies and disbands its unit group on the same tick a building is destroyed.
+      Re-checks unit group validity right before commanding it, wraps the command calls in pcall,
+      and cleans up QRF state so the squad falls back to normal AI instead of crashing the event.
+  Changes:
+    - Added mod settings to toggle the QRF destruction alert message and the squad destroyed
+      messages on/off in the mod settings menu (both default to on, so behaviour is unchanged
+      until you change them)
+    - Added "QRF Strict Squad Size" mod setting (off by default) - when enabled, QRF only responds
+      to building destruction with squads that have reached the hunting squad size, instead of
+      sending tiny squads of 1-2 leftover droids
+---------------------------------------------------------------------------------------------------
 Version: 2.4.27
 Date: 2025.10.06
   Major Features:

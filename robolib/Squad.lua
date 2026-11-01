@@ -88,6 +88,9 @@ end
 
 function deleteSquad(squad, suppress_msg)
     local print_msg = not suppress_msg and PRINT_SQUAD_DEATH_MESSAGES
+    -- squad death messages can be turned off in the mod settings menu
+    local death_msg_setting = settings.global["robotarmy-squad-death-messages"]
+    if death_msg_setting and not death_msg_setting.value then print_msg = false end
 
     -- remove all members!
     if squad.members then

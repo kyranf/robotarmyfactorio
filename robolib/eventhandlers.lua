@@ -90,43 +90,83 @@ function handleOnEntityDied(event)
     end
     
     local qrf_activated_count = 0
+    -- QRF: optional setting to only respond with squads that have reached the minimum squad size,
+    -- otherwise even a squad of 1 leftover droid will respond to building destruction
+    local size_setting = settings.global["robotarmy-qrf-respect-squad-size"]
+    local respect_squad_size = size_setting and size_setting.value or false
     for _, squad in pairs(squads) do
         if squad and squad.unitGroup and squad.unitGroup.valid and squad.unitGroup.position then
             local distance = util.distance(squad.unitGroup.position, pos)
             if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " distance: " .. distance .. " (max: " .. qrf_distance .. ")") end
-            if distance <= qrf_distance then
-                -- Save original squad state for restoration
-                local current_pos = squad.unitGroup.position
-                squad.qrf_original_state = {
-                    command_type = squad.command.type,
-                    dest = {x = squad.command.dest.x, y = squad.command.dest.y},
-                    tick = squad.command.tick,
-                    state_changed = squad.command.state_changed_since_last_command
-                }
-                -- Store the EXACT position where QRF was activated from
-                squad.qrf_activation_position = {x = current_pos.x, y = current_pos.y}
-                -- Issue attack-move to destroyed building position with full combat capability
-                squad.command.type = commands.hunt
-                squad.command.pos = squad.unitGroup.position
-                squad.command.dest = pos
-                squad.command.distance = util.distance(pos, squad.command.pos)
-                squad.unitGroup.set_command({type=defines.command.attack_area,
-                                            destination=pos,
-                                            radius=5, 
-                                            distraction=defines.distraction.by_anything})
-                squad.command.state_changed_since_last_command = false
-                squad.command.tick = game.tick
-                squad.unitGroup.start_moving()
-                squad.qrf_active = true
-                squad.qrf_return_in_progress = false
-                qrf_activated_count = qrf_activated_count + 1
-                if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " activated for QRF response with attack-move command!") end
+            local squad_size_ok = not respect_squad_size or (squad.numMembers or 0) >= getSquadHuntSize(squad.force)
+            if distance <= qrf_distance and squad_size_ok then
+                -- make sure the squad has a command table with a dest we can save and restore later
+                if not squad.command or not squad.command.dest then
+                    if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " has no command state, skipping QRF activation") end
+                else
+                    -- Save original squad state for restoration
+                    local current_pos = squad.unitGroup.position
+                    squad.qrf_original_state = {
+                        command_type = squad.command.type,
+                        dest = {x = squad.command.dest.x, y = squad.command.dest.y},
+                        tick = squad.command.tick,
+                        state_changed = squad.command.state_changed_since_last_command
+                    }
+                    -- Store the EXACT position where QRF was activated from
+                    squad.qrf_activation_position = {x = current_pos.x, y = current_pos.y}
+                    -- Issue attack-move to destroyed building position with full combat capability
+                    squad.command.type = commands.hunt
+                    squad.command.pos = squad.unitGroup.position
+                    squad.command.dest = pos
+                    squad.command.distance = util.distance(pos, squad.command.pos)
+                    -- re-check validity right before commanding, the dying entity this tick may have
+                    -- disbanded the unit group since we checked it at the top of the loop
+                    if squad.unitGroup.valid then
+                        -- protect the command calls, the unit group can go invalid mid-call when
+                        -- the last member dies (invalid commandable bug, see changelog 2.4.22)
+                        local success, error_msg = pcall(function()
+                            squad.unitGroup.set_command({type=defines.command.attack_area,
+                                                        destination=pos,
+                                                        radius=5, 
+                                                        distraction=defines.distraction.by_anything})
+                            if squad.unitGroup.valid then
+                                squad.unitGroup.start_moving()
+                            end
+                        end)
+                        if success then
+                            squad.command.state_changed_since_last_command = false
+                            squad.command.tick = game.tick
+                            squad.qrf_active = true
+                            squad.qrf_return_in_progress = false
+                            qrf_activated_count = qrf_activated_count + 1
+                            if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " activated for QRF response with attack-move command!") end
+                        else
+                            -- command failed, unit group went invalid, clean up QRF state and let normal AI handle the squad
+                            if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " QRF command failed: " .. (error_msg or "unknown")) end
+                            squad.qrf_active = false
+                            squad.qrf_return_in_progress = false
+                            squad.qrf_original_state = nil
+                            squad.qrf_activation_position = nil
+                        end
+                    else
+                        -- unit group became invalid since we measured the distance, clean up and move on
+                        if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] Squad " .. squad.squadID .. " unit group invalid at command time, cleaning up QRF state") end
+                        squad.qrf_active = false
+                        squad.qrf_return_in_progress = false
+                        squad.qrf_original_state = nil
+                        squad.qrf_activation_position = nil
+                    end
+                end
             end
         end
     end
     
     if qrf_activated_count > 0 then
-        game.print("[QRF ALERT] " .. qrf_activated_count .. " squads responding to building destruction!")
+        -- QRF alert message can be turned off in the mod settings menu
+        local alert_setting = settings.global["robotarmy-qrf-alert-enabled"]
+        if alert_setting == nil or alert_setting.value then
+            game.print("[QRF ALERT] " .. qrf_activated_count .. " squads responding to building destruction!")
+        end
     else
         if QRF_DEBUG_ENABLED then game.print("[QRF DEBUG] No squads within range for QRF response") end
     end
