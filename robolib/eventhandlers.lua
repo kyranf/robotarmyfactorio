@@ -647,7 +647,7 @@ function processDroidAssemblers(force)
                 local player = assembler.last_user
                 local inv = assembler.get_output_inventory() --gets us a LuaInventory
                 -- checks list of spawnable droid names, returns nil if none found. otherwise we get a spawnable entity name
-                local spawnableDroidName = containsSpawnableDroid(inv)
+                local spawnableDroidName, spawnableDroidItemName, spawnableDroidQuality = containsSpawnableDroid(inv)
                 if (spawnableDroidName ~= nil and type(spawnableDroidName) == "string") then
                     -- uses assmbler pos, direction, and spawns droid at an offset +- random amount. Does a final "find_non_colliding_position" before returning
 
@@ -664,6 +664,7 @@ function processDroidAssemblers(force)
                                  raise_built=true })
 
                             if returnedEntity then
+                                inv.remove({name = spawnableDroidItemName, count = 1, quality = spawnableDroidQuality})
                                  --add to the global units list. make it if it's not actually there yet.
                                 if not storage.units then storage.units = {} end
 
@@ -679,7 +680,6 @@ function processDroidAssemblers(force)
                                 end
 
                             end
-                            inv.clear() --clear output slot
                         end
                     else
                         --Game.print_force(force, "Cannot spawn droid, too many droids or obstructions around droid assembler!")
@@ -699,7 +699,7 @@ function processDroidGuardStations(force)
             if station and station.valid and station.force == force then
                 local inv = station.get_output_inventory() --gets us a luainventory
                 local player = station.last_user
-                local spawnableDroidName = containsSpawnableDroid(inv)
+                local spawnableDroidName, spawnableDroidItemName, spawnableDroidQuality = containsSpawnableDroid(inv)
                 local nearby = countNearbyDroids(station.position, station.force, 30) --inputs are position, force, and radius
                 --if we have a spawnable droid ready, and there is not too many droids nearby, lets spawn one!
                 if (spawnableDroidName ~= nil and type(spawnableDroidName) == "string") and nearby < getSquadGuardSize(station.force) then
@@ -709,6 +709,7 @@ function processDroidGuardStations(force)
                                                                             position = droidPos, direction = defines.direction.east,
                                                                             force = station.force, raise_built=true })
                         if returnedEntity then
+                            inv.remove({name = spawnableDroidItemName, count = 1, quality = spawnableDroidQuality})
                             --add to the global units list. make it if it's not actually there yet.
                             if not storage.units then storage.units = {} end
 
@@ -723,7 +724,6 @@ function processDroidGuardStations(force)
                                 script.raise_event(unit_spawned_event, {entity = returnedEntity, spawner = station})
                             end
                         end
-                        inv.clear() --clear output slot
                     end
                 end
             end

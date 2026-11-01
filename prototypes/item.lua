@@ -263,12 +263,12 @@ local a =
     stackable = false,
 	select={ 
 		border_color = { r = 0, g = 1, b = 0 },
-		mode = {"same-force"},
+		mode = {"any-entity", "same-force"},
 		cursor_box_type = "not-allowed",
 	},
 	alt_select={
 		border_color = { r = 0, g = 1, b = 0 },
-		mode = {"same-force"},
+		mode = {"any-entity", "same-force"},
 		cursor_box_type = "not-allowed"
 	},
   },
@@ -285,12 +285,14 @@ local a =
     stackable = false,
 	select={    
 		border_color = { r = 1, g = 0, b = 0 },
-		mode = {"blueprint"},
+		mode = {"any-entity", "same-force"},
+		entity_type_filters = {"unit"},
 		cursor_box_type = "not-allowed",
 	},
 	alt_select={
 		border_color = { r = 1, g = 0, b = 0 },
-		mode = {"blueprint"},
+		mode = {"any-entity", "same-force"},
+		entity_type_filters = {"unit"},
 		cursor_box_type = "not-allowed"
 	},
 

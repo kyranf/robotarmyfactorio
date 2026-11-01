@@ -5,7 +5,7 @@ local a = {
     type = "recipe",
     name = "droid-smg",
     enabled = false,
-    category = "advanced-crafting",
+    categories = {"advanced-crafting"},
     energy_required = 10,
     ingredients =
     {
@@ -20,7 +20,7 @@ local a = {
     type = "recipe",
     name = "droid-rifle",
     enabled = false,
-    category = "advanced-crafting",
+    categories = {"advanced-crafting"},
     energy_required = 5,
     ingredients =
     {
@@ -34,7 +34,7 @@ local a = {
     type = "recipe",
     name = "droid-rocket",
     enabled = false,
-    category = "advanced-crafting",
+    categories = {"advanced-crafting"},
     energy_required = 10,
     ingredients =
     {
@@ -49,7 +49,7 @@ local a = {
     type = "recipe",
     name = "terminator",
     enabled = false,
-    category = "advanced-crafting",
+    categories = {"advanced-crafting"},
     energy_required = 10,
     ingredients =
     {
@@ -65,7 +65,7 @@ local a = {
     name = "terminator-deploy",
     hide_from_player_crafting = true,
     enabled = false,
-    category = "droids",
+    categories = {"droids"},
     energy_required = 10,
     ingredients =
     {
@@ -104,7 +104,7 @@ local a = {
     name = "droid-smg-deploy",
     hide_from_player_crafting = true,
     enabled = false,
-    category = "droids",
+    categories = {"droids"},
     energy_required = 6,
     ingredients =
     {
@@ -117,7 +117,7 @@ local a = {
     name = "droid-rocket-deploy",
     hide_from_player_crafting = true,
     enabled = false,
-    category = "droids",
+    categories = {"droids"},
     energy_required = 6,
     ingredients =
     {
@@ -130,7 +130,7 @@ local a = {
     name = "droid-rifle-deploy",
     hide_from_player_crafting = true,
     enabled = false,
-    category = "droids",
+    categories = {"droids"},
     energy_required = 3,
     ingredients =
     {
@@ -178,7 +178,7 @@ local a = {
     type = "recipe",
     name = "droid-flame",
     enabled = false,
-    category = "advanced-crafting",
+    categories = {"advanced-crafting"},
     energy_required = 10,
     ingredients =
     {
@@ -194,7 +194,7 @@ local a = {
     name = "droid-flame-deploy",
     hide_from_player_crafting = true,
     enabled = false,
-    category = "droids",
+    categories = {"droids"},
     energy_required = 8,
     ingredients =
     {
@@ -207,7 +207,7 @@ local a = {
     type = "recipe",
     name = "defender-unit",
     enabled = false,
-    category = "advanced-crafting",
+    categories = {"advanced-crafting"},
     energy_required = 5,
     ingredients =
     {
@@ -222,7 +222,7 @@ local a = {
     name = "defender-unit-deploy",
     hide_from_player_crafting = true,
     enabled = false,
-    category = "droids",
+    categories = {"droids"},
     energy_required = 3,
     ingredients =
     {
@@ -234,7 +234,7 @@ local a = {
     type = "recipe",
     name = "distractor-unit",
     enabled = false,
-    category = "advanced-crafting",
+    categories = {"advanced-crafting"},
     energy_required = 5,
     ingredients =
     {
@@ -250,7 +250,7 @@ local a = {
     hide_from_player_crafting = true,
     energy_required = 3,
     enabled = false,
-    category = "droids",
+    categories = {"droids"},
     ingredients =
     {
       {type="item", name="distractor-unit", amount=1}
@@ -261,7 +261,7 @@ local a = {
     type = "recipe",
     name = "destroyer-unit",
     enabled = false,
-    category = "advanced-crafting",
+    categories = {"advanced-crafting"},
     energy_required = 8,
     ingredients =
     {
@@ -277,7 +277,7 @@ local a = {
     hide_from_player_crafting = true,
     energy_required = 8,
     enabled = false,
-    category = "droids",
+    categories = {"droids"},
     ingredients =
     {
       {type="item", name="destroyer-unit", amount=1}

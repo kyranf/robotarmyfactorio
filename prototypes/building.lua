@@ -3,6 +3,8 @@ local BUILPATH = "__robotarmy__/graphics/entity/buildings/"
 
 require("config.config")
 
+local assembler2pipepictures = require("__base__/prototypes/entity/assembler-pictures").assembler2pipepictures
+
 local droidAssembler = {
   type = "assembling-machine",
   name = "droid-assembling-machine",
@@ -30,7 +32,7 @@ local droidAssembler = {
     {
       volume=100,
       production_type = "input",
-      pipe_picture = assembler2pipepictures(),
+      pipe_picture = assembler2pipepictures,
       pipe_covers = pipecoverspictures(),
       base_area = 10,
       base_level = -1,
@@ -43,7 +45,7 @@ local droidAssembler = {
     {
       volume=100,
       production_type = "output",
-      pipe_picture = assembler2pipepictures(),
+      pipe_picture = assembler2pipepictures,
       pipe_covers = pipecoverspictures(),
       base_area = 10,
       base_level = 1,

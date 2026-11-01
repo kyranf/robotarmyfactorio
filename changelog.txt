@@ -1,11 +1,13 @@
 ---------------------------------------------------------------------------------------------------
 Version: 2.4.28
-Date: 2026.09.21
+Date: 2026.10.31
   Bugfixes:
     - Fixed "LuaCommandable API call when LuaCommandable was invalid" error in the QRF handler
       when a droid dies and disbands its unit group on the same tick a building is destroyed.
       Re-checks unit group validity right before commanding it, wraps the command calls in pcall,
       and cleans up QRF state so the squad falls back to normal AI instead of crashing the event.
+    - Updated recipe categories and selection-tool filters for Factorio 2.1 compatibility.
+    - Droid deployment now consumes only the deployed item and preserves other output inventory items.
   Changes:
     - Added mod settings to toggle the QRF destruction alert message and the squad destroyed
       messages on/off in the mod settings menu (both default to on, so behaviour is unchanged

@@ -552,23 +552,15 @@ function containsSpawnableDroid(inv)
     local itemList = inv.get_contents()
 
     if itemList then
-        for _, i in pairs(itemList) do
-			local item = i.name
-			local count = i.count
-            --LOGGER.log(string.format("item inv list %s , %s", item, count))
+        for _, itemEntry in pairs(itemList) do
+			local item = itemEntry.name
             local itemName = convertToMatchable(item)
-            --LOGGER.log(item)
 
-            for i, j in pairs(spawnable) do
-                --LOGGER.log(string.format("spawnable list %s , %s", i, j))
-                local spawnable = convertToMatchable(j)
-                --LOGGER.log(spawnable)
-                if (string.find(itemName, spawnable)) then --example, in "droid-smg-dummy" find "droid-smg", but the names have been adjusted to replace '-' with '0' to allow string.find to work. turns out hyphens are an escape charater, THANKS LUA!!
-                    --convert to spawnable entity name
-                    local realName = convertToEntityNames(spawnable)
-                    return realName -- should return the name of the item as a string which is then spawnable. eg "droid-smg"
+            for _, spawnableName in pairs(spawnable) do
+                local matchableSpawnable = convertToMatchable(spawnableName)
+                if string.find(itemName, matchableSpawnable, 1, true) then
+                    return spawnableName, item, itemEntry.quality
                 end
-                -- if the entry 'j' is found in the item name for example droid-smg is found in droid-smg-dummy
             end
         end
     else
